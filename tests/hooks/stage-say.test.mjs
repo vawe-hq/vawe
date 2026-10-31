@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { writeApproval } from '../../harness/lib/approval.mjs';
-import { SAY, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
+import { FILM_PAGE, SAY, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
 
 const IDEAS = '## Ideas\n\n| at | meaning | i1 | i2 | i3 | i4 | chosen | why |\n|---|---|---|---|---|---|---|---|\n| s1 | m | a: x, 0.1 | b: y, 0.2 | c: z, 0.3 | d: w, 0.4 | 1 | because |\n\n';
 
@@ -209,4 +209,11 @@ test('a brief length that differs from the page duration is named before the ide
   assert.equal(s.stage, 'board');
   assert.match(s.why, /brief says 22\.8 s and the page is 8\.15 s/);
   assert.match(s.next, /bin\/vawe storyboard films\/f\/page\.html/);
+});
+
+test('a test page under a film folder is not a film', () => {
+  assert.ok(FILM_PAGE.test('films/riso-brand/page.html'));
+  assert.ok(FILM_PAGE.test('films/examples/colour-sting/page.html'));
+  assert.ok(!FILM_PAGE.test('films/riso-brand/variations/bleed/page.html'));
+  assert.ok(!FILM_PAGE.test('films/riso-brand/kit/page.html'));
 });

@@ -20,10 +20,13 @@ const RECENT_MS = 3 * 60 * 60 * 1000;
 const mtime = (p) => { try { return fs.statSync(p).mtimeMs; } catch { return 0; } };
 
 // A checkout rewrites mtimes, so only a page git sees as changed or new counts as being worked on.
+// A test page in a film's own folder (films/<name>/variations/<id>/page.html) is not a film.
+export const FILM_PAGE = /^films\/(examples\/)?[^/]+\/page\.html$/;
+
 function pages(root) {
   const r = spawnSync('git', ['status', '--porcelain', '--untracked-files=all', '--', 'films'], { cwd: root, encoding: 'utf8' });
   return (r.stdout || '').split('\n').map((l) => l.slice(3).trim())
-    .filter((p) => p.endsWith('/page.html')).map((p) => path.join(root, p));
+    .filter((p) => FILM_PAGE.test(p)).map((p) => path.join(root, p));
 }
 
 const hasWorlds = (page) => { try { return /\bdata-world=/.test(fs.readFileSync(page, 'utf8')); } catch { return false; } };
