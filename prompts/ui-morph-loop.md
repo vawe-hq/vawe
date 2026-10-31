@@ -28,7 +28,7 @@ Dribbble-level UI motion. One shape, never cut: every state is the same element 
 radius and colour while its content swaps with a short blur. A cursor drives every change with real
 clicks and drags. Light warm-grey field, black and white components, one clean UI sans (Archivo for
 vawe). Springs everywhere, a tiny overshoot at most. The camera zooms so each state fills the frame.
-The last frame is the first frame, cursor position and velocity included.
+The page at t=duration equals the page at t=0, cursor position and velocity included.
 Banned: bouncy easing, particle bursts, glows, gradients on UI chrome, mismatched icon strokes, dead
 time, anything that looks like a template.
 </direction>
@@ -58,8 +58,9 @@ beat, what the cursor does, what the sound is. Show me that grid before code.
 
 <gotchas>
 Never put will-change on anything the camera scales or the text renders blurry. Text that swaps
-inside a morphing container needs its own enter and exit timing or it overlaps. Make the last frame
-identical to the first or the loop stutters.
+inside a morphing container needs its own enter and exit timing or it overlaps. Make the page at
+t=duration equal the page at t=0 or the loop stutters. The last rendered frame sits one frame step before
+that, so it must not equal the first: that is a doubled frame.
 </gotchas>
 
 <start>
@@ -82,7 +83,7 @@ Ask in this order; the first changes the film most. A skipped question takes its
 - The renderer applies motion blur from subframes on its own; do not fake it with CSS blur.
 - A morph between two states with different content is two problems: a shape tween and a content
   swap. Give the swap its own 120 ms and blur it; the shape carries the eye.
-- Loop test: render t=0 and t=duration and diff the two PNGs. They must be identical.
+- Loop test: `bin/vawe critique` reports the loop seam. A last frame equal to the first is a doubled frame and stalls the loop one frame.
 - The camera zoom is a transform on one wrapper. Zoom the wrapper, never the element, or its springs
   fight the camera.
 

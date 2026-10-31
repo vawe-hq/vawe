@@ -12,7 +12,7 @@ keywords: "batch render videos from template, automate social media video genera
 
 You want one video per row of data: one clip per user, product or post. This post shows how to batch render videos from one HTML template with a short Node script. We ran it for three rows and give the real times and sizes.
 
-vawe has no template feature. It has no `--data` flag, no `--var` flag and no query string for a page. A film is one `page.html` file, and `bin/vawe dev` renders that file. So the pattern is yours: write one page file per row, then render each file.
+vawe has no template feature and no `--data` flag. A film is one `page.html` file, and `bin/vawe dev` renders that file. For a few small values, `--param key=value` passes them to the page (see below). For a whole row, the pattern is yours: write one page file per row, then render each file.
 
 ## The pattern
 
@@ -92,6 +92,16 @@ The three rows took 16.8 seconds together. The loop is serial: one render at a t
 
 A draft is half size. For a full-size file, call `bin/vawe ship` instead of `bin/vawe dev`. That command needs an approved draft first. See the [CLI docs](/docs/cli).
 
+## Pass a value with --param
+
+A page can read one value from the command line. Repeat `--param key=value` for each one, and read them in the page:
+
+```js
+const title = new URLSearchParams(location.search).get('title');
+```
+
+The value is part of the render key, and the default output name gets it, so renders of two values do not overwrite each other. Use it for a look or a short label. Use the JSON block for a long row.
+
 ## Render more than one clip at a time
 
 vawe limits renders for the whole machine. The default is 2 render slots, and `VAWE_RENDER_SLOTS` changes it (`harness/lib/render-slots.mjs`). A third render waits and prints one line that names the render that holds a slot. Start two loops on halves of your rows to use both slots. More slots than your memory allows will slow every render.
@@ -105,10 +115,10 @@ We did not run a parallel batch, so we give no speed-up number.
 ## FAQ
 
 **Does vawe have a template or data feature?**
-No. A film is one HTML file, and the command has no flag to fill it with data. Use the JSON block pattern above, or any template tool that writes an HTML file.
+No data file feature. A film is one HTML file. `--param key=value` passes small values, and the JSON block pattern above fills a whole row. Any template tool that writes an HTML file also works.
 
 **Can I pass data in a URL query string?**
-We did not test it. The `bin/vawe` verbs take a file path, so the JSON block in the file is the path we ran.
+Yes, with `--param key=value` on `dev`, `ship`, `still` and `sheet`. The page reads it with `new URLSearchParams(location.search)`. We ran `bin/vawe still` with `--param title=Ada` and the page showed "Ada". The batch loop above uses the JSON block, not `--param`.
 
 **Can I use Puppeteer instead of `bin/vawe`?**
 Yes, if you drive the page clock yourself. [Render HTML to MP4 with headless Chrome](/blog/render-html-to-mp4) shows a 20-line script.

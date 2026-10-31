@@ -1,6 +1,6 @@
 ---
 title: "CLI design for AI agents: one binary, one verb per step"
-description: "CLI design for AI agents: one binary with 44 verbs, one-line usage errors, a result line that survives a pipe and a hook that names the next step."
+description: "CLI design for AI agents: one binary with 29 verbs, one-line usage errors, a result line that survives a pipe and a hook that names the next step."
 date: 2026-10-10
 updated: 2026-10-16
 section: agents
@@ -36,7 +36,7 @@ Documentation did not close the gap. AGENTS.md got a Shell section, and later tr
 
 `bin/vawe` arrived on 2026-09-30 with nine verbs: `new`, `dev`, `ship`, `critique`, `spec`, `studio`, `check`, `test` and `judge`. Six minutes later we cut the Makefile from 156 lines to 19 aliases and deleted the routers and dead scripts: 70 files, 2,481 lines. Old paths now forward to the CLI, so they cannot drift from it.
 
-The verb is the step. `vawe dev` is the draft render, `vawe frames` the key-frame sheet and `vawe ship` the final. The stage table in AGENTS.md names one verb per stage, so the agent never translates a stage into a command. The first nine verbs were a guess. Most of the rest came from trace reviews. Each time an agent hand-rolled a command, we checked for a verb and added one if it was missing. Today there are 44 verbs (`bin/vawe --help` lists them). Their code and flags are in `harness/cli/verbs.mjs`.
+The verb is the step. `vawe dev` is the draft render, `vawe frames` the key-frame sheet and `vawe ship` the final. The stage table in AGENTS.md names one verb per stage, so the agent never translates a stage into a command. The first nine verbs were a guess. Most of the rest came from trace reviews. Each time an agent hand-rolled a command, we checked for a verb and added one if it was missing. Today there are 29 verbs (`bin/vawe --help --all` lists them). Their code and flags are in `harness/cli/verbs.mjs`.
 
 One agent found the beat of a music file with a Python and NumPy script. The reason: `vawe see` answered "no readable video stream" for an audio file. We added `vawe sound`, and in the next review one film called it 21 times. AGENTS.md also says: if a verb is missing what you need, say so in the report and do not hand-roll it. That turns each gap into a visible bug report.
 
