@@ -5,6 +5,7 @@ date: 2026-10-19
 updated: 2026-10-19
 section: how-to
 topic: how-to
+docs: aspect-ratios, vertical-social, platforms
 tags: "aspect ratio, responsive video, css, vertical video, html to video"
 keywords: "responsive video layout html, html video 9:16, vertical video from html, video aspect ratio css, 16:9 to 9:16"
 ---

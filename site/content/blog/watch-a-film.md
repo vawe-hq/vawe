@@ -5,6 +5,7 @@ date: 2026-10-11
 updated: 2026-10-16
 section: agents
 topic: watching
+docs: references, critique
 tags: "ai video analysis, agents, reference video, video comparison, measurement"
 keywords: "can ai agents watch videos, ai video analysis tool, compare two videos, extract frames from video, test video analysis accuracy"
 hero: /blog/watch-a-film/hero.webp

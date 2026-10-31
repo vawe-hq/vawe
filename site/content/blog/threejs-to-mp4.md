@@ -5,6 +5,7 @@ date: 2026-10-19
 updated: 2026-10-19
 section: how-to
 topic: how-to
+docs: three-and-canvas, time-and-seek
 tags: "three.js, threejs to mp4, webgl, headless chrome, vawe"
 keywords: "three js to mp4, render three js animation to video, threejs record video frame by frame, webgl headless chrome render, three js animation to video"
 ---

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { Marked, type Tokens } from "marked";
 import { smart, smartHtml } from "./typo.mjs";
-import { SECTIONS, TOPICS, parseFrontMatter } from "./blog-front-matter.mjs";
+import { SECTIONS, TOPICS, docsLinks, parseFrontMatter } from "./blog-front-matter.mjs";
 import added from "./blog-added.json";
 import { SITE_URL } from "./site";
 
@@ -34,6 +34,7 @@ export type Post = {
   sectionLabel: string;
   tags: string[];
   keywords: string[];
+  docs: { slug: string; title: string }[];
   hero?: { src: string; alt: string; width?: number; height?: number };
   heroInBody: boolean;
   cover?: Cover;
@@ -209,6 +210,7 @@ function loadPost(file: string): Post {
     sectionLabel: section.label,
     tags: list(data.tags),
     keywords: list(data.keywords),
+    docs: docsLinks(file, data),
     hero,
     html,
     body,

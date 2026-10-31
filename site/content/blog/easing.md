@@ -5,6 +5,7 @@ date: 2026-10-07
 updated: 2026-10-19
 section: motion-sound
 topic: motion
+docs: motion, recipes
 tags: "easing, css, motion, cubic-bezier, after effects"
 keywords: "easing rules, css easing functions, motion design easing, ease out vs ease in, cubic-bezier easing, css linear() easing, after effects easing in css"
 hero: /blog/easing/hero.webp

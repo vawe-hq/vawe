@@ -5,6 +5,7 @@ date: 2026-10-11
 updated: 2026-10-16
 section: motion-sound
 topic: motion
+docs: lens-and-effects, backgrounds-and-images
 tags: "depth of field, bloom, webgl, html to video, lens"
 keywords: "depth of field in the browser, css depth of field, webgl depth of field, bloom effect css, halation shader"
 hero: /blog/real-lens/hero.webp

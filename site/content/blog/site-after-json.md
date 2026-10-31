@@ -5,6 +5,7 @@ date: 2026-10-11
 updated: 2026-10-16
 section: motion-sound
 topic: site
+docs: templates, product-ui
 tags: "css animation library, motion design system, design tokens, video components library, open source"
 keywords: "css animation library, copy paste css animations, motion design system, design tokens for video, easing functions"
 hero: /blog/site-after-json/pipeline.webp

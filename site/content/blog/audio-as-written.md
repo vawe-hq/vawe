@@ -5,6 +5,7 @@ date: 2026-10-10
 updated: 2026-10-16
 section: motion-sound
 topic: audio
+docs: loudness-and-the-mix, audio
 tags: "lufs, video loudness, audio mixing, true peak, background music"
 keywords: "lufs for video, video loudness target, measure loudness ffmpeg, true peak limiter, background music for generated video"
 hero: /blog/audio-as-written/hero.webp

@@ -5,6 +5,7 @@ date: 2026-10-11
 updated: 2026-10-16
 section: agents
 topic: watching
+docs: critique, quality-gates
 tags: "llm as a judge, evaluation, ai agents, motion graphics, rubric"
 keywords: "llm as a judge, llm judge rubric, llm judge reference comparison, llm judge ledger, evaluate generated video"
 hero: /blog/judge-design/hero.webp

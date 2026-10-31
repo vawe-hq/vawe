@@ -5,6 +5,7 @@ date: 2026-10-19
 updated: 2026-10-19
 section: how-to
 topic: how-to
+docs: time-and-seek, page-api, video-from-code
 tags: "gsap, gsap to mp4, timeline, puppeteer, vawe"
 keywords: "gsap to mp4, gsap timeline export to video, export gsap animation as video, render gsap with puppeteer, gsap tl.time seek"
 ---

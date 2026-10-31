@@ -5,6 +5,7 @@ date: 2026-10-11
 updated: 2026-10-16
 section: motion-sound
 topic: motion
+docs: transitions, moves
 tags: "video transitions, match cut, handoffs, slideshow, motion design"
 keywords: "motion graphics transitions, match cut, scene transitions in motion graphics, video transition types, cut on action"
 hero: /blog/transitions/hero.webp

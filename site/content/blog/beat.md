@@ -5,6 +5,7 @@ date: 2026-10-11
 updated: 2026-10-16
 section: motion-sound
 topic: audio
+docs: cut-to-the-beat, audio
 tags: "cut to the beat, beat detection, audio onsets, beat grid, agents"
 keywords: "cut video to the beat, beat sync video editing, beat detection python, audio onset detection, edit video to music"
 hero: /blog/beat/hero.webp

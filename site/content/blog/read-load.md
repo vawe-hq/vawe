@@ -5,6 +5,7 @@ date: 2026-10-11
 updated: 2026-10-16
 section: agents
 topic: agents
+docs: agents, cli
 tags: "agents.md, context budget, documentation, ratchet, taste rules"
 keywords: "how long should agents.md be, agents.md best practices, agent context budget, agents.md length, claude.md length"
 hero: /blog/read-load/hero.webp

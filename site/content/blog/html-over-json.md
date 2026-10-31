@@ -5,6 +5,7 @@ date: 2026-10-07
 updated: 2026-10-16
 section: rendering
 topic: determinism
+docs: the-page, video-from-code
 featured: true
 featuredOrder: 1
 tags: "json video format, html to video, agents, web animations, architecture"

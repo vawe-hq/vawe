@@ -5,6 +5,7 @@ date: 2026-10-19
 updated: 2026-10-19
 section: how-to
 topic: motion
+docs: kinetic-type, text-and-fonts
 tags: "kinetic typography, css animation, text animation, motion graphics"
 keywords: "kinetic typography css, kinetic typography javascript, text animation css, css letter animation, text animation video"
 ---

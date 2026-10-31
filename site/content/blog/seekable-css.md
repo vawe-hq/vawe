@@ -5,6 +5,7 @@ date: 2026-10-09
 updated: 2026-10-16
 section: rendering
 topic: determinism
+docs: time-and-seek, the-page
 tags: "seek css animation, web animations api, css keyframes, headless chrome, rendering"
 keywords: "seek css animation, web animations api currenttime, document.getanimations, puppeteer css animation screenshot, svg smil seek"
 hero: /blog/seekable-css/hero.webp

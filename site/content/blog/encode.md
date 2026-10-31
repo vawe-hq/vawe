@@ -5,6 +5,7 @@ date: 2026-10-11
 updated: 2026-10-16
 section: rendering
 topic: rendering
+docs: render-flags, ship
 tags: "x264, av1, ffmpeg, encoding, banding, dither"
 keywords: "x264 preset comparison, x264 fast vs medium, ffmpeg dither banding, ffmpeg banding dark gradient, av1 10 bit web copy"
 hero: /blog/encode/hero.webp

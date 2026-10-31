@@ -5,6 +5,7 @@ date: 2026-10-16
 updated: 2026-10-16
 section: how-to
 topic: rendering
+docs: video-from-code, html-to-mp4-with-claude-code, determinism
 featured: true
 featuredOrder: 1
 tags: "html to mp4, puppeteer, headless chrome, css animation to video, ffmpeg"

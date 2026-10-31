@@ -5,6 +5,7 @@ date: 2026-10-07
 updated: 2026-10-16
 section: rendering
 topic: determinism
+docs: the-page, page-api, worlds
 tags: "html to video, html video format, data attributes, page contract"
 keywords: "html to video format, render html to video, html video format, data attribute contract, responsive video layout"
 hero: /blog/page-contract/hero.webp

@@ -116,6 +116,15 @@ export default async function PostPage({ params }: Params) {
             </div>
           </div>
 
+          {post.docs.length ? (
+            <p className="bp-docs">
+              <span className="meta">Docs</span>
+              {post.docs.map((d) => (
+                <a key={d.slug} href={`/docs/${d.slug}`}>{d.title}</a>
+              ))}
+            </p>
+          ) : null}
+
           {related.length ? (
             <section className="bp-related" aria-labelledby="bp-related">
               <h2 id="bp-related">Read next</h2>

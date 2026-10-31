@@ -41,3 +41,33 @@ export function parseFrontMatter(file, src) {
   }
   return { data, body: m[2] };
 }
+
+// The docs pages a post points to, as titles for the link text. The pages live in the docs repo, so a slug that is not here
+// gets a title made from the slug, and quality/gates/seo-surface.mjs warns when the docs repo has no such page.
+const DOC_TITLES = {
+  agents: "Use with an agent", "aspect-ratios": "Aspect ratios", audio: "Audio", "backgrounds-and-images": "Backgrounds and images",
+  "batch-from-data": "Batch from data", "brand-reflection": "Brand reflection", brief: "Write the brief", cli: "CLI",
+  critique: "Critique and fix", "cut-to-the-beat": "Cut to the beat", "design-kit": "Design system and kit", determinism: "Determinism",
+  draft: "Draft", faq: "FAQ", "files-and-outputs": "Files and outputs", "html-to-mp4-with-claude-code": "HTML to MP4 with Claude Code",
+  "image-to-particles": "Image to particles", "key-frames": "Key frames and the board", "kinetic-type": "Kinetic type",
+  "launch-video": "Launch video", "lens-and-effects": "Lens and effects", "loudness-and-the-mix": "Loudness and the mix",
+  "motion-blur": "Motion blur", "motion-pass": "Motion pass", motion: "Motion", moves: "Moves", "page-api": "Page API",
+  platforms: "Video specs by platform", "product-ui": "Product UI", "quality-gates": "Checks", quickstart: "Quickstart",
+  recipes: "Recipes", references: "Study references", "render-flags": "Render flags", ship: "Ship", templates: "Templates",
+  "text-and-fonts": "Text and fonts", "the-page": "The page", "three-and-canvas": "Three.js and canvas", "time-and-seek": "Time and seek",
+  transitions: "Transitions", troubleshooting: "When it looks wrong", "vertical-social": "Vertical social",
+  "video-from-code": "Make a video from code", waivers: "Waivers", worlds: "Worlds",
+};
+
+/**
+ * The `docs:` line of a post: 1 to 3 docs page slugs, comma separated. Throws, naming the file, on a malformed list.
+ * @param {string} file
+ * @param {Record<string, string>} data
+ * @returns {{ slug: string, title: string }[]}
+ */
+export function docsLinks(file, data) {
+  const slugs = (data.docs ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  if (slugs.length > 3) throw new Error(`content/blog/${file}: docs lists ${slugs.length} pages, the most is 3`);
+  for (const s of slugs) if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(s)) throw new Error(`content/blog/${file}: docs slug "${s}" must be lowercase words joined by hyphens`);
+  return slugs.map((slug) => ({ slug, title: DOC_TITLES[slug] ?? slug.replace(/-/g, " ").replace(/^./, (c) => c.toUpperCase()) }));
+}

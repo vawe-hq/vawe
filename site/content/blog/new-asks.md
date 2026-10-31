@@ -5,6 +5,7 @@ date: 2026-10-01
 updated: 2026-10-16
 section: agents
 topic: agents
+docs: brief, cli
 tags: "ai agents, clarifying questions, cli design, brief"
 keywords: "ai agent clarifying questions, make agent ask questions before acting, agent asks before acting, cli prompts for agents, creative brief for ai"
 hero: /blog/new-asks/hero.webp

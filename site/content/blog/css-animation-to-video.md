@@ -5,6 +5,7 @@ date: 2026-10-19
 updated: 2026-10-19
 section: how-to
 topic: how-to
+docs: time-and-seek, the-page, html-to-mp4-with-claude-code
 tags: "css animation to mp4, webm, svg animation, canvas animation, puppeteer"
 keywords: "export css animation as video, css animation to mp4, svg animation to video, canvas animation export mp4, css animation to webm"
 ---

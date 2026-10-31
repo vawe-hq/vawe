@@ -5,6 +5,7 @@ date: 2026-10-11
 updated: 2026-10-16
 section: agents
 topic: agents
+docs: quality-gates, waivers
 tags: "ai agent harness, guardrails, agents, rendering, waivers"
 keywords: "ai agent guardrails, agent approval gate, advisory checks, lint suppression comments, harness design"
 hero: /blog/advise-refuse/hero.webp

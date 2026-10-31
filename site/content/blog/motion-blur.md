@@ -5,6 +5,7 @@ date: 2026-10-09
 updated: 2026-10-16
 section: motion-sound
 topic: motion
+docs: motion-blur, lens-and-effects
 tags: "motion blur, subframes, ffmpeg, headless chrome, rendering"
 keywords: "css motion blur video, motion blur html animation, subframe motion blur, 180 degree shutter, ffmpeg frame blend"
 hero: /blog/motion-blur/hero.webp

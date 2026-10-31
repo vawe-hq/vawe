@@ -5,6 +5,7 @@ date: 2026-10-10
 updated: 2026-10-16
 section: rendering
 topic: rendering
+docs: draft, render-flags
 tags: "puppeteer, devicescalefactor, rendering, drafts, webgl, viewport"
 keywords: "puppeteer devicescalefactor, puppeteer setviewport, puppeteer default viewport 800x600, puppeteer browser.pages, half-size screenshot"
 hero: /blog/drafts-lie/hero.webp

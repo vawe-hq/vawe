@@ -5,6 +5,7 @@ date: 2026-10-16
 updated: 2026-10-16
 section: how-to
 topic: agents
+docs: html-to-mp4-with-claude-code, quickstart, agents
 featured: true
 featuredOrder: 2
 tags: "claude code, ai agent video, html to mp4, vawe, agents"

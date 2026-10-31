@@ -5,6 +5,7 @@ date: 2026-10-19
 updated: 2026-10-19
 section: how-to
 topic: rendering
+docs: batch-from-data, render-flags, cli
 tags: "batch render videos, html template, node, automation, personalized video"
 keywords: "batch render videos from template, automate social media video generation, personalized video from data, html template to video, render many videos node"
 ---

@@ -5,6 +5,7 @@ date: 2026-10-10
 updated: 2026-10-16
 section: agents
 topic: agents
+docs: files-and-outputs, cli
 tags: "observability, run logs, ai agents, jsonl, agent traces"
 keywords: "ai agent observability, agent run logs, jsonl log, debugging ai agents, long-running commands for ai agents"
 hero: /blog/run-logs/hero.webp
