@@ -168,6 +168,11 @@
       "changeFrequency": "monthly"
     },
     {
+      "path": "/docs/batch-from-data",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
       "path": "/docs/brand-reflection",
       "priority": 0.8,
       "changeFrequency": "monthly"
@@ -188,6 +193,16 @@
       "changeFrequency": "monthly"
     },
     {
+      "path": "/docs/cut-to-the-beat",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/data-story",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
       "path": "/docs/design-kit",
       "priority": 0.8,
       "changeFrequency": "monthly"
@@ -203,12 +218,47 @@
       "changeFrequency": "monthly"
     },
     {
+      "path": "/docs/engineering-notes",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/explainer",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/faq",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/files-and-outputs",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/fonts-and-sounds",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
       "path": "/docs/glossary",
       "priority": 0.8,
       "changeFrequency": "monthly"
     },
     {
       "path": "/docs/html-to-mp4-with-claude-code",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/image-to-particles",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/instagram-reels",
       "priority": 0.8,
       "changeFrequency": "monthly"
     },
@@ -223,6 +273,41 @@
       "changeFrequency": "monthly"
     },
     {
+      "path": "/docs/kinetic-type",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/launch-video",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/lens-and-effects",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/linkedin-video",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/logo-sting",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/loops",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/loudness-and-the-mix",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
       "path": "/docs/match-a-reference",
       "priority": 0.8,
       "changeFrequency": "monthly"
@@ -233,7 +318,32 @@
       "changeFrequency": "monthly"
     },
     {
+      "path": "/docs/motion-blur",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
       "path": "/docs/motion-pass",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/moves",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/page-api",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/platforms",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/product-ui",
       "priority": 0.8,
       "changeFrequency": "monthly"
     },
@@ -258,6 +368,11 @@
       "changeFrequency": "monthly"
     },
     {
+      "path": "/docs/render-flags",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
       "path": "/docs/ship",
       "priority": 0.8,
       "changeFrequency": "monthly"
@@ -265,6 +380,11 @@
     {
       "path": "/docs/style-guide",
       "priority": 0.3,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/templates",
+      "priority": 0.8,
       "changeFrequency": "monthly"
     },
     {
@@ -278,12 +398,37 @@
       "changeFrequency": "monthly"
     },
     {
+      "path": "/docs/three-and-canvas",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/tiktok",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
       "path": "/docs/time-and-seek",
       "priority": 0.8,
       "changeFrequency": "monthly"
     },
     {
+      "path": "/docs/transitions",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
       "path": "/docs/troubleshooting",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/ui-demo",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/vertical-social",
       "priority": 0.8,
       "changeFrequency": "monthly"
     },
@@ -301,10 +446,20 @@
       "path": "/docs/worlds",
       "priority": 0.8,
       "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/youtube",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/docs/youtube-shorts",
+      "priority": 0.8,
+      "changeFrequency": "monthly"
     }
   ],
   "counts": {
     "routes": 10,
-    "docs": 32
+    "docs": 63
   }
 }
