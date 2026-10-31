@@ -48,7 +48,7 @@ const DOC_TITLES = {
   agents: "Use with an agent", "aspect-ratios": "Aspect ratios", audio: "Audio", "backgrounds-and-images": "Backgrounds and images",
   "batch-from-data": "Batch from data", "brand-reflection": "Brand reflection", brief: "Write the brief", cli: "CLI",
   critique: "Critique and fix", "cut-to-the-beat": "Cut to the beat", "design-kit": "Design system and kit", determinism: "Determinism",
-  draft: "Draft", faq: "FAQ", "files-and-outputs": "Files and outputs", "html-to-mp4-with-claude-code": "HTML to MP4 with Claude Code",
+  draft: "Draft", "engineering-notes": "Engineering notes", faq: "FAQ", "files-and-outputs": "Files and outputs", "html-to-mp4-with-claude-code": "HTML to MP4 with Claude Code",
   "image-to-particles": "Image to particles", "key-frames": "Key frames and the board", "kinetic-type": "Kinetic type",
   "launch-video": "Launch video", "lens-and-effects": "Lens and effects", "loudness-and-the-mix": "Loudness and the mix",
   "motion-blur": "Motion blur", "motion-pass": "Motion pass", motion: "Motion", moves: "Moves", "page-api": "Page API",

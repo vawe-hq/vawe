@@ -5,7 +5,7 @@ date: 2026-10-11
 updated: 2026-10-16
 section: agents
 topic: agents
-docs: design-kit, key-frames
+docs: design-kit, key-frames, engineering-notes
 tags: "ui skills, ai agents, blind test, design systems, taste"
 keywords: "ui skills for ai agents, frontend design skill claude code, ai design skills, best ui skills for claude, blind design test"
 hero: /blog/skill-combos/hero.webp

@@ -5,7 +5,7 @@ date: 2026-10-11
 updated: 2026-10-16
 section: agents
 topic: agents
-docs: agents, quality-gates
+docs: agents, quality-gates, engineering-notes
 tags: "ai agent harness, weaker model, advice, judge, agents"
 keywords: "ai agent harness, agent harness engineering, design for weaker model, llm agent tooling, make agents succeed"
 hero: /blog/weaker-model/symptoms.webp

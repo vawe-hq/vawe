@@ -5,7 +5,7 @@ date: 2026-10-10
 updated: 2026-10-16
 section: agents
 topic: agents
-docs: cli, quality-gates
+docs: cli, quality-gates, engineering-notes
 tags: "cli, ai agents, harness, developer experience, hooks"
 keywords: "cli design for ai agents, cli for ai agents, ai agent cli, agent hooks, agent shell commands fail"
 hero: /blog/one-binary/hero.webp

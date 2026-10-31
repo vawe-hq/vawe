@@ -5,7 +5,7 @@ date: 2026-10-10
 updated: 2026-10-16
 section: agents
 topic: agents
-docs: quality-gates, waivers
+docs: quality-gates, waivers, engineering-notes
 tags: "ai agents, reward hacking, automated checks, testing, harness design"
 keywords: "reward hacking ai agents, agents gaming checks, goodhart's law agents, acceptance criteria for ai agents, test fixtures for checks"
 hero: /blog/loophole-audit/hero.webp
