@@ -39,6 +39,7 @@ import { fileURLToPath } from 'node:url';
 import { DOCS_ORIGIN } from '../../site/lib/docs-origin.mjs';
 import { docsDir } from '../../scripts/site/docs-dir.mjs';
 import { gateFindings } from '../../harness/lib/findings.mjs';
+import { docsLinks, parseFrontMatter } from '../../site/lib/blog-front-matter.mjs';
 import { ogInputs, readStamp } from '../../scripts/site/og-inputs.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -311,6 +312,21 @@ process.stdout.write(JSON.stringify(out));
   } finally {
     fs.rmSync(probeFile, { force: true });
     fs.rmSync(runnerFile, { force: true });
+  }
+}
+
+// ===== 5. every post points at docs pages that exist ============================================
+// Advises only: a post with no `docs:` line, or one that names a slug the docs repo has no page for.
+if (fs.existsSync(DOCS_DIR)) {
+  const BLOG_DIR = path.join(ROOT, 'site/content/blog');
+  const pages = new Set(fs.readdirSync(DOCS_DIR).filter((n) => n.endsWith('.mdx')).map((n) => n.replace(/\.mdx$/, '')));
+  for (const file of fs.readdirSync(BLOG_DIR).filter((n) => n.endsWith('.md') && n !== 'README.md' && !n.startsWith('_')).sort()) {
+    const { data } = parseFrontMatter(file, read(path.join(BLOG_DIR, file)));
+    const links = docsLinks(file, data);
+    if (!links.length) f.warn('seo-blog-no-docs', `site/content/blog/${file} has no docs: line, so the post links to no docs page`, { at: `site/content/blog/${file}`, fix: 'add docs: <slug>, <slug> to its front matter' });
+    for (const l of links) {
+      if (!pages.has(l.slug)) f.warn('seo-blog-docs-missing', `site/content/blog/${file} names docs page "${l.slug}", which has no page in ${rel(DOCS_DIR)}`, { at: `site/content/blog/${file}`, fix: 'fix the slug in docs:, or write the page' });
+    }
   }
 }
 
