@@ -20,10 +20,10 @@ test('a failing check gate writes its reason to stderr, where the run log reads 
   assert.doesNotMatch(r.stdout, /✗ page-check/);
 });
 
-test('refs add without a type shows the command to run', () => {
-  const r = spawnSync(process.execPath, [path.join(ROOT, 'harness/dev/refs.mjs'), 'add', 'ref.mp4'], { encoding: 'utf8' });
+test('refs add with a wrong type shows the command to run', () => {
+  const r = spawnSync(process.execPath, [path.join(ROOT, 'harness/dev/refs.mjs'), 'add', 'ref.mp4', '--type', 'movie'], { encoding: 'utf8' });
   assert.equal(r.status, 1);
-  assert.match(r.stderr, /--type is product or brand; add it, for example: vawe refs add ref\.mp4 --type product/);
+  assert.match(r.stderr, /--type is product or brand, not "movie"; for example: vawe refs add ref\.mp4 --type product/);
 });
 
 test('see --probe reaches the element probe of see.mjs and names what it lacks', () => {
