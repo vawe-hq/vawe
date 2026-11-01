@@ -10,7 +10,7 @@ import { isClipDemo } from '../lib/clip-demo.mjs';
 import { movesTaken, boardFilled, motionFilled, boardChecks, spectacleOf, moveRows, briefLengthLine } from '../lib/board.mjs';
 import { handoffAdvice } from '../lib/handoffs.mjs';
 import { ideasFilled, IDEATE_ASK } from '../lib/ideas.mjs';
-import { SHOW_OWNER, shipProblem } from '../lib/approval.mjs';
+import { SHOW_PLAN, shipProblem, planState, planProblem } from '../lib/approval.mjs';
 import { statedLength } from '../media/page-duration.mjs';
 import { staleCheckoutLine, mainCheckoutLine } from '../lib/stale-checkout.mjs';
 import { readRuns, appendRun, looksSince, readHookSeen } from '../lib/runlog.mjs';
@@ -85,7 +85,7 @@ export const SAY = {
   motionRows: (name) => `write one row per cut in "Motion pass" in films/${name}/brief.md: each principle checked, what read flat, what you fixed`,
   critique: (name, rel) => `bin/vawe critique ${rel} --fresh`,
   judge: (name, rel, ref) => `VAWE_AGENT=judge-${name} bin/vawe judge ${rel} --struct --runs A,B${ref ? ` --ref ${ref}` : ''} in a fresh session, then fix the named seconds with bin/vawe dev ${rel} --from s --to s`,
-  approve: (name, rel) => `${SHOW_OWNER} (${rel}); never run bin/vawe approve yourself`,
+  plan: (page, rel) => planProblem(page) ?? SHOW_PLAN.replace('<page>', rel),
   ship: (name, rel) => `bin/vawe ship ${rel}, then bin/vawe wait ${rel} (one call waits up to 3.5 minutes, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`,
 };
 
@@ -154,6 +154,9 @@ export function nextStep(page, root = process.cwd()) {
   if (boardAdvice.length) {
     return { name, stage: 'board', next: `check "Board" in films/${name}/brief.md (advice; a plan you keep on purpose needs no change), then ${SAY.dev(name, rel)}`, why: boardAdvice.map((l) => l.replace(/^board: /, '')).join('; ') };
   }
+  if (!draft && !final && boardFilled(brief) && process.env.VAWE_UNATTENDED !== '1' && planState(page, { root }) !== 'fresh') {
+    return { name, stage: 'plan', next: SAY.plan(page, rel), why: `waiting for the person's OK on the plan (${planState(page, { root }) === 'stale' ? 'the Directions or the Board changed after the last OK' : 'no OK yet'}); the first draft comes after it` };
+  }
   if (draft && final < t && (ideasFilled(brief) === false || boardFilled(brief) === false)) {
     return ideasFilled(brief) === false
       ? { name, stage: 'ideas', next: SAY.ideas(name, rel), why: 'the draft was made without a plan: the Ideas ledger is empty; fill it, then the board, before the next draft' }
@@ -170,7 +173,8 @@ export function nextStep(page, root = process.cwd()) {
   if (final < t && !verbRanSince(runsOf(root, name), 'critique', draft)) {
     return { name, stage: 'critique', next: SAY.critique(name, rel), why: `the motion pass is done; critique the draft in a fresh session, fix the named seconds, then bin/vawe ship; ${CRITIQUE_ASK}` };
   }
-  if (final < t && shipProblem(page, { root })) return { name, stage: 'approve', next: SAY.approve(name, rel), why: 'the critique ran on this draft; the final render needs the owner\'s approval of the draft, and the owner has not given it for this page' };
+  const waiting = final < t ? shipProblem(page, { root }) : null;
+  if (waiting) return { name, stage: 'approve', next: waiting, why: 'the critique ran on this draft; the final render needs the person\'s OK on the plan and on the draft' };
   if (final < t) return { name, stage: 'ship', next: SAY.ship(name, rel), why: 'the critique ran on this draft; fix the seconds it named, then render the final' };
   return { name, stage: 'judge', next: SAY.critique(name, rel), why: 'the final is rendered; a fresh session judges it' };
 }

@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { critiqueProblem } from '../../harness/lib/critique-gate.mjs';
-import { shipProblem, writeApproval, pageDigest } from '../../harness/lib/approval.mjs';
+import { shipProblem, writeApproval, writePlanApproval, pageDigest } from '../../harness/lib/approval.mjs';
 import { sameIdentity } from '../../harness/lib/judge-self-record.mjs';
 import { verbEvent } from '../../harness/lib/verb-log.mjs';
 
@@ -17,6 +17,7 @@ function film() {
   fs.mkdirSync(path.join(root, 'out'));
   const page = path.join(root, 'films', 'f', 'page.html');
   fs.writeFileSync(page, '<p>x</p>');
+  fs.writeFileSync(path.join(root, 'films', 'f', 'brief.md'), '## Board\n\nplan\n');
   return { root, page, digest: pageDigest(page) };
 }
 
@@ -29,7 +30,9 @@ test('a critique of the current page by another agent passes, and the approval t
   const f = film();
   assert.equal(gate(f, [dev, critique({ pageHash: f.digest })]), null);
   fs.writeFileSync(path.join(f.root, 'out', 'f-draft.mp4'), 'mp4');
-  assert.match(shipProblem(f.page, { root: f.root, env: {} }), /no approval for f: .*; the owner then runs bin\/vawe approve /);
+  assert.match(shipProblem(f.page, { root: f.root, env: {} }), /waiting for your OK on the plan of f: .*type \/vawe-approve/);
+  writePlanApproval(f.page, { root: f.root });
+  assert.match(shipProblem(f.page, { root: f.root, env: {} }), /waiting for your OK on the draft of f: .*type \/vawe-approve/);
   writeApproval(f.page, { root: f.root });
   assert.equal(shipProblem(f.page, { root: f.root, env: {} }), null);
 });
@@ -92,7 +95,7 @@ test('the ship gate script prints every refusal with its command and exits 1', (
   const lines = r.stderr.trim().split('\n');
   assert.equal(lines.length, 2);
   assert.match(lines[0], /^vawe: ship refused: no fresh review of the current page.*bin\/vawe critique films\/examples\/colour-sting\/page\.html$/);
-  assert.match(lines[1], /^vawe: ship refused: no approval for colour-sting.*bin\/vawe approve films\/examples\/colour-sting\/page\.html$/);
+  assert.match(lines[1], /^vawe: ship refused: waiting for your OK on the plan of colour-sting: .*type \/vawe-approve"/);
 });
 
 test('the ship gate script says so when it lets an unattended run through', () => {

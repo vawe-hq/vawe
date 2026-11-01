@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { writeApproval } from '../../harness/lib/approval.mjs';
+import { writeApproval, writePlanApproval } from '../../harness/lib/approval.mjs';
 import { appendRun, readRuns } from '../../harness/lib/runlog.mjs';
 import { FILM_PAGE, SAY, tasteOnce, sessionOf, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
 
@@ -115,7 +115,13 @@ test('after the frames, an unfilled Board is the next step; a filled one moves o
   assert.equal(boardFilled(placeholder), false);
   assert.match(nextStep(page, root).next, /fill "Board"/);
   fs.writeFileSync(path.join(root, 'films', 'f', 'brief.md'), IDEAS + '## Board\n\n| beat | in s | hold s | cut out s (length) |\n|---|---|---|---|\n| s1 | 0 | 1 | 0.3 |\n| s2 | 1 | 1 | 1.2 |\n\nSpectacle: at 7.\n\n| cut | move | handoff (family: object) |\n|---|---|---|\n| s1 to s2 | whip | invisible cut: the blur peak |\n\n| at s | voice | gain dB | for |\n|---|---|---|---|\n| 0 | bed, loop | -20 | all |\n');
+  const plan = nextStep(page, root);
+  assert.equal(plan.stage, 'plan');
+  assert.match(plan.next, /show the person the directions board \(bin\/vawe frame films\/f\/page\.html --directions\) and the Board, then end your message with one line, "If you like it, type \/vawe-approve"/);
+  writePlanApproval(page, { root });
   assert.equal(nextStep(page, root).next, 'bin/vawe dev films/f/page.html');
+  fs.appendFileSync(path.join(root, 'films', 'f', 'brief.md'), '| s3 | 2 | 1 | 0.3 |\n');
+  assert.equal(nextStep(page, root).stage, 'plan');
   assert.equal(boardFilled('## Look\n'), null);
 });
 
@@ -173,14 +179,19 @@ test('after a draft the next step follows what is done: strips under any out/str
   assert.equal(nextStep(page, root).stage, 'motion');
   fs.mkdirSync(out('strip/f-cut-3.1'), { recursive: true });
   const brief = path.join(root, 'films', 'f', 'brief.md');
-  fs.writeFileSync(brief, '## Motion pass\n\n| cut | what read flat | fixed |\n|---|---|---|\n| [cut] | [x] | [y] |\n');
+  fs.writeFileSync(brief, '## Board\n\nplan\n\n## Motion pass\n\n| cut | what read flat | fixed |\n|---|---|---|\n| [cut] | [x] | [y] |\n');
   assert.equal(nextStep(page, root).next, SAY.motionRows('f'));
-  fs.writeFileSync(brief, '## Motion pass\n\n| cut | what read flat | fixed |\n|---|---|---|\n| s1 | too slow | shortened |\n');
+  fs.writeFileSync(brief, '## Board\n\nplan\n\n## Motion pass\n\n| cut | what read flat | fixed |\n|---|---|---|\n| s1 | too slow | shortened |\n');
   assert.equal(nextStep(page, root).stage, 'critique');
   fs.writeFileSync(out('f.runs.jsonl'), `${JSON.stringify({ cmd: 'verb', verb: 'critique', exitCode: 0, at: new Date(now).toISOString(), start: new Date(now).toISOString() })}\n`);
   const asked = nextStep(page, root);
   assert.equal(asked.stage, 'approve');
-  assert.match(asked.next, /show the draft to the owner \(storyboard: bin\/vawe frame <draft>\) and stop/);
+  assert.match(asked.next, /^waiting for your OK on the plan of f: /);
+  writePlanApproval(page, { root });
+  const draftAsk = nextStep(page, root);
+  assert.equal(draftAsk.stage, 'approve');
+  assert.match(draftAsk.next, /^waiting for your OK on the draft of f: show the person the draft \(storyboard: bin\/vawe frame <draft>\), then end your message with one line, "If you like it, type \/vawe-approve"/);
+  assert.doesNotMatch(draftAsk.next, /run bin\/vawe approve/);
   writeApproval(page, { root });
   const s = nextStep(page, root);
   assert.equal(s.stage, 'ship');

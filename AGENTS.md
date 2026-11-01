@@ -23,7 +23,7 @@ canvas, three.js); if natural code fails, report it as a framework bug.
 - A rule broken for cause is declared in the page with a measured reason, nowhere else (`skills/vawe-page/SKILL.md`, Waivers). A waiver is for a break that is the point of the shot. For any other break, try the fix first and write `tried <what>` in the `_why`.
 - Use a `bin/vawe` verb, never raw `ffmpeg`, Chrome or a script. If no verb does the job, say so in your report.
 - Do the stages in order and follow each verb's `next:` line: `frame --world` before `dev`, the Board before the draft.
-- Drafts, then approval, then ship: show the full draft (`bin/vawe frame <draft>`) and stop. The owner runs `bin/vawe approve <page>`; never run it yourself.
+- The person approves twice, plan then full draft: show the directions board and Board, or the draft (`bin/vawe frame <draft>`), end with "If you like it, type /vawe-approve" and stop. Never run `approve` yourself; a change after an OK expires it, so show the new version and ask again.
 - The critique and the judge run in a session that did not write the page. Never judge your own page or record its PASS.
 - Never `sleep`, and never pipe `bin/vawe` into `tail`, `head` or `grep`: the pipe hides the exit code.
 
@@ -42,7 +42,7 @@ Read `taste/build/DIGEST.md` first: the one list of taste pitfalls. Read `skills
 | 7 | motion pass | `bin/vawe frame <page> --cuts`, then one "Motion pass" row per cut |
 | 8 | critique | `bin/vawe critique <page> --fresh` (a separate critic session; `vawe-critique`) |
 | 9 | fix | `bin/vawe dev <page> --from s --to s`: only the seconds the critique named |
-| 10 | final | `bin/vawe judge <page> --fresh` (its own session), then the owner's `bin/vawe approve <page>`; then `bin/vawe ship <page>` and `bin/vawe wait <page>`; `ship` refuses without both |
+| 10 | final | `bin/vawe judge <page> --fresh` (its own session), then the person's OK on the draft (`/vawe-approve`, after their OK on the plan); then `bin/vawe ship <page>` and `bin/vawe wait <page>`; `ship` refuses without both |
 
 ## The proof before you say done
 

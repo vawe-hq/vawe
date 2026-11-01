@@ -29,7 +29,7 @@
   ["node harness/live/approve.mjs f", true, "the script directly"],
   ["node harness/live/approve.mjs", true, "the script with no film"],
   ["bin/vawe ship films/f/page.html", false, "ship is not approve"],
-  ["bin/vawe storyboard films/f/page.html --directions", false, "the directions board"],
+  ["bin/vawe frame films/f/page.html --directions", false, "the directions board"],
   ["grep -n 'vawe approve' AGENTS.md", false, "the verb named as a grep pattern"],
   ["echo \"type /vawe-approve\"", false, "the slash command named in a string"]
 ]
