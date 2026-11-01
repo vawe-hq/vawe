@@ -118,7 +118,7 @@ We did not run a parallel batch, so we give no speed-up number.
 No data file feature. A film is one HTML file. `--param key=value` passes small values, and the JSON block pattern above fills a whole row. Any template tool that writes an HTML file also works.
 
 **Can I pass data in a URL query string?**
-Yes, with `--param key=value` on `dev`, `ship`, `still` and `sheet`. The page reads it with `new URLSearchParams(location.search)`. We ran `bin/vawe still` with `--param title=Ada` and the page showed "Ada". The batch loop above uses the JSON block, not `--param`.
+Yes, with `--param key=value` on `dev`, `ship` and `frame`. The page reads it with `new URLSearchParams(location.search)`. We ran `bin/vawe frame` with `--param title=Ada` and the page showed "Ada". The batch loop above uses the JSON block, not `--param`.
 
 **Can I use Puppeteer instead of `bin/vawe`?**
 Yes, if you drive the page clock yourself. [Render HTML to MP4 with headless Chrome](/blog/render-html-to-mp4) shows a 20-line script.

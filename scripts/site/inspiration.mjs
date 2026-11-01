@@ -7,7 +7,7 @@
 // resumes where the last one stopped:
 //   1. video   the playback mp4 on video.twimg.com: a hinted URL checked with a HEAD request, else yt-dlp
 //   2. post    the text, creator and name from X oEmbed
-//   3. poster  one frame, `bin/vawe still <mp4 url>` (a range read, nothing downloaded), as a small webp
+//   3. poster  one frame, `bin/vawe frame <mp4 url>` (a range read, nothing downloaded), as a small webp
 //   3b. avatar the creator's profile picture URL on pbs.twimg.com, from the embed data X serves
 //   4. data    the entries, written once
 // "Made with" and the prompt come only from the post text. Type tags come from rules on the post text
@@ -173,7 +173,7 @@ async function poster(id, playback, duration) {
   if (fs.existsSync(out)) return { ok: true };
   const png = path.join(TMP, `${id}.png`);
   const at = (duration ? Math.min(Math.max(duration * 0.3, 1), 8) : 1).toFixed(1);
-  const still = await run(path.join(ROOT, 'bin/vawe'), ['still', playback, '--at', at, '--out', png]);
+  const still = await run(path.join(ROOT, 'bin/vawe'), ['frame', playback, '--at', at, '--out', png]);
   if (!fs.existsSync(png)) return { ok: false, why: `still: ${lastLine(still.stderr || still.stdout)}` };
   for (let q = 80; q >= 40; q -= 10) {
     await sharp(png).resize({ width: POSTER_W, withoutEnlargement: true }).webp({ quality: q, effort: 6 }).toFile(out);

@@ -54,7 +54,7 @@ the order they change the film) and writes `films/<name>/brief.md` with every de
 marked `[unanswered: default taken]`, and the measured-brief sections with guesses marked `(guess: change me)`.
 
 Before you fill the directions, read `taste/build/DIGEST.md`: one thread, three materials, a hero that is not an attractor.
-Show the three to the person with `bin/vawe storyboard <page> --directions` (one board, the same lines per direction), then write `picked:`.
+Show the three to the person with `bin/vawe frame <page> --directions` (one board, the same lines per direction), then write `picked:`.
 
 ## 3. Template questions
 

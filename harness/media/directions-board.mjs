@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `vawe storyboard <page> --directions [--out file.html]`: the comparison board of the brief's directions.
+// `vawe frame <page> --directions [--out file.html]`: the comparison board of the brief's directions.
 //   node harness/media/directions-board.mjs films/my-launch/page.html
 // With a test page per direction (films/<name>/directions/<a|b|c>/page.html): stills at the opening, the turn and the end, and a looping clip of the turn.
 // Without: one still per direction from films/<name>/directions.html.
@@ -71,7 +71,7 @@ async function shootSheet(sheet, count, dir) {
 async function main(argv) {
   const flag = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : undefined; };
   const source = argv.find((a, i) => !a.startsWith('--') && argv[i - 1] !== '--out');
-  if (!source) die('missing <page>; usage: bin/vawe storyboard <page> --directions [--out file.html]');
+  if (!source) die('missing <page>; usage: bin/vawe frame <page> --directions [--out file.html]');
   const filmDir = path.dirname(path.resolve(source));
   const briefFile = path.join(filmDir, 'brief.md');
   if (!fs.existsSync(briefFile)) die(`no brief.md next to ${source}; bin/vawe new <name> writes it`);

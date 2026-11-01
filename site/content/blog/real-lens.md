@@ -94,10 +94,10 @@ vawe.onFrame((t) => cam.draw(t));
 
 This is a sketch of the call, not a page that runs on its own: `ease` is a function you supply. The full demo is `prompts/moves/demo/lens.html`. We rendered 2 seconds of it as a draft with `bin/vawe dev prompts/moves/demo/lens.html --from 1 --to 3`, and it finished in 8.9 s.
 
-To pick a look by sight, run `vawe frames --looks`. It renders a page frame under every named look and prints one labelled grid per second:
+To pick a look by sight, run `vawe frame --looks`. It renders a page frame under every named look and prints one labelled grid per second:
 
 ```bash
-bin/vawe frames prompts/moves/demo/lens.html --looks --at 2 --only clean,crt
+bin/vawe frame prompts/moves/demo/lens.html --looks --at 2 --only clean,crt
 ```
 
 We ran it and it wrote `out/looks-demo/looks-2s.png`: the page as is, plus two looks. Then put `look: '<name>'` in the lens options of your page.
@@ -112,7 +112,7 @@ See the clip and its code on the [lens video component page](/video-components/l
 | --- | --- |
 | `core/surfaces/lens.js` | the shader, options, `LOOKS`, `resolveOptions` |
 | `core/surfaces/lens-source.js` | `htmlSource` and the style-diff inlining |
-| `harness/media/looks.mjs` | the `vawe frames --looks` contact sheet |
+| `harness/media/looks.mjs` | the `vawe frame --looks` contact sheet |
 
 ## FAQ
 

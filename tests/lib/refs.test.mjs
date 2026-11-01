@@ -143,7 +143,7 @@ const NAMING_BRIEF = `- Reference: private style reference \`ref-a\` (\`~/.vawe/
 
 test('briefRefIds ranks the ids a brief names: frame paths, the move table, the Reference line, --ref', () => {
   assert.deepEqual(briefRefIds(NAMING_BRIEF), ['ref-a', 'other']);
-  assert.deepEqual(briefRefIds('run bin/vawe sheet films/x/page.html --ref abc123 --at 2'), ['abc123']);
+  assert.deepEqual(briefRefIds('run bin/vawe frame films/x/page.html --vs abc123 --at 2'), ['abc123']);
   assert.deepEqual(briefRefIds('--ref refs/x.mp4 and Reference: quality/refs/<ref>/source.mp4'), []);
   assert.deepEqual(briefRefIds(''), []);
 });

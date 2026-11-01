@@ -176,7 +176,7 @@ Story and structure: the spine is taste/craft/story.md (hook, build, proof, payo
 
 films/${name}/directions.html holds one working still per family: rewrite each into its slot's key frame.
 Score the three (about 30 s): bin/vawe judge films/${name}/directions.html --fresh --stage stills --brief films/${name}/brief.md
-Show the three to the person as one board: bin/vawe storyboard films/${name}/page.html --directions
+Show the three to the person as one board: bin/vawe frame films/${name}/page.html --directions
 
 ${slotText('A', 'type')}
 
@@ -303,7 +303,7 @@ Phase 2, before any design file. Study the references (\`bin/vawe refs list\`, t
 |---|---|
 | [path/to/frame.png] | [ground or light, type, colour, layout or motion] |
 
-Then study how the references MOVE, since stills do not show it: run \`bin/vawe strip <ref-id> --cuts\` on 2 reference films, Read the strips, and name 3 moves you take (the ref id, the cut second, the move from prompts/moves).
+Then study how the references MOVE, since stills do not show it: run \`bin/vawe frame <ref-id> --cuts\` on 2 reference films, Read the strips, and name 3 moves you take (the ref id, the cut second, the move from prompts/moves).
 
 | move taken | ref id | cut s |
 |---|---|---|
@@ -364,7 +364,7 @@ Gain: leave the column empty to take the voice's default (\`bin/vawe sound\` lis
 
 const motionText = () => `## Motion pass
 
-Phase 7, after the first draft. Done when \`bin/vawe dev\` shows overshoot-share, live-hold, constant-camera and seam-variety clean or waived with a reason, and you have Read \`bin/vawe strip films/<name>/page.html --cuts\` for every cut. For the spectacle second also run \`bin/vawe strip <page> --onion --at <s>\` and \`--velocity\`. Check each cut against taste/craft/motion-craft.md and the principles in core/motion/README.md; one row per cut, ok, fix or n/a per principle. \`bin/vawe ship\` warns while this table holds a placeholder.
+Phase 7, after the first draft. Done when \`bin/vawe dev\` shows overshoot-share, live-hold, constant-camera and seam-variety clean or waived with a reason, and you have Read \`bin/vawe frame films/<name>/page.html --cuts\` for every cut. For the spectacle second also run \`bin/vawe frame <page> --moment <s> --onion\` and \`--velocity\`. Check each cut against taste/craft/motion-craft.md and the principles in core/motion/README.md; one row per cut, ok, fix or n/a per principle. \`bin/vawe ship\` warns while this table holds a placeholder.
 
 | cut | anticipation (hero) | follow-through, overlap | spacing eased | arcs | secondary action | exits faster | hold alive | camera still | what read flat | what I fixed (or why it stays) |
 |---|---|---|---|---|---|---|---|---|---|---|

@@ -2,7 +2,7 @@
 
 Navy ground, blue light bloom at the right edge, corner labels, chrome 4-point star, geometric sans.
 
-Windows below are measured, not read off a contact sheet: `bin/vawe strip <ref-id> --cuts`
+Windows below are measured, not read off a contact sheet: `bin/vawe frame <ref-id> --cuts`
 ran ffmpeg scene-detect (`select='gt(scene,0.3)'`) on the real 36.3s source and
 grabbed one still per detected cut plus one per second into `study/stills/`. The 4 hard cuts it found
 (5.45s, 7.67s, 19.27s, 21.28s, all scene score 1.0, the white/navy swaps) anchor the windows below;

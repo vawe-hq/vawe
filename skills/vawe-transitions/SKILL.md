@@ -35,7 +35,7 @@ Run it for every cut of the Board's cut table, then write the result in its `han
 7. **Surprise question.** Which cut would a viewer predict? Replace it, or write why the plain one is right.
 8. **Execution notes**, one line per cut in the motion pass:
    - z-order: the handoff object sits above both beats until the new one covers the frame; the old layer does not pop off first;
-   - speed matched at the seam: read `bin/vawe strip <page> --velocity` on both sides, the exit must not decelerate into an entrance that starts from rest;
+   - speed matched at the seam: read `bin/vawe frame <page> --moment <s> --velocity` on both sides, the exit must not decelerate into an entrance that starts from rest;
    - a flood reaches the farthest corner in about 0.35 s and has a reveal point, else it just cuts;
    - the transition is shorter than the beat it joins;
    - sound sits on the handoff frame: a J or L cut, or the effect on the frame the object lands.

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `vawe storyboard <page.html> --text [--json]`: the worlds, the cut rhythm, the spectacle and every audio cue as text, before any pixel.
+// `vawe see <page.html> --plan [--json]`: the worlds, the cut rhythm, the spectacle and every audio cue as text, before any pixel.
 //   node harness/media/timeline.mjs <page.html> [--json]
 // Worlds come from the page's own seek (sampleWorlds), so it loads the page once and takes a second or two; no frame is rendered.
 import fs from 'node:fs';

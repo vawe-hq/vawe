@@ -18,10 +18,10 @@ quality/refs/<ref-name>/
 ```
 
 Write `beats.md` from a measured cut list, never from a contact sheet:
-`bin/vawe strip <ref-id> --cuts` finds the cuts and draws one strip per cut. Write one `## Beat <n>` heading
+`bin/vawe frame <ref-id> --cuts` finds the cuts and draws one strip per cut. Write one `## Beat <n>` heading
 per window, each with a `- window: <start>-<end>s` line, and fill the label and the technique by looking
 at the strips.
 
 The loop that uses a reference is in `skills/vawe-reference/SKILL.md`: `bin/vawe see <ref.mp4> --spec` measures it,
-`bin/vawe sheet --ref` and `bin/vawe check coverage` check the rebuild against it, and
+`bin/vawe frame --vs` and `bin/vawe check coverage` check the rebuild against it, and
 `bin/vawe see <render.mp4> --vs <ref-id>` lists the deltas worst first.

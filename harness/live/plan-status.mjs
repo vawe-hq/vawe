@@ -62,12 +62,12 @@ export function openItems({ rel, brief, design, early, frames, storyboardRan, lo
   const items = [];
   const empty = emptySections(brief, early);
   if (empty.length) items.push({ what: `brief.md sections empty: ${empty.map((e) => e.title).join(', ')}`, fix: SKILLS[empty[0].skill] });
-  if (early && !storyboardRan) items.push({ what: 'no storyboard run', fix: `bin/vawe storyboard ${rel}` });
+  if (early && !storyboardRan) items.push({ what: 'no storyboard run', fix: `bin/vawe frame ${rel} --board` });
   const taken = takenFromCount(brief);
   if (early && taken !== null && taken < 4) items.push({ what: `the reference study names ${taken} of 4 frames`, fix: SKILLS.study });
   const rungs = early && taken !== null ? missingRungs(design ?? '') : [];
   if (rungs.length) items.push({ what: `DESIGN.md has no line for ${rungs.join(', ')}`, fix: SKILLS.design });
-  if (early && frames !== 'ok') items.push({ what: frames === 'stale' ? 'the frames are older than the page' : 'no frames run', fix: `bin/vawe frames ${rel}` });
+  if (early && frames !== 'ok') items.push({ what: frames === 'stale' ? 'the frames are older than the page' : 'no frames run', fix: `bin/vawe frame ${rel} --world all` });
   if (looked?.printed.length && !looked.hook) items.push({ what: 'the log-read hook is not registered, so the strips you Read are not counted', fix: 'harness/README.md "Hooks"' });
   else if (looked?.unread.length) items.push({ what: `read ${looked.printed.length - looked.unread.length} of ${looked.printed.length} strips of the last draft`, fix: `Read ${looked.unread[0]}` });
   return items;
@@ -79,7 +79,7 @@ const itemLine = ({ what, fix }) => `  - ${what}: ${fix}`;
 function findingLine(findings, rel) {
   if (!findings.length) return [];
   const ranked = [...findings].sort((a, b) => Number(b.startsWith('attractor:')) - Number(a.startsWith('attractor:')));
-  const more = ranked.length > 1 ? ` (+${ranked.length - 1} more: bin/vawe storyboard ${rel})` : '';
+  const more = ranked.length > 1 ? ` (+${ranked.length - 1} more: bin/vawe frame ${rel} --board)` : '';
   return [`  plan: ${short(ranked[0])}${more}`];
 }
 
@@ -108,7 +108,7 @@ function pageLines(page, rel) {
   const lines = ranked(page);
   const shown = lines.slice(0, PAGE_SHOWN).map((l) => `${PAGE_PREFIX}${withDoc(l)}`);
   const rest = lines.length - shown.length;
-  return [...shown, ...(rest > 0 ? [`${PAGE_PREFIX}+${rest} more before the render: bin/vawe storyboard ${rel}`] : [])];
+  return [...shown, ...(rest > 0 ? [`${PAGE_PREFIX}+${rest} more before the render: bin/vawe frame ${rel} --board`] : [])];
 }
 
 /**

@@ -17,7 +17,7 @@ Each repo gets its own scene, never one used for another repo:
 | `catalog` | an endless card-catalogue wall, one drawer open, the figure brings a card (skills directories) |
 | `cinema` | a projector beam through haze onto a huge screen with the star in the film (agent video) |
 
-Render from the repo root with `bin/vawe still assets/brand-art/<format>.html --at 0 --param scene=<s> --param ink=<i> --param copy=<c>`.
+Render from the repo root with `bin/vawe frame assets/brand-art/<format>.html --at 0 --param scene=<s> --param ink=<i> --param copy=<c>`.
 Add `--size 1280x640` to a banner for a GitHub social preview.
 
 | File | Scene, ink, copy |

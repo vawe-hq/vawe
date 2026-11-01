@@ -1,8 +1,8 @@
 ---
 title: "CLI design for AI agents: one binary, one verb per step"
-description: "CLI design for AI agents: one binary with 29 verbs, one-line usage errors, a result line that survives a pipe and a hook that names the next step."
+description: "CLI design for AI agents: one binary with 24 verbs, one-line usage errors, a result line that survives a pipe and a hook that names the next step."
 date: 2026-10-10
-updated: 2026-10-16
+updated: 2026-11-02
 section: agents
 topic: agents
 docs: cli, quality-gates, engineering-notes
@@ -36,7 +36,7 @@ Documentation did not close the gap. AGENTS.md got a Shell section, and later tr
 
 `bin/vawe` arrived on 2026-09-30 with nine verbs: `new`, `dev`, `ship`, `critique`, `spec`, `studio`, `check`, `test` and `judge`. Six minutes later we cut the Makefile from 156 lines to 19 aliases and deleted the routers and dead scripts: 70 files, 2,481 lines. Old paths now forward to the CLI, so they cannot drift from it.
 
-The verb is the step. `vawe dev` is the draft render, `vawe frames` the key-frame sheet and `vawe ship` the final. The stage table in AGENTS.md names one verb per stage, so the agent never translates a stage into a command. The first nine verbs were a guess. Most of the rest came from trace reviews. Each time an agent hand-rolled a command, we checked for a verb and added one if it was missing. Today there are 29 verbs (`bin/vawe --help --all` lists them). Their code and flags are in `harness/cli/verbs.mjs`.
+The verb is the step. `vawe dev` is the draft render, `vawe frame --world all` the key-frame sheet and `vawe ship` the final. The stage table in AGENTS.md names one verb per stage, so the agent never translates a stage into a command. The first nine verbs were a guess. Most of the rest came from trace reviews. Each time an agent hand-rolled a command, we checked for a verb and added one if it was missing. In October there were 29 verbs. In the 2026-11 merge the six picture verbs (`still`, `frames`, `sheet`, `strip`, `zoom` and `storyboard`) became one verb, `frame`, with a mode flag for each. The old names still run and print the new command once. Today there are 24 verbs (`bin/vawe --help --all` lists them). Their code and flags are in `harness/cli/verbs.mjs`.
 
 One agent found the beat of a music file with a Python and NumPy script. The reason: `vawe see` answered "no readable video stream" for an audio file. We added `vawe sound`, and in the next review one film called it 21 times. AGENTS.md also says: if a verb is missing what you need, say so in the report and do not hand-roll it. That turns each gap into a visible bug report.
 
@@ -45,9 +45,9 @@ One agent found the beat of a music file with a Python and NumPy script. The rea
 A missing argument prints what is missing and the usage, and nothing else. Every verb has `--help`. We ran this in the repo today:
 
 ```sh
-bin/vawe frames
-# vawe: missing <page>; usage: vawe frames <page> [flags]
-# vawe: frames FAILED (missing <page>; usage: vawe frames <page> [flags]) in 0.0s
+bin/vawe frame --world all
+# vawe: missing <film>; usage: vawe frame <film> [flags]
+# vawe: frame FAILED (missing <film>; usage: vawe frame <film> [flags]) in 0.0s
 # exit code 2
 ```
 
@@ -78,7 +78,7 @@ A warning in a doc did less than a change in the environment. Each line in the S
 
 A film goes through about ten stages, listed in AGENTS.md. A weaker model forgets which one comes next. It skips the brief and the Board and goes straight to a draft, and the cost shows up late, in a render that looks generic. More text in AGENTS.md did not help, because the agent reads it once.
 
-So `harness/live/stage-say.mjs` runs on each prompt and works in four steps. It asks `git status` which `films/*/page.html` changed, and stays silent if none changed in the last three hours. It reads the film's state from files. These are the brief, the named reference frames, the design file, a frames sheet, a draft, and the Board and Motion pass tables. It picks the first unmet stage. It prints one line with the reason, such as `bin/vawe frames films/<name>/page.html`. The verbs import the same text from the hook, so a verb and the hook cannot name different steps. `tests/hooks/stage-say.test.mjs` keeps the order under test.
+So `harness/live/stage-say.mjs` runs on each prompt and works in four steps. It asks `git status` which `films/*/page.html` changed, and stays silent if none changed in the last three hours. It reads the film's state from files. These are the brief, the named reference frames, the design file, a frames sheet, a draft, and the Board and Motion pass tables. It picks the first unmet stage. It prints one line with the reason, such as `bin/vawe frame films/<name>/page.html --world all`. The verbs import the same text from the hook, so a verb and the hook cannot name different steps. `tests/hooks/stage-say.test.mjs` keeps the order under test.
 
 We read the transcripts of 2026-10-10 and checked whether the agent did what each next line said. For the early stages (brief, reference study, design, states and Board) it followed every line, in order. Three things went wrong:
 

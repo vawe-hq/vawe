@@ -1,4 +1,4 @@
-// The SVG of `vawe strip --velocity`: speed over time on top, scale over time below, one line per element, a mark at each peak speed. Pure: a string in, no I/O.
+// The SVG of `vawe frame --moment <s> --velocity`: speed over time on top, scale over time below, one line per element, a mark at each peak speed. Pure: a string in, no I/O.
 
 export const GRAPH_W = 1200;
 export const GRAPH_H = 760;

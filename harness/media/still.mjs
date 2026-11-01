@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `vawe still <page|mp4> --at <s> [--out file.png]`: one PNG at the full render size.
+// `vawe frame <page|mp4> --at <s> [--out file.png]`: one PNG at the full render size.
 //   node harness/media/still.mjs films/my-launch/page.html --at 4.2
 // A page renders that one frame at its final size (1920x1080 for 16:9), or at --size WxH when that has the page's aspect; an mp4 gives the exact frame at its own size.
 import fs from 'node:fs';

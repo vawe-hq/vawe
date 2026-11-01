@@ -14,7 +14,7 @@ the register. Do not mix ([visual-style-one](../rules/visual-style-one.md), [sur
 
 A surface you reuse, or that must look flawless, is built and looked at on its own before it enters the
 page. Do not tweak coordinates blind inside a long render. Write the fragment as plain HTML and CSS,
-open it standalone (`bin/vawe sheet <page> --at t` renders one frame in seconds), then drop it in. Glass needs something
+open it standalone (`bin/vawe frame <page> --at t` renders one frame in seconds), then drop it in. Glass needs something
 behind it: put a moving gradient under a frosted panel or the blur has nothing to work on. A moving
 surface (a light travelling a card border) comes from an animation, not a frozen style.
 

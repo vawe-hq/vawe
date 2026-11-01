@@ -1,6 +1,6 @@
 // tests/media/preview-warm-isolation.test.mjs: house-rule self-check, no framework.
 //   node tests/media/preview-warm-isolation.test.mjs
-// Two processes share the preview browser: one captures a film, another (`vawe sheet --ref`) looks for its
+// Two processes share the preview browser: one captures a film, another (`vawe frame --vs`) looks for its
 // warm tab. The look must never touch the capture's tab: listing every tab gave it puppeteer's default
 // 800x600 viewport, and the film got frames laid out at 800x600 in the top-left corner. Launches Chrome.
 import puppeteer from 'puppeteer';

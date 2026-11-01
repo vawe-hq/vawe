@@ -84,7 +84,7 @@ export function lookOverride(name) {
   return { ...merge(EFFECTS_OFF, LOOKS[name]), look: name };
 }
 
-/** DEFAULTS, or the named look over a flat lens, then the page's options, then the preview override (set by `vawe frames --looks` before the page runs). */
+/** DEFAULTS, or the named look over a flat lens, then the page's options, then the preview override (set by `vawe frame --looks` before the page runs). */
 export function resolveOptions(options = {}, override = globalThis.__vaweLensOverride) {
   const name = override?.look ?? options.look;
   if (name != null && !(name in LOOKS)) throw new Error(`lens: unknown look "${name}"; valid: ${Object.keys(LOOKS).join(', ')}`);

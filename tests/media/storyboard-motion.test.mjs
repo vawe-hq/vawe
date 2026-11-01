@@ -1,4 +1,4 @@
-// `vawe storyboard` prints the motion lint findings of the page before any render.
+// `vawe frame --board` prints the motion lint findings of the page before any render.
 // Needs Chrome.
 //   node --test tests/media/storyboard-motion.test.mjs
 import test from 'node:test';

@@ -25,7 +25,7 @@ function vawe(args) {
 // A palette PNG measured about 60% smaller than the screenshot, with no pixel off by more than 7 of 255.
 async function card(params, out, tmp) {
   const raw = path.join(tmp, 'card.png');
-  vawe(['still', 'assets/brand-art/card.html', '--at', '0', '--aspect', '1200:630', '--size', '1200x630', ...params.flatMap((p) => ['--param', p]), '--out', raw]);
+  vawe(['frame', 'assets/brand-art/card.html', '--at', '0', '--aspect', '1200:630', '--size', '1200x630', ...params.flatMap((p) => ['--param', p]), '--out', raw]);
   await sharp(raw).png({ palette: true, quality: 100, effort: 10, compressionLevel: 9 }).toFile(out);
   return fs.statSync(out).size;
 }

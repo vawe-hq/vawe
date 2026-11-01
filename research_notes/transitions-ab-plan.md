@@ -30,7 +30,7 @@ Both arms run stages 1 to 6 only (brief to first draft), then stop. Three runs p
 
 ## Owner blind pick
 
-Render each draft with `bin/vawe strip <page> --cuts` and the draft mp4. Strip names, agent tags and the Board. Present the six drafts in a random order as A, B, C, D, E, F. The owner picks the best three films and ranks "most varied" and "most chosen" on the cuts alone. Unblind after the ranking. A skill win needs the skill arm in the top three for at least 2 of the 3 pairs matched by run number, with the measures 2 and 3 not worse.
+Render each draft with `bin/vawe frame <page> --cuts` and the draft mp4. Strip names, agent tags and the Board. Present the six drafts in a random order as A, B, C, D, E, F. The owner picks the best three films and ranks "most varied" and "most chosen" on the cuts alone. Unblind after the ranking. A skill win needs the skill arm in the top three for at least 2 of the 3 pairs matched by run number, with the measures 2 and 3 not worse.
 
 ## Reading the result
 

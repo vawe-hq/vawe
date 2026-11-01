@@ -44,7 +44,7 @@ export function readPlanState(pagePath, root = ROOT, opened = null) {
     frames: !frames ? 'none' : frames < mtime(abs) ? 'stale' : 'ok',
     storyboardRan: readRuns(name, root).some((r) => isBoardRun(r) && r.exitCode === 0),
     digest: read(path.join(root, 'taste', 'build', 'DIGEST.md')) ?? '',
-    next: step.stage === 'draft' ? `bin/vawe storyboard ${rel}` : step.next,
+    next: step.stage === 'draft' ? `bin/vawe frame ${rel} --board` : step.next,
   };
 }
 

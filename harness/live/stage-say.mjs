@@ -66,22 +66,22 @@ export function missingRungs(design) {
  * The one owner of the stage order (AGENTS.md, The loop). Each entry is the text of one command line; the verbs in
  * harness/cli/verbs.mjs print these after they run, so a verb and this hook never name different next steps.
  */
-export const WAIT_WORK = "while it renders, fill the brief's Board and Motion pass rows if empty, Read the bin/vawe strip <page> --cuts grids, or prepare the critique notes";
+export const WAIT_WORK = "while it renders, fill the brief's Board and Motion pass rows if empty, Read the bin/vawe frame <page> --cuts grids, or prepare the critique notes";
 
 export const CRITIQUE_ASK = 'ask: what reads flat, and what is a trick (an effect with no job)?';
 export const BRIEF_ASK = 'ask: what is the one thing to remember, who watches it, and where (platform, sound on or off)?';
 
 export const SAY = {
   study: (name) => `bin/vawe refs list, bin/vawe refs frames <id>, Read the frames at full size, then fill "Taken from" in films/${name}/brief.md: ${TAKEN_FROM_MIN} to 6 frames, exact path and what you take; ask: what does this ref do that a simple film does not?`,
-  moves: () => `bin/vawe strip <ref-id> --cuts on 2 reference films, Read every strip, then name ${MOVES_MIN} moves in "Taken from" (ref id, cut second) and which of the ten patterns in taste/craft/film-structure.md (The motion grammar) each ref uses; ask: what does the cut do to the eye?`,
+  moves: () => `bin/vawe frame <ref-id> --cuts on 2 reference films, Read every strip, then name ${MOVES_MIN} moves in "Taken from" (ref id, cut second) and which of the ten patterns in taste/craft/film-structure.md (The motion grammar) each ref uses; ask: what does the cut do to the eye?`,
   design: (name) => `write films/${name}/DESIGN.md and films/${name}/kit/ (format: skills/vawe-page/SKILL.md, example: films/examples/colour-sting/kit/; type: taste/craft/typography.md, colour: taste/craft/color.md); ask: which type scale and colour roles still read at this screen size?`,
   skills: (name, rungs) => `add to films/${name}/DESIGN.md one line per rung (${rungs.join(', ')}): "Skill <rung>: <slug>: what it decided", or "Skipped <rung>: <reason>"; list the skills with command npx -y ui-skills list`,
-  states: (name, rel) => `build one static state per world in ${rel} from the kit, no motion yet (layout: taste/craft/layout.md), then bin/vawe frames ${rel}; ask: where is the eye in each frame, and what does it see first?`,
-  frames: (name, rel) => `bin/vawe frames ${rel}`,
-  ideas: (name, rel) => `fill "Ideas" in films/${name}/brief.md (guides/IDEATE.md): ${IDEATE_ASK}; then bin/vawe storyboard ${rel} lists what the taste docs say about the plan`,
-  board: (name, rel) => `bin/vawe storyboard ${rel} lists what the taste docs say about the plan (stagger gaps, read holds, the last second); then fill "Board" in films/${name}/brief.md: rhythm, spectacle, a move per cut and its handoff (load skills/vawe-transitions/SKILL.md: the cut's row in the Ideas ledger (guides/IDEATE.md), the less typical pick, the ledger; families: taste/craft/transitions.md; feeling: taste/craft/selection.md), sound (effects on actions, a real recording first, no bed: taste/craft/sound.md); ask: what carries the eye across each cut, what is the rhythm, where is the one big moment, what sound sits on each action?`,
+  states: (name, rel) => `build one static state per world in ${rel} from the kit, no motion yet (layout: taste/craft/layout.md), then bin/vawe frame ${rel} --world all; ask: where is the eye in each frame, and what does it see first?`,
+  frames: (name, rel) => `bin/vawe frame ${rel} --world all`,
+  ideas: (name, rel) => `fill "Ideas" in films/${name}/brief.md (guides/IDEATE.md): ${IDEATE_ASK}; then bin/vawe frame ${rel} --board lists what the taste docs say about the plan`,
+  board: (name, rel) => `bin/vawe frame ${rel} --board lists what the taste docs say about the plan (stagger gaps, read holds, the last second); then fill "Board" in films/${name}/brief.md: rhythm, spectacle, a move per cut and its handoff (load skills/vawe-transitions/SKILL.md: the cut's row in the Ideas ledger (guides/IDEATE.md), the less typical pick, the ledger; families: taste/craft/transitions.md; feeling: taste/craft/selection.md), sound (effects on actions, a real recording first, no bed: taste/craft/sound.md); ask: what carries the eye across each cut, what is the rhythm, where is the one big moment, what sound sits on each action?`,
   dev: (name, rel) => `bin/vawe dev ${rel}`,
-  motion: (name, rel) => `bin/vawe strip ${rel} --cuts and Read every cut at full size; for the spectacle second also bin/vawe strip ${rel} --onion --at <s> and bin/vawe strip ${rel} --velocity --at <s>; check each cut against taste/craft/motion-craft.md and the principles in core/motion/README.md: anticipation on the hero, follow-through and overlap, eased spacing, arcs on travelling elements, secondary action, exits faster than entrances, holds alive through element motion, camera still unless the spectacle; fix what reads flat`,
+  motion: (name, rel) => `bin/vawe frame ${rel} --cuts and Read every cut at full size; for the spectacle second also bin/vawe frame ${rel} --moment <s> --onion and bin/vawe frame ${rel} --moment <s> --velocity; check each cut against taste/craft/motion-craft.md and the principles in core/motion/README.md: anticipation on the hero, follow-through and overlap, eased spacing, arcs on travelling elements, secondary action, exits faster than entrances, holds alive through element motion, camera still unless the spectacle; fix what reads flat`,
   motionRows: (name) => `write one row per cut in "Motion pass" in films/${name}/brief.md: each principle checked, what read flat, what you fixed`,
   critique: (name, rel) => `bin/vawe critique ${rel} --fresh`,
   judge: (name, rel, ref) => `VAWE_AGENT=judge-${name} bin/vawe judge ${rel} --struct --runs A,B${ref ? ` --ref ${ref}` : ''} in a fresh session, then fix the named seconds with bin/vawe dev ${rel} --from s --to s`,
@@ -142,7 +142,7 @@ export function nextStep(page, root = process.cwd()) {
   const stated = statedLength(read(page));
   const stale = !draft && !final && brief && typeof stated === 'number' ? briefLengthLine(brief, stated) : null;
   if (stale) {
-    return { name, stage: 'board', next: `bring Length, Board and Spec in films/${name}/brief.md to the page, then bin/vawe storyboard ${rel}`, why: `${stale}; a plan for another film length is stale` };
+    return { name, stage: 'board', next: `bring Length, Board and Spec in films/${name}/brief.md to the page, then bin/vawe frame ${rel} --board`, why: `${stale}; a plan for another film length is stale` };
   }
   if (!draft && !final && brief && ideasFilled(brief) !== true) {
     return { name, stage: 'ideas', next: SAY.ideas(name, rel), why: 'the Ideas ledger is empty; the ideas come before the board, so each cut carries a chosen idea' };

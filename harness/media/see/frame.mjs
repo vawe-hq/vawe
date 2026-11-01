@@ -1,4 +1,4 @@
-// One full-size frame of a film as raw pixels: the frame `vawe zoom --auto` and `vawe see` read at 1920x1080.
+// One full-size frame of a film as raw pixels: the frame `vawe frame --auto` and `vawe see` read at 1920x1080.
 import { spawnSync } from 'node:child_process';
 import { FRAME_H, FRAME_W } from './zoom-math.mjs';
 

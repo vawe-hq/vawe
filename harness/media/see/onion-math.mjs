@@ -1,4 +1,4 @@
-// Pure parts of `vawe strip --onion`: which frames, how much each one weighs, how each one is tinted, and the ffmpeg graph that blends them.
+// Pure parts of `vawe frame --moment <s> --onion`: which frames, how much each one weighs, how each one is tinted, and the ffmpeg graph that blends them.
 // No I/O and no heavy imports: harness/cli/verbs.mjs loads this file to check the arguments.
 
 export const ONION_SPAN = 0.3;

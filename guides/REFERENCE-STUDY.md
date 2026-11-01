@@ -80,7 +80,7 @@ A reference is pixels, not a page. The loop turns those pixels into a page that 
 1. Measure: `bin/vawe see <ref.mp4> --spec` writes SPEC.md (cut list, light map, text timeline, curves). Mark every line KEEP or CHANGE before you write code.
 2. Get the real material: capture real UI, never redraw it.
 3. Build light first, then camera and depth of field, then type, then detail. A recreation can score well on SSIM and still be wrong in the way a viewer sees first: one measured reference read 4 to 8x brighter with a diagonal field of light and the render was mostly black with a small glow bolted on. Match the light map first (`harness/lib/light-map.mjs`, a 16x9 low-frequency map in linear light) and check it with `compare` before you touch type.
-4. Verify: `bin/vawe sheet <page> --ref <ref.mp4> --at t1,t2` while you build, `bin/vawe check coverage <ours.mp4> --ref <ref.mp4>` and `bin/vawe critique --ref` as the done check.
+4. Verify: `bin/vawe frame <page> --vs <ref.mp4> --at t1,t2` while you build, `bin/vawe check coverage <ours.mp4> --ref <ref.mp4>` and `bin/vawe critique --ref` as the done check.
 
 - A tight measured fit (`MEASURE.md`) is a number you can author. A loose fit means the move is not one tween (typing, two stacked tweens, a mask): rebuild it by intent. Track one element with `node harness/media/track.mjs <ref.mp4> --box x,y,w,h --from t0 --to t1`.
 - Dominance is by looking, and a brand's site is not its film. A dark-first site can launch with a cream film. Match the film you recreate, not the homepage.

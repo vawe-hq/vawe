@@ -1,4 +1,4 @@
-// Pure parts of `vawe strip --velocity`: the speed and scale of an element from its box samples, the start, peak, settle, overshoot and ease shape of a move.
+// Pure parts of `vawe frame --moment <s> --velocity`: the speed and scale of an element from its box samples, the start, peak, settle, overshoot and ease shape of a move.
 // No I/O and no heavy imports: harness/cli/verbs.mjs loads this file to check the arguments.
 
 export const VELOCITY_SPAN = 1;

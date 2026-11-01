@@ -15,7 +15,7 @@ test('stillProblem names the argument at fault', () => {
   assert.match(stillProblem({ source: 'a.mp4' }), /missing --at/);
   assert.match(stillProblem({ source: 'a.mp4', at: 'x' }), /not a number/);
   assert.match(stillProblem({ source: 'a.mp4', at: '-1' }), /not a number/);
-  assert.match(stillProblem({ source: 'a.mp4', at: '0.5,3,6' }), /takes one second.*vawe sheet <page\|mp4> --at 0\.5,3,6/);
+  assert.match(stillProblem({ source: 'a.mp4', at: '0.5,3,6' }), /takes one second.*vawe frame <page\|mp4> --at 0\.5,3,6/);
 });
 
 test('stillPath names a page by its folder and an mp4 by its file', () => {

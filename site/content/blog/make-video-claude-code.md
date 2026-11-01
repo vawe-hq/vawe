@@ -53,7 +53,7 @@ Each question prints a reason and an example. The agent writes the answers to a 
 After the answers, the command writes `films/<name>/page.html` (a valid starter page) and `brief.md`. Then the loop is:
 
 1. `bin/vawe dev films/<name>/page.html` renders a draft at half size and 30 fps, without sound.
-2. The agent looks at the frames with `bin/vawe strip` and fixes what reads flat.
+2. The agent looks at the frames with `bin/vawe frame` and fixes what reads flat.
 3. A fresh Claude Code session runs `bin/vawe critique films/<name>/page.html`. A session that did not write the page sees faults the writer does not.
 4. You approve the draft. Then `bin/vawe ship films/<name>/page.html` renders the final at 60 fps with sound.
 

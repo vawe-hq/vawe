@@ -101,7 +101,7 @@ Full-size frames at the named seconds settled it. One film showed an 800x600 cop
 
 ### Cause
 
-The bug showed only when two processes shared one browser. An agent had started `vawe sheet <page> --ref`, which looks at a page in the shared browser, while a final captured frames there. A render alone was clean.
+The bug showed only when two processes shared one browser. An agent had started `vawe frame <page> --vs`, which looks at a page in the shared browser, while a final captured frames there. A render alone was clean.
 
 The warm-tab lookup called `browser.pages()`. In Puppeteer, that call makes a `Page` object for every tab, and each new `Page` takes the connection's default viewport, 800x600. So the lookup attached to the render's tab and laid it out at 800x600 for a few frames. This script shows it:
 

@@ -132,7 +132,7 @@ const MEDIA = /^(img|video|canvas)$/;
 const layered = (b) => b.image || b.blurred || MEDIA.test(b.tag);
 
 /**
- * Advice when a frame has no living ground (rule living-ground); one sample is one world in `bin/vawe frames`.
+ * Advice when a frame has no living ground (rule living-ground); one sample is one world in `bin/vawe frame --world all`.
  * A layer is a CSS gradient or image background (on the element, or on its ::before or ::after), a blur filter, an img, a video or a canvas,
  * at opacity 0.5 or more, that paints at least ground_layer_strength_min against the ground (harness/lib/ground-paint.mjs: grain, a blend overlay and a faint gradient do not),
  * covering the ground_layer_area_pct_min of the frame. The finding names every flat frame, and says when they pass the limit.

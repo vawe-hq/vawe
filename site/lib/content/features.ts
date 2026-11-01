@@ -33,7 +33,7 @@ export const FEATURES_SESSION: { cmd: string; out: string[] }[] = [
     out: [
       `✓ out/ax-demo-draft.mp4: 180 frame(s) at 30fps, 960x540 (16:9), 0s-6.00s`,
       `@0.7s static window 0.7-2.6 s (1.9 s, limit 0.5 s): nothing moves; give the hold an element motion …`,
-      `next: bin/vawe strip films/ax-demo/page.html --cuts and Read every cut at full size; …`,
+      `next: bin/vawe frame films/ax-demo/page.html --cuts and Read every cut at full size; …`,
       `vawe: dev ok in 18.1s`,
     ],
   },

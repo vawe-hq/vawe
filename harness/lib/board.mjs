@@ -172,7 +172,7 @@ export function shipWarnings(brief, pageStarts = null) {
   if (!brief) return [];
   const lines = [];
   if (boardFilled(brief) === false) lines.push('the Board is not filled: write the rhythm, the spectacle, a move per cut and the sound rows in brief.md "Board"');
-  if (motionFilled(brief) === false) lines.push('the Motion pass is not filled: Read `bin/vawe strip <page> --cuts` for every cut, then write one row per cut in brief.md "Motion pass" (what read flat, what you fixed)');
+  if (motionFilled(brief) === false) lines.push('the Motion pass is not filled: Read `bin/vawe frame <page> --cuts` for every cut, then write one row per cut in brief.md "Motion pass" (what read flat, what you fixed)');
   if (pageStarts) lines.push(...boardVsPage(brief, pageStarts).map((l) => `Board and page differ: ${l}`));
   const unused = movesUnused(brief);
   if (unused.length) {

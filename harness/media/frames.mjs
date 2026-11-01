@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `vawe frames <page>`: one still of each data-world element alone, before any motion is written.
+// `vawe frame <page> --world all`: one still of each data-world element alone, before any motion is written.
 //   node harness/media/frames.mjs <page.html> [--full] [--zoom] [--world <id>[,<id>]]
 // Writes out/<film>-frames/<id>.png, the artboard sheet out/<film>-frames.png and films/<film>/frames.html, then prints the
 // absolute path of each PNG and the still-frame layout rules each world fires. The still is at the middle of the world's visible span

@@ -1,4 +1,4 @@
-// `vawe still /abs/other/page.html` loads core/ and assets/ from the running checkout and the page's own files from its folder.
+// `vawe frame /abs/other/page.html` loads core/ and assets/ from the running checkout and the page's own files from its folder.
 // Needs Chrome.   node --test tests/media/still-outside-checkout.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';

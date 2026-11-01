@@ -9,15 +9,15 @@
           "note": "the settled full-size frame of each shot"
         },
         {
-          "name": "vawe strip",
+          "name": "vawe frame",
           "note": "frames through a moment or every cut, with motion start and settle"
         },
         {
-          "name": "vawe strip --onion",
+          "name": "vawe frame --moment <s> --onion",
           "note": "frames of one move blended into one image, older ones fainter"
         },
         {
-          "name": "vawe strip --velocity",
+          "name": "vawe frame --moment <s> --velocity",
           "note": "speed and scale of page elements at 120 samples a second"
         },
         {

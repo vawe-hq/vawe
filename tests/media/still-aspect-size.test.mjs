@@ -1,4 +1,4 @@
-// `vawe still` takes --aspect (any W:H, over the page meta) and --size WxH; the aspect is part of the file names like a param.
+// `vawe frame` takes --aspect (any W:H, over the page meta) and --size WxH; the aspect is part of the file names like a param.
 // Needs Chrome.   node --test tests/media/still-aspect-size.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -58,7 +58,7 @@ test('--size must have the ratio of the aspect, and says the size that does', ()
   assert.equal(stillProblem({ source: 'p.html', at: '0', size: '1200x630' }), null);
 });
 
-test('vawe still --aspect 2:1 paints the page at 2:1, and the next plain still is 16:9 again', () => {
+test('vawe frame --aspect 2:1 paints the page at 2:1, and the next plain still is 16:9 again', () => {
   const wide = still('aspect-probe-2x1-0s.png');
   const plain = still('aspect-probe-0s.png');
   fs.rmSync(wide, { force: true });
@@ -78,7 +78,7 @@ test('vawe still --aspect 2:1 paints the page at 2:1, and the next plain still i
   assert.deepEqual(px(wide), [255, 0, 0]);
 });
 
-test('vawe still --aspect 1200:630 --size 1200x630 writes exactly 1200x630', () => {
+test('vawe frame --aspect 1200:630 --size 1200x630 writes exactly 1200x630', () => {
   const out = still('aspect-probe-1200x630-1200x630-0s.png');
   fs.rmSync(out, { force: true });
   const r = vawe('--aspect', '1200:630', '--size', '1200x630');
@@ -88,7 +88,7 @@ test('vawe still --aspect 1200:630 --size 1200x630 writes exactly 1200x630', () 
   assert.deepEqual(px(out), [0, 255, 0]);
 });
 
-test('vawe still --size with another ratio than the page is refused with the size that fits', () => {
+test('vawe frame --size with another ratio than the page is refused with the size that fits', () => {
   const r = vawe('--size', '1200x630');
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /--size 1200x630 is not the aspect 16:9.*1200x675.*--aspect 1200:630/);
@@ -120,16 +120,15 @@ test('--out of a page still must be a PNG: a .jpg would hold PNG bytes under the
 
 const build = (name, v, input) => VERBS.find((x) => x.name === name).build(v, [input]);
 
-test('--aspect all is a dev and ship batch: still, sheet and approve refuse it', () => {
-  for (const name of ['still', 'sheet', 'approve']) {
-    const v = name === 'still' ? { at: '0', aspect: 'all' } : { aspect: 'all' };
+test('--aspect all is a dev and ship batch: frame (a frame or a sheet) and approve refuse it', () => {
+  for (const [name, v] of [['frame', { at: '0', aspect: 'all' }], ['frame', { aspect: 'all' }], ['approve', { aspect: 'all' }]]) {
     assert.throws(() => build(name, v, PAGE), (e) => e instanceof UsageError && /--aspect all renders every aspect: dev and ship take it/.test(e.message), name);
   }
   assert.doesNotThrow(() => build('ship', { aspect: 'all' }, PAGE));
 });
 
 test('a page-only option on an mp4 is refused once, for --param, --aspect and --size', () => {
-  for (const [name, v] of [['sheet', { aspect: '2:1' }], ['sheet', { param: ['a=b'] }], ['still', { at: '1', size: '10x10' }], ['still', { at: '1', aspect: '2:1' }]]) {
+  for (const [name, v] of [['frame', { aspect: '2:1' }], ['frame', { param: ['a=b'] }], ['frame', { at: '1', size: '10x10' }], ['frame', { at: '1', aspect: '2:1' }]]) {
     assert.throws(() => build(name, v, 'x.mp4'), /goes to a page: /, JSON.stringify(v));
   }
 });

@@ -166,13 +166,20 @@ function targetsIn(text) {
   return found;
 }
 
-// `vawe dev <page>` names a verb; `vawe check <gate>` names a gate. Both come from the CLI's own tables.
+// `vawe dev <page>` names a verb; `vawe check <gate>` names a gate; the flags after a verb are that verb's own.
+// Both come from the CLI's own tables. A flag is read up to the next `vawe`, `|` or `;`, so the prose after a command is not judged.
 const VERB_NAMES = new Set(VERBS.map((v) => v.name));
+const COMMAND = /(?:^|\bbin\/|[$&;|]\s*)vawe\s+([a-z][a-z0-9-]*)(?:\s+([a-z][a-z0-9-]*))?([^|;`\n]*)/g;
 function vawesIn(text) {
   const bad = [];
-  for (const m of text.matchAll(/(?:^|\bbin\/|[$&;|]\s*)vawe\s+([a-z][a-z0-9-]*)(?:\s+([a-z][a-z0-9-]*))?/g)) {
-    if (!VERB_NAMES.has(m[1])) { bad.push(`vawe ${m[1]}`); continue; }
+  for (const m of text.matchAll(COMMAND)) {
+    const verb = VERBS.find((v) => v.name === m[1]);
+    if (!verb) { bad.push(`vawe ${m[1]}`); continue; }
     if (m[1] === 'check' && m[2] && !GATES[m[2]] && !/^(?:name|gate)$/.test(m[2])) bad.push(`vawe check ${m[2]}`);
+    if (verb.raw) continue;
+    const known = new Set((verb.flags ?? []).map((f) => f.name));
+    const rest = `${m[2] ?? ''}${m[3]}`.split(/\bvawe\b/)[0];
+    for (const flag of rest.matchAll(/(?:^|\s)--([a-z][a-z0-9-]*)/g)) if (!known.has(flag[1]) && !/^(?:help|flag|flags)$/.test(flag[1])) bad.push(`vawe ${m[1]} --${flag[1]}`);
   }
   return bad;
 }

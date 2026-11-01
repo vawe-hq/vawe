@@ -1,4 +1,4 @@
-// `vawe zoom`: one region of a frame, enlarged with nearest-neighbour so every pixel stays a square, optionally beside the same region of a second film.
+// `vawe frame`: one region of a frame, enlarged with nearest-neighbour so every pixel stays a square, optionally beside the same region of a second film.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,7 +34,7 @@ function autoBoxes(a, b, at, atB) {
   return { a: autoBox(lumaA), b: autoBox(lumaB), note: ': the films share no bright edge, so each side shows its own brightest region' };
 }
 
-/** Runs `vawe zoom`: writes one PNG and prints its absolute path. `opts`: { at, atB, box (text), auto, scale, vs, out }. */
+/** Runs `vawe frame`: writes one PNG and prints its absolute path. `opts`: { at, atB, box (text), auto, scale, vs, out }. */
 async function runZoom(input, opts) {
   const problem = zoomProblem({ ...opts, box: opts.box });
   if (problem) die(problem);

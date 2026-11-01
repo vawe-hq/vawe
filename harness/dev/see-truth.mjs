@@ -66,7 +66,7 @@ export function formatSummary(rows) {
   return lines.join('\n');
 }
 
-/** `vawe strip --velocity` summary: one entry per element with its position move. */
+/** `vawe frame --moment <s> --velocity` summary: one entry per element with its position move. */
 export function parseVelocity(text) {
   const out = [];
   let cur = null;
@@ -87,7 +87,7 @@ export function parseVelocity(text) {
   return out;
 }
 
-/** `vawe strip --at` motion line: start, peak, settle and the burst count. */
+/** `vawe frame --at` motion line: start, peak, settle and the burst count. */
 export function parseStrip(text) {
   const m = /motion: starts (\d+(?:\.\d+)?) s, peaks (\d+(?:\.\d+)?) at (\d+(?:\.\d+)?) s, settles (\d+(?:\.\d+)?) s; (\d+) burst/.exec(String(text));
   return m ? { start: Number(m[1]), settle: Number(m[4]), bursts: Number(m[5]) } : null;
@@ -135,7 +135,7 @@ export function cutsRows(t, { spec, timeline }) {
   const cuts = spec?.cuts ?? null;
   t.truth.cuts.forEach((c, i) => rows.push(scoreRow({ fixture: F, measure: `cut ${i + 1} second`, tool: 'vawe see --spec (cuts)', truth: c, measured: cuts?.[i]?.t, tolerance: tol.cutSeconds })));
   rows.push(scoreRow({ fixture: F, measure: 'world count', tool: 'vawe see --spec (shots)', truth: t.truth.worlds.length, measured: spec?.shots?.length, tolerance: tol.worldCount }));
-  rows.push(scoreRow({ fixture: F, measure: 'world count', tool: 'vawe storyboard --text', truth: t.truth.worlds.length, measured: timeline?.worlds?.length, tolerance: tol.worldCount }));
+  rows.push(scoreRow({ fixture: F, measure: 'world count', tool: 'vawe see --plan', truth: t.truth.worlds.length, measured: timeline?.worlds?.length, tolerance: tol.worldCount }));
   for (const id of t.truth.durationWorlds) {
     const i = t.truth.worlds.findIndex((w) => w.id === id);
     const w = t.truth.worlds[i];
@@ -143,7 +143,7 @@ export function cutsRows(t, { spec, timeline }) {
     const shot = spec?.shots?.find((s) => Math.abs(s.t0 - w.start) <= tol.worldSeconds);
     const tl = timeline?.worlds?.find((x) => x.id === id);
     rows.push(scoreRow({ fixture: F, measure: `world ${id} duration`, tool: 'vawe see --spec (shots)', truth: r(dur), measured: shot ? shot.t1 - shot.t0 : null, tolerance: tol.worldSeconds }));
-    rows.push(scoreRow({ fixture: F, measure: `world ${id} duration`, tool: 'vawe storyboard --text', truth: r(dur), measured: tl ? tl.end - tl.start : null, tolerance: tol.worldSeconds }));
+    rows.push(scoreRow({ fixture: F, measure: `world ${id} duration`, tool: 'vawe see --plan', truth: r(dur), measured: tl ? tl.end - tl.start : null, tolerance: tol.worldSeconds }));
   }
   return rows;
 }
@@ -172,13 +172,13 @@ export function motionRows(t, { velocity, spec, stripA, stripB }) {
   const el = (axisStart) => spec?.shots?.flatMap((s) => s.elements).find((e) => e.axis === 'x' && Math.abs(e.start.t - axisStart) <= 0.1);
   const eA = el(a.start), eB = el(b.start);
   const rows = [
-    scoreRow({ fixture: F, measure: 'A start second', tool: 'vawe strip --velocity (page)', truth: a.start, measured: vel('a')?.start, tolerance: tol.startSeconds }),
-    scoreRow({ fixture: F, measure: 'A settle second', tool: 'vawe strip --velocity (page)', truth: a.settle, measured: vel('a')?.settle, tolerance: tol.settleSeconds }),
-    scoreRow({ fixture: F, measure: 'A overshoot (points of travel)', tool: 'vawe strip --velocity (page)', truth: a.overshootPct, measured: vel('a')?.overshootPct, tolerance: tol.overshootPoints }),
-    scoreRow({ fixture: F, measure: 'B start second', tool: 'vawe strip --velocity (page)', truth: b.start, measured: vel('b')?.start, tolerance: tol.startSeconds }),
-    scoreRow({ fixture: F, measure: 'B settle second (end of move)', tool: 'vawe strip --velocity (page)', truth: b.settle, measured: vel('b')?.settle, tolerance: tol.settleSeconds }),
-    scoreRow({ fixture: F, measure: 'B peak speed (css px/s)', tool: 'vawe strip --velocity (page)', truth: b.peakCssPxPerS, measured: vel('b')?.peakPxPerS, tolerance: b.peakCssPxPerS * tol.speedRatio }),
-    scoreRow({ fixture: F, measure: 'B ease shape', tool: 'vawe strip --velocity (page)', truth: b.shape, measured: vel('b')?.shape }),
+    scoreRow({ fixture: F, measure: 'A start second', tool: 'vawe frame --moment <s> --velocity (page)', truth: a.start, measured: vel('a')?.start, tolerance: tol.startSeconds }),
+    scoreRow({ fixture: F, measure: 'A settle second', tool: 'vawe frame --moment <s> --velocity (page)', truth: a.settle, measured: vel('a')?.settle, tolerance: tol.settleSeconds }),
+    scoreRow({ fixture: F, measure: 'A overshoot (points of travel)', tool: 'vawe frame --moment <s> --velocity (page)', truth: a.overshootPct, measured: vel('a')?.overshootPct, tolerance: tol.overshootPoints }),
+    scoreRow({ fixture: F, measure: 'B start second', tool: 'vawe frame --moment <s> --velocity (page)', truth: b.start, measured: vel('b')?.start, tolerance: tol.startSeconds }),
+    scoreRow({ fixture: F, measure: 'B settle second (end of move)', tool: 'vawe frame --moment <s> --velocity (page)', truth: b.settle, measured: vel('b')?.settle, tolerance: tol.settleSeconds }),
+    scoreRow({ fixture: F, measure: 'B peak speed (css px/s)', tool: 'vawe frame --moment <s> --velocity (page)', truth: b.peakCssPxPerS, measured: vel('b')?.peakPxPerS, tolerance: b.peakCssPxPerS * tol.speedRatio }),
+    scoreRow({ fixture: F, measure: 'B ease shape', tool: 'vawe frame --moment <s> --velocity (page)', truth: b.shape, measured: vel('b')?.shape }),
     scoreRow({ fixture: F, measure: 'A start second', tool: 'vawe see --spec (elements)', truth: a.start, measured: eA?.start?.t, tolerance: tol.startSeconds }),
     scoreRow({ fixture: F, measure: 'A settle second', tool: 'vawe see --spec (elements)', truth: a.settle, measured: eA?.land?.t, tolerance: tol.settleSeconds }),
     scoreRow({ fixture: F, measure: 'A overshoot (points of travel)', tool: 'vawe see --spec (elements)', truth: a.overshootPct, measured: eA?.overshoot == null ? null : (eA.overshoot - 1) * 100, tolerance: tol.overshootPoints }),
@@ -186,12 +186,12 @@ export function motionRows(t, { velocity, spec, stripA, stripB }) {
     scoreRow({ fixture: F, measure: 'B start second', tool: 'vawe see --spec (elements)', truth: b.start, measured: eB?.start?.t, tolerance: tol.startSeconds }),
     scoreRow({ fixture: F, measure: 'B settle second (end of move)', tool: 'vawe see --spec (elements)', truth: b.settle, measured: eB?.land?.t, tolerance: tol.settleSeconds }),
     scoreRow({ fixture: F, measure: 'B ease shape', tool: 'vawe see --spec (elements)', truth: b.shape, measured: eB?.easing?.class }),
-    scoreRow({ fixture: F, measure: 'A start second', tool: 'vawe strip (mp4)', truth: a.start, measured: stripA?.start, tolerance: tol.startSeconds }),
-    scoreRow({ fixture: F, measure: 'A settle second', tool: 'vawe strip (mp4)', truth: a.settle, measured: stripA?.settle, tolerance: tol.settleSeconds }),
-    scoreRow({ fixture: F, measure: 'A bursts', tool: 'vawe strip (mp4)', truth: a.bursts, measured: stripA?.bursts, tolerance: tol.bursts }),
-    scoreRow({ fixture: F, measure: 'B start second', tool: 'vawe strip (mp4)', truth: b.start, measured: stripB?.start, tolerance: tol.startSeconds }),
-    scoreRow({ fixture: F, measure: 'B settle second (end of move)', tool: 'vawe strip (mp4)', truth: b.settle, measured: stripB?.settle, tolerance: tol.settleSeconds }),
-    noTool(F, 'A overshoot from vawe strip --onion (image only, prints no number)', a.overshootPct, tol.overshootPoints),
+    scoreRow({ fixture: F, measure: 'A start second', tool: 'vawe frame --moment <s> (mp4)', truth: a.start, measured: stripA?.start, tolerance: tol.startSeconds }),
+    scoreRow({ fixture: F, measure: 'A settle second', tool: 'vawe frame --moment <s> (mp4)', truth: a.settle, measured: stripA?.settle, tolerance: tol.settleSeconds }),
+    scoreRow({ fixture: F, measure: 'A bursts', tool: 'vawe frame --moment <s> (mp4)', truth: a.bursts, measured: stripA?.bursts, tolerance: tol.bursts }),
+    scoreRow({ fixture: F, measure: 'B start second', tool: 'vawe frame --moment <s> (mp4)', truth: b.start, measured: stripB?.start, tolerance: tol.startSeconds }),
+    scoreRow({ fixture: F, measure: 'B settle second (end of move)', tool: 'vawe frame --moment <s> (mp4)', truth: b.settle, measured: stripB?.settle, tolerance: tol.settleSeconds }),
+    noTool(F, 'A overshoot from vawe frame --moment <s> --onion (image only, prints no number)', a.overshootPct, tol.overshootPoints),
   ];
   return rows;
 }
@@ -262,7 +262,7 @@ export function soundRows(t, { audioAt, lufs, timeline, spec }) {
     const probe = audioAt?.find((p) => Math.abs(p.at - (c.at + PROBE_OFFSET)) < 1e-6);
     const cue = probe?.cues.find((x) => x.voice === c.voice);
     rows.push(scoreRow({ fixture: F, measure: `${c.voice} cue second`, tool: 'vawe sound --at (page)', truth: c.at, measured: cue ? probe.at - cue.into : null, tolerance: tol.cueSeconds }));
-    rows.push(scoreRow({ fixture: F, measure: `${c.voice} cue second`, tool: 'vawe storyboard --text (page)', truth: c.at, measured: timeline?.cues?.[i]?.voice === c.voice ? timeline.cues[i].at : null, tolerance: tol.cueSeconds }));
+    rows.push(scoreRow({ fixture: F, measure: `${c.voice} cue second`, tool: 'vawe see --plan (page)', truth: c.at, measured: timeline?.cues?.[i]?.voice === c.voice ? timeline.cues[i].at : null, tolerance: tol.cueSeconds }));
     const hit = spec?.audio?.hits ? nearest(spec.audio.hits, c.at, (h) => h.t ?? h.frame / spec.fps) : undefined;
     rows.push(scoreRow({ fixture: F, measure: `${c.voice} cue second`, tool: 'vawe see --spec (audio hits of the mp4)', truth: c.at, measured: hit ? hit.t ?? hit.frame / spec.fps : null, tolerance: tol.cueSeconds }));
   });
@@ -509,7 +509,7 @@ function specOf(name, mp4, ocr) {
   return readJson(path.join(ROOT, dir, 'spec.json'));
 }
 
-const timelineOf = (name) => { const res = vawe('storyboard', pageOf(name), '--text', '--json'); try { return JSON.parse(res.text.slice(0, res.text.lastIndexOf('}') + 1)); } catch { return null; } };
+const timelineOf = (name) => { const res = vawe('see', pageOf(name), '--plan', '--json'); try { return JSON.parse(res.text.slice(0, res.text.lastIndexOf('}') + 1)); } catch { return null; } };
 
 /** The see.json of `vawe see` on the mp4 (or, with `page`, on the page read with that mp4 as its draft); null when it failed. */
 function seeOf(name, mp4, { page = false, ocr = false } = {}) {
@@ -526,8 +526,8 @@ const FIXTURE_RUN = {
   motion: (t, o) => {
     const mp4 = render('motion', o);
     const { a, b } = t.truth;
-    const vel = vawe('strip', pageOf('motion'), '--velocity', '--at', '1.5', '--span', '3', '--out', 'out/see-truth/velocity');
-    const strip = (s) => (mp4 ? parseStrip(vawe('strip', mp4, '--at', String(s.at), '--span', String(s.span), '--out', 'out/see-truth/strip').text) : null);
+    const vel = vawe('frame', pageOf('motion'), '--velocity', '--moment', '1.5', '--span', '3', '--out', 'out/see-truth/velocity');
+    const strip = (s) => (mp4 ? parseStrip(vawe('frame', mp4, '--moment', String(s.at), '--span', String(s.span), '--out', 'out/see-truth/strip').text) : null);
     return [...motionRows(t, { velocity: parseVelocity(vel.text), spec: specOf('motion', mp4), stripA: strip(a.strip), stripB: strip(b.strip) }), ...motionSeeRows(t, { a: seeOf('motion', mp4) })];
   },
   camera: (t, o) => { const mp4 = render('camera', o); return [...cameraRows(t, { spec: specOf('camera', mp4) }), ...cameraSeeRows(t, { a: seeOf('camera', mp4) })]; },

@@ -312,6 +312,6 @@ prompts/moves/demo/assets/mask-rise/*.source.mp4
 scripts/discovery/runs/*
 !scripts/discovery/runs/baseline-*
 
-# written by `vawe frames` next to each page
+# written by `vawe frame --world all` next to each page
 films/*/frames.html
 films/*/*/frames.html

@@ -66,7 +66,7 @@ You lay out in CSS for the five aspects and never crop. The [aspect ratio guide]
 
 Twelve draft checks read the DOM from this contract. The list is the `CHECK_TIER` table in `harness/lib/draft-tiers.mjs`: motion, text, worlds, tail, video, sound, contrast, layout, spec, speed, box-motion and objects. The `world-held` check reads the measured `data-world` spans, so it can say that the second scene holds for 4 seconds with nothing moving.
 
-The `vawe frames` command renders one still for each `data-world` element, with a contact sheet. The `vawe new` command writes a starter page with one `data-world` per beat. It fills the metas from `--length`, `--aspect` and `--title`.
+The `vawe frame --world all` command renders one still for each `data-world` element, with a contact sheet. The `vawe new` command writes a starter page with one `data-world` per beat. It fills the metas from `--length`, `--aspect` and `--title`.
 
 ![One page.html feeds the renderer, the draft checks, the frames command, the reviewer and the studio.](/blog/page-contract/diagram.webp "One page.html, five readers.")
 
@@ -75,7 +75,7 @@ The `vawe frames` command renders one still for each `data-world` element, with 
 From a checkout of [vawe](https://github.com/vawe-hq/vawe), render one still for each beat of the example page:
 
 ```bash
-bin/vawe frames films/examples/colour-sting/page.html
+bin/vawe frame films/examples/colour-sting/page.html --world all
 ```
 
 On our machine this printed `5 worlds: cold @0.383s, warm @1.383s, hot @1.899s, amber @3.566s, red @4.684s`. It then wrote a contact sheet and one PNG for each scene, in 9.9 s.

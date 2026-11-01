@@ -51,13 +51,13 @@ We set two rules. If you cannot measure it, you cannot improve it. A reference g
 ![Six verbs: refs frames, strip, onion, velocity, spec and see, from one frame to a whole film.](/blog/watch-a-film/verbs.webp "The six verbs, from one frame to a whole film.")
 
 - The `vawe refs frames` verb writes the settled full-size frame of each shot.
-- The `vawe strip` verb shows the frames through a moment or through every cut, with the motion start and the settle.
-- The `vawe strip --onion` mode blends the frames of one move into one image. The `vawe strip --velocity` mode samples a page 120 times a second and reports start, peak, settle, overshoot and ease shape per element.
+- The `vawe frame` verb shows the frames through a moment or through every cut, with the motion start and the settle.
+- The `vawe frame --moment <s> --onion` mode blends the frames of one move into one image. The `vawe frame --moment <s> --velocity` mode samples a page 120 times a second and reports start, peak, settle, overshoot and ease shape per element.
 - The `vawe see --spec` mode measures where the eye goes and what the ground does in each shot.
-- The `vawe see` verb reports flashes, clipped share, bloom, chromatic offset, screen texture and glow colour. The `vawe zoom` verb shows a sharp crop of one region beside the same region of a second film.
+- The `vawe see` verb reports flashes, clipped share, bloom, chromatic offset, screen texture and glow colour. The `vawe frame` verb shows a sharp crop of one region beside the same region of a second film.
 - The `vawe see` verb reads a film completely: structure, motion, look, type, sound and images.
 
-The `zoom` and `see` verbs take `--vs <ref>` and print deltas. The code is in `harness/media/see/`, and the verb table is in `harness/cli/verbs.mjs`. The reference is now the default: `critique`, `compare` and `judge` use the reference the brief names (`harness/lib/refs.mjs`). We had a `--ref` flag before, and agents skipped it.
+The `frame --box` mode and the `see` verb take `--vs <ref>` and print deltas. The code is in `harness/media/see/`, and the verb table is in `harness/cli/verbs.mjs`. The reference is now the default: `critique`, `compare` and `judge` use the reference the brief names (`harness/lib/refs.mjs`). We had a `--ref` flag before, and agents skipped it.
 
 <figure>
 <video src="/blog/watch-a-film/exposure-flash.mp4" poster="/blog/watch-a-film/exposure-flash.hd.webp" muted loop playsinline controls></video>
@@ -84,7 +84,7 @@ node harness/dev/see-truth.mjs --only flash
 bin/vawe see out/see-truth/flash.mp4
 ```
 
-We ran both today. The suite scored 13 pass, 0 fail and 1 "no tool" in 14 s. It found flash 1 at 0.8 s for 2 frames and flash 2 at 1.8 s for 3 frames, as built. The `vawe see` verb printed the same two flashes, with luma 48 to 200 and 48 to 240. On the `cuts` family the same script scored 22 pass and 4 fail in 49 s. All 4 failures are `vawe storyboard --text` rows that returned no value. We did not record a pass count for the whole suite, so we give none.
+We ran both today. The suite scored 13 pass, 0 fail and 1 "no tool" in 14 s. It found flash 1 at 0.8 s for 2 frames and flash 2 at 1.8 s for 3 frames, as built. The `vawe see` verb printed the same two flashes, with luma 48 to 200 and 48 to 240. On the `cuts` family the same script scored 22 pass and 4 fail in 49 s. All 4 failures are `vawe see --plan` rows that returned no value. We did not record a pass count for the whole suite, so we give none.
 
 ## Error bars on every number
 
@@ -114,7 +114,7 @@ We have no score after the change. We did not rerun that film, and we will not i
 An agent reads frames, not motion. Give it numbers for cut times, flash lengths and brightness, and it can compare two films. Without them it describes a film in words and misses details such as a 0.07 s flash.
 
 **How do I compare two videos frame by frame?**
-Render both at the same exact seconds, put them side by side, and print measured deltas for light, motion and cuts. In vawe, `vawe sheet --ref` does the first and `vawe see <film> --vs <ref>` does the second.
+Render both at the same exact seconds, put them side by side, and print measured deltas for light, motion and cuts. In vawe, `vawe frame --vs` does the first and `vawe see <film> --vs <ref>` does the second.
 
 **How do I check that a video analysis tool is accurate?**
 Render a page whose answer you set, such as a cut at 0.85 s, and score the tool within one frame. Report the p90 error beside every number the tool prints.

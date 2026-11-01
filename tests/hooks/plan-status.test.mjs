@@ -50,7 +50,7 @@ test('a half-filled film names only what is still open', () => {
   const text = status(film({ brief: TAKEN + IDEAS + BOARD })).join('\n');
   assert.doesNotMatch(text, /sections empty|reference study/);
   assert.match(text, /DESIGN\.md has no line for builder, type, colour, depth, frame: skills\/vawe-page\/SKILL\.md/);
-  assert.match(text, /no storyboard run: bin\/vawe storyboard films\/f\/page\.html/);
+  assert.match(text, /no storyboard run: bin\/vawe frame films\/f\/page\.html --board/);
 });
 
 test('after a draft the Motion pass joins the empty sections in one line', () => {
@@ -77,11 +77,11 @@ test('after a draft the pre-draft items are dropped and an empty Board still war
 test('the block is capped: many open items and findings stay inside 8 lines and count the rest', () => {
   const lines = planStatusLines({
     name: 'f', rel: 'films/f/page.html', brief: TAKEN_EMPTY + IDEAS_EMPTY + BOARD_EMPTY, design: '', early: true, frames: 'none', storyboardRan: false,
-    findings: Array.from({ length: 30 }, (_, i) => `finding ${i}`), digest: DIGEST, next: 'bin/vawe frames films/f/page.html',
+    findings: Array.from({ length: 30 }, (_, i) => `finding ${i}`), digest: DIGEST, next: 'bin/vawe frame films/f/page.html --world all',
   });
   assert.ok(lines.length <= STATUS_MAX_LINES);
   assert.match(lines.join('\n'), /- \+3 more: /);
-  assert.match(lines.join('\n'), /\(\+29 more: bin\/vawe storyboard films\/f\/page\.html\)/);
+  assert.match(lines.join('\n'), /\(\+29 more: bin\/vawe frame films\/f\/page\.html --board\)/);
   assert.match(lines.at(-1), /^next: /);
 });
 
@@ -103,7 +103,7 @@ test('the bans the page shows come first: the slideshow score in the head, two l
   assert.equal(lines[0], 'plan of f: 5 open, slideshow 2/10, the draft renders anyway');
   assert.equal(lines[1], '  page: same-entrance at 0.7 s: 17 of 17 elements enter with one move (blur + moves up + scale in). Fix: vary the moves of the hero, the support and the detail; stagger them (taste/craft/transitions.md)');
   assert.equal(lines[2], '  page: swap-no-carry at 2.3, 5 s: 2 of 2 cuts swap the whole frame with no element carried across. Fix: name a handoff object that leaves A and starts B (taste/craft/transitions.md)');
-  assert.equal(lines[3], '  page: +2 more before the render: bin/vawe storyboard films/f/page.html');
+  assert.equal(lines[3], '  page: +2 more before the render: bin/vawe frame films/f/page.html --board');
   assert.match(lines[4], /brief\.md sections empty: Board/);
   const clean = { name: 'f', rel: 'p', brief: TAKEN + IDEAS + BOARD, design: RUNGS, early: false, frames: 'ok', storyboardRan: true, digest: DIGEST, next: 'x' };
   assert.deepEqual(planStatusLines({ ...clean, page: [] }), []);

@@ -5,13 +5,13 @@
       "kind": "code",
       "lines": [
         {
-          "code": "$ bin/vawe frames"
+          "code": "$ bin/vawe frame"
         },
         {
-          "code": "vawe: missing <page>; usage: vawe frames <page> [flags]"
+          "code": "vawe: missing <film>; usage: vawe frame <film> [flags]"
         },
         {
-          "code": "vawe: frames FAILED (missing <page>; usage: vawe frames <page> [flags]) in 0.0s"
+          "code": "vawe: frame FAILED (missing <film>; usage: vawe frame <film> [flags]) in 0.0s"
         },
         {
           "code": "exit code 1"

@@ -1,4 +1,4 @@
-// Pure parts of `vawe strip`: the window around a moment, the cuts of a film, and when the motion in a window starts and settles.
+// Pure parts of `vawe frame`: the window around a moment, the cuts of a film, and when the motion in a window starts and settles.
 // No I/O and no heavy imports: harness/cli/verbs.mjs loads this file to check the arguments.
 import { atProblem } from './at-problem.mjs';
 

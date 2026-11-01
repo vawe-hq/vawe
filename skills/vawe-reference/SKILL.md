@@ -18,7 +18,7 @@ References are in-house and never published. Length is the reference's length, n
 ```bash
 bin/vawe new <name> --ref quality/refs/<ref>/source.mp4   # page starter plus SPEC.md
 bin/vawe see quality/refs/<ref>/source.mp4 --spec               # SPEC.md alone, to re-measure
-bin/vawe sheet films/<name>/page.html --ref quality/refs/<ref>/source.mp4 --at 2.5,3.1,4
+bin/vawe frame films/<name>/page.html --vs quality/refs/<ref>/source.mp4 --at 2.5,3.1,4
                                                           # reference | yours at the same exact seconds
 bin/vawe check coverage out/<name>.mp4 --ref quality/refs/<ref>/source.mp4 --min 0.5
                                                           # SSIM per second, the 6 worst moments as a sheet

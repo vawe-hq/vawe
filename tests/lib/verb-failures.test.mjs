@@ -10,7 +10,7 @@ const ROOT = path.join(import.meta.dirname, '../..');
 test('a dev failure names the next step: wait for a slot, bisect a lost browser, else frames', () => {
   assert.equal(devFix('exit 1: TimeoutError: Navigation timeout of 120000 ms exceeded', ['p.html']), 'bin/vawe wait p.html');
   assert.match(devFix('exit 1: error: TargetCloseError: Protocol error (Runtime.callFunctionOn): Target closed', ['p.html']), /bin\/vawe dev p\.html --from 0 --to 4/);
-  assert.equal(devFix('exit 2: render stalled', ['p.html']), 'bin/vawe frames p.html');
+  assert.equal(devFix('exit 2: render stalled', ['p.html']), 'bin/vawe frame p.html --world all');
 });
 
 test('a failing check gate writes its reason to stderr, where the run log reads it', () => {
@@ -34,7 +34,7 @@ test('see --probe reaches the element probe of see.mjs and names what it lacks',
   assert.throws(() => see.build({ probe: true, sel: '.a' }, ['a.mp4']), /--probe reads a page/);
 });
 
-test('stripProblem: an --at list points at vawe sheet', () => {
-  assert.match(stripProblem({ at: '0.5,3,6', cuts: false, span: 1, fps: 8 }), /takes one second.*vawe sheet <page\|mp4> --at 0\.5,3,6/);
+test('stripProblem: an --at list points at vawe frame', () => {
+  assert.match(stripProblem({ at: '0.5,3,6', cuts: false, span: 1, fps: 8 }), /takes one second.*vawe frame <page\|mp4> --at 0\.5,3,6/);
   assert.match(stripProblem({ at: 'abc', cuts: false, span: 1, fps: 8 }), /not a number of seconds/);
 });

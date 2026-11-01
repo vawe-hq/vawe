@@ -31,7 +31,7 @@ export const cueRows = (specs, spans) => specs.map((s) => ({
   voice: voiceOf(s), role: s.role, at: round(s.at), on: s.on ?? null, gain: round(s.gain), world: worldAt(spans, s.at),
 }));
 
-/** Everything `vawe storyboard --text` prints, as data. `meta` is { duration, spectacle (s or null) }. Pure. */
+/** Everything `vawe see --plan` prints, as data. `meta` is { duration, spectacle (s or null) }. Pure. */
 export function timelineOf({ spans, specs, duration, spectacle }) {
   const worlds = worldRows(spans);
   const cuts = worlds.map((w) => w.cut);
@@ -46,7 +46,7 @@ export function timelineOf({ spans, specs, duration, spectacle }) {
   };
 }
 
-/** The text of `vawe storyboard --text`, one array of lines. Pure. */
+/** The text of `vawe see --plan`, one array of lines. Pure. */
 export function timelineLines(t) {
   const lines = [`duration ${t.duration} s, ${t.worlds.length} worlds`];
   lines.push('worlds (id: shows from-until, cut length to the next world, read hold):');

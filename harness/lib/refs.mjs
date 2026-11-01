@@ -106,7 +106,7 @@ export function writeRegistry(dir, registry) {
 const ID = /^[A-Za-z0-9_-]{3,}$/;
 const mentions = (text, re, group = 1) => [...text.matchAll(re)].map((m) => m[group]).filter((id) => ID.test(id));
 
-/** The reference ids a brief names, most mentioned first: frame paths (`frames/<id>/`), the ref id column of the "move taken" table, `--ref <id>` and the backticked id on a "Reference:" line. */
+/** The reference ids a brief names, most mentioned first: frame paths (`frames/<id>/`), the ref id column of the "move taken" table, `--ref <id>` or `--vs <id>` and the backticked id on a "Reference:" line. */
 export function briefRefIds(briefText) {
   const text = String(briefText ?? '');
   const at = text.indexOf('| move taken');
@@ -121,7 +121,7 @@ export function briefRefIds(briefText) {
   const all = [
     ...mentions(text, /\/frames\/([^/\s|`]+)\//g),
     ...moves,
-    ...mentions(text, /--ref ([^\s|`/]+)(?![^\s|`]*\.)/g),
+    ...mentions(text, /--(?:ref|vs) ([^\s|`/]+)(?![^\s|`]*\.)/g),
     ...mentions(referenceLines, /`([A-Za-z0-9_-]+)`/g),
     ...mentions(referenceLines, /refs\/([A-Za-z0-9_-]+)\.(?:mp4|webm)/g),
   ];
@@ -225,8 +225,8 @@ export function refsEmpty(dir) {
 export function noRefsLines(dir) {
   return [
     `no reference films in ${dir} yet. Study these instead:`,
-    '  films/examples/colour-sting/   a judged-PASS 5 s sting: bin/vawe frames films/examples/colour-sting/page.html --full writes its stills',
-    '  prompts/moves/README.md        moves to copy, each with a clip: bin/vawe strip site/public/moves/<move>.mp4 --at <s> shows how it moves',
+    '  films/examples/colour-sting/   a judged-PASS 5 s sting: bin/vawe frame films/examples/colour-sting/page.html --world all --full writes its stills',
+    '  prompts/moves/README.md        moves to copy, each with a clip: bin/vawe frame site/public/moves/<move>.mp4 --moment <s> shows how it moves',
     '  bin/vawe refs add <url> --type product|brand   adds a film you admire (needs yt-dlp), then bin/vawe refs frames <id>',
     'Then name 4 to 6 still paths and what each gives in brief.md "Taken from".',
   ];

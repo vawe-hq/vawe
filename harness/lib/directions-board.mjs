@@ -1,4 +1,4 @@
-// The comparison board of a film's directions (`vawe storyboard <page> --directions`): one column per direction, the same moments
+// The comparison board of a film's directions (`vawe frame <page> --directions`): one column per direction, the same moments
 // and the same lines in each. Pure: parsed brief slots and image paths in, one HTML string out. Images are relative paths.
 import { esc } from './storyboard-html.mjs';
 

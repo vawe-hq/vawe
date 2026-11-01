@@ -1,11 +1,11 @@
-// Pure parts of `vawe still`. No I/O and no heavy imports: harness/cli/verbs.mjs loads this file to check the arguments.
+// Pure parts of `vawe frame`. No I/O and no heavy imports: harness/cli/verbs.mjs loads this file to check the arguments.
 import path from 'node:path';
 import { isUrl } from '../../lib/url.mjs';
 import { atProblem } from './at-problem.mjs';
 import { paramsFilm } from '../../lib/page-params.mjs';
 import { aspectDims } from '../../../core/layout/aspects.js';
 
-const USAGE = 'usage: bin/vawe still <page|mp4> --at <s> [--out file.png]';
+const USAGE = 'usage: bin/vawe frame <page|mp4> --at <s> [--out file.png]';
 
 /** The first problem in the arguments of still, or null. Pure. */
 export function stillProblem({ source, at, size }) {

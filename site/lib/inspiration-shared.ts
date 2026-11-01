@@ -52,7 +52,7 @@ export function recreatePrompt(p: Pick<InspirationPost, "title" | "url" | "creat
     `3. Fetch the reference: bin/vawe refs add ${p.url} --no-measure. Its video: line is the mp4 path.`,
     `4. Start the film: bin/vawe new ${name} --ref <the mp4 path>. It writes ${page} and SPEC.md, the reference measured shot by shot.`,
     "5. Mark every SPEC.md line KEEP or CHANGE. Rebuild the page light first, then camera, type and detail.",
-    `6. Draft: bin/vawe dev ${page}. Compare at the key seconds: bin/vawe sheet ${page} --ref <mp4> --at <s,s,s>.`,
+    `6. Draft: bin/vawe dev ${page}. Compare at the key seconds: bin/vawe frame ${page} --vs <mp4> --at <s,s,s>.`,
     `7. Loop bin/vawe critique ${page} --ref <mp4> and fix the seconds it names until it passes. Then show me the draft. Do not run bin/vawe ship before I approve.`,
     "",
     `Keep 16:9 and the reference length. The video belongs to @${p.creator.handle}: use it only as a private reference, never republish their footage.`,

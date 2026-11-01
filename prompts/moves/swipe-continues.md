@@ -5,7 +5,7 @@ scene arrives from the right at the speed the card left. One belt carries both c
 and no crossfade. The detail that sells it is the seam: the finger lets go at the peak, the belt keeps
 that speed for the frame the cards cross, and only then does the next card brake. The measured speed
 is the same on both sides of the seam (a peak of about 6 frame heights a second, 6400 px/s at 1080 p, read with
-`bin/vawe strip <page> --velocity`). Clip: [swipe-continues.mp4](../../site/public/moves/swipe-continues.mp4). Demo: [demo/swipe-continues.html](demo/swipe-continues.html).
+`bin/vawe frame <page> --moment <s> --velocity`). Clip: [swipe-continues.mp4](../../site/public/moves/swipe-continues.mp4). Demo: [demo/swipe-continues.html](demo/swipe-continues.html).
 
 ```js
 import { easeFn } from '../../core/motion/presets.js';

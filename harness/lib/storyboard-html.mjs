@@ -1,4 +1,4 @@
-// The one self-contained HTML page of `vawe storyboard`: frame cards in a row, the scene-change arrows between them and a rhythm strip,
+// The one self-contained HTML page of `vawe frame --board`: frame cards in a row, the scene-change arrows between them and a rhythm strip,
 // on a canvas you pan and zoom. Pure: board data (harness/lib/storyboard.mjs) in, one string out. Images are relative paths.
 import { storyboardScript } from './storyboard-script.mjs';
 import { BOARD_LABELS as L } from './plain-words.mjs';

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Runs after `vawe dev` renders: the top advice of the draft (slideshow score and attractors first) and, while a render of the film
-// still runs, the exact wait command, and the path of one full-size still (`vawe still`) to read. Advice only: the exit code is always 0.
+// still runs, the exact wait command, and the path of one full-size still (`vawe frame`) to read. Advice only: the exit code is always 0.
 //   node harness/live/dev-end.mjs <page.html>
 import fs from 'node:fs';
 import path from 'node:path';

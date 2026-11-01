@@ -3,7 +3,7 @@
   "note": "A higher layer wins, key by key. A nested page option such as\nhalation.radius changes only that key and keeps the look's strength.",
   "parts": [
     { "kind": "stack", "layers": [
-      { "name": "3. preview override (vawe frames --looks)", "mark": "hi" },
+      { "name": "3. preview override (vawe frame --looks)", "mark": "hi" },
       { "name": "2. the page's own options" },
       { "name": "1. the named look over a flat lens" }
     ] },

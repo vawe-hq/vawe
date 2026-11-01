@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // How often the reference films pause before a shot cut: the numbers in REF_PAUSES (harness/media/see/strip-math.mjs).
 //   node harness/dev/pause-bar.mjs <measures.json>
-// Reads the same film list as bar-from-refs.mjs and measures each with holdBefore on the energy series `vawe strip` reads.
+// Reads the same film list as bar-from-refs.mjs and measures each with holdBefore on the energy series `vawe frame` reads.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

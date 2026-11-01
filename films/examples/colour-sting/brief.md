@@ -29,7 +29,7 @@ Four frames of the repo's own move clips, as strips in `assets/`. The film takes
 | films/examples/colour-sting/assets/taken-pull-back-reveal.jpg | the first frame is tight on one detail and the camera pulls back (0.00 to 0.38 s): the ring opens close and pulls back |
 | films/examples/colour-sting/assets/taken-push-in.jpg | a slow push that runs to the last frame (0.00 to 1.00 s): the lockup never holds still |
 
-How they move, from `bin/vawe strip` on the clips:
+How they move, from `bin/vawe frame` on the clips:
 
 | move taken | ref id | cut s |
 |---|---|---|
@@ -151,4 +151,4 @@ Sound is subtle: no bed, one voice per cut and one for the spectacle. Voices are
 
 ## Motion pass
 
-`bin/vawe dev films/examples/colour-sting/page.html` shows no problem and 10 of 10 acceptance rows green. The page declares no waiver for overshoot-share, live-hold or seam-variety, because none of them fires. The camera push runs from 2.45 to the last frame, so every hold moves. The strips of the four cuts, from `bin/vawe strip films/examples/colour-sting/page.html --cuts`, were read: the turn hides the first cut, the hole fills the frame before the second, the lockup holds still across the third, and the heat front closes before the fourth.
+`bin/vawe dev films/examples/colour-sting/page.html` shows no problem and 10 of 10 acceptance rows green. The page declares no waiver for overshoot-share, live-hold or seam-variety, because none of them fires. The camera push runs from 2.45 to the last frame, so every hold moves. The strips of the four cuts, from `bin/vawe frame films/examples/colour-sting/page.html --cuts`, were read: the turn hides the first cut, the hole fills the frame before the second, the lockup holds still across the third, and the heat front closes before the fourth.

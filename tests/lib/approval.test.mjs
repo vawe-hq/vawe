@@ -29,7 +29,7 @@ function film() {
 
 test('a page with no approval refuses a final render and names the owner step', () => {
   const { root, page } = film();
-  assert.match(shipProblem(page, { root, env: {} }), /no approval for f: show the draft to the owner \(storyboard: bin\/vawe sheet <draft>\) and stop/);
+  assert.match(shipProblem(page, { root, env: {} }), /no approval for f: show the draft to the owner \(storyboard: bin\/vawe frame <draft>\) and stop/);
 });
 
 test('approve needs a full draft newer than the page, then ship passes', () => {

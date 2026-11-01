@@ -27,7 +27,7 @@ bin/vawe ship films/hello/page.html     # final: full size, 60 fps, motion blur,
 bin/vawe --help                         # every verb; run `bin/vawe <verb> --help` before any raw ffmpeg or Chrome
 ```
 
-`new` writes `films/hello/page.html` (a valid starter) and `brief.md`. Output goes to `out/`. `ship` runs in the background: wait with `bin/vawe ship --status films/hello/page.html --wait`.
+`new` writes `films/hello/page.html` (a valid starter) and `brief.md`. Output goes to `out/`. `ship` runs in the background: wait with `bin/vawe wait films/hello/page.html`.
 
 ## The page contract
 
@@ -60,7 +60,7 @@ A whole film:
 1. Read `AGENTS.md` in the repo root. It holds only what you would get wrong on your own.
 2. If your tool loads skills, start with `skills/html-to-video`, then load `skills/vawe-page` before you write any page.
 3. `bin/vawe new <name> --request "<the ask>"`. It asks for missing facts first. Use `--defaults` when unattended.
-4. Study references, fill `brief.md`, then build one key frame per beat: `bin/vawe frames <page>`.
+4. Study references, fill `brief.md`, then build one key frame per beat: `bin/vawe frame <page> --world all`.
 5. Draft with `bin/vawe dev <page> [--from s --to s]`. Draft the hardest 2 to 4 seconds first.
 6. Critique in a session that did not write the page: `bin/vawe critique <page>` (skill `vawe-critique`). Fix only the seconds it names.
 7. Final: show the owner the whole draft. They run `bin/vawe approve <page>`; an agent never does. Then `bin/vawe ship <page>`. A pass is never self-recorded: score with `bin/vawe judge` in a fresh session.

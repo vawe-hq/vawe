@@ -102,12 +102,11 @@ brief -> reference study -> design and kit -> key frames -> board -> draft -> mo
 | verb | does |
 |---|---|
 | `new` | starts a film: writes `page.html` and `brief.md`, and asks for missing facts first |
-| `refs`, `see`, `strip`, `sheet`, `still` | study references and look at a film: shots, motion, light, type, sound |
-| `frames` | one still per world, the key state of each beat |
-| `storyboard` | an HTML board with a card per world: moves, eases, handoffs, sound, rhythm |
+| `refs`, `see` | study references and read a film as numbers: shots, motion, light, type, sound |
+| `frame` | every picture: one frame, a sheet, the key state of each world, a cut, a move, a zoom, an HTML board |
 | `dev` | the draft: half size, 30 fps |
 | `critique` | phone sheet, strip, loop seam and page checks for a session that did not write the page |
-| `approve`, `ship`, `wait` | the owner signs off the draft; the final renders at 60 fps with motion blur and mixed audio |
+| `ship`, `wait` | the final renders at 60 fps with motion blur and mixed audio; `wait` waits for any render |
 | `sound`, `check` | voices, beat grid and cues; one named gate (`anim-traps`, `page-check`, `doc-refs`, ...) |
 
 Each verb prints a `next:` line with the next command. The critique rejects by default and names every

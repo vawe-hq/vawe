@@ -27,7 +27,7 @@ spectacle second. Do not write page code yet.
 
 <look>
 1. bin/vawe see quality/refs/<ref>/source.mp4. Read index.md and every grid it wrote.
-2. bin/vawe strip <ref> --cuts for the measured cut list. Never eyeball cuts off a sheet.
+2. bin/vawe frame <ref> --cuts for the measured cut list. Never eyeball cuts off a sheet.
 3. Measure, then write as numbers: ground, ink and accent as hex; the typeface and weight; cap height
    as a percent of frame height; the surface recipe (shadow and glass values).
 4. Measure the approach rate of each settle: what share of the remaining distance closes per frame.

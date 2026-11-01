@@ -40,7 +40,7 @@ test('default output names differ per look', () => {
   } finally { delete process.env[PARAMS_ENV]; }
 });
 
-test('vawe still --param look=riso renders the page with ?look=riso', () => {
+test('vawe frame --param look=riso renders the page with ?look=riso', () => {
   const riso = path.resolve('out/still/param-look-look-riso-0s.png');
   const plain = path.resolve('out/still/param-look-0s.png');
   fs.rmSync(riso, { force: true });

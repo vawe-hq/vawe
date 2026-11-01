@@ -10,7 +10,7 @@
           "lines": [
             "final render tab\nlaid out at the film size",
             "warm draft tab\nkept open for the next draft",
-            "vawe sheet --ref\nlists every tab in the shared browser"
+            "vawe frame --vs\nlists every tab in the shared browser"
           ],
           "mark": "lo"
         },
@@ -19,7 +19,7 @@
           "lines": [
             "final render tab\nnever touched",
             "warm tab, WARM_HASH in URL\nfound through browser.targets()",
-            "vawe sheet --ref\nonly warm tabs get a Page"
+            "vawe frame --vs\nonly warm tabs get a Page"
           ],
           "foot": "Same 66-frame window, 2 of 2 runs:\n0 wrong frames\n(5 to 6 before)",
           "mark": "hi"

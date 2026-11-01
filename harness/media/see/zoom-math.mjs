@@ -1,4 +1,4 @@
-// Pure parts of `vawe zoom`: the box, the scale and the brightest text edge. No I/O: harness/cli/verbs.mjs loads this file to check the arguments.
+// Pure parts of `vawe frame`: the box, the scale and the brightest text edge. No I/O: harness/cli/verbs.mjs loads this file to check the arguments.
 
 export const ZOOM_SCALE = 3;
 export const FRAME_W = 1920;

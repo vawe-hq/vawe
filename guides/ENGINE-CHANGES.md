@@ -18,10 +18,10 @@ Test a change by one question: what would an agent write unprompted, and does th
 
 - Change the environment, never forbid the habit: if an agent's natural command fails, make it work
   (tools via `bin/vawe doctor`, how agents are launched), do not add a rule or hook against it.
-- Give the tool the agent reaches for: agents built their own frame compare until `vawe sheet --ref` existed.
+- Give the tool the agent reaches for: agents built their own frame compare until `vawe frame --vs` existed.
 - Measure with traces (`node harness/dev/trace-review.mjs --project <dir> --films --compare <sha|date>` prints the film agents before and after the change), not impressions: minutes, failed calls,
   input tokens. Keep tasks small; one six-step agent used 106 M input tokens, a one-step agent 3 M.
-- Numbers come from code (`vawe see --spec`), taste from the eye (`vawe sheet --ref`, a fresh judge).
+- Numbers come from code (`vawe see --spec`), taste from the eye (`vawe frame --vs`, a fresh judge).
 
 ## Who owns what
 
@@ -194,7 +194,7 @@ cut a polish pass from 14.6 to 2.3 minutes and from 24.6 M to 3.1 M input tokens
 Keep rules 1, 3 and 5 above. You own ONLY films/<name>/<your chapter or beat file>; never git add
 a private film (films/recreations/). Read GUIDE.md first; the font, palette and shared assets are
 fixed there before you start.
-LOOP: `bin/vawe sheet films/<name>/page.html --ref <ref.mp4> --at <3-5 s> --out
+LOOP: `bin/vawe frame films/<name>/page.html --vs <ref.mp4> --at <3-5 s> --out
 /tmp/claude-501/<topic>/c.png`, Read that ONE sheet, list every difference, fix them all in the
 fewest edits, repeat. Never render a range to look at frames. At most 6 loops.
 DONE: every row of the guide's text list for your seconds is on screen at its time.

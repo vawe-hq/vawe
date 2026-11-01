@@ -33,5 +33,5 @@ export function planWindow(page, { root, from, to, out, whole }) {
   const end = round(start + WINDOW_S);
   const rel = path.relative(root, page);
   const empty = ideasFilled(brief) === false ? 'Ideas' : 'Board';
-  return { from: start, to: end, out: planWindowPath(page, root), line: `rendered ${start}-${end} s of ${length} s, small: the brief's ${empty} is empty, so pixels wait for the plan; fill it (bin/vawe storyboard ${rel} lists the advice), or pass --whole for the whole film` };
+  return { from: start, to: end, out: planWindowPath(page, root), line: `rendered ${start}-${end} s of ${length} s, small: the brief's ${empty} is empty, so pixels wait for the plan; fill it (bin/vawe frame ${rel} --board lists the advice), or pass --whole for the whole film` };
 }

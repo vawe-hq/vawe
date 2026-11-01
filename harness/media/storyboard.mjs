@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// `vawe storyboard <page|draft mp4> [--page page.html] [--out file.html]`: one self-contained HTML storyboard, a pan-and-zoom canvas of frame
+// `vawe frame <page|draft mp4> --board [--page page.html] [--out file.html]`: one self-contained HTML storyboard, a pan-and-zoom canvas of frame
 // cards, handoff arrows and a rhythm strip.
 //   node harness/media/storyboard.mjs films/my-launch/page.html
-// Worlds, cues and eases come from the page (the data `vawe storyboard --text` and `vawe frames` read); the plan comes from brief.md. With an mp4
+// Worlds, cues and eases come from the page (the data `vawe see --plan` and `vawe frame --world all` read); the plan comes from brief.md. With an mp4
 // the frames are cut from it and the page is found by the film's name.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -90,7 +90,7 @@ async function main(argv) {
   const valued = new Set(['--page', '--out']);
   const showAll = argv.includes('--all');
   const source = argv.find((a, i) => !a.startsWith('--') && !valued.has(argv[i - 1]));
-  if (!source) die('missing <page|mp4>; usage: bin/vawe storyboard <page|draft mp4> [--page page.html] [--out file.html]');
+  if (!source) die('missing <page|mp4>; usage: bin/vawe frame <page|draft mp4> --board [--page page.html] [--out file.html]');
   if (!fs.existsSync(source)) die(`no such file: ${source}`);
   const abs = sourcePage(source, flag('--page'));
   if (!fs.existsSync(abs)) die(`no such page: ${abs}`);

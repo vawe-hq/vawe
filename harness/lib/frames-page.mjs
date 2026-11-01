@@ -1,4 +1,4 @@
-// `vawe frames`: the pure parts. The sheet layout is harness/lib/artboard.mjs; harness/media/frames.mjs renders the stills.
+// `vawe frame --world all`: the pure parts. The sheet layout is harness/lib/artboard.mjs; harness/media/frames.mjs renders the stills.
 
 import { PLACEHOLDER, STARTER_LINE } from './measured-brief.mjs';
 

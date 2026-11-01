@@ -43,11 +43,11 @@ a KEEP/CHANGE line is a rejection (`vawe-reference`).
 
 `vawe see <mp4 | page | ref-id> [--vs <ref>]` reads a film completely: shots, motion, light, type, sound, every image
 with its numbers; `--vs` adds deltas and advice that names the page literal. Its parts: `vawe refs frames` (reference
-stills), `vawe frames` (your page), `vawe strip` (motion through a moment or every cut, a reference or your draft;
-`--onion` and `--velocity` for one move), `vawe see <ref.mp4> --spec` (a reference measured into SPEC.md), `vawe sheet`
-(a labelled sheet of seconds and worlds; `--ref <mp4>` puts the reference beside your frames), `vawe storyboard` (one
-HTML board: frame cards, moves, eases, handoffs, sound, rhythm), `vawe still` (one full-size PNG of a page or mp4 at a
-second). A site route, url or static html page: `vawe shot <route> --w 1440,390 [--full]`, never a puppeteer script;
+stills), `vawe frame --world all` (your page), `vawe frame --cuts` and `--moment s` (motion through every cut or one
+moment, a reference or your draft; `--onion` and `--velocity` for one move), `vawe see <ref.mp4> --spec` (a reference
+measured into SPEC.md), `vawe frame --at s,s,s` (a labelled sheet of seconds; `--vs <mp4>` puts the reference beside
+your frames), `vawe frame --board` (one HTML board: frame cards, moves, eases, handoffs, sound, rhythm), `vawe frame
+--at s` (one full-size PNG of a page or mp4 at a second). A site route, url or static html page: `vawe shot <route> --w 1440,390 [--full]`, never a puppeteer script;
 the site's links: `vawe check links`. A field of many small moving parts (rain, dust, sparks): `vawe see` prints one
 "Particle field" line with count, direction and speed.
 
@@ -105,7 +105,7 @@ A fresh critic matters because the thread that wrote the page has anchored on it
 | beat | the phone sheet and strip of `bin/vawe critique` | `{beat, reads, flaw, fix}` |
 | bg-motion | a strip of 4 or more frames, reference and render at matched times (a still says nothing about speed) | `{axis, ours, reference, delta, fix}` |
 | reveal | a dense strip of the entrance and exit windows | `{beat, enter, exit, paired, flaw, fix}` |
-| fidelity (recreations) | `bin/vawe sheet --ref` frames | `{beat, score 0-10, gaps}` (gaps, not agreement) |
+| fidelity (recreations) | `bin/vawe frame --vs` frames | `{beat, score 0-10, gaps}` (gaps, not agreement) |
 | seam | the seam frames and the loop seam | `{seam, flash, evidence, fix}` |
 
 Launch the panel in one message so the critics run at once. Critics report, the main thread fixes. A critic is evidence, not a ruling: if you look and the flaw is not there, it is wrong. A panel suits a full authoring pass, a recreation and any render you ship; a colour swap is not worth it. The fan-out cost and the brief lines for any subagent: `guides/SUBAGENTS.md`. Judge dimensions: `guides/judge.md`.

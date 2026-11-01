@@ -17,7 +17,7 @@ The contract (duration meta, seek, aspect, literals) is in `AGENTS.md`. Start wi
 This file is `skills/vawe-page/SKILL.md` in the repo. Use `bin/vawe` verbs, never raw ffmpeg or Chrome (`bin/vawe --help`).
 Order: (1) the brief, facts only. (2) Study the references (`bin/vawe refs frames`, Read `~/.vawe/refs/frames/<id>/*.png`
 at full size), then fill brief.md "Taken from": 4 to 6 named frame paths and what each gives. Then study how they move:
-`bin/vawe strip <ref-id> --cuts` on 2 refs, Read the strips, name 3 moves with the ref id and cut second. (3) Write
+`bin/vawe frame <ref-id> --cuts` on 2 refs, Read the strips, name 3 moves with the ref id and cut second. (3) Write
 `films/<name>/DESIGN.md` and `films/<name>/kit/`: ground layers, and each moving part (word, mark, bar, card, icon,
 wordmark) as its own element. Start from a PROVEN combo in `prompts/skill-combos.md` (record `Combo: <name>`; swap at most one rung, with a reason). The skill ladder, one skill per rung in order (`command npx -y ui-skills get <slug>`):
 builder (`leonxlnx/soft-skill` or `emilkowalski/emil-design-eng`: the product UI and kit parts as a real, beautiful interface),
@@ -31,18 +31,18 @@ An owner decision that differs from a house default goes under `## Declared` in 
 DESIGN.md also names colour roles (ground, text, muted, one scarce accent, positive, negative), type roles (mono for every numeral; the measured brand weights) and a negative list (no nav or footer chrome, no second accent, no `back`, `bounce` or `elastic` easing unless the brand is a toy brand).
 Kit format: `kit/kit.css` holds `:root` tokens (palette roles, light positions) and one rule per part (`.ground-*`,
 light devices, `.grain`, `.lockup`, `.word`, `.line`), each moving part its own element; `kit/kit.html` is an optional
-sheet that shows every part once. Example: `films/examples/colour-sting/DESIGN.md` and `kit/`. (4) Build each `data-world` as a static state from the kit (`bin/vawe frames <page>`): about 1 line and 2 or 3 things, and a
+sheet that shows every part once. Example: `films/examples/colour-sting/DESIGN.md` and `kit/`. (4) Build each `data-world` as a static state from the kit (`bin/vawe frame <page> --world all`): about 1 line and 2 or 3 things, and a
 ground that is never flat (a light, grain or depth device named from a reference frame, changed at each world turn).
 (5) Fill the brief's "Ideas" first (`guides/IDEATE.md`: 4 ideas from 4 devices per beat and cut, a typicality number, a pick that is not the most typical), then the Board: a plan for time, not frames. Rhythm (cuts not all equal: one under 0.4 s, one over 0.9 s),
 the spectacle second (also `<meta name="spectacle">`; recipe 15 in `prompts/moves/RECIPES.md`), a named move per cut
 (overlap, camera, what carries the eye, which arrivals overshoot: `EASE.nudge` for ordinary ones, `EASE.pop` for the hero),
 a handoff per cut (`vawe-transitions`), and sound: small effects on actions, no bed (`taste/craft/sound.md`; `bin/vawe sound`).
-Then `bin/vawe storyboard <page>` lists what the taste docs say about the plan (doc line, measured value, fix). (6) Then the Shots rows, the
+`bin/vawe frame <page> --board` lists what the taste docs say about the plan (doc line, measured value, fix). (6) Then the Shots rows, the
 motion and `bin/vawe dev`. The camera holds still by default and moves only with a reason (the spectacle, a reveal): a hold stays alive through an element motion (typing, a counter, a glint), not a camera drift. The motion is done when overshoot-share, live-hold, constant-camera and seam-variety are clean or waived with a
-reason, and you have Read `bin/vawe strip <page> --cuts` for every cut (and `bin/vawe strip <page> --onion` and `--velocity` on the
+reason, and you have Read `bin/vawe frame <page> --cuts` for every cut (and `bin/vawe frame <page> --moment <s> --onion`/`--velocity` on the
 spectacle second), checked each cut against `taste/craft/motion-craft.md` and the principles in `core/motion/README.md` (anticipation on the hero, follow-through and overlap, eased spacing, arcs, secondary action, exits faster than entrances), fixed what reads flat and written a row per cut in the brief's "Motion pass". `bin/vawe` names the next
 stage after each step; `bin/vawe ship` warns while the Board or the Motion pass is unfilled.
-A film that uses the lens (`core/surfaces/lens.js`, `prompts/moves/lens.md`) picks its look by sight: `bin/vawe frames <page> --looks --at <s>` shows the page under every look, then set `look: '<name>'` in the lens options.
+A film that uses the lens (`core/surfaces/lens.js`, `prompts/moves/lens.md`) picks its look by sight: `bin/vawe frame <page> --looks --at <s>` shows the page under every look, then set `look: '<name>'` in the lens options.
 
 ```html
 <meta name="message" content="zero fees">    <!-- the one thing to remember -->
@@ -102,7 +102,7 @@ asks for overshoot. Full reference: `core/motion/README.md`.
 1. Pick the film type in `guides/ROUTING.md`; `bin/vawe new <name> --from prompts/<t>.md`.
 2. Write the beat table (`prompts/beat-sheet.md`): time, message, the one thing that moves, the cue.
 3. Make the five stills that define the look. Fix cramped, overlapping or unreadable before motion.
-4. Check frames with `bin/vawe sheet <page> --ref <ref.mp4> --at s,s,s` (about 4 s for 4 frames).
+4. Check frames with `bin/vawe frame <page> --vs <ref.mp4> --at s,s,s` (about 4 s for 4 frames).
    Never render a whole range to look at a few frames. `bin/vawe dev <page> --from s --to s` is for motion.
    A recreation is done when `bin/vawe check coverage <film.mp4> --ref <ref.mp4>` exits 0.
 5. Hand the draft to a fresh session: `vawe-critique`.
@@ -147,9 +147,9 @@ do not count, and nor does one reason copied to 3 or more waivers. The draft lis
 ## Commands
 
 `bin/vawe dev <page> [--aspect --from --to --silent]`: half size, 30 fps, with sound (a window is silent).
-`bin/vawe ship <page> [--aspect all]` needs a fresh review (`bin/vawe judge <page> --fresh`, or `bin/vawe critique <page>` in a separate terminal) and the owner's approval of the full draft: show the draft (`bin/vawe sheet <draft>`) in plain words (map: harness/lib/plain-words.mjs), stop, and let the owner run `bin/vawe approve <page>`; never approve it yourself. It runs in the background; wait with `bin/vawe wait <page>`
+`bin/vawe ship <page> [--aspect all]` needs a fresh review (`bin/vawe judge <page> --fresh`, or `bin/vawe critique <page>` in a separate terminal) and the owner's approval of the full draft: show the draft (`bin/vawe frame <draft>`) in plain words (map: harness/lib/plain-words.mjs), stop, and let the owner run `bin/vawe approve <page>`; never approve it yourself. It runs in the background; wait with `bin/vawe wait <page>`
 (one call returns within 3.5 minutes with a progress line each minute; if it says STILL RUNNING, call it again); before it do the work it names (fill the Board and
-Motion pass rows, Read the `bin/vawe strip <page> --cuts` grids, prepare the critique notes). Fix the verdict worst first on drafts (`bin/vawe dev`, then
+Motion pass rows, Read the `bin/vawe frame <page> --cuts` grids, prepare the critique notes). Fix the verdict worst first on drafts (`bin/vawe dev`, then
 `bin/vawe judge <draft mp4> --fresh`) until PASS, then ship once more. Fix what the final check and the acceptance rows name;
 read the judge once and never tune to it (its score is not a target). Poll once per call and work on the last draft between polls.
 `bin/vawe critique <page> [--ref mp4]`: the fresh look (`vawe-critique`; with `--ref`, `vawe-reference`).

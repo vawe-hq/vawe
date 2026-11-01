@@ -1,4 +1,4 @@
-// `vawe strip --cuts` on a page whose dev skipped the world measure (a canvas film) reads the spans the page declares.
+// `vawe frame --cuts` on a page whose dev skipped the world measure (a canvas film) reads the spans the page declares.
 //   node --test tests/media/strip-cuts-fallback.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';

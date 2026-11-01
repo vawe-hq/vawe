@@ -71,7 +71,7 @@ function startJob(page, renderArgs) {
   spawn(process.execPath, [SELF, 'run', id], { detached: true, stdio: 'ignore' }).unref();
   console.log(`job ${id} started: final render of ${page} in the background`);
   console.log(`log: ${log}`);
-  console.log(`status: bin/vawe ship --status ${page} --wait`);
+  console.log(`status: bin/vawe wait ${page}`);
   console.log(`work: ${WAIT_WORK}`);
 }
 

@@ -34,10 +34,10 @@ test('a filled board that fails a check is named before the first draft, as advi
   assert.match(s.next, /bin\/vawe dev films\/f\/page\.html/);
 });
 
-test('a page with worlds and no frames sheet or draft names bin/vawe frames', () => {
+test('a page with worlds and no frames sheet or draft names bin/vawe frame --world all', () => {
   const { root, page } = film('<section data-world="s1"></section>');
   const s = nextStep(page, root);
-  assert.equal(s.next, 'bin/vawe frames films/f/page.html');
+  assert.equal(s.next, 'bin/vawe frame films/f/page.html --world all');
   assert.match(s.why, /frames come before the motion/);
 });
 
@@ -59,7 +59,7 @@ test('an empty Taken from table says so before any design file; four named frame
   assert.match(nextStep(page, root).next, /^build one static state per world in films\/f\/page\.html from the kit/);
   const later = new Date(Date.now() + 5000);
   fs.utimesSync(page, later, later);
-  assert.equal(nextStep(page, root).next, 'bin/vawe frames films/f/page.html');
+  assert.equal(nextStep(page, root).next, 'bin/vawe frame films/f/page.html --world all');
 });
 
 test('a Skipped line needs a reason, and a Skill line needs a slug and a decision', () => {
@@ -100,7 +100,7 @@ test('three named moves are needed before the design files; a placeholder row do
   const brief = (rows) => `## Taken from\n\n| frame | take |\n|---|---|\n${FRAMES}\n\n${MOVES(rows)}\n## Look\n`;
   const { root, page } = film('<section data-world="s1"></section>', brief('| [move name] | [ref id] | [s] |'));
   assert.equal(movesTakenCount(brief('| [move name] | [ref id] | [s] |')), 0);
-  assert.match(nextStep(page, root).next, /bin\/vawe strip <ref-id> --cuts/);
+  assert.match(nextStep(page, root).next, /bin\/vawe frame <ref-id> --cuts/);
   const three = '| push | abc | 2.4 |\n| whip | abc | 5 |\n| match cut | def | 8 |';
   assert.equal(movesTakenCount(brief(three)), 3);
   fs.writeFileSync(path.join(root, 'films', 'f', 'brief.md'), brief(three));
@@ -126,7 +126,7 @@ test('a fresh draft names strip --cuts before critique; once the strips exist it
   const later = new Date(Date.now() - 1000);
   fs.utimesSync(draft, later, later);
   const s = nextStep(page, root);
-  assert.match(s.next, /^bin\/vawe strip films\/f\/page\.html --cuts and Read every cut/);
+  assert.match(s.next, /^bin\/vawe frame films\/f\/page\.html --cuts and Read every cut/);
   assert.match(s.why, /overshoot-share, live-hold and seam-variety/);
   fs.mkdirSync(path.join(root, 'out', 'strip', 'f'), { recursive: true });
   assert.equal(nextStep(page, root).next, 'bin/vawe critique films/f/page.html --fresh');
@@ -149,7 +149,7 @@ test('the motion step names onion and velocity for the spectacle', () => {
   fs.writeFileSync(path.join(root, 'out', 'f-draft.mp4'), '');
   const later = new Date(Date.now() - 1000);
   fs.utimesSync(path.join(root, 'out', 'f-draft.mp4'), later, later);
-  assert.match(nextStep(page, root).next, /strip films\/f\/page\.html --cuts.*onion.*velocity/);
+  assert.match(nextStep(page, root).next, /frame films\/f\/page\.html --cuts.*onion.*velocity/);
 });
 
 test('the motion step names the doc and each principle to check; every stage line carries a designer question', () => {
@@ -159,7 +159,7 @@ test('the motion step names the doc and each principle to check; every stage lin
 });
 
 test('the ship step names the work for the wait', () => {
-  assert.match(WAIT_WORK, /Board and Motion pass rows.*strip <page> --cuts.*critique notes/);
+  assert.match(WAIT_WORK, /Board and Motion pass rows.*frame <page> --cuts.*critique notes/);
   assert.match(SAY.ship('f', 'films/f/page.html'), /bin\/vawe wait films\/f\/page\.html \(one call waits up to 3.5 minutes, then says STILL RUNNING: call it again; run it alone, not in parallel\); while it renders, fill/);
 });
 
@@ -180,7 +180,7 @@ test('after a draft the next step follows what is done: strips under any out/str
   fs.writeFileSync(out('f.runs.jsonl'), `${JSON.stringify({ cmd: 'verb', verb: 'critique', exitCode: 0, at: new Date(now).toISOString(), start: new Date(now).toISOString() })}\n`);
   const asked = nextStep(page, root);
   assert.equal(asked.stage, 'approve');
-  assert.match(asked.next, /show the draft to the owner \(storyboard: bin\/vawe sheet <draft>\) and stop/);
+  assert.match(asked.next, /show the draft to the owner \(storyboard: bin\/vawe frame <draft>\) and stop/);
   writeApproval(page, { root });
   const s = nextStep(page, root);
   assert.equal(s.stage, 'ship');
@@ -203,7 +203,7 @@ test('a brief with no Ideas section names guides/IDEATE.md and the storyboard be
   const { root, page } = film('<meta name="spectacle" content="3"><p>x</p>', '## Look\n');
   const s = nextStep(page, root);
   assert.equal(s.stage, 'ideas');
-  assert.match(s.next, /guides\/IDEATE\.md.*typicality number.*bin\/vawe storyboard films\/f\/page\.html/);
+  assert.match(s.next, /guides\/IDEATE\.md.*typicality number.*bin\/vawe frame films\/f\/page\.html --board/);
 });
 
 test('a brief length that differs from the page duration is named before the ideas', () => {
@@ -211,7 +211,7 @@ test('a brief length that differs from the page duration is named before the ide
   const s = nextStep(page, root);
   assert.equal(s.stage, 'board');
   assert.match(s.why, /brief says 22\.8 s and the page is 8\.15 s/);
-  assert.match(s.next, /bin\/vawe storyboard films\/f\/page\.html/);
+  assert.match(s.next, /bin\/vawe frame films\/f\/page\.html --board/);
 });
 
 test('a test page under a film folder is not a film', () => {

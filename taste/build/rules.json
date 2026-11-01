@@ -161,7 +161,7 @@
  },
  "surface-spec": {
   "file": "taste/rules/surface-spec.md",
-  "instead": "build a reusable surface standalone first (`bin/vawe sheet <page> --at t` renders one frame in seconds); glass needs a moving gradient behind it. Check: every colour is in the palette, families and weights match with no silent swap, radii match the scale, no forbidden component appears."
+  "instead": "build a reusable surface standalone first (`bin/vawe frame <page> --at t` renders one frame in seconds); glass needs a moving gradient behind it. Check: every colour is in the palette, families and weights match with no silent swap, radii match the scale, no forbidden component appears."
  },
  "text-breathing": {
   "file": "taste/rules/text-breathing.md",

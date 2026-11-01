@@ -9,7 +9,7 @@ import { paramsFilm } from './page-params.mjs';
 const TEXT_FILE = /\.(html|css|m?js|svg)$/i;
 const FILE_TOKEN = /[\w@./-]+\.[a-z0-9]{2,5}\b/gi;
 
-export const SHOW_OWNER = 'show the draft to the owner (storyboard: bin/vawe sheet <draft>) and stop';
+export const SHOW_OWNER = 'show the draft to the owner (storyboard: bin/vawe frame <draft>) and stop';
 
 export const approvalPath = (film, root = '.') => path.join(root, 'out', `${paramsFilm(filmKeyOf(film))}.approved`);
 export const fullDraftPath = (film, root = '.') => path.join(root, 'out', `${paramsFilm(filmKeyOf(film))}-draft.mp4`);

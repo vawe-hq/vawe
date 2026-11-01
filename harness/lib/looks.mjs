@@ -1,4 +1,4 @@
-// The pure parts of `vawe frames --looks`: which looks and which seconds a call asks for. No I/O.
+// The pure parts of `vawe frame --looks`: which looks and which seconds a call asks for. No I/O.
 import { LOOKS } from '../../core/surfaces/lens.js';
 import { parseAt } from '../media/compare-frames.mjs';
 

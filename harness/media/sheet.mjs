@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `vawe sheet <page|mp4|folder> [--at s,s,...] [--from s] [--labels] [--cols n] [--out file.png]`: a storyboard sheet, one tile per second,
+// `vawe frame <page|mp4|folder> [--at s,s,...] [--from s] [--labels] [--cols n] [--out file.png]`: a storyboard sheet, one tile per second,
 // the second printed on each tile and, with --labels, the data-world id of the world on top (a page only).
 //   node harness/media/sheet.mjs films/my-launch/page.html --at 0.5,1.2,3 --labels
 // Default seconds: the middle of each world of a page, else 12 evenly spaced. A folder of images gives one tile per image, named by its file.
@@ -106,7 +106,7 @@ async function main(argv) {
   const flag = (n) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : undefined; };
   const valued = new Set(['--at', '--cols', '--out', '--from']);
   const source = argv.find((a, i) => !a.startsWith('--') && !valued.has(argv[i - 1]));
-  if (!source) die('missing <page|mp4|folder>; usage: bin/vawe sheet <page|mp4|folder> [--at s,s,...] [--from s] [--labels] [--cols n] [--out file.png]');
+  if (!source) die('missing <page|mp4|folder>; usage: bin/vawe frame <page|mp4|folder> [--at s,s,...] [--from s] [--labels] [--cols n] [--out file.png]');
   if (!fs.existsSync(source)) die(`no such file: ${source}`);
   const labels = argv.includes('--labels');
   const isPage = source.endsWith('.html');

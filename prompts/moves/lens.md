@@ -83,7 +83,7 @@ px or more (reference 20 to 28). At 1080p a frame costs about 17 ms on the GPU (
 A look is a named set of lens options, data in `LOOKS` (`core/surfaces/lens.js`, next to `PALETTES`).
 `lens(source, { look: 'film-halation', ...own })` starts from a flat lens, switches on the look, then puts the
 page's own options over it: a page option always wins. A page with no `look` keeps the filmed-screen defaults.
-Choose by sight: `bin/vawe frames <page> --looks --at 4.5,9 [--only a,b] [--out dir]` films the page frame at each second
+Choose by sight: `bin/vawe frame <page> --looks --at 4.5,9 [--only a,b] [--out dir]` films the page frame at each second
 under every look and as-is, and writes one labelled grid per second (draft size, so a fine `grid` cell shows only in a final).
 The verb sets `window.__vaweLensOverride` before the page runs. `lens()` merges it over the page options, and it
 holds a full look: every effect the look does not name is off, while `aim`, `zoom`, tilt and `dof` stay the page's. Only the verb sets it.
@@ -163,7 +163,7 @@ const cue = shadowFor(backdrop, pageEdgeRgb);                 // layers, rim lig
 ```
 
 - Views: `flat`, `side-angle`, `isometric`, `top-diagonal`, `reverse-isometric`. Movements: `soft-orbit`, `side-drift`, `focus-push`, `focus-pull`, `diagonal-rise`, `angle-settle`, `close-orbit`, `wide-sweep`, `isometric-glide`, `isometric-reveal`. The same name and seed give the same move.
-- `shadowFor`: a light backdrop (luminance 0.18 or more) gets the plain soft shadow. A dark one swallows it, so it gets layers of alpha 0.7 and 0.85, a rim light on the page edge (alpha 0.3) and a faint reflection (alpha 0.07). Draw them in the page; lens does not. Before you pick a backdrop, make 3 options and compare them in one `vawe sheet`.
+- `shadowFor`: a light backdrop (luminance 0.18 or more) gets the plain soft shadow. A dark one swallows it, so it gets layers of alpha 0.7 and 0.85, a rim light on the page edge (alpha 0.3) and a faint reflection (alpha 0.07). Draw them in the page; lens does not. Before you pick a backdrop, make 3 options and compare them in one `vawe frame`.
 - Keep text readable: reading poses stay within 10 degrees, a start within about 15. Put the lens `dof.focus` on what the viewer must read (a function of t) and push `zoom` and `aim` to it; keep `dof.blur` near 0.45 so only the far edge softens.
 - A real screen keeps the real-surface rule: the plane and the camera move, the page moves only as it does.
 

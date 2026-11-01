@@ -39,7 +39,7 @@ test('an ffmpeg contact sheet and an ffmpeg frame grab point at sheet and still'
 });
 
 test('a vawe command and an unrelated command get no advice', () => {
-  assert.equal(id('bin/vawe sheet out/a.mp4 --at 1,2'), null);
+  assert.equal(id('bin/vawe frame out/a.mp4 --at 1,2'), null);
   assert.equal(id('git status --short'), null);
   assert.equal(id('ffmpeg -i a.wav -af loudnorm b.wav'), null);
 });

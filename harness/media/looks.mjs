@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `vawe frames <page> --looks`: the page frame at each --at second once per camera look (and as-is), one labelled grid per second.
+// `vawe frame <page> --looks`: the page frame at each --at second once per camera look (and as-is), one labelled grid per second.
 //   node harness/media/looks.mjs <page.html> --at 4.5,9 [--only clean,crt] [--out dir]
 // Each look is a full override of the page's lens effects (core/surfaces/lens.js lookOverride), set as window.__vaweLensOverride
 // before the page runs, so the page file is never edited. A page in another checkout runs with this checkout's lens.

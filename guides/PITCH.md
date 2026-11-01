@@ -40,7 +40,7 @@ second question does: is this the film a hundred other attempts would land on?
 
 ## What got rejected after the whole film was built
 
-Each was visible earlier and cheaper. A glass film that was four frosted rectangles drifting (one line of concept text). A saturated AI-default serif (one token, in a style frame). An explainer whose first slide carried nothing (one element, in a style frame). A scroll-driven deck whose motion was the point, and missed (a sentence of concept). A film whose first two seconds held one character (one line of the beat sheet). So write the concept in one line, build two or three stills at final quality before any motion, and look at them. Render a hand-written fragment on its own (`bin/vawe sheet <page> --at t`) before it goes into a film.
+Each was visible earlier and cheaper. A glass film that was four frosted rectangles drifting (one line of concept text). A saturated AI-default serif (one token, in a style frame). An explainer whose first slide carried nothing (one element, in a style frame). A scroll-driven deck whose motion was the point, and missed (a sentence of concept). A film whose first two seconds held one character (one line of the beat sheet). So write the concept in one line, build two or three stills at final quality before any motion, and look at them. Render a hand-written fragment on its own (`bin/vawe frame <page> --at t`) before it goes into a film.
 
 ## Presenting
 

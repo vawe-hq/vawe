@@ -235,5 +235,5 @@ export function advise(a, b) {
   else if (tb && ta && (ta.kind !== tb.kind || Math.abs(ta.period - tb.period) > 0.5 || ta.striped !== tb.striped)) out.push(`screen texture: yours ${patternText(ta)}; ref ${patternText(tb)}: match it`);
   if (a.glow && b.glow && a.glow.name !== b.glow.name) out.push(`glow colour: yours ${a.glow.name}, ref ${b.glow.name}: tint the halo ${b.glow.name}`);
   else if (b.glow && !a.glow) out.push(`glow colour: ref ${b.glow.name}, yours none: add a ${b.glow.name} halo`);
-  return out.length ? out : ['no measured gap in these measures: look at the frames with vawe zoom'];
+  return out.length ? out : ['no measured gap in these measures: look at the frames with vawe frame'];
 }

@@ -80,7 +80,7 @@ Stop. I read the three files before any chapter is built.
 ## The check loop (run it every pass)
 1. bin/vawe dev ch/NN-<slug>.html and read the sheet: first, middle and last frame of every
    shot, and both sides of every cut.
-2. bin/vawe sheet ch/NN-<slug>.html --at <s,s,s> for the stills that matter.
+2. bin/vawe frame ch/NN-<slug>.html --at <s,s,s> for the stills that matter.
 3. Fix what is cramped, unreadable or off the beat. Then the next pass.
 4. Done means: every shot has its focal action, every cut is on its time, no text crosses the caption
    band, and you looked at the pixels of the last pass.

@@ -1,4 +1,4 @@
-// The data of `vawe storyboard`: one shot per world with its timecodes, action, move, ease curve and sound cues, the handoff between
+// The data of `vawe frame --board`: one shot per world with its timecodes, action, move, ease curve and sound cues, the handoff between
 // shots, and the rhythm strip. Pure: it assembles what timeline.mjs (worlds, cues), board.mjs (Board, Beats, Motion pass), handoffs.mjs
 // and ease-curve.mjs already read; it parses nothing of its own.
 import { worldRows, cueRows } from './timeline.mjs';
@@ -26,7 +26,7 @@ export function timecode(s) {
   return `${m}:${(t - m * 60).toFixed(2).padStart(5, '0')}`;
 }
 
-/** The second whose frame stands for a world: after its entrances end, else its middle (the same pick as `vawe frames`). Pure. */
+/** The second whose frame stands for a world: after its entrances end, else its middle (the same pick as `vawe frame --world all`). Pure. */
 export const settledSecond = (span, anims) => stillCandidates(span, anims)[0];
 
 // The ease of the animation that ends last inside the world, before its exit: the one that decides when the world has settled.
