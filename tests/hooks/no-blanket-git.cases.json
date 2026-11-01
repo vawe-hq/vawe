@@ -9,7 +9,6 @@
   ["git stash pop", true, "shelve subcommand"],
   ["git checkout .", true, "discard tree"],
   ["git reset --hard origin/main", true, "hard reset"],
-
   ["git add core/props.js guides/README.md", false, "explicit paths"],
   ["git add -A guides", false, "flag with one path"],
   ["git add --all foo bar", false, "long flag with two paths"],
@@ -21,7 +20,6 @@
   ["grep -n 'git stash' guides/README.md", false, "banned form as a grep pattern"],
   ["git checkout main", false, "checkout a branch, not the tree"],
   ["git reset --soft HEAD~1", false, "soft reset"],
-
   ["bin/vawe approve films/f/page.html", true, "an agent approves its own film"],
   ["./bin/vawe approve films/f/page.html --note ok", true, "relative bin path"],
   ["VAWE_AGENT=x bin/vawe approve films/f/page.html", true, "after an env assignment"],
@@ -30,6 +28,21 @@
   ["node harness/live/approve.mjs", true, "the script with no film"],
   ["bin/vawe ship films/f/page.html", false, "ship is not approve"],
   ["bin/vawe frame films/f/page.html --directions", false, "the directions board"],
-  ["grep -n 'vawe approve' AGENTS.md", false, "the verb named as a grep pattern"],
-  ["echo \"type /vawe-approve\"", false, "the slash command named in a string"]
+  ["echo \"type /vawe-approve\"", false, "the slash command named in a string"],
+  ["bash -c \"bin/vawe approve films/f/page.html\"", true, "inside bash -c"],
+  ["env VAWE_AGENT=x bin/vawe approve films/f/page.html", true, "through env"],
+  ["command bin/vawe approve films/f/page.html", true, "through command"],
+  ["npx vawe approve films/f/page.html", true, "through npx"],
+  ["node -e \"import('./harness/live/approve.mjs')\"", true, "node -e import of the script"],
+  ["node ../shortwave/harness/live/approve.mjs f", true, "the script by a ../ path"],
+  ["node -e \"require('./harness/lib/approval.mjs').writeApproval('p')\"", true, "the writer called from node -e"],
+  ["echo '{}' > out/f.approved", true, "echo into the approval file"],
+  ["echo '{}' > out/f.plan-approved", true, "echo into the plan approval file"],
+  ["grep -n 'vawe approve' AGENTS.md", true, "the raw command is read, quotes and all"],
+  ["bin/vawe approve --help", false, "help is allowed"],
+  ["bin/vawe approve -h", false, "short help is allowed"],
+  ["VAWE_UNATTENDED=1 bin/vawe ship films/f/page.html", true, "ship that skips both OKs"],
+  ["export VAWE_UNATTENDED=1", true, "the variable exported for a later ship"],
+  ["env VAWE_UNATTENDED=1 bin/vawe ship films/f/page.html", true, "through env"],
+  ["bin/vawe wait films/f/page.html", false, "wait is not ship"]
 ]

@@ -33,6 +33,21 @@ for (const [command, shouldBlock, why] of cases) {
   console.log(`${ok ? 'ok  ' : 'FAIL'}  block  malformed stdin must deny, not permit`);
 }
 
-const total = cases.length + 1;
+const FILE_CASES = [
+  [{ file_path: 'out/f.approved' }, true, 'Write to the approval file'],
+  [{ file_path: '/repo/out/f.plan-approved' }, true, 'Write to the plan approval file'],
+  [{ file_path: 'films/x/../../out/f-look-riso.approved' }, true, 'a ../ path to the approval file'],
+  [{ notebook_path: 'out/f.approved' }, true, 'NotebookEdit of the approval file'],
+  [{ file_path: 'films/f/page.html' }, false, 'an ordinary page edit'],
+  [{ file_path: 'films/f/brief.md' }, false, 'the brief'],
+];
+for (const [input, shouldBlock, why] of FILE_CASES) {
+  const r = spawnSync('node', [HOOK], { input: JSON.stringify({ tool_input: input }), encoding: 'utf8' });
+  const ok = (r.status === 2) === shouldBlock;
+  if (!ok) bad++;
+  console.log(`${ok ? 'ok  ' : 'FAIL'}  ${r.status === 2 ? 'block' : 'allow'}  ${why}`);
+}
+
+const total = cases.length + FILE_CASES.length + 1;
 console.log(bad === 0 ? `\nall ${total} cases correct` : `\n${bad} of ${total} WRONG`);
 process.exit(bad === 0 ? 0 : 1);

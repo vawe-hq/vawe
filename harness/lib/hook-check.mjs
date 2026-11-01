@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 export const LIVE_HOOKS = [
   { file: 'log-read.mjs', event: 'PostToolUse', matcher: 'Read', why: 'logs the images you Read, so vawe runs can say what was looked at' },
   { file: 'verb-hint.mjs', event: 'PreToolUse', matcher: 'Bash', why: 'names the verb when a command does by hand what a verb does' },
+  { file: 'no-blanket-git.mjs', event: 'PreToolUse', matcher: 'Bash|Write|Edit|NotebookEdit', why: 'refuses a blanket git command, and an agent approving its own plan or draft' },
   { file: 'stage-say.mjs', event: 'UserPromptSubmit', matcher: null, why: 'names the next command for the film you edited last' },
 ];
 
@@ -16,7 +17,8 @@ function readSettings(file) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return {}; }
 }
 
-const commandsOf = (settings, event) => (settings.hooks?.[event] ?? []).flatMap((group) => (group.hooks ?? []).map((h) => h.command ?? ''));
+const covers = (groupMatcher, wanted) => !groupMatcher || groupMatcher === '*' || !wanted || wanted.split('|').every((m) => groupMatcher.split('|').includes(m));
+const commandsOf = (settings, event, matcher) => (settings.hooks?.[event] ?? []).filter((group) => covers(group.matcher, matcher)).flatMap((group) => (group.hooks ?? []).map((h) => h.command ?? ''));
 
 /** The main checkout of a worktree (Claude Code runs its hooks, a worktree has no settings of its own), or null outside git. */
 function mainCheckout(root) {
@@ -27,10 +29,10 @@ function mainCheckout(root) {
 /** The settings files that exist or may hold a hook: the project's, its main checkout's and the user's, settings.json and settings.local.json. */
 export const settingsPaths = (root, home = os.homedir()) => [...new Set([root, mainCheckout(root), home].filter(Boolean))].flatMap((base) => SETTINGS_FILES.map((f) => path.join(base, f)));
 
-/** The live hooks no settings file registers (a command that names harness/live/<file> on the right event counts). */
+/** The live hooks no settings file registers (a command that names harness/live/<file> on the right event, under a matcher that covers the hook's tools, counts). */
 export function missingHooks(root, home = os.homedir()) {
   const all = settingsPaths(root, home).map(readSettings);
-  return LIVE_HOOKS.filter((h) => !all.some((s) => commandsOf(s, h.event).some((c) => c.includes(`harness/live/${h.file}`))));
+  return LIVE_HOOKS.filter((h) => !all.some((s) => commandsOf(s, h.event, h.matcher).some((c) => c.includes(`harness/live/${h.file}`))));
 }
 
 /** One advice line per missing hook, with the JSON to add to .claude/settings.json. */

@@ -23,6 +23,7 @@ test('a hook in the project, the user or the local settings counts as registered
   write(root, 'settings.json', reg('PostToolUse', 'log-read.mjs'));
   write(home, 'settings.json', reg('PreToolUse', 'verb-hint.mjs'));
   write(root, 'settings.local.json', reg('UserPromptSubmit', 'stage-say.mjs'));
+  write(home, 'settings.local.json', reg('PreToolUse', 'no-blanket-git.mjs'));
   assert.deepEqual(missingHooks(root, home), []);
 });
 
@@ -62,4 +63,20 @@ test('doctor prints the advice for the missing hooks and keeps its exit code; --
   assert.match(loud.stdout, /advice: hook stage-say\.mjs is not registered/);
   assert.equal(loud.status, /required tool\(s\) missing/.test(loud.stdout) ? 1 : 0);
   assert.doesNotMatch(run('--quiet').stdout, /advice: hook/);
+});
+
+test('no-blanket-git is a live hook, and a Bash-only registration misses the Write and Edit guard', () => {
+  const root = dir(), home = dir();
+  assert.ok(LIVE_HOOKS.some((h) => h.file === 'no-blanket-git.mjs'));
+  const group = (matcher) => ({ hooks: { PreToolUse: [{ matcher, hooks: [{ type: 'command', command: 'node harness/live/no-blanket-git.mjs' }] }] } });
+  write(root, 'settings.json', group('Bash'));
+  assert.ok(missingHooks(root, home).some((h) => h.file === 'no-blanket-git.mjs'));
+  write(root, 'settings.json', group('Bash|Write|Edit|NotebookEdit'));
+  assert.ok(!missingHooks(root, home).some((h) => h.file === 'no-blanket-git.mjs'));
+});
+
+test('.claude/skills is tracked, so a fresh clone finds /vawe-approve', () => {
+  const r = spawnSync('git', ['check-ignore', '-q', '.claude/skills'], { cwd: REPO });
+  assert.equal(r.status, 1);
+  assert.equal(fs.readlinkSync(path.join(REPO, '.claude/skills')), '../skills');
 });

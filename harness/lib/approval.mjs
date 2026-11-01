@@ -11,12 +11,13 @@ import { parseDirections } from './directions.mjs';
 const TEXT_FILE = /\.(html|css|m?js|svg)$/i;
 const FILE_TOKEN = /[\w@./-]+\.[a-z0-9]{2,5}\b/gi;
 
-export const ASK_OK = 'end your message with one line, "If you like it, type /vawe-approve", and stop';
+export const ASK_LINE = 'end your message with one line, "If you like it, type /vawe-approve"';
+export const ASK_OK = `${ASK_LINE}, and stop`;
 export const SHOW_PLAN = `show the person the directions board (bin/vawe frame <page> --directions) and the Board, then ${ASK_OK}`;
-export const SHOW_OWNER = `show the person the draft (storyboard: bin/vawe frame <draft>), then ${ASK_OK}`;
+export const SHOW_OWNER = `show the person the draft (bin/vawe frame <draft>), then ${ASK_OK}`;
 
 export const approvalPath = (film, root = '.') => path.join(root, 'out', `${paramsFilm(filmKeyOf(film))}.approved`);
-export const planApprovalPath = (film, root = '.') => path.join(root, 'out', `${paramsFilm(filmKeyOf(film))}.plan-approved`);
+export const planApprovalPath = (film, root = '.') => path.join(root, 'out', `${filmKeyOf(film)}.plan-approved`);
 export const fullDraftPath = (film, root = '.') => path.join(root, 'out', `${paramsFilm(filmKeyOf(film))}-draft.mp4`);
 
 /** The page and every file it names inside its folder, followed through css, js and svg, sorted. */
@@ -72,12 +73,10 @@ export function planState(pagePath, { root = '.' } = {}) {
 /** The step the person's next /vawe-approve records: the plan until it is fresh, then the draft. */
 export const approveStep = (pagePath, { root = '.' } = {}) => (planState(pagePath, { root }) === 'fresh' ? 'draft' : 'plan');
 
-/** The reason a draft stands unchanged since the person approved it, or null: the page digest and the draft file (size, mtime) must both match. */
+/** What changed since the person approved the draft, as a phrase, or null. The page digest is the draft's identity: a full draft of the same page renders the same film, so only a missing draft file also counts. */
 const draftChange = (approval, pagePath, root) => {
   if (approval.page !== pageDigest(pagePath)) return 'the page changed';
-  const draft = fullDraftPath(pagePath, root);
-  const now = fs.existsSync(draft) ? fs.statSync(draft) : null;
-  return now && (now.size !== approval.draftBytes || now.mtimeMs !== approval.draftMtimeMs) ? 'the draft was rendered again' : null;
+  return fs.existsSync(fullDraftPath(pagePath, root)) ? null : 'the draft file is gone';
 };
 
 /** The reason a final render may not start, or null when it may. VAWE_UNATTENDED=1 (hill-climb, CI, the A/B test) needs no approval. */
@@ -85,12 +84,12 @@ export function shipProblem(pagePath, { root = '.', env = process.env } = {}) {
   if (env.VAWE_UNATTENDED === '1') return null;
   const film = filmKeyOf(pagePath);
   const plan = planState(pagePath, { root });
-  if (plan === 'none') return `waiting for your OK on the plan of ${film}: ${SHOW_PLAN}`;
-  if (plan === 'stale') return `the plan of ${film} changed after your OK (${readPlanApproval(pagePath, root).at}): ${SHOW_PLAN}`;
+  if (plan === 'none') return `waiting for the person's OK on the plan of ${film}: ${SHOW_PLAN}`;
+  if (plan === 'stale') return `the plan of ${film} changed after the person's OK: ${SHOW_PLAN}`;
   const approval = readApproval(pagePath, root);
-  if (!approval) return `waiting for your OK on the draft of ${film}: ${SHOW_OWNER}`;
+  if (!approval) return `waiting for the person's OK on the draft of ${film}: ${SHOW_OWNER}`;
   const change = draftChange(approval, pagePath, root);
-  return change ? `${change} after your OK on the draft (${approval.at}): ${SHOW_OWNER}` : null;
+  return change ? `${change} after the person's OK on the draft: ${SHOW_OWNER}` : null;
 }
 
 /** The reason the plan cannot be approved, or null: it needs a Directions section (with a picked line) or a Board. */
@@ -113,7 +112,7 @@ export function approveProblem(pagePath, { root = '.' } = {}) {
 export function writeApproval(pagePath, { root = '.', now = new Date() } = {}) {
   const draft = fullDraftPath(pagePath, root);
   const stat = fs.statSync(draft);
-  const record = { page: pageDigest(pagePath), draft: path.relative(root, draft), draftBytes: stat.size, draftMtimeMs: stat.mtimeMs, by: agentId(), at: now.toISOString() };
+  const record = { page: pageDigest(pagePath), draft: path.relative(root, draft), draftBytes: stat.size, by: agentId(), at: now.toISOString() };
   fs.mkdirSync(path.dirname(approvalPath(pagePath, root)), { recursive: true });
   fs.writeFileSync(approvalPath(pagePath, root), `${JSON.stringify(record, null, 2)}\n`);
   return record;

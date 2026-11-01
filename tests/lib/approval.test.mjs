@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { pageDigest, shipProblem, approveProblem, writeApproval, writePlanApproval, planProblem, planState, approveStep, selfApproved, referencedFiles, recordOwnerVerdict, approvalPath } from '../../harness/lib/approval.mjs';
+import { pageDigest, shipProblem, approveProblem, writeApproval, writePlanApproval, planProblem, planState, approveStep, selfApproved, referencedFiles, recordOwnerVerdict, approvalPath, planApprovalPath } from '../../harness/lib/approval.mjs';
 import { readRuns } from '../../harness/lib/runlog.mjs';
 import { selfApprovedTricks } from '../../harness/lib/judge-tricks.mjs';
 import { verbEvent } from '../../harness/lib/verb-log.mjs';
@@ -32,13 +32,13 @@ function film() {
 
 test('a page with no approval refuses a final render and names the owner step', () => {
   const { root, page } = film();
-  assert.match(shipProblem(page, { root, env: {} }), /^waiting for your OK on the plan of f: show the person the directions board .*"If you like it, type \/vawe-approve"/);
+  assert.match(shipProblem(page, { root, env: {} }), /^waiting for the person's OK on the plan of f: show the person the directions board \(bin\/vawe frame <page> --directions\) .*"If you like it, type \/vawe-approve"/);
 });
 
 test('with the plan approved the next message names the draft', () => {
   const { root, page } = film();
   writePlanApproval(page, { root });
-  assert.match(shipProblem(page, { root, env: {} }), /^waiting for your OK on the draft of f: show the person the draft .*\/vawe-approve/);
+  assert.match(shipProblem(page, { root, env: {} }), /^waiting for the person's OK on the draft of f: show the person the draft .*\/vawe-approve/);
 });
 
 test('approve needs a full draft newer than the page, then ship passes', () => {
@@ -69,17 +69,35 @@ test('an edit to the page or to a file it references expires the draft approval;
   fs.appendFileSync(briefOf(root), 'one more row\n');
   assert.equal(shipProblem(page, { root, env: {} }), null);
   fs.appendFileSync(path.join(root, 'films', 'f', 'assets', 'f.woff2'), 'x');
-  assert.match(shipProblem(page, { root, env: {} }), /^the page changed after your OK on the draft/);
+  assert.match(shipProblem(page, { root, env: {} }), /^the page changed after the person's OK on the draft/);
   assert.equal(referencedFiles(page).length, 3);
 });
 
-test('a draft rendered again after the OK expires the draft approval', () => {
+test('a deleted draft file does not pass ship, and a draft touched or rendered again for the same page keeps the OK', () => {
   const { root, page, draft } = film();
   fs.writeFileSync(draft, 'mp4');
   writePlanApproval(page, { root });
   writeApproval(page, { root });
-  fs.writeFileSync(draft, 'mp4 again');
-  assert.match(shipProblem(page, { root, env: {} }), /^the draft was rendered again after your OK on the draft/);
+  const later = new Date(Date.now() + 5000);
+  fs.utimesSync(draft, later, later);
+  assert.equal(shipProblem(page, { root, env: {} }), null);
+  fs.writeFileSync(draft, 'mp4 rendered again');
+  assert.equal(shipProblem(page, { root, env: {} }), null);
+  fs.rmSync(draft);
+  assert.match(shipProblem(page, { root, env: {} }), /^the draft file is gone after the person's OK on the draft/);
+});
+
+test('the plan approval file carries no param or aspect slug; the draft approval does', () => {
+  const { root, page } = film();
+  const env = { VAWE_PARAMS: 'look=riso', VAWE_ASPECT: '1:1' };
+  const was = { ...process.env };
+  Object.assign(process.env, env);
+  try {
+    assert.equal(path.basename(planApprovalPath(page, root)), 'f.plan-approved');
+    assert.match(path.basename(approvalPath(page, root)), /^f-look-riso_1x1\.approved$/);
+  } finally {
+    for (const k of Object.keys(env)) k in was ? (process.env[k] = was[k]) : delete process.env[k];
+  }
 });
 
 test('an edit to the Directions or the Board expires the plan approval, and the draft cannot ship', () => {
@@ -90,7 +108,7 @@ test('an edit to the Directions or the Board expires the plan approval, and the 
   assert.equal(planState(page, { root }), 'fresh');
   fs.writeFileSync(briefOf(root), BRIEF.replace('| s1 | 0 |', '| s1 | 2 |'));
   assert.equal(planState(page, { root }), 'stale');
-  assert.match(shipProblem(page, { root, env: {} }), /^the plan of f changed after your OK .*\/vawe-approve/);
+  assert.match(shipProblem(page, { root, env: {} }), /^the plan of f changed after the person's OK: .*\/vawe-approve/);
   fs.writeFileSync(briefOf(root), BRIEF.replace('picked: A', 'picked: B'));
   assert.equal(planState(page, { root }), 'stale');
 });
@@ -121,21 +139,39 @@ test('a reject withdraws the plan approval too', () => {
   assert.equal(planState(page, { root }), 'none');
 });
 
-test('node harness/live/approve.mjs records the plan, then the draft, in one command', () => {
-  const dir = path.join(REPO, 'films', 'zz-approve-test');
-  fs.mkdirSync(dir, { recursive: true });
-  try {
-    fs.writeFileSync(path.join(dir, 'page.html'), '<p>x</p>');
-    fs.writeFileSync(path.join(dir, 'brief.md'), BRIEF);
-    const run = () => spawnSync('node', ['harness/live/approve.mjs', 'zz-approve-test'], { cwd: REPO, encoding: 'utf8' });
-    assert.match(run().stdout, /OK on the plan of/);
-    assert.match(run().stderr, /approve refused: no full draft/);
-    fs.writeFileSync(path.join(REPO, 'out', 'zz-approve-test-draft.mp4'), 'mp4');
-    assert.match(run().stdout, /OK on the draft/);
-  } finally {
-    fs.rmSync(dir, { recursive: true, force: true });
-    for (const f of ['.plan-approved', '.approved', '.runs.jsonl', '-draft.mp4']) fs.rmSync(path.join(REPO, 'out', `zz-approve-test${f}`), { force: true });
-  }
+const approveCli = (root, ...args) => spawnSync('node', [path.join(REPO, 'harness/live/approve.mjs'), ...args], { cwd: root, encoding: 'utf8', env: { ...process.env, VAWE_ROOT: root, VAWE_PARAMS: '', VAWE_ASPECT: '' } });
+
+test('approve.mjs records the plan, then the draft, in a temp root; a refusal prints its reason on stdout and exits 0', () => {
+  const { root, draft } = film();
+  const first = approveCli(root, 'f');
+  assert.equal(first.status, 0);
+  assert.match(first.stdout, /OK on the plan of/);
+  const refused = approveCli(root, 'f');
+  assert.equal(refused.status, 0);
+  assert.match(refused.stdout, /^vawe: approve refused: no full draft/);
+  assert.equal(refused.stderr, '');
+  fs.writeFileSync(draft, 'mp4');
+  assert.match(approveCli(root, 'f').stdout, /OK on the draft/);
+  assert.equal(approveCli(root, 'nope').stdout.includes('approve refused: no film found for nope'), true);
+});
+
+test('approve.mjs passes --param and --aspect through: the draft OK lands on the param file, the plan OK on the bare one', () => {
+  const { root, draft } = film();
+  approveCli(root, 'f');
+  fs.writeFileSync(path.join(root, 'out', 'f-look-riso-draft.mp4'), 'mp4');
+  const r = approveCli(root, 'f', '--param', 'look=riso');
+  assert.match(r.stdout, /OK on the draft out\/f-look-riso-draft\.mp4/);
+  assert.ok(fs.existsSync(path.join(root, 'out', 'f-look-riso.approved')));
+  assert.ok(fs.existsSync(path.join(root, 'out', 'f.plan-approved')));
+  assert.equal(fs.existsSync(path.join(root, 'out', 'f.approved')), false);
+});
+
+test('the /vawe-approve skill stays out of the model\'s reach and carries its own tool allowance and project path', () => {
+  const skill = fs.readFileSync(path.join(REPO, 'skills/vawe-approve/SKILL.md'), 'utf8');
+  const head = skill.split('---')[1];
+  assert.match(head, /^disable-model-invocation: true$/m);
+  assert.match(head, /^allowed-tools: Bash\(node \$\{CLAUDE_PROJECT_DIR\}\/harness\/live\/approve\.mjs \*\)$/m);
+  assert.match(skill, /^!`node \$\{CLAUDE_PROJECT_DIR\}\/harness\/live\/approve\.mjs \$ARGUMENTS`$/m);
 });
 
 test('an unattended run needs no approval', () => {
@@ -149,7 +185,7 @@ test('an unattended run needs no approval', () => {
 test('bin/vawe ship refuses with exit 1 and no render when nothing is approved', () => {
   const r = spawnSync('node', ['harness/live/ship-approval.mjs', 'films/examples/colour-sting/page.html'], { cwd: REPO, encoding: 'utf8', env: { ...process.env, VAWE_UNATTENDED: '' } });
   assert.equal(r.status, 1);
-  assert.match(r.stderr, /ship refused: waiting for your OK on the plan of colour-sting/);
+  assert.match(r.stderr, /ship refused: waiting for the person's OK on the plan of colour-sting/);
 });
 
 test('an approval by the agent that ran the film is self-approved and reaches the judge', () => {

@@ -252,7 +252,8 @@ assets/video/
 .claude/settings.local.json
 
 # Claude Code local config (agent-specific, not shipped): settings, plans, workflows
-.claude/
+.claude/*
+!.claude/skills
 
 # impeccable live-server local scratch
 .impeccable/

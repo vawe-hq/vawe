@@ -10,7 +10,7 @@ import { isClipDemo } from '../lib/clip-demo.mjs';
 import { movesTaken, boardFilled, motionFilled, boardChecks, spectacleOf, moveRows, briefLengthLine } from '../lib/board.mjs';
 import { handoffAdvice } from '../lib/handoffs.mjs';
 import { ideasFilled, IDEATE_ASK } from '../lib/ideas.mjs';
-import { shipProblem, planState, planProblem } from '../lib/approval.mjs';
+import { ASK_LINE, shipProblem, planState, planProblem } from '../lib/approval.mjs';
 import { statedLength } from '../media/page-duration.mjs';
 import { staleCheckoutLine, mainCheckoutLine } from '../lib/stale-checkout.mjs';
 import { readRuns, appendRun, looksSince, readHookSeen } from '../lib/runlog.mjs';
@@ -85,7 +85,7 @@ export const SAY = {
   motionRows: (name) => `write one row per cut in "Motion pass" in films/${name}/brief.md: each principle checked, what read flat, what you fixed`,
   critique: (name, rel) => `bin/vawe critique ${rel} --fresh`,
   judge: (name, rel, ref) => `VAWE_AGENT=judge-${name} bin/vawe judge ${rel} --struct --runs A,B${ref ? ` --ref ${ref}` : ''} in a fresh session, then fix the named seconds with bin/vawe dev ${rel} --from s --to s`,
-  plan: (page, rel) => `${planProblem(page) ?? `show the plan to the person: the directions board (bin/vawe storyboard ${rel} --directions) and the Board (If you like it, type /vawe-approve)`}, then go on: ${SAY.dev('', rel)}`,
+  plan: (page, rel) => `${planProblem(page) ?? `show the plan to the person: the directions board (bin/vawe frame ${rel} --directions) and the Board`}, then go on with ${SAY.dev('', rel)} and ${ASK_LINE}`,
   ship: (name, rel) => `bin/vawe ship ${rel}, then bin/vawe wait ${rel} (one call waits up to 3.5 minutes, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`,
 };
 

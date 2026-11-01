@@ -30,9 +30,9 @@ test('a critique of the current page by another agent passes, and the approval t
   const f = film();
   assert.equal(gate(f, [dev, critique({ pageHash: f.digest })]), null);
   fs.writeFileSync(path.join(f.root, 'out', 'f-draft.mp4'), 'mp4');
-  assert.match(shipProblem(f.page, { root: f.root, env: {} }), /waiting for your OK on the plan of f: .*type \/vawe-approve/);
+  assert.match(shipProblem(f.page, { root: f.root, env: {} }), /waiting for the person's OK on the plan of f: .*type \/vawe-approve/);
   writePlanApproval(f.page, { root: f.root });
-  assert.match(shipProblem(f.page, { root: f.root, env: {} }), /waiting for your OK on the draft of f: .*type \/vawe-approve/);
+  assert.match(shipProblem(f.page, { root: f.root, env: {} }), /waiting for the person's OK on the draft of f: .*type \/vawe-approve/);
   writeApproval(f.page, { root: f.root });
   assert.equal(shipProblem(f.page, { root: f.root, env: {} }), null);
 });
@@ -95,11 +95,11 @@ test('the ship gate script prints every refusal with its command and exits 1', (
   const lines = r.stderr.trim().split('\n');
   assert.equal(lines.length, 2);
   assert.match(lines[0], /^vawe: ship refused: no fresh review of the current page.*bin\/vawe critique films\/examples\/colour-sting\/page\.html$/);
-  assert.match(lines[1], /^vawe: ship refused: waiting for your OK on the plan of colour-sting: .*type \/vawe-approve"/);
+  assert.match(lines[1], /^vawe: ship refused: waiting for the person's OK on the plan of colour-sting: .*type \/vawe-approve"/);
 });
 
 test('the ship gate script says so when it lets an unattended run through', () => {
   const r = spawnSync('node', ['harness/live/ship-approval.mjs', 'films/examples/colour-sting/page.html'], { cwd: REPO, encoding: 'utf8', env: { ...process.env, VAWE_UNATTENDED: '1' } });
   assert.equal(r.status, 0);
-  assert.match(r.stdout, /ship runs unattended \(VAWE_UNATTENDED=1\): no fresh review and no owner approval checked/);
+  assert.match(r.stdout, /ship runs unattended: no fresh review and no OK from the person checked/);
 });
