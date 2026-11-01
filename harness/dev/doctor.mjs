@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // vawe doctor: check every outside tool a render needs and print the install line for each missing one.
 // Exit 1 only when a required tool is missing. --json prints [{tool, required, ok, version, fix}].
+// Advice lines for unregistered live hooks (harness/lib/hook-check.mjs) never change the exit code.
 // --quiet prints problems only and writes .vawe/doctor.json (postinstall uses it; a failed render reads it).
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { CHROME_FIX } from '../lib/doctor-hint.mjs';
+import { missingHooks, hookAdvice } from '../lib/hook-check.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const quiet = process.argv.includes('--quiet');
@@ -118,6 +120,7 @@ else {
     console.log(`         fix: ${installLine(tool, os)}`);
   }
   if (!quiet && !blocked.length) console.log(`ok, ${results.length} checks (${os.label})`);
+  for (const line of hookAdvice(missingHooks(ROOT))) console.log(line);
   if (blocked.length) console.log(`${blocked.length} required tool(s) missing.`);
 }
 process.exit(blocked.length ? 1 : 0);
