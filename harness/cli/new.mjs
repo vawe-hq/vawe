@@ -170,12 +170,13 @@ function directionsText(name) {
 Three directions from three families before any motion; the first idea is the one every agent has.
 Each slot: one sentence; the key frame (what is on screen at the one big moment); the palette (hex);
 the typeface; the one signature move (a verb: fold, pour, slice, stamp); the thread (the one thing that
-carries through the film). No two slots share a hue family, a typeface or a move, and at most one is
+carries through the film); the risk (how it fails); from (a real frame path or ref id it is drawn from). No two slots share a hue family, a typeface or a move, and at most one is
 carried by a circle, orb, sun, ring or glow. Budget: 2 colours, 1 typeface, 1 signature move, 1 sound.
 Story and structure: the spine is taste/craft/story.md (hook, build, proof, payoff, CTA); what carries across each cut is taste/craft/film-structure.md; reject the median first (guides/PITCH.md).
 
 films/${name}/directions.html holds one working still per family: rewrite each into its slot's key frame.
 Score the three (about 30 s): bin/vawe judge films/${name}/directions.html --fresh --stage stills --brief films/${name}/brief.md
+Show the three to the person as one board: bin/vawe storyboard films/${name}/page.html --directions
 
 ${slotText('A', 'type')}
 

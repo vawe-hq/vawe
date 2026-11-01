@@ -586,17 +586,22 @@ export const VERBS = [
   },
   {
     tier: 'core',
-    name: 'storyboard', summary: 'use when you plan or present a film: an HTML board with a card per world (moves, eases, handoffs, sound, rhythm); --text prints worlds, rhythm and cues in 3 s',
+    name: 'storyboard', summary: 'use when you plan or present a film: an HTML board with a card per world (moves, eases, handoffs, sound, rhythm); --directions is the directions board (A, B, C side by side) to show a person; --text prints worlds, rhythm and cues in 3 s',
     positional: [{ name: 'page|mp4', required: true, kind: 'file', help: 'films/<name>/page.html, or a draft mp4 (frames are cut from it; the page is found by the film name); --text reads a page only' }],
     flags: [
       { name: 'page', type: 'path', help: 'with an mp4: the film\'s page.html, when it is not under films/' },
       { name: 'out', type: 'path', default: 'out/<film>-storyboard.html', help: 'the HTML path; the images go in a folder of the same name without .html' },
+      { name: 'directions', type: 'bool', help: 'the directions board instead (the directions verb): one column per direction of the brief, stills at the opening, the turn and the end, a looping clip of the turn, then the same lines under each (idea, what you see, what carries the eye, risk, drawn from) and your pick; out/<film>-directions.html' },
       { name: 'text', type: 'bool', help: 'no HTML and no render: the worlds, the cut rhythm, the spectacle and every audio cue as text' },
       { name: 'json', type: 'bool', help: 'with --text: print the same data as JSON' },
       { name: 'all', type: 'bool', help: 'print every plan advice line; the default prints one count line (the board holds them all)' },
     ],
-    example: 'vawe storyboard films/examples/colour-sting/page.html   |   vawe storyboard out/my-launch-draft.mp4   |   vawe storyboard films/my-launch/page.html --text',
+    example: 'vawe storyboard films/examples/colour-sting/page.html   |   vawe storyboard films/my-launch/page.html --directions   |   vawe storyboard out/my-launch-draft.mp4   |   vawe storyboard films/my-launch/page.html --text',
     build: (v, [input]) => {
+      if (v.directions) {
+        if (v.text || v.json || v.all || !input.endsWith('.html')) throw new UsageError('--directions reads a page and takes only --out: usage: vawe storyboard <page> --directions [--out file.html]');
+        return [{ script: 'harness/media/directions-board.mjs', args: [input, ...opt('--out', v.out)] }];
+      }
       if (v.text) {
         if (!input.endsWith('.html')) throw new UsageError('--text reads a page: usage: vawe storyboard <page> --text [--json]');
         return [{ script: 'harness/media/timeline.mjs', args: [input, ...(v.json ? ['--json'] : [])] }];
@@ -604,7 +609,7 @@ export const VERBS = [
       if (v.json) throw new UsageError('--json needs --text');
       return [{ script: 'harness/media/storyboard.mjs', args: [input, ...opt('--page', v.page), ...opt('--out', v.out), ...(v.all ? ['--all'] : [])] }];
     },
-    next: (v, [input]) => (v.text ? `fix a flagged rhythm or a cue in the wrong world, then bin/vawe sound ${input} --waveform to check each sound on its event` : `read the plan advice (bin/vawe storyboard ${input} --all, or the board) and fix it or keep it on purpose; open the HTML from disk to present or review the board; the Board and Motion pass in brief.md fill the move, handoff and note fields`),
+    next: (v, [input]) => (v.directions ? `Read the board, ask the person to pick one direction, then write \`picked: <A, B or C>, because <reason>\` in ${path.join(path.dirname(input), 'brief.md')}` : v.text ? `fix a flagged rhythm or a cue in the wrong world, then bin/vawe sound ${input} --waveform to check each sound on its event` : `read the plan advice (bin/vawe storyboard ${input} --all, or the board) and fix it or keep it on purpose; open the HTML from disk to present or review the board; the Board and Motion pass in brief.md fill the move, handoff and note fields`),
   },
   {
     tier: 'maintainer',

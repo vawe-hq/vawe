@@ -8,7 +8,7 @@ const LINK_W = 168;
 const PAD = 120;
 
 const EASE_SOURCE = { page: 'read from the page', board: 'named in the Board', signature: 'the film\'s ease dial' };
-const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+export const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const voiceName = (v) => String(v).replace(/\.(mp3|wav|m4a|ogg|flac)$/i, '');
 const MAX_CHIPS = 6;
 const MAX_LABEL_ROWS = 3;

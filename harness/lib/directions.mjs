@@ -2,7 +2,7 @@
 // (### A, ### B, ### C) of `- field: value` lines, and a `picked:` line. No I/O. Advice only.
 import ATTRACTORS from '../../taste/attractors.json' with { type: 'json' };
 
-export const FIELDS = ['family', 'sentence', 'key frame', 'palette', 'typeface', 'move', 'thread'];
+export const FIELDS = ['family', 'sentence', 'key frame', 'palette', 'typeface', 'move', 'thread', 'risk', 'from'];
 
 export const FAMILIES = {
   type: { label: 'type-led', hint: 'the film is carried by type', words: /\b(type|typo\w*|letter\w*|word\w*|glyph\w*)/ },

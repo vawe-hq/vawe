@@ -50,7 +50,7 @@ second make the hook a thing to check.
 
 ### Directions
 
-Three slots from three families (type, object, graphic), then `picked:` with a reason. `directions.html`
+Three slots from three families (type, object, graphic; each with `risk:` and `from:`), then `picked:` with a reason. `directions.html`
 holds one still each. Answers: directions skipped 8 of 8, and one invented brand (Vesper) in 4 of 8 films, a glowing circle in all 8.
 
 ### 2. LOOK
