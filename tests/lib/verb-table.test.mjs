@@ -24,7 +24,15 @@ test('every verb has a tier, a unique name and a one-line summary', () => {
 
 test('the verb set stays small', () => {
   assert.ok(VERBS.length <= 24, `${VERBS.length} verbs: merge into a flag of the owner verb before you add one`);
-  assert.ok(VERBS.filter((v) => v.tier === 'core').length <= 15);
+  assert.ok(VERBS.filter((v) => v.tier === 'core').length <= 10);
+});
+
+test('the core list is the ten verbs of the loop, and vawe --help stays under 300 words', () => {
+  const core = VERBS.filter((v) => v.tier === 'core').map((v) => v.name).sort();
+  assert.deepEqual(core, ['check', 'critique', 'dev', 'frame', 'new', 'refs', 'see', 'ship', 'sound', 'wait']);
+  assert.equal(verb('approve').tier, 'maintainer');
+  const words = topHelp(VERBS).split(/\s+/).length;
+  assert.ok(words <= 300, `${words} words in vawe --help`);
 });
 
 test('no two core verbs share their purpose line', () => {

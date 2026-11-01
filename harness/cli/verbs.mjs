@@ -106,7 +106,7 @@ export const VERBS = [
   },
   {
     tier: 'core',
-    name: 'see', summary: 'use when you read a film, page or reference completely (shots, motion, light, type, sound, numbers, images); --vs puts a reference beside it; --spec writes SPEC.md for a recreation',
+    name: 'see', summary: 'use when you read a film, page or reference as numbers (shots, motion, light, type, sound); --vs, --plan, --probe, --spec',
     positional: [{ name: 'film', required: true, help: 'a rendered mp4, a page (its draft is rendered first when missing or older than the page), or a reference id from vawe refs list' }],
     flags: [
       { name: 'vs', type: 'string', help: 'a second film (same kinds as <film>), usually the reference: both are read, with a delta per measure, one advice line per delta and paired images of the same moment' },
@@ -156,7 +156,7 @@ export const VERBS = [
   },
   {
     tier: 'core',
-    name: 'dev', summary: 'draft render: half size, 30 fps, with sound (the audio tags of the page mixed; a --from/--to window stays silent); also writes a key-frame sheet PNG next to it',
+    name: 'dev', summary: 'draft render: half size, 30 fps, with sound; also writes a key-frame sheet PNG next to it',
     positional: [PAGE],
     flags: [
       { name: 'from', type: 'number', help: 'start second' },
@@ -190,7 +190,7 @@ export const VERBS = [
   },
   {
     tier: 'core',
-    name: 'ship', summary: 'final render: 60 fps, motion blur, audio mixed, then a final check and a fresh judge; runs in the background; refused until a fresh review of the page (vawe judge --fresh, or vawe critique from another session) and the owner approval (vawe approve)',
+    name: 'ship', summary: 'final render: 60 fps, motion blur, audio mixed; refused until a fresh review and the owner approval',
     positional: [{ name: 'page|job', help: 'films/<name>/page.html; with --status, that page or a job id (default: the newest job)' }],
     flags: [
       { name: 'aspect', type: 'string', default: 'the page meta, else 16:9', help: `${ASPECT}, or all for one file each` },
@@ -218,7 +218,7 @@ export const VERBS = [
   },
   {
     tier: 'core',
-    name: 'wait', summary: 'use when a draft, clip or final render or a critique is running, instead of sleep, ps or an until loop: waits for it and prints its result line; exit 1 when it failed',
+    name: 'wait', summary: 'use when a draft, clip or final render or a critique is running, instead of sleep, ps or an until loop: prints its result line',
     positional: [{ name: 'page|film', required: true, help: 'films/<name>/page.html, or the film name; a call returns after about 3.5 minutes with a STILL RUNNING line and a progress line a minute: call it again' }],
     flags: [],
     example: 'vawe wait films/my-launch/page.html   |   vawe wait my-launch',
@@ -235,7 +235,7 @@ export const VERBS = [
     next: () => 'delete the merged branch and its worktree (git branch -d <topic>)',
   },
   {
-    tier: 'core',
+    tier: 'maintainer',
     name: 'approve', summary: 'use when the owner signs off the full draft of a page: vawe ship needs it; a film session never runs this',
     positional: [PAGE],
     flags: [
@@ -250,7 +250,7 @@ export const VERBS = [
   },
   {
     tier: 'core',
-    name: 'critique', summary: 'use when a draft is ready for fresh eyes: phone sheet, strip, loop seam, measured deltas and page-check to look at; --fresh also starts a separate critic session that writes the critique',
+    name: 'critique', summary: 'use when a draft is ready for fresh eyes: phone sheet, strip, loop seam, measured deltas; --fresh starts a critic session',
     positional: [PAGE],
     flags: [
       { name: 'ref', type: 'path', help: 'reference mp4 to measure against (default: the reference the brief names)', kind: 'file' },
@@ -324,7 +324,7 @@ export const VERBS = [
   },
   {
     tier: 'core',
-    name: 'check', summary: 'use when you run one named gate or report (anim-traps, page-check, review, coverage, links, doc-refs, ...); bare lists the gates',
+    name: 'check', summary: 'use when you run one named gate or report; bare lists the gates',
     positional: [{ name: 'name', help: 'gate name, then that gate\'s own args' }],
     flags: [], raw: true,
     example: 'vawe check anim-traps films/my-launch/page.html',
@@ -383,7 +383,7 @@ export const VERBS = [
   },
   {
     tier: 'core',
-    name: 'sound', summary: 'use when you choose, check or cut to sound: voices, the beat grid and hits of a track, the cues of a page (--at, --waveform), --sfx to import an effect, --lab to listen',
+    name: 'sound', summary: 'use when you choose, check or cut to sound: voices, beat grid, cues of a page, --sfx, --lab',
     positional: [{ name: 'input', required: false, help: 'an audio file (m4a, mp3, wav), an mp4 with audio, a reference id from vawe refs list, or a page (reads its <audio loop> bed, the synth cues as separate rows, and the page\'s own cuts); none: list the synth voices for <audio data-synth>' }],
     flags: [
       { name: 'cuts', type: 'string', help: 'a page (exact worlds from the DOM), an mp4 or a reference id (shot cuts): a table per cut with the nearest hit and beat line, offset in ms and frames, verdict, and the second to move each off cut to' },
