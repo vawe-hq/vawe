@@ -176,6 +176,12 @@ test('runs <film>: time by stage and verb, slot wait, failures grouped by cause,
   assert.match(text, /1 x browser lost \(ship\)/);
 });
 
+test('runs <film>: a log from before the merge and one after count the picture verbs as one frame row', () => {
+  const text = filmLines('hud', [call({ verb: 'strip' }), call({ verb: 'sheet' }), call({ verb: 'frame', alias: 'still' }), call({ verb: 'frame' })]).join('\n');
+  assert.match(text, /\n\s+frame\s+4\s/);
+  assert.doesNotMatch(text, /\n\s+(strip|sheet)\s/);
+});
+
 test('runs <film>: the draft series marks an untagged draft', () => {
   const dev = { at: '2026-10-09T20:00:00.000Z', cmd: 'dev', wallS: 20, acceptance: { green: 7, measured: 14, red: ['jerky steps'] }, rules_fired: [{ id: 'a' }] };
   const text = filmLines('x', [{ ...dev, agent: 'hud' }, { ...dev, agent: 'ab#12', at: '2026-10-09T21:00:00.000Z' }]).join('\n');

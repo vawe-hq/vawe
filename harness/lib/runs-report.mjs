@@ -2,6 +2,7 @@
 // Old records (before harness/lib/run-events.mjs) hold `render` for a draft or final and `judge` for a verdict.
 import { namedAgent } from './runlog.mjs';
 import { causeOf } from './verb-log.mjs';
+import { verbNow } from '../cli/aliases.mjs';
 
 const DAY_MS = 86_400_000;
 const WINDOW_DAYS = 30;
@@ -97,7 +98,7 @@ function timeLines(calls) {
   return [
     `where time went: ${used.length} verb calls, ${num(minutes, 0)} min of verb time${tagged.length ? '' : ', none tagged with VAWE_AGENT'}${rest ? `; ${rest} untagged calls left out` : ''}`,
     ...timeTable('stage', tally(used, (e) => e.loopStage)),
-    ...timeTable('verb', tally(used, (e) => e.verb)),
+    ...timeTable('verb', tally(used, (e) => verbNow(e.verb))),
     `  slot wait: ${num(wait, 0)} s over ${used.filter((e) => e.slotWaitS > 0).length} calls`,
   ];
 }

@@ -52,8 +52,8 @@ export function refusalOf(stderr = '') {
   return /^vawe: \S+ refused: (.+)$/m.exec(stderr)?.[1] ?? null;
 }
 
-/** The runs.jsonl fields of one call. `pageHash` is the digest of the page the call concerned (the ship gate reads it on a critique). `fresh` marks a critique a separate claude session wrote (`critique --fresh`). `stage` is the loop stage of the call (verbStage, else stage-say's stage for the film); `tagged` is false for a run no VAWE_AGENT names. `help` marks a `<verb> --help` lookup, `usage` a call the argument parser rejected, `refused` the reason a verb declined to run. */
-export function verbEvent({ verb, args, stage = null, startMs, endMs, exitCode, reason = null, slotWaitS = null, images = [], pageHash = null, fresh = false, verdict = null, help = false, usage = false, refused = null, env = process.env }) {
+/** The runs.jsonl fields of one call. `pageHash` is the digest of the page the call concerned (the ship gate reads it on a critique). `fresh` marks a critique a separate claude session wrote (`critique --fresh`). `stage` is the loop stage of the call (verbStage, else stage-say's stage for the film); `tagged` is false for a run no VAWE_AGENT names. `help` marks a `<verb> --help` lookup, `usage` a call the argument parser rejected, `refused` the reason a verb declined to run, `alias` the old verb name the agent typed (still, frames, sheet, strip, zoom, storyboard). */
+export function verbEvent({ verb, args, stage = null, startMs, endMs, exitCode, reason = null, slotWaitS = null, images = [], pageHash = null, fresh = false, verdict = null, help = false, usage = false, refused = null, alias = null, env = process.env }) {
   return {
     cmd: 'verb', verb, args, stage,
     start: new Date(startMs).toISOString(), durationS: tenths((endMs - startMs) / 1000),
@@ -65,6 +65,7 @@ export function verbEvent({ verb, args, stage = null, startMs, endMs, exitCode, 
     ...(help ? { help: true } : {}),
     ...(usage ? { usage: true } : {}),
     ...(refused ? { refused } : {}),
+    ...(alias ? { alias } : {}),
     ...(verb === 'ship' && env.VAWE_UNATTENDED === '1' ? { unattended: true } : {}),
   };
 }

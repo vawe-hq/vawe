@@ -93,11 +93,19 @@ export function readHookSeen(root = '.', home = os.homedir(), sinceMs = 0) {
   return readAllRuns(path.join(root, 'out')).some((f) => f.runs.some((r) => r.cmd === 'read' && Date.parse(r.at) >= sinceMs));
 }
 
-/** The images a film's `verb` calls printed since `sinceMs` and which of them no Read event (in any film's log: a custom --out folder files its reads under another name) has opened since: { printed, unread }, absolute paths. */
-export function looksSince(film, verb, sinceMs, root = '.') {
+const argText = (r) => [].concat(r.args ?? []).join(' ');
+
+/** True for a run-log row of a strip: a `frame` call with --cuts or --moment (a `strip` row of an older log too). */
+export const isStripRun = (r) => r.cmd === 'verb' && (r.verb === 'strip' || (r.verb === 'frame' && /--(cuts|moment)\b/.test(argText(r))));
+
+/** True for a run-log row of a storyboard: a `frame` call with --board or --directions, `see --plan` (a `storyboard` row of an older log too). */
+export const isBoardRun = (r) => r.cmd === 'verb' && (r.verb === 'storyboard' || (r.verb === 'frame' && /--(board|directions)\b/.test(argText(r))) || (r.verb === 'see' && /--plan\b/.test(argText(r))));
+
+/** The images a film's strip calls printed since `sinceMs` and which of them no Read event (in any film's log: a custom --out folder files its reads under another name) has opened since: { printed, unread }, absolute paths. */
+export function looksSince(film, sinceMs, root = '.') {
   const abs = (p) => { const a = path.resolve(root, p); try { return fs.realpathSync(a); } catch { return a; } };
   const printed = [...new Set(readRuns(film, root)
-    .filter((r) => r.cmd === 'verb' && r.verb === verb && r.exitCode === 0 && Date.parse(r.start ?? r.at) > sinceMs)
+    .filter((r) => isStripRun(r) && r.exitCode === 0 && Date.parse(r.start ?? r.at) > sinceMs)
     .flatMap((r) => r.images ?? []).map(abs))];
   const opened = new Set(readAllRuns(path.join(root, 'out'))
     .flatMap((f) => f.runs).filter((r) => r.cmd === 'read' && Date.parse(r.at) >= sinceMs).map((r) => abs(r.image)));

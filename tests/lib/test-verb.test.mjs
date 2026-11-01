@@ -19,21 +19,21 @@ test('staleNote names the commit count only when the checkout is behind; commits
   assert.equal(commitsBehind(() => { throw new Error('no ref'); }), 0);
 });
 
-test('sheet --ref builds the compare step, and every usage error names its flag', () => {
+test('frame --vs builds the compare step, and every usage error names its flag', () => {
   assert.deepEqual(parseAt('1, 4,7.5'), [1, 4, 7.5]);
   assert.equal(compareProblem({ ours: 'a.mp4', at: '1,4' }), null);
   assert.match(compareProblem({ at: '1' }), /missing <ours\.mp4> or --page/);
   assert.match(compareProblem({ ours: 'a.mp4' }), /missing --at/);
   assert.match(compareProblem({ ours: 'a.mp4', at: '1,x' }), /--at has a value that is not a number.*"x"/);
-  const sheet = VERBS.find((v) => v.name === 'sheet');
-  const [mp4] = sheet.build({ ref: 'r.mp4', at: '1,4' }, ['a.mp4']);
+  const sheet = VERBS.find((v) => v.name === 'frame');
+  const [mp4] = sheet.build({ vs: 'r.mp4', at: '1,4' }, ['a.mp4']);
   assert.deepEqual(mp4.args, ['a.mp4', '--ref', 'r.mp4', '--at', '1,4']);
-  const [page] = sheet.build({ ref: 'r.mp4' }, ['films/x/page.html']);
+  const [page] = sheet.build({ vs: 'r.mp4' }, ['films/x/page.html']);
   assert.deepEqual(page.args, ['--page', 'films/x/page.html', '--ref', 'r.mp4', '--at', 'cuts']);
-  assert.throws(() => sheet.build({ ref: 'r.mp4', at: '1,x' }, ['a.mp4']), /--at has a value that is not a number/);
-  assert.throws(() => sheet.build({ ref: 'r.mp4', labels: true, at: '1' }, ['a.mp4']), UsageError);
-  assert.doesNotMatch(sheet.next({}, []), /reference left/);
-  assert.match(sheet.next({ ref: 'r.mp4' }, []), /reference left/);
+  assert.throws(() => sheet.build({ vs: 'r.mp4', at: '1,x' }, ['a.mp4']), /--at has a value that is not a number/);
+  assert.throws(() => sheet.build({ vs: 'r.mp4', labels: true, at: '1' }, ['a.mp4']), UsageError);
+  assert.doesNotMatch(sheet.next({}, ['films/x/page.html']), /reference left/);
+  assert.match(sheet.next({ vs: 'r.mp4' }, ['films/x/page.html']), /reference left/);
 });
 
 test('vawe test runs every test file once: the serial files alone and last, the rest together first', () => {

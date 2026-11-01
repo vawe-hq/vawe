@@ -8,6 +8,7 @@ const PAGE = 'films/examples/colour-sting/page.html';
 
 const stepOf = (...argv) => {
   const { values, positional } = parseArgs(frame, [PAGE, ...argv]);
+  frame.exists(values, positional);
   const [step] = frame.build(values, positional);
   return [step.script, ...step.args];
 };
@@ -59,6 +60,8 @@ test('frame: a flag outside its mode names the mode it needs', () => {
   refusedWith(/--sel and --ids need --velocity/, '--moment', '2', '--sel', '.a');
   refusedWith(/--moment takes its own second/, '--moment', '2', '--at', '3');
   refusedWith(/--at-b needs --vs/, '--at', '2', '--box', '1,2,3,4', '--at-b', '1');
+  refusedWith(/--n needs --onion/, '--cuts', '--n', '4');
+  refusedWith(/--onion needs --moment/, '--cuts', '--onion');
   refusedWith(/--size needs --at <one second>/, '--size', '100x100');
 });
 
@@ -79,4 +82,13 @@ test('see --plan reads a page as text, --json needs --plan', () => {
   assert.deepEqual([step.script, step.args], ['harness/media/timeline.mjs', [PAGE, '--json']]);
   assert.throws(() => see.build({ plan: true }, ['a.mp4']), /--plan reads a page/);
   assert.throws(() => see.build({ json: true }, [PAGE]), /--json needs --plan/);
+});
+
+test('frame: a missing page, mp4 or folder is refused before any script runs; a reference id or an https mp4 is not', () => {
+  const run = (argv) => { const { values, positional } = parseArgs(frame, argv); frame.exists(values, positional); };
+  assert.throws(() => run(['no-such.html', '--at', '1,2']), /no such page, mp4 or folder: no-such.html/);
+  assert.throws(() => run(['no-such.html', '--at', '2']), /no such page or mp4/);
+  assert.throws(() => run(['no-such.html', '--world', 'all']), /no such page: no-such.html/);
+  assert.doesNotThrow(() => run(['refid123', '--cuts']));
+  assert.doesNotThrow(() => run(['https://x.test/a.mp4', '--at', '2']));
 });

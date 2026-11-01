@@ -64,10 +64,10 @@ test('the next step after a ship names the param-aware file and keeps the flags'
   assert.match(next, /out\/my-film-look-riso\.mp4/);
 });
 
-test('still and sheet refuse --param for an mp4 or a folder', () => {
-  assert.throws(() => verb('still').build({ at: '1', param: ['look=riso'] }, ['out/a.mp4']), UsageError);
-  assert.throws(() => verb('sheet').build({ param: ['look=riso'] }, ['out/a.mp4']), UsageError);
-  assert.doesNotThrow(() => verb('still').build({ at: '1', param: ['look=riso'] }, [PAGE]));
+test('frame refuses --param for an mp4 or a folder, one frame and a sheet alike', () => {
+  assert.throws(() => verb('frame').build({ at: '1', param: ['look=riso'] }, ['out/a.mp4']), UsageError);
+  assert.throws(() => verb('frame').build({ param: ['look=riso'] }, ['out/a.mp4']), UsageError);
+  assert.doesNotThrow(() => verb('frame').build({ at: '1', param: ['look=riso'] }, [PAGE]));
 });
 
 test('the resume hint and the compare sheet keep the params', () => {

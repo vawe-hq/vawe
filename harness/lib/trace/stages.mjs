@@ -4,8 +4,22 @@ const OPTIONAL = new Set(['judge', 'fix', 'approve', 'ship']);
 const STUDY_VERBS = new Set(['refs', 'see', 'sheet', 'compare', 'look', 'looks', 'spec', 'strip', 'onion', 'velocity']);
 const MOTION_VERBS = new Set(['onion', 'velocity']);
 
+const BOARD = /--(board|directions)\b/;
+const MOVE = /--(cuts|onion|velocity)\b/;
+const ONE_FRAME = /--at[= ]\s*\d+(\.\d+)?(\s|$)/;
+
+/** The stage of a `frame` call: its mode decides, and the study modes turn into the motion pass once a draft exists. */
+function frameStage(args, seen) {
+  if (/--(world|looks)\b/.test(args)) return 'frames';
+  if (BOARD.test(args)) return 'storyboard';
+  if (/--(box|auto)\b/.test(args) || (ONE_FRAME.test(args) && !/--(cuts|moment|sheet|vs)\b/.test(args))) return null;
+  return !seen.dev ? 'study' : MOVE.test(args) ? 'motion' : null;
+}
+
 /** The loop stage a verb call belongs to, or null when its verb names none. `seen` holds the stages already used. The run log and the trace review both call this. */
 export function verbStage({ verb, args }, seen) {
+  if (verb === 'frame') return frameStage(args, seen);
+  if (verb === 'see' && /--plan\b/.test(args)) return 'storyboard';
   if (verb === 'dev') return (seen.critique || seen.judge) && /--(from|to)\b/.test(args) ? 'fix' : 'dev';
   if (verb === 'ship') return /--(status|wait)\b/.test(args) ? null : 'ship';
   if (verb === 'critique' || verb === 'judge') return verb;

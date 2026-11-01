@@ -1,8 +1,9 @@
 import { VERBS } from '../../cli/verbs.mjs';
+import { ALIASES } from '../../cli/aliases.mjs';
 import { RULES } from '../../live/verb-hint.mjs';
 import { PS_WAIT, SLEEP, atCommand, bare, withoutHeredocs } from '../shell-match.mjs';
 
-const VERB_NAMES = new Set(VERBS.map((v) => v.name));
+const VERB_NAMES = new Set([...VERBS.map((v) => v.name), ...Object.keys(ALIASES)]);
 const HELP = /(?:^|\s)(?:--help|-h)(?:\s|$)/;
 const SEGMENT = /&&|\|\||;|\n|\|/;
 const VERB_CALL = /^\s*(?:[A-Z_][A-Z0-9_]*=\S*\s+)*(?:(?:node|rtk)\s+)?(?:\S*\/)?vawe\s+([a-z0-9-]+)(.*)$/;

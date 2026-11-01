@@ -47,8 +47,8 @@ test('rankShapes counts per shape with films and sessions, most frequent first',
 });
 
 test('coveringVerb names an existing verb, or null', () => {
-  assert.equal(coveringVerb('ffmpeg -ss 1.2 -i a.mp4 -frames:v 1 x.png'), 'still');
-  assert.equal(coveringVerb('ffmpeg -i a.mp4 -vf tile=4x4 s.png'), 'sheet');
+  assert.equal(coveringVerb('ffmpeg -ss 1.2 -i a.mp4 -frames:v 1 x.png'), 'frame');
+  assert.equal(coveringVerb('ffmpeg -i a.mp4 -vf tile=4x4 s.png'), 'frame');
   assert.equal(coveringVerb('ffmpeg -i a.mp4 -c:v libx264 b.mp4'), null);
 });
 

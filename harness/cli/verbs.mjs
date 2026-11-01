@@ -5,20 +5,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UsageError } from './parse.mjs';
 import { opt, needsPage, pageName } from './helpers.mjs';
-import { FRAME, STEPS } from './frame.mjs';
+import { FRAME } from './frame.mjs';
 import { causeOf } from '../lib/verb-log.mjs';
-import { compareProblem, CUTS } from '../media/compare-frames.mjs';
-import { STRIP_FPS, STRIP_SPAN, stripProblem } from '../media/see/strip-math.mjs';
 
-import { stillProblem } from '../media/see/still-math.mjs';
 import { atProblem } from '../media/see/at-problem.mjs';
 import { parseTargets, shotProblem } from '../media/shot-math.mjs';
-import { ONION_FRAMES, ONION_SPAN, onionProblem } from '../media/see/onion-math.mjs';
-import { ZOOM_SCALE, zoomProblem } from '../media/see/zoom-math.mjs';
-import { looksProblem } from '../lib/looks.mjs';
 import { renderEnv, paramsFilm, paramsFlags } from '../lib/page-params.mjs';
 import { seeProblem } from '../media/see/one-math.mjs';
-import { VELOCITY_SPAN, velocityProblem } from '../media/see/velocity-math.mjs';
 import { filmKey, freshImages, summaryLines } from '../lib/critique-summary.mjs';
 import { readFindings } from '../lib/findings.mjs';
 import { scratch } from '../lib/scratch.mjs';
@@ -149,35 +142,6 @@ export const VERBS = [
     next: (v, [film]) => (v.plan ? `fix a flagged rhythm or a cue in the wrong world, then bin/vawe sound ${film} --waveform to check each sound on its event` : v.probe ? 'compare the numbers with the move you meant; vawe strip <page> --at <s> shows the frames through that second' : v.spec ? 'mark every SPEC.md line KEEP or CHANGE, then vawe new <name> and rebuild' : v['sync-brief'] ? `bin/vawe dev ${film}; the changed cells end in *` : v.vs ? 'Read see.md, then every image path in it at full size, each with the numbers under it; act on the advice lines (each names the page literal), then vawe see again' : 'Read see.md, then every image path in it at full size, each with the numbers under it; vawe see <film> --vs <ref id> puts a reference beside it'),
   },
   FRAME,
-  {
-    tier: 'core',
-    name: 'frames', summary: 'use when you check the key state of each world: one still per data-world element and a contact sheet; --looks tries every lens look',
-    positional: [PAGE],
-    flags: [
-      { name: 'full', type: 'bool', help: 'full-size stills (the page\'s own size, 1920x1080 for 16:9) as out/<name>-frames/<id>-full.png; no sheet, no frames.html' },
-      { name: 'zoom', type: 'bool', help: 'also shoot a full-size still per world (about 5 s more) so a click in frames.html opens it sharp; without it the page zooms into a full still left by an earlier --full run, else the draft still' },
-      { name: 'world', type: 'string', repeat: true, help: 'only this world id (comma list or repeat the flag); no sheet, no frames.html. Each still is at its own world\'s time' },
-      { name: 'looks', type: 'bool', help: 'instead of the world stills: a page frame under every named camera look of the lens (and as-is), one labelled grid per second; the page is not edited' },
-      { name: 'at', type: 'string', help: 'with --looks: comma-separated film seconds, for example 4.5,9' },
-      { name: 'only', type: 'string', help: 'with --looks: comma-separated look names, for example anamorphic,crt; all when left out' },
-      { name: 'out', type: 'path', default: 'out/looks-<film>', help: 'with --looks: folder for the grids' },
-    ],
-    example: 'vawe frames films/my-launch/page.html   |   vawe frames films/my-launch/page.html --full --world s3,s5   |   vawe frames films/my-launch/page.html --looks --at 4.5,9 --only anamorphic,crt',
-    build: (v, [page]) => {
-      if (v.looks) {
-        if (v.full || v.zoom || v.world?.length) throw new UsageError('--looks does not take --full, --zoom or --world');
-        return STEPS.looks(v, page);
-      }
-      const stray = ['at', 'only', 'out'].find((f) => v[f] !== undefined);
-      if (stray) throw new UsageError(`--${stray} needs --looks`);
-      return STEPS.world(v, page);
-    },
-    next: (v, [page]) => (v.looks
-      ? 'Read each grid at full size, pick a look by sight, then put `look: \'<name>\'` in the lens options of the page (prompts/moves/lens.md lists the numbers); the page options still win over the look'
-      : v.full || v.world?.length
-      ? `Read the stills at full size and fix the states; then bin/vawe frames ${page} for the sheet`
-      : nextStep(path.resolve(page), ROOT).next),
-  },
   {
     tier: 'more',
     name: 'animatic', summary: 'use when you check the timing of a film before you animate it: the key frame of each world held for its planned span, hard cuts, silent, in a few seconds',
@@ -317,56 +281,6 @@ export const VERBS = [
       : `look at the sheets above, or start a critic session with ${SAY.critique(pageName(page), page)}, then ${SAY.judge(pageName(page), page, v.ref)}`),
   },
   {
-    tier: 'core',
-    name: 'strip', summary: 'use when you check how a moment or a cut moves: the frames through it as one grid with motion numbers; --onion and --velocity show the path and speed of a move',
-    positional: [{ name: 'film', required: true, help: 'a rendered mp4, a page (uses its last draft: run vawe dev first), or a reference id from vawe refs list (uses the 1080p copy); --velocity reads a page only' }],
-    flags: [
-      { name: 'at', type: 'string', help: 'the second to centre the strip on' },
-      { name: 'cuts', type: 'bool', help: 'one strip per world change (a page or mp4: the data-world spans of the last full draft) or per shot cut (a reference: spec.json); the strip is centred on the cut, with the hold before each cut and how many cuts pause' },
-      { name: 'span', type: 'number', default: `${STRIP_SPAN} (--onion ${ONION_SPAN}, --velocity ${VELOCITY_SPAN})`, help: 'seconds of film in the strip, the onion or the velocity window' },
-      { name: 'fps', type: 'number', default: STRIP_FPS, help: 'frames per second of film in the strip, at most the fps of the video read (a draft 30, a final 60); a grid holds 9 frames, more make a second grid' },
-      { name: 'onion', type: 'bool', help: 'instead of a grid: several frames of the move at --at blended into ONE image, newest strongest, older ones fainter and tinted cool to warm: the spacing, path and overshoot of the move' },
-      { name: 'n', type: 'number', default: ONION_FRAMES, help: 'with --onion: frames blended, from 2 to 12' },
-      { name: 'velocity', type: 'bool', help: 'instead of a grid: the speed and scale of page elements around --at as a graph, with start, peak, settle, overshoot and ease shape per element (exact: read from the page; a canvas painted in window.seek has no element: pass --sel)' },
-      { name: 'sel', type: 'string', help: 'with --velocity: a CSS selector, graph every element it matches (default: the 4 elements that move most)' },
-      { name: 'ids', type: 'string', help: 'with --velocity: element ids, comma separated, instead of --sel' },
-      { name: 'out', type: 'path', default: 'out/strip/<film> (--onion out/onion/<film>, --velocity out/velocity)', help: 'folder for the grids or the PNG' },
-    ],
-    example: 'vawe strip out/my-launch.mp4 --at 8.4   |   vawe strip films/my-launch/page.html --cuts   |   vawe strip u6iro1jHujs --cuts   |   vawe strip out/my-launch.mp4 --at 8.4 --onion --span 0.6 --n 6   |   vawe strip films/my-launch/page.html --at 2.75 --velocity',
-    build: (v, [film]) => {
-      const modes = ['onion', 'velocity'].filter((m) => v[m]);
-      if (modes.length > 1) throw new UsageError('give --onion or --velocity, not both');
-      if (v.n !== undefined && !v.onion) throw new UsageError('--n needs --onion');
-      const velocityOnly = ['sel', 'ids'].find((f) => v[f] !== undefined);
-      if (velocityOnly && !v.velocity) throw new UsageError(`--${velocityOnly} needs --velocity`);
-      if (v.cuts && modes.length) throw new UsageError(`--cuts does not take --${modes[0]}`);
-      return STEPS.strip(v, film);
-    },
-    next: (v, [film]) => {
-      if (v.onion) return 'Read the PNG at full size: evenly spaced ghosts mean a linear move, ghosts bunched at one end mean an ease, a ghost past the final position means an overshoot; vawe strip <page> --velocity gives the numbers for a page';
-      if (v.velocity) return 'Read the PNG, then fix the move the summary names: the page literal that sets its ease, its duration or its overshoot';
-      return `Read each grid path above at full size: frames run left to right, top to bottom, and the motion line gives the seconds the move starts and settles; ${v.cuts ? 'compare how the outgoing and incoming parts overlap at each cut' : 'then bin/vawe sheet <page|mp4> --ref <ref.mp4> --at <s> to put the reference beside yours'}${v.cuts ? (film.endsWith('.html') ? `; ${SAY.motionRows(pageName(film))}, then ${SAY.critique(pageName(film), film)}` : '; then name 3 moves in "Taken from" (ref id, cut second) and the pattern of taste/craft/film-structure.md (The motion grammar) the ref uses') : ''}`;
-    },
-  },
-  {
-    tier: 'core',
-    name: 'sheet', summary: 'use when you want a labelled contact sheet of seconds of a page or mp4, or of a folder of images; --ref puts a reference beside each frame',
-    positional: [{ name: 'page|mp4|folder', required: true, kind: 'file', help: 'films/<name>/page.html, an mp4, or a folder of png, jpg or webp images (up to 48 tiles, named by file)' }],
-    flags: [
-      { name: 'at', type: 'string', help: 'comma-separated film seconds, for example 0.5,1.2,3 (default: the middle of each world change, else 12 evenly spaced)' },
-      { name: 'from', type: 'number', default: 0, help: 'an mp4 only: the film second where the file starts (a --from/--to draft); --at stays in film seconds' },
-      { name: 'labels', type: 'bool', help: 'print the data-world id of the world on top at each second (a page, or an mp4 named after its film: the worlds come from films/<name>/page.html)' },
-      { name: 'cols', type: 'number', default: 'by count, at most 3', help: 'tiles per row' },
-      ASPECT_FLAG,
-      { name: 'ref', type: 'path', help: 'a reference mp4 (a page or an mp4, never a folder): each row is the reference left, yours right, at the same second; --at may be \`cuts\` for the middle of each world change of the last full draft', kind: 'file' },
-      PARAM,
-      { name: 'out', type: 'path', default: 'out/sheet-<name>.png (--ref: out/compare-<name>.png)', help: 'the PNG path' },
-    ],
-    example: 'vawe sheet films/my-launch/page.html --at 0.5,1.2,3 --labels   |   vawe sheet films/my-launch/page.html --ref refs/ad.mp4 --at 2.5,3.1,4   |   vawe sheet out/my-launch.mp4 --ref refs/ad.mp4 --at cuts',
-    build: (v, [input]) => STEPS.sheet({ ...v, vs: v.ref }, input),
-    next: (v) => (v.ref ? `look at the PNG: ${v.at === CUTS ? 'one frame per world change, at its middle' : 'one frame per --at second'}, reference left, yours right; fix the worst row first` : 'Read the PNG at full size; vawe strip <page> --at <s> shows the frames through one moment'),
-  },
-  {
     tier: 'more',
     name: 'shot', summary: 'a PNG of a site route, a url or a static html page at each width (default 1440 and 390): lazy images loaded, the site server reused or started and stopped, and page errors, failed requests and sideways overflow reported; with --tour, an mp4 of a scripted cursor working the page, every frame at its exact second',
     positional: [{ name: 'target', required: true, help: 'a route (/blog), a url, or a .html file; a comma list shoots each' }],
@@ -386,38 +300,6 @@ export const VERBS = [
       return [{ script: 'harness/media/shot.mjs', args: [target, ...opt('--w', v.w), ...(v.full ? ['--full'] : []), ...opt('--base', v.base), ...opt('--out', v.out), ...opt('--tour', v.tour), ...(v.tour ? [...opt('--fps', v.fps), ...opt('--scale', v.scale)] : [])] }];
     },
     next: (v) => v.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html); vawe sheet <film mp4> reads it' : 'Read each PNG at full size; the 390 one shows the phone layout; vawe check links crawls every link of the site',
-  },
-  {
-    tier: 'core',
-    name: 'still', summary: 'use when you need one exact full-size frame of a page or mp4 as a PNG',
-    positional: [{ name: 'page|mp4', required: true, kind: 'file', remote: true, help: 'films/<name>/page.html, an mp4, or an https mp4 URL (read with one range request)' }],
-    flags: [
-      { name: 'at', type: 'string', help: 'the film second to write; past the last frame it is moved to the last frame and the output says so' },
-      { name: 'size', type: 'string', default: 'the aspect at 1920 on the long edge', help: 'a page only: the PNG size as WxH, for example 1200x630; refused when its ratio is not the aspect of the page (--aspect 1200:630 sets the aspect)' },
-      ASPECT_FLAG,
-      PARAM,
-      { name: 'out', type: 'path', default: 'out/still/<name>-<s>s.png', help: 'the PNG path' },
-    ],
-    example: 'vawe still films/my-launch/page.html --at 4.2   |   vawe still films/card/page.html --at 0 --aspect 1200:630 --size 1200x630   |   vawe still out/my-launch.mp4 --at 4.2 --out /tmp/f.png',
-    build: (v, [input]) => STEPS.still(v, input),
-    next: () => 'Read the PNG at full size; vawe zoom <page|mp4> --at <s> --box x,y,w,h enlarges one region',
-  },
-  {
-    tier: 'more',
-    name: 'zoom', summary: 'use when a pixel pattern needs a closer look: one region of a frame enlarged with no smoothing (every pixel a square), beside the same region of a second film: fringes, masks and glow',
-    positional: [{ name: 'film', required: true, help: 'a rendered mp4, a page (uses its last draft: run vawe dev first), or a reference id from vawe refs list' }],
-    flags: [
-      { name: 'at', type: 'string', help: 'the second to crop' },
-      { name: 'box', type: 'string', help: 'x,y,w,h in 1920x1080 pixels' },
-      { name: 'auto', type: 'bool', help: 'crop 240x135 around the densest bright text edge instead of --box' },
-      { name: 'scale', type: 'number', default: ZOOM_SCALE, help: 'whole-number enlargement, 1 to 16' },
-      { name: 'vs', type: 'string', help: 'a second film (same kinds as <film>): its region goes right of the first, labelled' },
-      { name: 'at-b', type: 'string', help: 'with --vs: the second of the second film (default: --at)' },
-      { name: 'out', type: 'path', default: 'out/zoom/<film>', help: 'folder for the PNG, or a path ending in .png for the file itself' },
-    ],
-    example: 'vawe zoom out/my-launch.mp4 --vs <ref-id> --at 2.4 --box 800,400,240,135   |   vawe zoom films/my-launch/page.html --auto --at 3',
-    build: (v, [film]) => STEPS.zoom(v, film),
-    next: () => 'Read the PNG at full size: left is a, right is b; name the pixel pattern you see (colour fringes, a stripe mask, halo width) and then vawe see <film> for the numbers',
   },
   {
     tier: 'core',
@@ -546,33 +428,6 @@ export const VERBS = [
     next: (v, [input]) => (v.lab ? 'verdicts are kept in quality/baselines/sound-verdicts.json' : v.sfx ? 'set data-at on the <audio> line, then bin/vawe sound <page> --at <s> to check the cue sounds on its event' : !input ? 'a voice goes in <audio data-synth="name" data-at="s">; vawe sound <track> gives the beat grid and hits of a music file the user gave'
       : v.at || v.waveform ? (v.waveform ? 'Read the PNG: each orange tick must sit on the dashed world line of its visual event; move a cue with data-at or data-on' : 'a cue 0 s into itself starts at that second; move one that is off its event with data-at')
         : 'Read sound.md and sound.png; put each cut on a hit or a beat line at the frame the cut table names, then vawe sound <track> --cuts <page> again'),
-  },
-  {
-    tier: 'core',
-    name: 'storyboard', summary: 'use when you plan or present a film: an HTML board with a card per world (moves, eases, handoffs, sound, rhythm); --directions is the directions board (A, B, C side by side) to show a person; --text prints worlds, rhythm and cues in 3 s',
-    positional: [{ name: 'page|mp4', required: true, kind: 'file', help: 'films/<name>/page.html, or a draft mp4 (frames are cut from it; the page is found by the film name); --text reads a page only' }],
-    flags: [
-      { name: 'page', type: 'path', help: 'with an mp4: the film\'s page.html, when it is not under films/' },
-      { name: 'out', type: 'path', default: 'out/<film>-storyboard.html', help: 'the HTML path; the images go in a folder of the same name without .html' },
-      { name: 'directions', type: 'bool', help: 'the directions board instead (the directions verb): one column per direction of the brief, stills at the opening, the turn and the end, a looping clip of the turn, then the same lines under each (idea, what you see, what carries the eye, risk, drawn from) and your pick; out/<film>-directions.html' },
-      { name: 'text', type: 'bool', help: 'no HTML and no render: the worlds, the cut rhythm, the spectacle and every audio cue as text' },
-      { name: 'json', type: 'bool', help: 'with --text: print the same data as JSON' },
-      { name: 'all', type: 'bool', help: 'print every plan advice line; the default prints one count line (the board holds them all)' },
-    ],
-    example: 'vawe storyboard films/examples/colour-sting/page.html   |   vawe storyboard films/my-launch/page.html --directions   |   vawe storyboard out/my-launch-draft.mp4   |   vawe storyboard films/my-launch/page.html --text',
-    build: (v, [input]) => {
-      if (v.directions) {
-        if (v.text || v.json || v.all || v.page || !input.endsWith('.html')) throw new UsageError('--directions reads a page and takes only --out: usage: vawe storyboard <page> --directions [--out file.html]');
-        return STEPS.directions(v, input);
-      }
-      if (v.text) {
-        if (!input.endsWith('.html')) throw new UsageError('--text reads a page: usage: vawe storyboard <page> --text [--json]');
-        return [{ script: 'harness/media/timeline.mjs', args: [input, ...(v.json ? ['--json'] : [])] }];
-      }
-      if (v.json) throw new UsageError('--json needs --text');
-      return STEPS.board(v, input);
-    },
-    next: (v, [input]) => (v.directions ? `Read the board, ask the person to pick one direction, then write \`picked: <A, B or C>, because <reason>\` in ${path.join(path.dirname(input), 'brief.md')}` : v.text ? `fix a flagged rhythm or a cue in the wrong world, then bin/vawe sound ${input} --waveform to check each sound on its event` : `read the plan advice (bin/vawe storyboard ${input} --all, or the board) and fix it or keep it on purpose; open the HTML from disk to present or review the board; the Board and Motion pass in brief.md fill the move, handoff and note fields`),
   },
   {
     tier: 'maintainer',

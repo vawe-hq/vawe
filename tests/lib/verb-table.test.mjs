@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { VERBS } from '../../harness/cli/verbs.mjs';
 import { TIERS, topHelp, verbHelp, UsageError } from '../../harness/cli/parse.mjs';
+import { ALIASES } from '../../harness/cli/aliases.mjs';
 import { GATES } from '../../harness/lib/check-gate.mjs';
 
 const verb = (name) => VERBS.find((v) => v.name === name);
@@ -22,7 +23,7 @@ test('every verb has a tier, a unique name and a one-line summary', () => {
 });
 
 test('the verb set stays small', () => {
-  assert.ok(VERBS.length <= 30, `${VERBS.length} verbs: merge into a flag of the owner verb before you add one`);
+  assert.ok(VERBS.length <= 24, `${VERBS.length} verbs: merge into a flag of the owner verb before you add one`);
   assert.ok(VERBS.filter((v) => v.tier === 'core').length <= 15);
 });
 
@@ -42,6 +43,15 @@ test('every core verb but dev and ship opens with when to use it', () => {
 test('the verbs that became flags are gone, with no alias', () => {
   const gone = ['look', 'looks', 'onion', 'velocity', 'spec', 'spec-sync', 'compare', 'sounds', 'sfx', 'audio', 'sound-lab', 'timeline', 'review', 'coverage', 'links', 'match', 'track', 'ref-cutlist', 'ref-calibrate'];
   for (const name of gone) assert.equal(verb(name), undefined, name);
+  for (const name of gone) assert.equal(ALIASES[name], undefined, name);
+});
+
+test('the picture verbs became modes of frame; their old names live in ALIASES, not in the verb table', () => {
+  for (const name of ['still', 'frames', 'sheet', 'strip', 'zoom', 'storyboard']) {
+    assert.equal(verb(name), undefined, name);
+    assert.equal(typeof ALIASES[name], 'function', name);
+  }
+  assert.ok(verb('frame'));
 });
 
 test('review, coverage and links run as gates of check', () => {
@@ -61,34 +71,6 @@ test('--help lists the core verbs, and --help --all lists every verb under its t
 
 test('verb --help starts with the summary', () => {
   for (const v of VERBS) assert.equal(verbHelp(v).split('\n')[0], v.summary);
-});
-
-test('strip --onion and --velocity build the old onion and velocity steps and refuse stray flags', () => {
-  assert.deepEqual(argsOf('strip', { onion: true, at: '8.4', span: 0.6, n: 6 }, ['a.mp4']), ['a.mp4', '--onion', '8.4', '--span', '0.6', '--n', '6']);
-  assert.deepEqual(argsOf('strip', { onion: true, at: '8.4' }, ['a.mp4']).slice(0, 6), ['a.mp4', '--onion', '8.4', '--span', '0.3', '--n']);
-  assert.deepEqual(argsOf('strip', { velocity: true, at: '2.75', sel: '.card' }, ['p.html']), ['p.html', '--velocity', '2.75', '--span', '1', '--sel', '.card']);
-  assert.deepEqual(argsOf('strip', { at: '2' }, ['a.mp4']).slice(0, 3), ['a.mp4', '--moment', '2']);
-  assert.throws(() => argsOf('strip', { onion: true, velocity: true, at: '1' }, ['p.html']), /not both/);
-  assert.throws(() => argsOf('strip', { n: 4, at: '1' }, ['p.html']), /--n needs --onion/);
-  assert.throws(() => argsOf('strip', { sel: '.a', at: '1' }, ['p.html']), /--sel needs --velocity/);
-  assert.throws(() => argsOf('strip', { onion: true, cuts: true }, ['p.html']), UsageError);
-  assert.throws(() => argsOf('strip', { onion: true }, ['p.html']), /missing --at/);
-});
-
-test('frames --looks builds the looks step and refuses its flags without it', () => {
-  assert.deepEqual(argsOf('frames', { looks: true, at: '4.5,9', only: 'crt' }, ['p.html']), ['p.html', '--at', '4.5,9', '--only', 'crt']);
-  assert.throws(() => argsOf('frames', { at: '4.5' }, ['p.html']), /--at needs --looks/);
-  assert.throws(() => argsOf('frames', { looks: true, full: true, at: '1' }, ['p.html']), UsageError);
-  assert.throws(() => argsOf('frames', { looks: true, at: '1', only: 'nope' }, ['p.html']), /no look "nope"/);
-  assert.deepEqual(argsOf('frames', { full: true }, ['p.html']), ['p.html', '--full']);
-});
-
-test('storyboard --text reads the page as text, --json needs --text', () => {
-  const [step] = verb('storyboard').build({ text: true, json: true }, ['p.html']);
-  assert.equal(step.script, 'harness/media/timeline.mjs');
-  assert.deepEqual(step.args, ['p.html', '--json']);
-  assert.throws(() => verb('storyboard').build({ text: true }, ['a.mp4']), /reads a page/);
-  assert.throws(() => verb('storyboard').build({ json: true }, ['p.html']), /--json needs --text/);
 });
 
 test('sound --sfx and --lab take the place of sfx and sound-lab', () => {

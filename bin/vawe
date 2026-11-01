@@ -7,6 +7,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { isUrl } from '../harness/lib/url.mjs';
 import { closest, parseArgs, topHelp, UsageError, verbHelp } from '../harness/cli/parse.mjs';
+import { ALIASES, aliasNotice } from '../harness/cli/aliases.mjs';
 import { VERBS, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
 import { newFilm, newFilmLines, readDetails, questionsJson } from '../harness/cli/new.mjs';
 import { markRunning } from '../harness/lib/render-wait.mjs';
@@ -21,7 +22,7 @@ import { newEvent } from '../harness/lib/run-events.mjs';
 import { doctorHintFromFile } from '../harness/lib/doctor-hint.mjs';
 import { ensureHooks, gitAt } from '../harness/lib/git-hooks.mjs';
 import { renderEnv } from '../harness/lib/page-params.mjs';
-import { nextSeen, NEXT_UNCHANGED } from '../harness/lib/next-once.mjs';
+import { nextSeen, aliasSeen, NEXT_UNCHANGED } from '../harness/lib/next-once.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const MAX_SCAN = 4_000_000;
@@ -33,6 +34,7 @@ function requireFiles(verb, values, positional) {
   for (const f of verb.flags || []) {
     if (f.kind === 'file' && values[f.name] && !fs.existsSync(values[f.name])) throw new UsageError(`no such file for --${f.name}: ${values[f.name]}`);
   }
+  verb.exists?.(values, positional);
 }
 
 function runStep(step, call) {
@@ -133,10 +135,10 @@ function stageOf(verbName, rest, film, page) {
   return verbStage({ verb: verbName, args: rest.join(' ') }, used) ?? (page ? orNone(() => nextStep(page, ROOT).stage, null) : null);
 }
 
-function record(verb, rest, call, code, reason, endMs) {
+function record(verb, rest, call, code, reason, endMs, alias = null) {
   const { film, page } = filmOfRun(verb.name, call, rest);
   const pageHash = page ? orNone(() => pageDigest(page), null) : null;
-  const event = verbEvent({ verb: verb.name, args: rest, stage: stageOf(verb.name, rest, film, page), startMs: call.startMs, endMs, exitCode: code, reason, slotWaitS: readNotes(call.notes).slotWaitS ?? null, fresh: readNotes(call.notes).fresh === true, verdict: readNotes(call.notes).verdict ?? null, images: imagesIn(call.stdout), pageHash, help: call.help, usage: call.usage, refused: refusalOf(call.stderr) });
+  const event = verbEvent({ verb: verb.name, args: rest, stage: stageOf(verb.name, rest, film, page), startMs: call.startMs, endMs, exitCode: code, reason, slotWaitS: readNotes(call.notes).slotWaitS ?? null, fresh: readNotes(call.notes).fresh === true, verdict: readNotes(call.notes).verdict ?? null, images: imagesIn(call.stdout), pageHash, help: call.help, usage: call.usage, refused: refusalOf(call.stderr), alias });
   try {
     appendRun(film, event, { root: ROOT });
   } catch (e) {
@@ -148,8 +150,19 @@ const bareCall = () => ({ startMs: Date.now(), positional: [], stdout: '', stder
 
 const quietFooter =(rest) => rest.includes('--json') || rest.includes('--questions-json');
 
-async function main(argv) {
-  const [name, ...rest] = argv;
+function announceAlias(alias, argv) {
+  const film = filmOfCall(argv[0], argv.slice(1).filter((a) => !a.startsWith('-')), argv.slice(1));
+  const seen = aliasSeen(film === UNFILED ? UNFILED : film, alias, { root: ROOT, sessionId: process.env.CLAUDE_CODE_SESSION_ID ?? null });
+  if (!seen) console.error(aliasNotice(alias, argv));
+}
+
+async function main(args) {
+  let [name, ...rest] = args;
+  const alias = name && !VERBS.some((v) => v.name === name) && ALIASES[name] ? name : null;
+  if (alias) {
+    [name, ...rest] = ALIASES[alias](rest);
+    announceAlias(alias, [name, ...rest]);
+  }
   const hooksLine = ensureHooks(gitAt(ROOT));
   if (hooksLine) console.error(hooksLine);
   if (!name || name === '--help' || name === '-h' || name === 'help') return console.log(topHelp(VERBS, { all: rest.includes('--all') }));
@@ -165,7 +178,7 @@ async function main(argv) {
     return;
   }
   if (rest.includes('--help') || rest.includes('-h')) {
-    record(verb, rest, { ...bareCall(), help: true, positional: rest.filter((a) => !a.startsWith('-')) }, 0, null, Date.now());
+    record(verb, rest, { ...bareCall(), help: true, positional: rest.filter((a) => !a.startsWith('-')) }, 0, null, Date.now(), alias);
     return console.log(verbHelp(verb));
   }
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-verb-'));
@@ -190,7 +203,7 @@ async function main(argv) {
     if (hint) console.error(hint);
   }
   const endMs = Date.now();
-  record(verb, rest, call, code, reason, endMs);
+  record(verb, rest, call, code, reason, endMs, alias);
   fs.rmSync(dir, { recursive: true, force: true });
   if (!quietFooter(rest)) console.log(footerLine({ verb: verb.name, code, reason, seconds: (endMs - call.startMs) / 1000 }));
   process.exitCode = code;

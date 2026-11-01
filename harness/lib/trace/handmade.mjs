@@ -8,7 +8,7 @@ const VAWE_DIR = /(?:^|\/)(?:films|harness|core|studio|tests|scripts|site)\//;
 const FILM = /films\/([a-z0-9][\w-]*)\//;
 const SHAPE_TOKENS = 14;
 const LEADING = /^\s*(?:cd\s+\S+\s*(?:&&|;)\s*|(?:[A-Z_][A-Z0-9_]*=\S*\s+)+|rtk\s+)+/;
-const VERB_BY_RULE = { links: 'check links' };
+const VERB_BY_RULE = { links: 'check links', sheet: 'frame', still: 'frame' };
 
 const writeShape = (file) => `write ${file.split('/').pop().replace(/\d+/g, 'N')}`;
 

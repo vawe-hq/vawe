@@ -110,9 +110,9 @@ test('a brief with no Directions section still builds columns from the media ids
   assert.equal(count(html, /<section class="col"/g), 2);
 });
 
-test('--directions is a usage error with --page, --text, --json or --all, and needs a page', () => {
-  const build = (v, input = 'films/x/page.html') => VERBS.find((x) => x.name === 'storyboard').build({ directions: true, ...v }, [input]);
-  for (const bad of [{ page: 'p.html' }, { text: true }, { json: true }, { all: true }]) assert.throws(() => build(bad), UsageError);
+test('frame --directions is a usage error with --page, --all or another mode, and needs a page', () => {
+  const build = (v, input = 'films/x/page.html') => VERBS.find((x) => x.name === 'frame').build({ directions: true, ...v }, [input]);
+  for (const bad of [{ page: 'p.html' }, { all: true }, { board: true }, { cuts: true }]) assert.throws(() => build(bad), UsageError);
   assert.throws(() => build({}, 'out/x.mp4'), UsageError);
   assert.deepEqual(build({}).map((c) => c.script), ['harness/media/directions-board.mjs']);
 });

@@ -1,4 +1,5 @@
 import { VERBS } from '../../cli/verbs.mjs';
+import { ALIASES } from '../../cli/aliases.mjs';
 import { noteAggregate } from './notes.mjs';
 
 const used = (a, stage) => stage in a.stages.first;
@@ -17,11 +18,11 @@ export const METRICS = [
   { id: 'new', label: 'ran bin/vawe new', test: (a) => used(a, 'new') },
   { id: 'studyFirst', label: 'a refs study before the first dev', applies: withDev, test: refsBeforeDev },
   { id: 'designFirst', label: 'DESIGN.md or kit written before the first dev', applies: withDev, test: (a) => before(a, 'design', 'dev') },
-  { id: 'framesFirst', label: 'vawe frames before the first dev', applies: withDev, test: (a) => before(a, 'frames', 'dev') },
+  { id: 'framesFirst', label: 'vawe frame --world before the first dev', applies: withDev, test: (a) => before(a, 'frames', 'dev') },
   { id: 'ideasFirst', label: 'Ideas rows written before the first dev', applies: withDev, test: (a) => before(a, 'ideas', 'dev') },
-  { id: 'storyboard', label: 'ran vawe storyboard or timeline', test: (a) => used(a, 'storyboard') },
+  { id: 'storyboard', label: 'ran vawe frame --board or see --plan', test: (a) => used(a, 'storyboard') },
   { id: 'boardFirst', label: 'Board rows written before the first dev', applies: withDev, test: (a) => before(a, 'board', 'dev') },
-  { id: 'motion', label: 'motion pass verbs after dev (strip --cuts, onion, velocity)', applies: withDev, test: (a) => used(a, 'motion') },
+  { id: 'motion', label: 'motion pass verbs after dev (frame --cuts, --onion, --velocity)', applies: withDev, test: (a) => used(a, 'motion') },
   { id: 'critique', label: 'ran critique', test: (a) => used(a, 'critique') },
   { id: 'judge', label: 'ran judge', test: (a) => used(a, 'judge') },
   { id: 'shipAttempted', label: 'tried a final render (ship, refused or not)', test: (a) => a.breaks.shipAttempted },
@@ -77,7 +78,7 @@ const round = (x) => Number(x.toFixed(1));
 
 /** For each vawe verb, how many agents ran it (help calls left out); a verb no agent ran has 0. Pure. */
 function verbUse(agents) {
-  const use = Object.fromEntries(VERBS.map((v) => [v.name, 0]));
+  const use = Object.fromEntries([...VERBS.map((v) => v.name), ...Object.keys(ALIASES)].map((name) => [name, 0]));
   for (const a of agents) for (const verb of new Set(a.verbs.filter((v) => !v.help).map((v) => v.verb))) use[verb] = (use[verb] ?? 0) + 1;
   return use;
 }

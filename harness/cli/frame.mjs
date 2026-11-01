@@ -106,6 +106,12 @@ export function modeOf(v) {
   return v.at !== undefined && oneSecond(v.at) && !v.sheet && !v.vs ? 'still' : 'sheet';
 }
 
+/** The flags with --ref folded into --vs: the same flag under two names. */
+function withVs(v) {
+  if (v.ref && v.vs && v.ref !== v.vs) throw new UsageError('give --vs once (--ref is the same flag)');
+  return { ...v, vs: v.vs ?? v.ref };
+}
+
 function outsideMode(v, mode) {
   for (const [flag, modes] of Object.entries(ONLY)) {
     const on = v[flag] !== undefined && v[flag] !== false;
@@ -123,19 +129,20 @@ function modifierProblem(v) {
   return null;
 }
 
-function needFile(input, mode) {
-  if (['cuts', 'moment', 'crop'].includes(mode) || (mode === 'still' && isUrl(input)) || fs.existsSync(input)) return;
-  throw new UsageError(`no such ${mode === 'sheet' ? 'page, mp4 or folder' : mode === 'still' ? 'page or mp4' : 'page'}: ${input}`);
+/** Throws a UsageError when a file the call names is missing; a reference id or a cut of an mp4 is not checked here. */
+function requireFiles(v0, [input]) {
+  const v = withVs(v0);
+  const mode = modeOf(v);
+  const found = ['cuts', 'moment', 'crop'].includes(mode) || (mode === 'still' && isUrl(input)) || fs.existsSync(input);
+  if (!found) throw new UsageError(`no such ${mode === 'sheet' ? 'page, mp4 or folder' : mode === 'still' ? 'page or mp4' : 'page'}: ${input}`);
+  if (mode === 'sheet' && v.vs && !fs.existsSync(v.vs)) throw new UsageError(`no such file for --vs: ${v.vs}`);
 }
 
 function stepsOf(v0, [input]) {
-  if (v0.ref && v0.vs && v0.ref !== v0.vs) throw new UsageError('give --vs once (--ref is the same flag)');
-  const v = { ...v0, vs: v0.vs ?? v0.ref };
+  const v = withVs(v0);
   const mode = modeOf(v);
   const problem = modifierProblem(v) ?? outsideMode(v, mode);
   if (problem) throw new UsageError(problem);
-  needFile(input, mode);
-  if (mode === 'sheet' && v.vs && !fs.existsSync(v.vs)) throw new UsageError(`no such file for --vs: ${v.vs}`);
   if (mode === 'moment') return STEPS.strip({ ...v, at: v.moment }, input);
   if (mode === 'cuts') return STEPS.strip(v, input);
   if (mode === 'crop') return STEPS.zoom(v, input);
@@ -203,13 +210,14 @@ const FLAGS = [
 ];
 
 export const FRAME = {
-  tier: 'more',
+  tier: 'core',
   name: 'frame',
   summary: SUMMARY,
   help: HELP,
   positional: [{ name: 'film', required: true, help: 'a page, an mp4, an https mp4, a reference id or a folder of images' }],
   flags: FLAGS,
   example: 'vawe frame films/my-launch/page.html --world all',
+  exists: requireFiles,
   build: stepsOf,
   next: nextOf,
 };

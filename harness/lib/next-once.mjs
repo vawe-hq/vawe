@@ -13,7 +13,7 @@ export function sinceReset(runs, sessionId) {
 export function resetShown(root, sessionId) {
   if (!sessionId) return;
   for (const f of readAllRuns(path.join(root, 'out'))) {
-    if (f.runs.some((r) => (r.cmd === 'next-shown' || r.cmd === 'taste-shown') && r.shownTo === sessionId)) {
+    if (f.runs.some((r) => ['next-shown', 'taste-shown', 'alias-shown'].includes(r.cmd) && r.shownTo === sessionId)) {
       try { appendRun(f.film, { cmd: 'shown-reset', shownTo: sessionId }, { root }); } catch { /* a hint log never fails the hook */ }
     }
   }
@@ -29,5 +29,13 @@ export function nextSeen(film, { next, why = '' }, { root, sessionId = null, age
   const last = mine.at(-1);
   if (last?.next === next && last?.why === why) return true;
   try { appendRun(film, { cmd: 'next-shown', next, why, shownTo: sessionId, shownAgent: agent }, { root }); } catch { /* a hint log never fails a verb */ }
+  return false;
+}
+
+/** True when this session and agent already saw the notice for the old verb `alias`; the call records it otherwise. */
+export function aliasSeen(film, alias, { root, sessionId = null, agent = process.env.VAWE_AGENT ?? null }) {
+  if (!sessionId) return false;
+  if (sinceReset(readRuns(film, root), sessionId).some((r) => r.cmd === 'alias-shown' && r.alias === alias && r.shownTo === sessionId && r.shownAgent === agent)) return true;
+  try { appendRun(film, { cmd: 'alias-shown', alias, shownTo: sessionId, shownAgent: agent }, { root }); } catch { /* a hint log never fails a verb */ }
   return false;
 }
