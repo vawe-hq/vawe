@@ -599,7 +599,7 @@ export const VERBS = [
     example: 'vawe storyboard films/examples/colour-sting/page.html   |   vawe storyboard films/my-launch/page.html --directions   |   vawe storyboard out/my-launch-draft.mp4   |   vawe storyboard films/my-launch/page.html --text',
     build: (v, [input]) => {
       if (v.directions) {
-        if (v.text || v.json || v.all || !input.endsWith('.html')) throw new UsageError('--directions reads a page and takes only --out: usage: vawe storyboard <page> --directions [--out file.html]');
+        if (v.text || v.json || v.all || v.page || !input.endsWith('.html')) throw new UsageError('--directions reads a page and takes only --out: usage: vawe storyboard <page> --directions [--out file.html]');
         return [{ script: 'harness/media/directions-board.mjs', args: [input, ...opt('--out', v.out)] }];
       }
       if (v.text) {

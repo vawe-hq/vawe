@@ -77,24 +77,25 @@ async function main(argv) {
   if (!fs.existsSync(briefFile)) die(`no brief.md next to ${source}; bin/vawe new <name> writes it`);
   const film = filmKeyOf(path.resolve(source));
   const { slots, picked } = parseDirections(fs.readFileSync(briefFile, 'utf8'));
-  const found = slots.map((s) => ({ id: s.id, page: path.join(filmDir, 'directions', s.id.toLowerCase(), 'page.html') }));
-  const tests = found.filter((f) => fs.existsSync(f.page));
+  const testDir = path.join(filmDir, 'directions');
+  const folderIds = fs.existsSync(testDir) ? fs.readdirSync(testDir).filter((d) => /^[a-z]$/.test(d)).map((d) => d.toUpperCase()).sort() : [];
+  const ids = slots.length ? slots.map((s) => s.id) : folderIds.length ? folderIds : ['A', 'B', 'C'];
+  const tests = ids.map((id) => ({ id, page: path.join(testDir, id.toLowerCase(), 'page.html') })).filter((f) => fs.existsSync(f.page));
   const html = path.resolve(flag('--out') ?? path.join('out', `${film}-directions.html`));
   const dir = html.replace(/\.html$/, '');
   fs.mkdirSync(dir, { recursive: true });
   const media = {};
-  if (tests.length) {
-    for (const t of tests) {
-      try { media[t.id] = await shootTestPage(t.id, t.page, dir); } catch (e) { console.error(`note: direction ${t.id} not shot: ${String(e.message).split('\n')[0]}`); }
-    }
-  } else {
-    const sheet = path.join(filmDir, 'directions.html');
-    if (!fs.existsSync(sheet)) die(`no direction test pages in ${filmDir}/directions/ and no ${sheet}`);
-    const keys = await shootSheet(sheet, slots.length || 3, dir);
-    (slots.length ? slots.map((s) => s.id) : ['A', 'B', 'C']).forEach((id, i) => { if (keys[i]) media[id] = { stills: { key: keys[i] } }; });
+  for (const t of tests) {
+    try { media[t.id] = await shootTestPage(t.id, t.page, dir); } catch (e) { console.error(`note: direction ${t.id} not shot: ${String(e.message).split('\n')[0]}`); }
   }
-  fs.writeFileSync(html, directionsBoardHtml({ film, slots, picked, media, fallback: !tests.length, fontCss: fontFaceCss() }));
-  console.log(`✓ ${html}: ${slots.length || 3} directions, ${tests.length ? `${tests.length} test page(s)` : 'one still each from directions.html'}; images in ${dir}`);
+  const missing = ids.filter((id) => !tests.some((t) => t.id === id));
+  const sheet = path.join(filmDir, 'directions.html');
+  if (missing.length && fs.existsSync(sheet)) {
+    const keys = await shootSheet(sheet, ids.length, dir);
+    ids.forEach((id, i) => { if (missing.includes(id) && keys[i]) media[id] = { stills: { key: keys[i] } }; });
+  } else if (!tests.length) die(`no direction test pages in ${testDir} and no ${sheet}`);
+  fs.writeFileSync(html, directionsBoardHtml({ film, slots, picked, media, fontCss: fontFaceCss() }));
+  console.log(`✓ ${html}: ${ids.length} directions, ${tests.length} test page(s), ${missing.length} from directions.html; images in ${dir}`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));

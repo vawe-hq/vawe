@@ -33,7 +33,7 @@ Read `taste/build/DIGEST.md` first: the one list of taste pitfalls. Read `skills
 
 | # | stage | the command |
 |---|---|---|
-| 1 | brief (facts only) | `bin/vawe new <name> --request "<the ask>"` (`vawe-brief`); `storyboard <page> --directions` shows the directions |
+| 1 | brief (facts only) | `bin/vawe new <name> --request "<the ask>"` (`vawe-brief`) |
 | 2 | reference study | `bin/vawe refs list`, then fill `brief.md` "Taken from" (`guides/REFERENCE-STUDY.md`) |
 | 3 | design system and kit | write `films/<name>/DESIGN.md` and `kit/` from `prompts/skill-combos.md` (`vawe-page`) |
 | 4 | states | `bin/vawe frames <page>`: one key frame per world |
