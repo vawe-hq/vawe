@@ -40,9 +40,26 @@ test('the advice line carries the JSON to add', () => {
   assert.deepEqual(json, { hooks: { PostToolUse: [{ matcher: 'Read', hooks: [{ type: 'command', command: 'node harness/live/log-read.mjs' }] }] } });
 });
 
-test('doctor prints the advice and keeps its exit code', () => {
-  const home = dir();
-  const r = spawnSync(process.execPath, [path.join(REPO, 'harness/dev/doctor.mjs'), '--quiet'], { cwd: REPO, encoding: 'utf8', env: { ...process.env, HOME: home, USERPROFILE: home } });
-  assert.match(r.stdout, /advice: hook stage-say\.mjs is not registered/);
-  assert.equal(r.status, /required tool\(s\) missing/.test(r.stdout) ? 1 : 0);
+test('a worktree has no settings: the main checkout\'s hooks count', () => {
+  const main = fs.realpathSync(dir()), home = dir();
+  const git = (cwd, ...args) => spawnSync('git', ['-c', 'commit.gpgsign=false', '-c', 'user.name=t', '-c', 'user.email=t@t', ...args], { cwd, encoding: 'utf8' });
+  git(main, 'init', '-q');
+  git(main, 'commit', '-q', '--allow-empty', '-m', 'x');
+  const tree = path.join(fs.realpathSync(dir()), 'wt');
+  assert.equal(git(main, 'worktree', 'add', '-q', tree).status, 0);
+  write(main, 'settings.json', reg('PostToolUse', 'log-read.mjs'));
+  assert.ok(!missingHooks(tree, home).some((h) => h.file === 'log-read.mjs'));
+});
+
+test('doctor prints the advice for the missing hooks and keeps its exit code; --quiet prints none', () => {
+  const home = dir(), root = dir();
+  for (const f of ['harness/dev/doctor.mjs', 'harness/lib/doctor-hint.mjs', 'harness/lib/hook-check.mjs']) {
+    fs.mkdirSync(path.dirname(path.join(root, f)), { recursive: true });
+    fs.copyFileSync(path.join(REPO, f), path.join(root, f));
+  }
+  const run = (...flags) => spawnSync(process.execPath, [path.join(root, 'harness/dev/doctor.mjs'), ...flags], { cwd: root, encoding: 'utf8', env: { ...process.env, HOME: home, USERPROFILE: home } });
+  const loud = run();
+  assert.match(loud.stdout, /advice: hook stage-say\.mjs is not registered/);
+  assert.equal(loud.status, /required tool\(s\) missing/.test(loud.stdout) ? 1 : 0);
+  assert.doesNotMatch(run('--quiet').stdout, /advice: hook/);
 });

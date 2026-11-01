@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 export const LIVE_HOOKS = [
   { file: 'log-read.mjs', event: 'PostToolUse', matcher: 'Read', why: 'logs the images you Read, so vawe runs can say what was looked at' },
@@ -17,8 +18,14 @@ function readSettings(file) {
 
 const commandsOf = (settings, event) => (settings.hooks?.[event] ?? []).flatMap((group) => (group.hooks ?? []).map((h) => h.command ?? ''));
 
-/** The settings files that exist or may hold a hook: the project's and the user's, settings.json and settings.local.json. */
-export const settingsPaths = (root, home = os.homedir()) => [root, home].flatMap((base) => SETTINGS_FILES.map((f) => path.join(base, f)));
+/** The main checkout of a worktree (Claude Code runs its hooks, a worktree has no settings of its own), or null outside git. */
+function mainCheckout(root) {
+  const r = spawnSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: root, encoding: 'utf8' });
+  return r.status === 0 && r.stdout.trim() ? path.dirname(r.stdout.trim()) : null;
+}
+
+/** The settings files that exist or may hold a hook: the project's, its main checkout's and the user's, settings.json and settings.local.json. */
+export const settingsPaths = (root, home = os.homedir()) => [...new Set([root, mainCheckout(root), home].filter(Boolean))].flatMap((base) => SETTINGS_FILES.map((f) => path.join(base, f)));
 
 /** The live hooks no settings file registers (a command that names harness/live/<file> on the right event counts). */
 export function missingHooks(root, home = os.homedir()) {

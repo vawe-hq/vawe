@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import os from 'node:os';
+import { missingHooks } from './hook-check.mjs';
 import { execFileSync } from 'node:child_process';
 
 const RUNS_SUFFIX = '.runs.jsonl';
@@ -86,13 +87,10 @@ export function readAllRuns(dir = 'out') {
     .map((f) => ({ film: f.slice(0, -RUNS_SUFFIX.length), runs: parseRuns(fs.readFileSync(path.join(dir, f), 'utf8')) }));
 }
 
-const HOOK_NAME = 'log-read.mjs';
-const settingsFiles = (root, home) => [path.join(root, '.claude', 'settings.json'), path.join(root, '.claude', 'settings.local.json'), path.join(home, '.claude', 'settings.json')];
-
-/** True when the log-read hook has left a read event in any film's log, or a settings file names it: false means the hook is missing, not that nothing was looked at. */
-export function readHookSeen(root = '.', home = os.homedir()) {
-  if (readAllRuns(path.join(root, 'out')).some((f) => f.runs.some((r) => r.cmd === 'read'))) return true;
-  return settingsFiles(root, home).some((f) => { try { return fs.readFileSync(f, 'utf8').includes(HOOK_NAME); } catch { return false; } });
+/** True when the log-read hook is registered (hook-check.mjs) or has logged a Read since `sinceMs`: false means the hook is missing, not that nothing was looked at. */
+export function readHookSeen(root = '.', home = os.homedir(), sinceMs = 0) {
+  if (!missingHooks(root, home).some((h) => h.file === 'log-read.mjs')) return true;
+  return readAllRuns(path.join(root, 'out')).some((f) => f.runs.some((r) => r.cmd === 'read' && Date.parse(r.at) >= sinceMs));
 }
 
 /** The images a film's `verb` calls printed since `sinceMs` and which of them no Read event (in any film's log: a custom --out folder files its reads under another name) has opened since: { printed, unread }, absolute paths. */

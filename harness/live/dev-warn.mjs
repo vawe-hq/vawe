@@ -36,7 +36,7 @@ export function readPlanState(pagePath, root = ROOT, opened = null) {
   const findings = [...(brief === null ? [] : attractorProblems(brief)), ...planLines(found.filter((f) => f.code !== covered), root)];
   const step = nextStep(abs, root);
   const draft = mtime(path.join(root, 'out', `${name}-draft.mp4`));
-  const looked = draft ? { ...looksSince(name, 'strip', draft, root), hook: readHookSeen(root) } : null;
+  const looked = draft ? { ...looksSince(name, 'strip', draft, root), hook: readHookSeen(root, undefined, draft) } : null;
   return {
     name, rel, brief, findings, looked, page: opened?.advice ?? [],
     design: read(path.join(path.dirname(abs), 'DESIGN.md')),

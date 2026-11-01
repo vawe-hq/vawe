@@ -161,7 +161,7 @@ export function nextStep(page, root = process.cwd()) {
   if (draft < t && final < t) return { name, stage: 'draft', next: SAY.dev(name, rel), why: 'the page changed after its last draft' };
   if (final < t && !stripped) return { name, stage: 'motion', next: SAY.motion(name, rel), why: 'a draft exists; the motion pass comes before the critique (dev: overshoot-share, live-hold and seam-variety clean or waived with a reason)' };
   const looks = final < t ? looksSince(name, 'strip', draft, root) : { printed: [], unread: [] };
-  if (looks.unread.length && readHookSeen(root)) {
+  if (looks.unread.length && readHookSeen(root, undefined, draft)) {
     const n = looks.printed.length;
     return { name, stage: 'motion', next: `Read the ${n} cut strips of this draft (${n - looks.unread.length} of ${n} read): ${looks.unread[0]}`, why: 'the strips are rendered; the motion pass starts with looking at them' };
   }

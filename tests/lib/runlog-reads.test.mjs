@@ -42,3 +42,12 @@ test('readHookSeen: a read event in any log or a settings file naming the hook; 
   log(root, 'g', [{ cmd: 'read', image: 'x.png', at: iso(0) }]);
   assert.equal(readHookSeen(root, home), true);
 });
+
+test('readHookSeen: a read event older than the draft does not count, one since it does', () => {
+  const root = tmp();
+  const home = tmp();
+  log(root, 'f', [{ cmd: 'read', image: 'x.png', at: iso(-5000) }]);
+  assert.equal(readHookSeen(root, home, T), false);
+  log(root, 'f', [{ cmd: 'read', image: 'x.png', at: iso(-5000) }, { cmd: 'read', image: 'y.png', at: iso(10) }]);
+  assert.equal(readHookSeen(root, home, T), true);
+});
