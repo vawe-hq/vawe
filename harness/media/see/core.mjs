@@ -74,6 +74,11 @@ export function probeVideo(video) {
   if (!width || !height || !(dur > 0)) die(`${video} has no readable video stream. Is it a video?`);
   return { width, height, dur, fps };
 }
+/** One line naming both lengths when a reference and a film differ by more than two frames, else null. Pure. */
+export function refSpanLine(refDur, pageDur, fps) {
+  if (Math.abs(refDur - pageDur) <= 2 / fps) return null;
+  return `the reference is ${refDur.toFixed(1)} s and the film ${pageDur.toFixed(1)} s`;
+}
 // A generated OCR frame's own pixel size (the `scale=640:-2` output, not the source video's): tesseract's
 // tsv box columns are in THIS frame's pixels, so a box fraction (of frame height/width) needs this, not
 // the source. Falls back to the 640x360 nominal size when no frame exists (nothing to OCR).

@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { ffmpegOrDie, drawtext } from '../../lib/scratch.mjs';
 import { openPreview } from '../preview-server.mjs';
 import { motionStampFresh, writeMotionStamp } from '../../lib/motion-stamp.mjs';
-import { bucketMean, die, probeVideo, ROOT, tileInGrids, timeRange, writeJsonAtomic } from './core.mjs';
+import { bucketMean, die, probeVideo, refSpanLine, ROOT, tileInGrids, timeRange, writeJsonAtomic } from './core.mjs';
 import { ocrWords } from './ocr.mjs';
 import { runCompare } from './compare.mjs';
 import { seekPage } from './inspect.mjs';
@@ -201,7 +201,10 @@ export async function runRequiredMotionMatch(htmlPath, refPath, outDirRoot, opts
   }
   const refP = probeVideo(refPath);
   const from = opts.final ? 0 : (opts.from || 0);
-  const to = opts.final ? refP.dur : (opts.to != null ? opts.to : refP.dur);
+  const pageDur = await resolveDuration(htmlPath);
+  const spanLine = refSpanLine(refP.dur, pageDur, opts.fps || 30);
+  const to = opts.final ? refP.dur : (opts.to != null ? opts.to : Math.min(refP.dur, pageDur));
+  if (spanLine && opts.to == null && !opts.final) console.log(`  ${spanLine}: comparing the first ${to.toFixed(1)} s only`);
   if (!(to > from)) die(`--dom --ref: bad window ${from}-${to}`);
   const windowed = from > 0 || to < refP.dur;
 

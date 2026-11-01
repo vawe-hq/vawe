@@ -2,10 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { ffmpegOrDie, drawtext } from '../../lib/scratch.mjs';
-import { bucketMean, computeEnergy, describeRatio, die, edgeMean, findHolds, HOLD_FLOOR, HOLD_MIN, longestHold, probeVideo, ROOT, stackImages, tileInGrids, timeRange, writeJsonAtomic } from './core.mjs';
+import { bucketMean, computeEnergy, describeRatio, die, edgeMean, findHolds, HOLD_FLOOR, HOLD_MIN, longestHold, probeVideo, refSpanLine, ROOT, stackImages, tileInGrids, timeRange, writeJsonAtomic } from './core.mjs';
 import { renderGrids } from './ocr.mjs';
 import { runWordEventCompare } from './words.mjs';
 import { compareFrames } from '../compare-frames.mjs';
+import { lastDraft } from '../../lib/runlog.mjs';
 
 
 // ── --shot <from>-<to>: a dense strip of ONE window, plus its motion curve ──────────────────────────
@@ -310,10 +311,22 @@ export async function referenceSpec(refPath, outDirRoot, fps) {
   return refSpec({ video: path.resolve(refPath), outDir: dir, fps, ocr });
 }
 
-// The page rendered at the reference's pixel size when the aspects agree, so both mp4s go through the same decode.
+// The page's last full draft when it is newer than the page and as long as the page: the critique renders it first, so a second render adds minutes and no information.
+export function reusableDraft(htmlPath, pageDur, fps, draft = lastDraft(htmlPath)) {
+  if (!draft || fs.statSync(draft).mtimeMs < fs.statSync(htmlPath).mtimeMs) return null;
+  return probeVideo(draft).dur >= pageDur - 2 / fps ? draft : null;
+}
+
+// Otherwise the page rendered at the reference's pixel size when the aspects agree, so both mp4s go through the same decode.
 export async function pageSpec(htmlPath, refSpecOut, outDirRoot, fps) {
   const { renderPage, readPageMeta } = await import('../render-page.mjs');
   const { refSpec } = await import('../ref-spec.mjs');
+  const { resolveDuration } = await import('../page-duration.mjs');
+  const draft = reusableDraft(htmlPath, await resolveDuration(htmlPath), fps);
+  if (draft) {
+    console.log(`  measuring the draft ${path.relative(process.cwd(), draft)}, not rendering the page again`);
+    return { mp4: draft, spec: await refSpec({ video: path.resolve(draft), outDir: path.join(outDirRoot, 'page-spec'), fps, ocr: refSpecOut.ocr }) };
+  }
   const mp4 = path.join(outDirRoot, 'page-render.mp4');
   const [aw, ah] = (readPageMeta(htmlPath, 'aspect') || '16:9').split(':').map(Number);
   const sameShape = Math.abs(aw / ah - refSpecOut.media.width / refSpecOut.media.height) < 0.02;
@@ -336,10 +349,21 @@ export async function writeSheets(result, mp4, refPath, outDirRoot, lastT) {
 
 export async function runMeasure(htmlPath, refPath, outDirRoot) {
   if (refPath && !fs.existsSync(refPath)) die(`no such --ref file: ${refPath}`);
-  const { renderSpec, attachNames } = await import('../render-spec.mjs');
+  if (refPath) {
+    const { resolveDuration } = await import('../page-duration.mjs');
+    const { readPageMeta } = await import('../render-page.mjs');
+    const line = refSpanLine(probeVideo(refPath).dur, await resolveDuration(htmlPath), Number(readPageMeta(htmlPath, 'fps')) || 30);
+    if (line) return console.log(`  measured deltas skipped: ${line}. Make them the same length, or compare a window with: bin/vawe critique ${htmlPath} --ref ${refPath} --from s --to s`);
+  }
+  const { renderSpec, attachNames, MeasureTimeout } = await import('../render-spec.mjs');
   const { compareSpecs, selfChecks, deltasMarkdown, deltaLine } = await import('../../lib/spec-deltas.mjs');
   fs.mkdirSync(outDirRoot, { recursive: true });
-  const { spec: page, namer } = await renderSpec({ page: path.resolve(htmlPath), outDir: outDirRoot, withNames: true });
+  let measured;
+  try { measured = await renderSpec({ page: path.resolve(htmlPath), outDir: outDirRoot, withNames: true }); } catch (e) {
+    if (!(e instanceof MeasureTimeout)) throw e;
+    return console.log(`  measured deltas skipped: ${e.message}. Raise the limit with VAWE_MEASURE_TIMEOUT=<seconds>`);
+  }
+  const { spec: page, namer } = measured;
   const checks = selfChecks(page);
   let result = null, mp4 = null;
   if (refPath) {

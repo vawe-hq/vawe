@@ -117,7 +117,11 @@ function pageStatic() {
 }
 
 // ── measure: seek every frame ───────────────────────────────────────────────────────────────────
-export async function measurePage(pagePath, { aspect, log = console.error } = {}) {
+export class MeasureTimeout extends Error {}
+
+export const measureLimitS = (env = process.env) => (Number(env.VAWE_MEASURE_TIMEOUT) > 0 ? Number(env.VAWE_MEASURE_TIMEOUT) : 300);
+
+export async function measurePage(pagePath, { aspect, log = console.error, limitS = measureLimitS(), now = Date.now } = {}) {
   const { readPageMeta, resolveFrame, openPage, settle } = await import('./render-page.mjs');
   const dur = await resolveDuration(pagePath);
   if (!(dur > 0)) die(`${pagePath} has no <meta name="duration" content="seconds">`);
@@ -128,7 +132,7 @@ export async function measurePage(pagePath, { aspect, log = console.error } = {}
   try {
     const { page } = opened;
     await page.goto(opened.url, { waitUntil: 'load' });
-    await page.evaluate((t) => window.__pageSeek(t), 0);
+    await page.evaluate((t) => window.__pageSeek(t, window, true), 0);
     await settle(page);
     const table = await page.evaluate(pageInit);
     await page.evaluate(`window.__rsMeasure = ${pageMeasure}`);
@@ -136,8 +140,10 @@ export async function measurePage(pagePath, { aspect, log = console.error } = {}
     const frames = [], texts = table.map(() => '');
     const step = Math.max(1, Math.floor(n / 8));
     log(`render-spec: ${n} frames at ${fps} fps, ${table.length} elements, ${frame.width}x${frame.height}`);
+    const until = now() + limitS * 1000;
     for (let f = 0; f < n; f++) {
-      frames.push(await page.evaluate(async (t) => { await window.__pageSeek(t); return window.__rsMeasure(); }, f / fps));
+      if (now() > until) throw new MeasureTimeout(`stopped at frame ${f} of ${n} after ${limitS} s`);
+      frames.push(await page.evaluate(async (t) => { await window.__pageSeek(t, window, true); return window.__rsMeasure(); }, f / fps));
       if (f % step === 0 || f === n - 1) {
         (await page.evaluate(pageTexts)).forEach((s, i) => { if (s.length > texts[i].length) texts[i] = s; });
       }
