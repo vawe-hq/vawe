@@ -21,7 +21,7 @@ import { newEvent } from '../harness/lib/run-events.mjs';
 import { doctorHintFromFile } from '../harness/lib/doctor-hint.mjs';
 import { ensureHooks, gitAt } from '../harness/lib/git-hooks.mjs';
 import { renderEnv } from '../harness/lib/page-params.mjs';
-import { nextOnce } from '../harness/lib/next-once.mjs';
+import { nextSeen, NEXT_UNCHANGED } from '../harness/lib/next-once.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const MAX_SCAN = 4_000_000;
@@ -97,7 +97,7 @@ async function runSteps(verb, values, positional, steps, call, startedMs, rest) 
   }
   if (typeof verb.report === 'function') console.log(verb.report(values, positional, startedMs).join('\n'));
   const next = verb.next && !verb.nextInline ? verb.next(values, positional) : null;
-  if (next) console.log(`\n${nextOnce(filmOfRun(verb.name, call, rest).film, `next: ${next}`, ROOT, process.env.CLAUDE_CODE_SESSION_ID ?? null)}`);
+  if (next) console.log(`\n${nextSeen(filmOfRun(verb.name, call, rest).film, { next }, { root: ROOT, sessionId: process.env.CLAUDE_CODE_SESSION_ID ?? null }) ? NEXT_UNCHANGED : `next: ${next}`}`);
   return 0;
 }
 

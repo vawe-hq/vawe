@@ -15,7 +15,7 @@ import { statedLength } from '../media/page-duration.mjs';
 import { staleCheckoutLine, mainCheckoutLine } from '../lib/stale-checkout.mjs';
 import { readRuns, appendRun, looksSince, readHookSeen } from '../lib/runlog.mjs';
 import { tasteLines } from '../lib/taste-steps.mjs';
-import { nextOnce, NEXT_UNCHANGED } from '../lib/next-once.mjs';
+import { nextSeen, resetShown, sinceReset, NEXT_UNCHANGED } from '../lib/next-once.mjs';
 
 export { boardFilled };
 
@@ -186,7 +186,7 @@ const STAGE_STEP = { states: 'frames', board: 'storyboard', motion: 'motion' };
 /** The rule lines of the stage's taste step the first time the film's stage is named in a session (`sessionId` from the hook's stdin; null counts all sessions as one); [] after that, or for a stage with no step. */
 export function tasteOnce(stage, name, root, sessionId = null) {
   const step = STAGE_STEP[stage];
-  if (!step || readRuns(name, root).some((r) => r.cmd === 'taste-shown' && r.stage === stage && r.shownTo === sessionId)) return [];
+  if (!step || sinceReset(readRuns(name, root), sessionId).some((r) => r.cmd === 'taste-shown' && r.stage === stage && r.shownTo === sessionId)) return [];
   appendRun(name, { cmd: 'taste-shown', stage, shownTo: sessionId }, { root });
   return tasteLines(step);
 }
@@ -197,8 +197,8 @@ export function sessionOf(input) {
 }
 
 function main() {
-  if (process.argv.includes('--reset')) return;
   const root = process.cwd();
+  if (process.argv.includes('--reset')) return resetShown(root, sessionOf(process.stdin.isTTY ? '' : read(0)));
   const stale = staleCheckoutLine(root);
   if (stale) console.log(`vawe: ${stale}`);
   const mainLine = mainCheckoutLine(root);
@@ -207,7 +207,7 @@ function main() {
   if (!page) return;
   const s = nextStep(page, root);
   const sessionId = sessionOf(process.stdin.isTTY ? '' : read(0));
-  const said = nextOnce(s.name, s.next, root, sessionId) === NEXT_UNCHANGED ? `vawe: ${s.name}: ${NEXT_UNCHANGED}` : `vawe: ${s.name}: ${s.why}.\n  next: ${s.next}`;
+  const said = nextSeen(s.name, { next: s.next, why: s.why }, { root, sessionId }) ? `vawe: ${s.name} [${s.stage}]: ${NEXT_UNCHANGED}` : `vawe: ${s.name}: ${s.why}.\n  next: ${s.next}`;
   console.log([said, ...tasteOnce(s.stage, s.name, root, sessionId)].join('\n'));
 }
 
