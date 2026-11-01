@@ -154,26 +154,26 @@ function mainAndWorktree(dir) {
   return { main, wt, publish };
 }
 
-test('a worktree session moves a clean detached main checkout to origin/main, once per 10 minutes', () => {
+test('a worktree session is told once per 10 minutes that a clean detached main checkout is behind, and nothing moves', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-mainmove-'));
   try {
     const { main, wt, publish } = mainAndWorktree(dir);
+    assert.equal(mainCheckoutLine(wt, { now: 1_000_000 }), '', 'level: nothing to say');
     publish('two.txt');
     git(wt, 'fetch', '-q', 'origin', 'main');
-    const line = mainCheckoutLine(wt, { now: 1_000_000 });
-    assert.match(line, /1 commit behind origin\/main: moved it to origin\/main/);
-    assert.equal(git(main, 'rev-parse', 'HEAD'), git(main, 'rev-parse', 'origin/main'));
-    publish('three.txt');
-    git(wt, 'fetch', '-q', 'origin', 'main');
-    assert.equal(mainCheckoutLine(wt, { now: 1_000_000 + 1000 }), '', 'inside the 10 minutes nothing runs');
-    assert.match(mainCheckoutLine(wt, { now: 1_000_000 + 700_000 }), /moved it/);
+    const before = git(main, 'rev-parse', 'HEAD');
+    const line = mainCheckoutLine(wt, { now: 2_000_000 });
+    assert.match(line, /main checkout is 1 commit behind main, so new sessions load old AGENTS\.md: move it with `git -C .*main checkout --detach origin\/main` when nothing runs there/);
+    assert.equal(git(main, 'rev-parse', 'HEAD'), before);
+    assert.equal(mainCheckoutLine(wt, { now: 2_000_000 + 1000 }), '', 'inside the 10 minutes nothing is said');
+    assert.match(mainCheckoutLine(wt, { now: 2_000_000 + 700_000 }), /behind main/);
     assert.equal(mainCheckoutLine(main, { now: 9_000_000 }), '', 'a session in the main checkout is the other function');
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
 
-test('the main checkout stays put, with one line saying why: tracked changes, a branch, local commits, a colliding file', () => {
+test('the main checkout is not mentioned when it has tracked changes or sits on a branch', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-mainstay-'));
   try {
     const { main, wt, publish } = mainAndWorktree(dir);
@@ -182,16 +182,12 @@ test('the main checkout stays put, with one line saying why: tracked changes, a 
     let at = 1_000_000;
     const line = () => mainCheckoutLine(wt, { now: (at += 700_000) });
     fs.writeFileSync(path.join(main, 'f.txt'), 'edited');
-    assert.match(line(), /not moved: it has tracked changes/);
+    assert.equal(line(), '');
     git(main, 'checkout', '-q', '--', 'f.txt');
-    fs.writeFileSync(path.join(main, 'two.txt'), 'mine');
-    assert.match(line(), /not moved: origin\/main adds two\.txt, which exists there/);
-    fs.rmSync(path.join(main, 'two.txt'));
-    git(main, 'commit', '-q', '--allow-empty', '-m', 'local');
-    assert.match(line(), /not moved: its HEAD has commits origin\/main lacks/);
-    git(main, 'checkout', '-q', '-B', 'work', 'origin/main~1');
-    assert.match(line(), /not moved: it is on a branch/);
-    assert.notEqual(git(main, 'rev-parse', 'HEAD'), git(main, 'rev-parse', 'origin/main'));
+    git(main, 'checkout', '-q', '-B', 'work');
+    assert.equal(line(), '');
+    git(main, 'checkout', '-q', '--detach');
+    assert.match(line(), /behind main/);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }

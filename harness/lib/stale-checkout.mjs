@@ -6,6 +6,7 @@ import { operationInProgress } from './git-operation.mjs';
 
 const FETCH_EVERY_MS = 10 * 60 * 1000;
 const FETCH_TIMEOUT_MS = 15_000;
+const GIT_TIMEOUT_MS = 10_000;
 const STAMP = path.join('.vawe-data', 'origin-fetch.json');
 
 /** The most commits HEAD lacks from the given refs (no network); 0 when none exists. `git(args)` returns stdout or throws. */
@@ -33,7 +34,7 @@ const readStamp = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
 
 function gitIn(root) {
   return (args, timeout) => {
-    const r = spawnSync('git', args, { cwd: root, encoding: 'utf8', timeout });
+    const r = spawnSync('git', ['--no-optional-locks', ...args], { cwd: root, encoding: 'utf8', timeout: timeout ?? GIT_TIMEOUT_MS });
     if (r.status !== 0) throw new Error(r.stderr || `git ${args[0]} failed`);
     return r.stdout;
   };
@@ -78,7 +79,7 @@ function fastForward(git) {
   } catch { return false; }
 }
 
-const MOVED_STAMP = path.join('.vawe-data', 'main-moved.json');
+const MOVED_STAMP = path.join('.vawe-data', 'main-behind.json');
 
 /** The main checkout of the repo `root` belongs to (the folder that holds the git common dir), or '' when `root` is it. */
 function mainCheckoutOf(root, git) {
@@ -87,19 +88,9 @@ function mainCheckoutOf(root, git) {
   return fs.realpathSync(main) === fs.realpathSync(root) ? '' : main;
 }
 
-/** Why the main checkout stays where it is, or '' when it is safe to move. Reads after `git fetch`, so origin/main is current. */
-function mainStays(main, git) {
-  if (git(['status', '--porcelain', '--untracked-files=no']).trim()) return 'it has tracked changes';
-  try { git(['symbolic-ref', '-q', 'HEAD']); return 'it is on a branch'; } catch { /* detached: the case this moves */ }
-  if (operationInProgress(git(['rev-parse', '--absolute-git-dir']).trim())) return 'a rebase or merge is running in it';
-  if (Number.parseInt(git(['rev-list', '--count', 'origin/main..HEAD']), 10) > 0) return 'its HEAD has commits origin/main lacks';
-  const collides = firstExistingAdd(main, git);
-  return collides ? `origin/main adds ${collides}, which exists there` : '';
-}
-
 /**
- * Moves the main checkout to origin/main when a session runs in a linked worktree and the main checkout lags: sessions start there, and a
- * stale one hands every subagent old AGENTS.md text. Tries at most once per 10 minutes. Returns the one line to print, or '' when nothing is due.
+ * The line for a session in a linked worktree whose main checkout is detached, clean and behind origin/main: sessions start there, and a stale
+ * one hands every subagent old AGENTS.md text. Advice only, so a hook writes nothing to any checkout. At most one line per 10 minutes; '' otherwise.
  */
 export function mainCheckoutLine(root, { now = Date.now(), git = gitIn } = {}) {
   try {
@@ -111,11 +102,8 @@ export function mainCheckoutLine(root, { now = Date.now(), git = gitIn } = {}) {
     fs.writeFileSync(stamp, JSON.stringify({ at: now }));
     const mg = git(main);
     const behind = commitsBehind(mg, ['origin/main']);
-    if (!behind) return '';
-    const lag = `the main checkout ${main} is ${behind} commit${behind === 1 ? '' : 's'} behind origin/main`;
-    const why = mainStays(main, mg);
-    if (why) return `${lag} and was not moved: ${why}`;
-    mg(['checkout', '--detach', 'origin/main']);
-    return `${lag}: moved it to origin/main`;
+    if (!behind || mg(['status', '--porcelain', '--untracked-files=no']).trim()) return '';
+    try { mg(['symbolic-ref', '-q', 'HEAD']); return ''; } catch { /* detached */ }
+    return `the main checkout is ${behind} commit${behind === 1 ? '' : 's'} behind main, so new sessions load old AGENTS.md: move it with \`git -C ${main} checkout --detach origin/main\` when nothing runs there`;
   } catch { return ''; }
 }
