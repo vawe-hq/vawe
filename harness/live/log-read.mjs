@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // PostToolUse hook for Read: logs an image the agent opened under out/ or the references folder to the film's runs.jsonl,
 // so `vawe runs` can say which images were looked at. Settings: matcher "Read", command "node harness/live/log-read.mjs".
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { appendRun, filmKeyOf } from '../lib/runlog.mjs';
@@ -17,10 +18,10 @@ export function filmOfImage(file, root) {
   return filmKeyOf(name.replace(/-frames$/, '').replace(/-sheet$/, ''));
 }
 
-/** The checkout an image belongs to: the path before its last /out/, else the checkout that holds this hook (a worktree's image is logged in the worktree, not where the hook runs). */
+/** The checkout an image belongs to: the path before its last /out/ when that is a vawe checkout, else the checkout that holds this hook (a worktree's image is logged in the worktree, not where the hook runs). */
 export function rootOfImage(file, fallback) {
   const at = file.lastIndexOf(`${path.sep}out${path.sep}`);
-  return at > 0 ? file.slice(0, at) : fallback;
+  return at > 0 && fs.existsSync(path.join(file.slice(0, at), 'bin', 'vawe')) ? file.slice(0, at) : fallback;
 }
 
 function main() {

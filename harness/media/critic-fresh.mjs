@@ -37,6 +37,7 @@ const inputs = {
   previous: files.previous,
   images: freshImages(scratch('see', film), Number(arg('--since') || 0)),
 };
+if (!inputs.images.some((f) => f.endsWith('.png'))) die('no view images of the draft were written: run bin/vawe dev <page> first, then critique --fresh again; the critic needs to see the frames', 2);
 const dirs = [...new Set([path.dirname(inputs.page), path.resolve('out'), scratchBase(), repoRoot, ...(inputs.ref ? [path.dirname(inputs.ref)] : [])])];
 
 let text;
@@ -46,6 +47,5 @@ const verdict = verdictLine(text);
 fs.mkdirSync(path.dirname(files.next), { recursive: true });
 fs.writeFileSync(files.next, `${text.trim()}\n`);
 if (!verdict) die(`the critic reply did not end with a REJECT or PASS line; it is saved as ${path.relative('.', files.next)}: ${text.slice(-300)}`);
-if (inputs.images.length) noteVerb({ fresh: true, verdict: verdict.split(/\b/)[0] });
-else console.error('vawe critique --fresh: no view images were written, so the critic judged without seeing the draft; the ship gate does not count this critique');
+noteVerb({ fresh: true, verdict: verdict.split(/\b/)[0] });
 console.log(`critique: ${path.relative('.', files.next)}\n${verdict}`);

@@ -94,10 +94,11 @@ test('critic-fresh writes the next critique file, prints the verdict, notes fres
   const page = path.join('films', 'f', 'page.html');
   const env = { CWD: work, PATH: `${path.join(work, 'bin')}:${process.env.PATH}`, NOTES: notes, CLAUDE_JOB_DIR: work };
   const noImages = run(page, env);
-  assert.equal(noImages.status, 0, noImages.stderr);
+  assert.equal(noImages.status, 2, noImages.stderr);
   assert.match(noImages.stderr, /no view images/);
   assert.equal(fs.existsSync(notes), false);
-  fs.rmSync(path.join(work, 'out'), { recursive: true });
+  assert.equal(fs.existsSync(argsLog), false);
+  fs.rmSync(path.join(work, 'out'), { recursive: true, force: true });
   fs.mkdirSync(path.join(work, 'tmp', 'see', 'f'), { recursive: true });
   fs.writeFileSync(path.join(work, 'tmp', 'see', 'f', 'a.png'), '');
   const r = run(page, env);
