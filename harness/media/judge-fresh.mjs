@@ -226,7 +226,7 @@ function extractJson(text) {
 function runJudge(prompt, ev) {
   const dirs = [...new Set([...ev.files.map((f) => path.dirname(f)), repoRoot])];
   let session;
-  try { session = runFreshSession({ prompt, dirs, cwd: ev.dir || path.dirname(ev.files[0]), timeoutS: Number(process.env.VAWE_JUDGE_TIMEOUT || 240), name: 'judge' }); } catch (e) { die(e.message, e.exitCode ?? 1); }
+  try { session = runFreshSession({ prompt, dirs, cwd: ev.dir || path.dirname(ev.files[0]), timeoutS: Number(process.env.VAWE_JUDGE_TIMEOUT || 240), timeoutVar: 'VAWE_JUDGE_TIMEOUT', name: 'judge' }); } catch (e) { die(e.message, e.exitCode ?? 1); }
   const verdict = extractJson(session.text);
   if (!verdict?.scores) die(`the judge reply had no scores: ${session.text.slice(0, 300)}`);
   return { verdict, costUsd: session.costUsd };

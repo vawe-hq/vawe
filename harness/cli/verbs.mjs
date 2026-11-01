@@ -309,7 +309,7 @@ export const VERBS = [
         ? { label: 'motion against the reference (1 to 3 min)', script: 'harness/media/see.mjs', args: [page, '--dom', '--ref', v.ref, ...opt('--from', v.from), ...opt('--to', v.to), ...(v.final ? ['--final'] : [])] }
         : { label: 'measured deltas', script: 'harness/media/see.mjs', args: [page, '--measure'] },
       { label: 'page-check: text, cues, spectacle, cuts (1 to 3 min)', script: 'quality/gates/page-check.mjs', args: [page, ...opt('--ref', v.ref)], env: { VAWE_FINDINGS_OUT: critiqueFindingsFile(page) } },
-      ...(v.fresh ? [{ label: 'fresh critic session (1 to 5 min)', script: 'harness/media/critic-fresh.mjs', args: [page, '--since', String(Date.now()), ...opt('--ref', v.ref), ...opt('--model', v.model)] }] : []),
+      ...(v.fresh ? [{ label: 'fresh critic session (1 to 15 min)', script: 'harness/media/critic-fresh.mjs', args: [page, '--since', String(Date.now()), ...opt('--ref', v.ref), ...opt('--model', v.model)] }] : []),
     ]),
     report: (v, [page], sinceMs) => summaryLines(
       readFresh(critiqueFindingsFile(page), sinceMs),

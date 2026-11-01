@@ -3,14 +3,16 @@
 //   node harness/media/critic-fresh.mjs <page.html> --since <ms> [--ref ref.mp4] [--model name]
 // Writes out/<film>.critique-<n>.md and prints its path and the REJECT or PASS line. Exit 2 when the claude CLI is missing.
 // Tells bin/vawe the critique was fresh (noteVerb), so the ship gate (harness/lib/critique-gate.mjs) accepts it from the author's own session.
-// Env: VAWE_CRITIC_TIMEOUT (seconds, default 300).
+// Env: VAWE_CRITIC_TIMEOUT (seconds, default 900).
 import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runFreshSession, requireClaude } from '../lib/fresh-session.mjs';
 import { criticTemplate, criticPrompt, verdictLine, critiqueFiles } from '../lib/critic-prompt.mjs';
-import { filmKey, freshImages } from '../lib/critique-summary.mjs';
+import { filmKey, freshImages, pngsSince } from '../lib/critique-summary.mjs';
 import { fullDraftPath } from '../lib/approval.mjs';
+import { writeDraftSheet } from './draft-sheet.mjs';
 import { scratch, scratchBase } from '../lib/scratch.mjs';
 import { noteVerb } from '../lib/verb-log.mjs';
 
@@ -37,11 +39,19 @@ const inputs = {
   previous: files.previous,
   images: freshImages(scratch('see', film), Number(arg('--since') || 0)),
 };
+const draftMp4 = inputs.mp4;
+const stripDir = path.resolve('out', 'strip', film);
+if (draftMp4 && !pngsSince(stripDir, draftMp4).length) spawnSync('node', [path.join(repoRoot, 'harness/media/see.mjs'), page, '--cuts'], { encoding: 'utf8' });
+const sheet = draftMp4 ? draftMp4.replace(/\.mp4$/, '.png') : null;
+if (sheet && !(fs.existsSync(sheet) && fs.statSync(sheet).mtimeMs >= fs.statSync(draftMp4).mtimeMs)) {
+  try { writeDraftSheet({ video: draftMp4, out: sheet, fps: 30 }); } catch { /* the critic still gets the other views */ }
+}
+inputs.images = [...new Set([...inputs.images, ...(sheet && fs.existsSync(sheet) ? [sheet] : []), ...pngsSince(stripDir, draftMp4)])];
 if (!inputs.images.some((f) => f.endsWith('.png'))) die('no view images of the draft were written: run bin/vawe dev <page> first, then critique --fresh again; the critic needs to see the frames', 2);
 const dirs = [...new Set([path.dirname(inputs.page), path.resolve('out'), scratchBase(), repoRoot, ...(inputs.ref ? [path.dirname(inputs.ref)] : [])])];
 
 let text;
-try { ({ text } = runFreshSession({ prompt: criticPrompt(template, inputs), dirs, cwd: repoRoot, timeoutS: Number(process.env.VAWE_CRITIC_TIMEOUT || 300), model: arg('--model'), name: 'critic' })); } catch (e) { die(e.message, e.exitCode ?? 1); }
+try { ({ text } = runFreshSession({ prompt: criticPrompt(template, inputs), dirs, cwd: repoRoot, timeoutS: Number(process.env.VAWE_CRITIC_TIMEOUT || 900), timeoutVar: 'VAWE_CRITIC_TIMEOUT', model: arg('--model'), name: 'critic' })); } catch (e) { die(e.message, e.exitCode ?? 1); }
 const verdict = verdictLine(text);
 
 fs.mkdirSync(path.dirname(files.next), { recursive: true });

@@ -16,10 +16,11 @@ export function requireClaude() {
 }
 
 /** Runs `prompt` in a fresh session that may only Read under `dirs`; returns { text, costUsd }. `model` is passed only when given. */
-export function runFreshSession({ prompt, dirs, cwd, timeoutS, model = null, name = 'fresh' }) {
+export function runFreshSession({ prompt, dirs, cwd, timeoutS, timeoutVar = null, model = null, name = 'fresh' }) {
   const args = ['-p', '--output-format', 'json', '--tools', 'Read', '--allowedTools', 'Read', '--no-session-persistence', '--disable-slash-commands', '--settings', '{"disableAllHooks":true}', ...(model ? ['--model', model] : []), '--add-dir', ...dirs];
   const r = spawnSync('claude', args, { input: prompt, encoding: 'utf8', cwd, timeout: timeoutS * 1000, maxBuffer: 1 << 26 });
   if (r.error?.code === 'ENOENT') throw new FreshSessionError(MISSING, 2);
+  if (r.error?.code === 'ETIMEDOUT') throw new FreshSessionError(`the ${name} session ran past ${timeoutS} s and was stopped${timeoutVar ? `: raise it with ${timeoutVar}=<seconds>` : ''}`);
   if (r.error) throw new FreshSessionError(`the ${name} session failed: ${r.error.message}`);
   let envelope;
   try { envelope = JSON.parse(r.stdout); } catch { throw new FreshSessionError(`the ${name} session gave no JSON: ${String(r.stderr || r.stdout).slice(0, 300)}`); }

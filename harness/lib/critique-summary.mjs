@@ -50,6 +50,15 @@ export function freshImages(dir, sinceMs) {
   return found.sort();
 }
 
+export const MAX_CUT_STRIPS = 8;
+
+/** The pngs of `dir` written at or after the draft `mp4`, sorted and capped at `cap`. Empty when the draft is missing. */
+export function pngsSince(dir, mp4, cap = MAX_CUT_STRIPS) {
+  if (!mp4 || !fs.existsSync(mp4)) return [];
+  const since = fs.statSync(mp4).mtimeMs;
+  return freshImages(dir, since).filter((f) => f.endsWith('.png')).slice(0, cap);
+}
+
 export function summaryLines(records, images) {
   const counts = [...countByCode(records)].map(([code, n]) => `${code} ${n}`);
   const lines = ['', records.length ? `summary: ${records.length} finding(s): ${counts.join(', ')}` : 'summary: no findings'];
