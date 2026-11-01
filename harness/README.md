@@ -31,6 +31,27 @@ from the repo root).
 Every verb appends one line to `out/<film>.runs.jsonl`: verb, stage, seconds, exit code and render slot wait, tagged
 with `VAWE_AGENT` and `VAWE_MODEL` from the shell. `bin/vawe runs <film>` (or `--all`) reads it.
 
+## The frame merge: keep or fall back, 14 days after the merge
+
+`still`, `frames`, `sheet`, `strip`, `zoom` and `storyboard` are aliases of `frame` (`harness/cli/aliases.mjs`). Keep `frame` if, over the 14 days after the merge, agents only (rows with a `VAWE_AGENT` name):
+
+| metric | keep if | command |
+|---|---|---|
+| help lookups per call | 10% or less (family was 14%) | run 1 |
+| exit-2 rate | 5% or less (strip was 12%) | run 2 |
+| alias rows from named agents | 0 by day 14 | run 3 |
+| hand-made frame grabs (`hint:sheet` + `hint:still`) | not above 6 | run 4 |
+
+Set `P=~/.claude/projects/<project folder>` and `MERGE=<the date of the merge commit "frame: one verb">` first. Run from the repo root of the checkout that holds the film run logs. Write the trace-review JSON to a file first (`... --json --aggregate-only > tr.json`): a pipe into `jq` broke on the 137 KB output in one sandbox.
+
+0. `node harness/dev/trace-review.mjs --project $P --since $MERGE --films --json --aggregate-only > tr.json`
+1. `jq '[.agents[].verbs[] | select(.verb | test("^(frame|still|frames|sheet|strip|zoom|storyboard)$"))] | {calls: map(select(.help | not)) | length, help: map(select(.help)) | length}' tr.json`
+2. `cat out/*.runs.jsonl | jq -s --arg m $MERGE '[.[] | select(.cmd == "verb" and .verb == "frame" and .tagged and .start >= $m)] | {calls: map(select(.help | not)) | length, usage: map(select(.usage)) | length}'`
+3. `cat out/*.runs.jsonl | jq -r 'select(.cmd == "verb" and .alias and .tagged) | "\(.start[0:10]) \(.alias)"' | sort | uniq -c`
+4. `jq '[.agents[].raw | (."hint:sheet" // 0) + (."hint:still" // 0)] | add' tr.json`
+
+If two of the first three fail, fall back to three verbs: `still` (absorbs `--box`, `--auto`, `--vs`), `sheet` (absorbs `--world`, `--looks`, `--vs`, `--board`) and `strip` (unchanged). Delete an alias when run 3 shows no rows for 14 days and at least 30 days passed since the merge. Today's numbers, before the merge: help 14% of calls, exit 2 at 4% for the family (12% for strip), 6 hand-made grabs since 2026-10-20.
+
 ## Tools with no verb
 
 Run with `node <path>`; the file header holds the usage. A film rarely needs them.
