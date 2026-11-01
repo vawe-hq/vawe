@@ -289,7 +289,7 @@ export const VERBS = [
   },
   {
     tier: 'core',
-    name: 'critique', summary: 'use when a draft is ready for fresh eyes: phone sheet, strip, loop seam, measured deltas and page-check to look at',
+    name: 'critique', summary: 'use when a draft is ready for fresh eyes: phone sheet, strip, loop seam, measured deltas and page-check to look at; --fresh also starts a separate critic session that writes the critique',
     positional: [PAGE],
     flags: [
       { name: 'ref', type: 'path', help: 'reference mp4 to measure against (default: the reference the brief names)', kind: 'file' },
@@ -298,7 +298,7 @@ export const VERBS = [
       { name: 'to', type: 'number', help: 'with --ref: match only to this second' },
       { name: 'final', type: 'bool', help: 'with --ref: match the full-size render; a pass unlocks vawe ship' },
       { name: 'fresh', type: 'bool', help: 'after the views, start a separate headless claude session (Read tool only) that critiques the draft and writes out/<film>.critique-<n>.md ending in REJECT or PASS; about 1 to 5 min; exit 2 when the claude CLI is missing; the ship gate accepts it from your own session' },
-      { name: 'model', type: 'string', help: 'with --fresh: the model the critic session runs (default: the claude CLI default)' },
+      { name: 'model', type: 'string', default: 'the claude CLI default', help: 'with --fresh: the model the critic session runs' },
     ],
     defaultRef: (v, [page]) => page,
     example: 'vawe critique films/my-launch/page.html --ref refs/ad.mp4 --at 4.2   |   vawe critique films/my-launch/page.html --fresh',

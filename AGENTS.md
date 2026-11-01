@@ -40,7 +40,7 @@ Read `taste/build/DIGEST.md` first: the one list of taste pitfalls. Read `skills
 | 5 | ideas, board | fill "Ideas" and "Board" in `brief.md`, then `bin/vawe storyboard <page>` (`vawe-transitions`) |
 | 6 | draft | `bin/vawe dev <page>` (half size, 30 fps, with sound; `--silent` for picture only) |
 | 7 | motion pass | `bin/vawe strip <page> --cuts`, then one "Motion pass" row per cut |
-| 8 | critique | `bin/vawe critique <page>` in a session that did not write the page (`vawe-critique`) |
+| 8 | critique | `bin/vawe critique <page> --fresh` (a separate critic session; `vawe-critique`) |
 | 9 | fix | `bin/vawe dev <page> --from s --to s`: only the seconds the critique named |
 | 10 | final | `bin/vawe judge <page> --fresh` (its own session), then the owner's `bin/vawe approve <page>`; then `bin/vawe ship <page>` and `bin/vawe wait <page>`; `ship` refuses without both |
 

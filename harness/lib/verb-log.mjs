@@ -53,7 +53,7 @@ export function refusalOf(stderr = '') {
 }
 
 /** The runs.jsonl fields of one call. `pageHash` is the digest of the page the call concerned (the ship gate reads it on a critique). `fresh` marks a critique a separate claude session wrote (`critique --fresh`). `stage` is the loop stage of the call (verbStage, else stage-say's stage for the film); `tagged` is false for a run no VAWE_AGENT names. `help` marks a `<verb> --help` lookup, `usage` a call the argument parser rejected, `refused` the reason a verb declined to run. */
-export function verbEvent({ verb, args, stage = null, startMs, endMs, exitCode, reason = null, slotWaitS = null, images = [], pageHash = null, fresh = false, help = false, usage = false, refused = null, env = process.env }) {
+export function verbEvent({ verb, args, stage = null, startMs, endMs, exitCode, reason = null, slotWaitS = null, images = [], pageHash = null, fresh = false, verdict = null, help = false, usage = false, refused = null, env = process.env }) {
   return {
     cmd: 'verb', verb, args, stage,
     start: new Date(startMs).toISOString(), durationS: tenths((endMs - startMs) / 1000),
@@ -61,6 +61,7 @@ export function verbEvent({ verb, args, stage = null, startMs, endMs, exitCode, 
     images, tagged: namedAgent(agentId()) !== null,
     ...(pageHash ? { pageHash } : {}),
     ...(fresh ? { fresh: true } : {}),
+    ...(verdict ? { verdict } : {}),
     ...(help ? { help: true } : {}),
     ...(usage ? { usage: true } : {}),
     ...(refused ? { refused } : {}),

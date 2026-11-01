@@ -10,7 +10,7 @@ export const criticTemplate = (skillText) => PROMPT_RE.exec(skillText)?.[1].repl
 
 /** The REJECT or PASS line a critique ends with, or null. */
 export function verdictLine(text) {
-  const last = String(text).split('\n').map((l) => l.trim().replace(/^`+|`+$/g, '')).filter(Boolean).at(-1);
+  const last = String(text).split('\n').map((l) => l.trim().replace(/^[`*]+|[`*]+$/g, '')).filter(Boolean).at(-1);
   return last && VERDICT_RE.test(last) ? last : null;
 }
 

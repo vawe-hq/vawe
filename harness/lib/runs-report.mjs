@@ -125,9 +125,11 @@ export function draftSeries(events) {
   return ['quality per draft:', ...table([['#', 'time', 'accept', 'rules', 'red rows'], ...rows]).map((l) => `  ${l}`), ...(hidden ? [`  (${hidden} earlier drafts not shown)`] : []), ...(judged.length ? [`  judge totals in order: ${judged.join(', ')}`] : [])];
 }
 
+const isCriticRound = (e) => e.cmd === 'verb' && e.verb === 'critique' && e.fresh === true && e.verdict;
+
 /** One line per judge round (stage, verdict, total) and per owner approve or reject with its note, in time order. */
 export function outcomeLines(events) {
-  return events.filter((e) => isRound(e) || e.cmd === 'approve').map((e) => (e.cmd === 'approve'
+  return events.filter((e) => isRound(e) || e.cmd === 'approve' || isCriticRound(e)).map((e) => (isCriticRound(e) ? `critique ${clock(e.at)} fresh ${e.verdict}` : e.cmd === 'approve'
     ? `owner ${e.verdict} ${clock(e.at)}${e.note ? `: ${e.note}` : ''}`
     : `judge ${clock(e.at)} ${e.stage ?? '?'} ${e.verdict} total ${num(e.total, 0)}`));
 }

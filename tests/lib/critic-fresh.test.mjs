@@ -9,6 +9,7 @@ import { critiqueProblem } from '../../harness/lib/critique-gate.mjs';
 import { verbEvent } from '../../harness/lib/verb-log.mjs';
 import { VERBS } from '../../harness/cli/verbs.mjs';
 import { SAY } from '../../harness/live/stage-say.mjs';
+import { outcomeLines } from '../../harness/lib/runs-report.mjs';
 
 const REPO = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const SKILL = fs.readFileSync(path.join(REPO, 'skills/vawe-critique/SKILL.md'), 'utf8');
@@ -31,6 +32,7 @@ test('the prompt names every input, and "none" for a missing one', () => {
 test('the verdict is the last line, REJECT or PASS', () => {
   assert.equal(verdictLine('1. x\n\nREJECT: 1 findings, the top five first.\n'), 'REJECT: 1 findings, the top five first.');
   assert.equal(verdictLine('`PASS: none`'), 'PASS: none');
+  assert.equal(verdictLine('**REJECT: 2 findings**'), 'REJECT: 2 findings');
   assert.equal(verdictLine('REJECT: 1\nand then more'), null);
   assert.equal(verdictLine(''), null);
 });
@@ -54,8 +56,10 @@ test('the ship gate accepts a fresh critique logged from the author session, and
   assert.equal(gate([dev, crit({ fresh: true })]), null);
 });
 
-test('verbEvent records fresh only when set', () => {
+test('verbEvent records fresh and the verdict only when set', () => {
   const base = { verb: 'critique', args: [], startMs: 0, endMs: 1000, exitCode: 0 };
+  assert.equal(verbEvent({ ...base, fresh: true, verdict: 'PASS' }).verdict, 'PASS');
+  assert.equal('verdict' in verbEvent(base), false);
   assert.equal(verbEvent({ ...base, fresh: true }).fresh, true);
   assert.equal('fresh' in verbEvent(base), false);
 });
@@ -64,6 +68,8 @@ test('the critique verb takes --fresh and --model, adds the critic step only wit
   const v = VERBS.find((x) => x.name === 'critique');
   assert.ok(v.flags.some((f) => f.name === 'fresh') && v.flags.some((f) => f.name === 'model'));
   assert.match(v.example, /--fresh/);
+  assert.match(v.summary, /--fresh/);
+  assert.equal(v.flags.find((f) => f.name === 'model').help.includes('default'), false);
   const scripts = (vals) => v.build(vals, ['films/f/page.html']).map((s) => s.script);
   assert.ok(!scripts({}).includes('harness/media/critic-fresh.mjs'));
   const steps = v.build({ fresh: true, model: 'sonnet' }, ['films/f/page.html']);
@@ -86,17 +92,40 @@ test('critic-fresh writes the next critique file, prints the verdict, notes fres
   fs.writeFileSync(path.join(work, 'bin', 'claude'), `#!/bin/sh\nif [ "$1" = "--version" ]; then echo 1; exit 0; fi\necho "$@" > ${argsLog}\ncat > ${path.join(work, 'prompt.txt')}\nprintf '%s\\n' '{"result":"1. [3.2s] flat. fix: page.html:1\\n\\nREJECT: 1 findings, the top five first.","total_cost_usd":0.01}'\n`, { mode: 0o755 });
   const notes = path.join(work, 'notes.jsonl');
   const page = path.join('films', 'f', 'page.html');
-  const r = run(page, { CWD: work, PATH: `${path.join(work, 'bin')}:${process.env.PATH}`, NOTES: notes });
+  const env = { CWD: work, PATH: `${path.join(work, 'bin')}:${process.env.PATH}`, NOTES: notes, CLAUDE_JOB_DIR: work };
+  const noImages = run(page, env);
+  assert.equal(noImages.status, 0, noImages.stderr);
+  assert.match(noImages.stderr, /no view images/);
+  assert.equal(fs.existsSync(notes), false);
+  fs.rmSync(path.join(work, 'out'), { recursive: true });
+  fs.mkdirSync(path.join(work, 'tmp', 'see', 'f'), { recursive: true });
+  fs.writeFileSync(path.join(work, 'tmp', 'see', 'f', 'a.png'), '');
+  const r = run(page, env);
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /critique: out\/f\.critique-1\.md\nREJECT: 1 findings/);
   assert.match(fs.readFileSync(path.join(work, 'out', 'f.critique-1.md'), 'utf8'), /REJECT: 1 findings/);
-  assert.match(fs.readFileSync(notes, 'utf8'), /"fresh":true/);
+  assert.match(fs.readFileSync(notes, 'utf8'), /"fresh":true,"verdict":"REJECT"/);
+  assert.match(fs.readFileSync(argsLog, 'utf8'), /--settings \{"disableAllHooks":true\}/);
   assert.doesNotMatch(fs.readFileSync(argsLog, 'utf8'), /--model/);
   assert.match(fs.readFileSync(path.join(work, 'prompt.txt'), 'utf8'), /You are the critic\./);
-  run(page, { CWD: work, PATH: `${path.join(work, 'bin')}:${process.env.PATH}`, NOTES: notes, MODEL: 'haiku' });
+  run(page, { ...env, MODEL: 'haiku' });
   assert.match(fs.readFileSync(argsLog, 'utf8'), /--model haiku/);
   assert.ok(fs.existsSync(path.join(work, 'out', 'f.critique-2.md')));
+  fs.writeFileSync(path.join(work, 'bin', 'claude'), `#!/bin/sh\nif [ "$1" = "--version" ]; then echo 1; exit 0; fi\ncat > /dev/null\nprintf '%s\\n' '{"result":"1. flat. fix: page.html:1"}'\n`, { mode: 0o755 });
+  fs.rmSync(notes);
+  const unsure = run(page, env);
+  assert.equal(unsure.status, 1);
+  assert.match(fs.readFileSync(path.join(work, 'out', 'f.critique-3.md'), 'utf8'), /flat/);
+  assert.equal(fs.existsSync(notes), false);
   const none = spawnSync(process.execPath, [path.join(REPO, 'harness/media/critic-fresh.mjs'), page], { cwd: work, encoding: 'utf8', env: { ...process.env, PATH: path.dirname(process.execPath) } });
   assert.equal(none.status, 2);
   assert.equal(none.stderr.trim().split('\n').length, 1);
+});
+
+test('vawe runs lists a fresh critique with its verdict; AGENTS.md row 8 names --fresh', () => {
+  const at = '2026-11-01T10:00:00.000Z';
+  const lines = outcomeLines([{ cmd: 'verb', verb: 'critique', fresh: true, verdict: 'PASS', at }, { cmd: 'verb', verb: 'critique', at }]);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0], /^critique .* fresh PASS$/);
+  assert.match(fs.readFileSync(path.join(REPO, 'AGENTS.md'), 'utf8'), /\| 8 \| critique \| `bin\/vawe critique <page> --fresh`/);
 });

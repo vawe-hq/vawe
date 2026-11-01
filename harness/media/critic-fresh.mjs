@@ -42,9 +42,10 @@ const dirs = [...new Set([path.dirname(inputs.page), path.resolve('out'), scratc
 let text;
 try { ({ text } = runFreshSession({ prompt: criticPrompt(template, inputs), dirs, cwd: repoRoot, timeoutS: Number(process.env.VAWE_CRITIC_TIMEOUT || 300), model: arg('--model'), name: 'critic' })); } catch (e) { die(e.message, e.exitCode ?? 1); }
 const verdict = verdictLine(text);
-if (!verdict) die(`the critic reply did not end with a REJECT or PASS line: ${text.slice(-300)}`);
 
 fs.mkdirSync(path.dirname(files.next), { recursive: true });
 fs.writeFileSync(files.next, `${text.trim()}\n`);
-noteVerb({ fresh: true });
+if (!verdict) die(`the critic reply did not end with a REJECT or PASS line; it is saved as ${path.relative('.', files.next)}: ${text.slice(-300)}`);
+if (inputs.images.length) noteVerb({ fresh: true, verdict: verdict.split(/\b/)[0] });
+else console.error('vawe critique --fresh: no view images were written, so the critic judged without seeing the draft; the ship gate does not count this critique');
 console.log(`critique: ${path.relative('.', files.next)}\n${verdict}`);
