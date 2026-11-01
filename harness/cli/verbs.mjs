@@ -22,6 +22,7 @@ import { readFindings } from '../lib/findings.mjs';
 import { scratch } from '../lib/scratch.mjs';
 import { refsDir, refsEmpty } from '../lib/refs.mjs';
 import { isClipDemo } from '../lib/clip-demo.mjs';
+import { planWindow } from '../lib/dev-window.mjs';
 import { SAY, WAIT_WORK, nextStep } from '../live/stage-say.mjs';
 import { critiqueProblem, critiqueCommand, judgeCommand } from '../lib/critique-gate.mjs';
 export { commitsBehind } from '../lib/stale-checkout.mjs';
@@ -218,12 +219,16 @@ export const VERBS = [
       { name: 'no-judge', type: 'bool', help: 'skip the stills judge that dev runs on the three directions, once per change of directions.html or their brief lines (about 25 s)' },
     ],
     example: 'vawe dev films/my-launch/page.html --from 2 --to 6',
-    build: (v, [page]) => [
+    build: (v, [page]) => {
+      const planned = planWindow(path.resolve(page), { root: ROOT, from: v.from, to: v.to });
+      const range = planned ?? v;
+      return [
       { script: 'harness/live/dev-warn.mjs', args: [page] },
-      { script: 'harness/media/render-page.mjs', args: [page, ...(v.out ? [v.out] : []), ...opt('--aspect', v.aspect), ...opt('--from', v.from), ...opt('--to', v.to), ...(v.silent ? ['--silent'] : []), ...(v.small ? ['--small'] : []), ...(v['lock-length'] ? ['--lock-length'] : []), ...(v.fast ? ['--fast'] : []), ...(v.full ? ['--full'] : []), ...(v.taste ? ['--taste'] : [])] },
+      { label: planned?.line, script: 'harness/media/render-page.mjs', args: [page, ...(v.out ? [v.out] : []), ...opt('--aspect', v.aspect), ...opt('--from', range.from), ...opt('--to', range.to), ...(v.silent ? ['--silent'] : []), ...(v.small || planned ? ['--small'] : []), ...(v['lock-length'] ? ['--lock-length'] : []), ...(v.fast ? ['--fast'] : []), ...(v.full ? ['--full'] : []), ...(v.taste ? ['--taste'] : [])] },
       ...(v['no-judge'] ? [] : [{ script: 'harness/media/directions-judge.mjs', args: [page] }]),
       { script: 'harness/live/dev-end.mjs', args: [page] },
-    ],
+      ];
+    },
     next: devNext,
     fix: devFix,
   },

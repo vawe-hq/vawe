@@ -45,8 +45,9 @@ Checks advise; only determinism, approval and banned items refuse. The owner app
 the current page from another session (`harness/lib/critique-gate.mjs`), because traces of 44 film agents showed 21 of 23 shipped
 past the warning and 2 of 23 ran a critique first. Every refusal ends with the command to run.
 
-Pre-registered trigger, not built: if the routing eval shows `storyboard` before `dev` under 50 percent, the first draft refuses too.
-Until then an empty Board is a warning in the `dev` plan status (`harness/live/plan-status.mjs`).
+Built, adapting and not refusing: the first `dev` of a film with an empty Ideas or Board renders a 2 s window around the spectacle second, small,
+and prints one line with the command that fills the plan (`harness/lib/dev-window.mjs`). `--from 0 --to <length>` renders the whole film. The plan status
+still warns (`harness/live/plan-status.mjs`).
 
 ## The five rules
 
