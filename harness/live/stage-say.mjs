@@ -82,7 +82,7 @@ export const SAY = {
   dev: (name, rel) => `bin/vawe dev ${rel}`,
   motion: (name, rel) => `bin/vawe strip ${rel} --cuts and Read every cut at full size; for the spectacle second also bin/vawe strip ${rel} --onion --at <s> and bin/vawe strip ${rel} --velocity --at <s>; check each cut against taste/craft/motion-craft.md and the principles in core/motion/README.md: anticipation on the hero, follow-through and overlap, eased spacing, arcs on travelling elements, secondary action, exits faster than entrances, holds alive through element motion, camera still unless the spectacle; fix what reads flat`,
   motionRows: (name) => `write one row per cut in "Motion pass" in films/${name}/brief.md: each principle checked, what read flat, what you fixed`,
-  critique: (name, rel) => `bin/vawe critique ${rel}`,
+  critique: (name, rel) => `bin/vawe critique ${rel} --fresh`,
   judge: (name, rel, ref) => `VAWE_AGENT=judge-${name} bin/vawe judge ${rel} --struct --runs A,B${ref ? ` --ref ${ref}` : ''} in a fresh session, then fix the named seconds with bin/vawe dev ${rel} --from s --to s`,
   approve: (name, rel) => `${SHOW_OWNER} (${rel}); never run bin/vawe approve yourself`,
   ship: (name, rel) => `bin/vawe ship ${rel}, then bin/vawe wait ${rel} (one call waits up to 3.5 minutes, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`,

@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { runFreshSession, requireClaude } from '../lib/fresh-session.mjs';
 import { scratch } from '../lib/scratch.mjs';
 import { appendRun, readRuns } from '../lib/runlog.mjs';
 import { judgeEvent } from '../lib/run-events.mjs';
@@ -223,17 +224,12 @@ function extractJson(text) {
 }
 
 function runJudge(prompt, ev) {
-  const timeout = Number(process.env.VAWE_JUDGE_TIMEOUT || 240) * 1000;
   const dirs = [...new Set([...ev.files.map((f) => path.dirname(f)), repoRoot])];
-  const args = ['-p', '--output-format', 'json', '--tools', 'Read', '--allowedTools', 'Read', '--no-session-persistence', '--disable-slash-commands', '--add-dir', ...dirs];
-  const r = spawnSync('claude', args, { input: prompt, encoding: 'utf8', cwd: ev.dir || path.dirname(ev.files[0]), timeout, maxBuffer: 1 << 26 });
-  if (r.error?.code === 'ENOENT') die('the claude CLI is not installed. Install it: npm install -g @anthropic-ai/claude-code', 2);
-  if (r.error) die(`the judge session failed: ${r.error.message}`);
-  let envelope;
-  try { envelope = JSON.parse(r.stdout); } catch { die(`the judge session gave no JSON: ${String(r.stderr || r.stdout).slice(0, 300)}`); }
-  const verdict = extractJson(String(envelope.result ?? ''));
-  if (!verdict?.scores) die(`the judge reply had no scores: ${String(envelope.result).slice(0, 300)}`);
-  return { verdict, costUsd: envelope.total_cost_usd ?? null };
+  let session;
+  try { session = runFreshSession({ prompt, dirs, cwd: ev.dir || path.dirname(ev.files[0]), timeoutS: Number(process.env.VAWE_JUDGE_TIMEOUT || 240), name: 'judge' }); } catch (e) { die(e.message, e.exitCode ?? 1); }
+  const verdict = extractJson(session.text);
+  if (!verdict?.scores) die(`the judge reply had no scores: ${session.text.slice(0, 300)}`);
+  return { verdict, costUsd: session.costUsd };
 }
 
 function finish(ev, raw, ms) {
@@ -256,7 +252,7 @@ function finish(ev, raw, ms) {
 const input = process.argv[2];
 if (!input || input.startsWith('--')) die('usage: vawe judge --fresh <page.html | film.mp4 | sheet.png> [--brief brief.md] [--stage stills|draft|final]', 2);
 if (!fs.existsSync(input)) die(`no such file: ${input}`, 2);
-if (spawnSync('claude', ['--version'], { encoding: 'utf8' }).error) die('the claude CLI is not installed. Install it: npm install -g @anthropic-ai/claude-code', 2);
+try { requireClaude(); } catch (e) { die(e.message, e.exitCode); }
 const briefArg = arg('--brief');
 if (briefArg && !fs.existsSync(briefArg)) die(`no such brief: ${briefArg}`, 2);
 const templateBrief = briefArg && isTemplateBrief(fs.readFileSync(briefArg, 'utf8'));

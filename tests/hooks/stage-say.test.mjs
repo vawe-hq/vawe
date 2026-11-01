@@ -129,7 +129,7 @@ test('a fresh draft names strip --cuts before critique; once the strips exist it
   assert.match(s.next, /^bin\/vawe strip films\/f\/page\.html --cuts and Read every cut/);
   assert.match(s.why, /overshoot-share, live-hold and seam-variety/);
   fs.mkdirSync(path.join(root, 'out', 'strip', 'f'), { recursive: true });
-  assert.equal(nextStep(page, root).next, 'bin/vawe critique films/f/page.html');
+  assert.equal(nextStep(page, root).next, 'bin/vawe critique films/f/page.html --fresh');
 });
 
 test('a stripped draft with an empty Motion pass names the rows to write; a filled one names critique', () => {
@@ -141,7 +141,7 @@ test('a stripped draft with an empty Motion pass names the rows to write; a fill
   fs.mkdirSync(path.join(root, 'out', 'strip', 'f'), { recursive: true });
   assert.match(nextStep(page, root).next, /write one row per cut in "Motion pass"/);
   fs.writeFileSync(path.join(root, 'films', 'f', 'brief.md'), empty.replace('[s1 to s2] | [x] | [y]', 's1 to s2 | flat | pushed'));
-  assert.equal(nextStep(page, root).next, 'bin/vawe critique films/f/page.html');
+  assert.equal(nextStep(page, root).next, 'bin/vawe critique films/f/page.html --fresh');
 });
 
 test('the motion step names onion and velocity for the spectacle', () => {

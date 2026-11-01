@@ -128,7 +128,7 @@ function stageOf(verbName, rest, film, page) {
 function record(verb, rest, call, code, reason, endMs) {
   const { film, page } = filmOfRun(verb.name, call, rest);
   const pageHash = page ? orNone(() => pageDigest(page), null) : null;
-  const event = verbEvent({ verb: verb.name, args: rest, stage: stageOf(verb.name, rest, film, page), startMs: call.startMs, endMs, exitCode: code, reason, slotWaitS: readNotes(call.notes).slotWaitS ?? null, images: imagesIn(call.stdout), pageHash, help: call.help, usage: call.usage, refused: refusalOf(call.stderr) });
+  const event = verbEvent({ verb: verb.name, args: rest, stage: stageOf(verb.name, rest, film, page), startMs: call.startMs, endMs, exitCode: code, reason, slotWaitS: readNotes(call.notes).slotWaitS ?? null, fresh: readNotes(call.notes).fresh === true, images: imagesIn(call.stdout), pageHash, help: call.help, usage: call.usage, refused: refusalOf(call.stderr) });
   try {
     appendRun(film, event, { root: ROOT });
   } catch (e) {

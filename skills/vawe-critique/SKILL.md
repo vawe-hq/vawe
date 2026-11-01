@@ -9,8 +9,9 @@ license: Apache-2.0
 
 Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe doctor`.
 
-The author never grades its own film. Run this in a session that has not seen the authoring
-(`VAWE_AGENT=<name>` for a subagent). Default verdict is REJECT; the film passes only when you
+The author never grades its own film. Run this in a session that has not seen the authoring, or
+let `bin/vawe critique <page> --fresh` start one (a headless critic with the prompt below; it writes
+`out/<film>.critique-<n>.md`). Default verdict is REJECT; the film passes only when you
 cannot find a reason to reject it. Grade what is on screen, not what the film meant.
 
 ## The views, in this order

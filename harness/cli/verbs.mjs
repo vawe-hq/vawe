@@ -297,22 +297,27 @@ export const VERBS = [
       { name: 'from', type: 'number', help: 'with --ref: match only from this second' },
       { name: 'to', type: 'number', help: 'with --ref: match only to this second' },
       { name: 'final', type: 'bool', help: 'with --ref: match the full-size render; a pass unlocks vawe ship' },
+      { name: 'fresh', type: 'bool', help: 'after the views, start a separate headless claude session (Read tool only) that critiques the draft and writes out/<film>.critique-<n>.md ending in REJECT or PASS; about 1 to 5 min; exit 2 when the claude CLI is missing; the ship gate accepts it from your own session' },
+      { name: 'model', type: 'string', help: 'with --fresh: the model the critic session runs (default: the claude CLI default)' },
     ],
     defaultRef: (v, [page]) => page,
-    example: 'vawe critique films/my-launch/page.html --ref refs/ad.mp4 --at 4.2',
-    build: (v, [page]) => [
+    example: 'vawe critique films/my-launch/page.html --ref refs/ad.mp4 --at 4.2   |   vawe critique films/my-launch/page.html --fresh',
+    build: (v, [page]) => (v.model && !v.fresh ? (() => { throw new UsageError('--model needs --fresh'); })() : [
       { label: 'page code traps', script: 'quality/gates/anim-traps.mjs', args: [page] },
       { label: 'phone sheet, strip and loop seam (renders a draft with audio when the last one is stale or silent; 1 to 3 min)', script: 'harness/media/see.mjs', args: [page, '--phone', '--strip', v.at || 'auto', '--loop'] },
       v.ref
         ? { label: 'motion against the reference (1 to 3 min)', script: 'harness/media/see.mjs', args: [page, '--dom', '--ref', v.ref, ...opt('--from', v.from), ...opt('--to', v.to), ...(v.final ? ['--final'] : [])] }
         : { label: 'measured deltas', script: 'harness/media/see.mjs', args: [page, '--measure'] },
       { label: 'page-check: text, cues, spectacle, cuts (1 to 3 min)', script: 'quality/gates/page-check.mjs', args: [page, ...opt('--ref', v.ref)], env: { VAWE_FINDINGS_OUT: critiqueFindingsFile(page) } },
-    ],
+      ...(v.fresh ? [{ label: 'fresh critic session (1 to 5 min)', script: 'harness/media/critic-fresh.mjs', args: [page, '--since', String(Date.now()), ...opt('--ref', v.ref), ...opt('--model', v.model)] }] : []),
+    ]),
     report: (v, [page], sinceMs) => summaryLines(
       readFresh(critiqueFindingsFile(page), sinceMs),
       freshImages(scratch('see', filmKey(page)), sinceMs),
     ),
-    next: (v, [page]) => `look at the sheets above, then ${SAY.judge(pageName(page), page, v.ref)}`,
+    next: (v, [page]) => (v.fresh
+      ? `Read the critique file above, fix its top five with bin/vawe dev ${page} --from s --to s, then ${SAY.judge(pageName(page), page, v.ref)}`
+      : `look at the sheets above, or start a critic session with ${SAY.critique(pageName(page), page)}, then ${SAY.judge(pageName(page), page, v.ref)}`),
   },
   {
     tier: 'core',

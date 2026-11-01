@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+// The last step of `vawe critique --fresh`: a separate headless claude session (Read tool only) critiques the draft and the views the earlier steps wrote.
+//   node harness/media/critic-fresh.mjs <page.html> --since <ms> [--ref ref.mp4] [--model name]
+// Writes out/<film>.critique-<n>.md and prints its path and the REJECT or PASS line. Exit 2 when the claude CLI is missing.
+// Tells bin/vawe the critique was fresh (noteVerb), so the ship gate (harness/lib/critique-gate.mjs) accepts it from the author's own session.
+// Env: VAWE_CRITIC_TIMEOUT (seconds, default 300).
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { runFreshSession, requireClaude } from '../lib/fresh-session.mjs';
+import { criticTemplate, criticPrompt, verdictLine, critiqueFiles } from '../lib/critic-prompt.mjs';
+import { filmKey, freshImages } from '../lib/critique-summary.mjs';
+import { fullDraftPath } from '../lib/approval.mjs';
+import { scratch, scratchBase } from '../lib/scratch.mjs';
+import { noteVerb } from '../lib/verb-log.mjs';
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const die = (m, code = 1) => { console.error(`vawe critique --fresh: ${m}`); process.exit(code); };
+const arg = (k) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : null; };
+const existing = (file) => (file && fs.existsSync(file) ? path.resolve(file) : null);
+
+const page = process.argv[2];
+if (!page || page.startsWith('--')) die('usage: node harness/media/critic-fresh.mjs <page.html> --since <ms> [--ref ref.mp4] [--model name]', 2);
+try { requireClaude(); } catch (e) { die(e.message, e.exitCode); }
+
+const skill = path.join(repoRoot, 'skills/vawe-critique/SKILL.md');
+const template = criticTemplate(fs.readFileSync(skill, 'utf8'));
+if (!template) die(`${skill} no longer holds the quoted critic prompt in "The critic prompt, and the panel"`);
+
+const film = filmKey(page);
+const files = critiqueFiles(path.resolve('out'), film);
+const inputs = {
+  page: path.resolve(page),
+  mp4: existing(fullDraftPath(film)),
+  ref: existing(arg('--ref')),
+  brief: existing(path.join(path.dirname(page), 'brief.md')),
+  previous: files.previous,
+  images: freshImages(scratch('see', film), Number(arg('--since') || 0)),
+};
+const dirs = [...new Set([path.dirname(inputs.page), path.resolve('out'), scratchBase(), repoRoot, ...(inputs.ref ? [path.dirname(inputs.ref)] : [])])];
+
+let text;
+try { ({ text } = runFreshSession({ prompt: criticPrompt(template, inputs), dirs, cwd: repoRoot, timeoutS: Number(process.env.VAWE_CRITIC_TIMEOUT || 300), model: arg('--model'), name: 'critic' })); } catch (e) { die(e.message, e.exitCode ?? 1); }
+const verdict = verdictLine(text);
+if (!verdict) die(`the critic reply did not end with a REJECT or PASS line: ${text.slice(-300)}`);
+
+fs.mkdirSync(path.dirname(files.next), { recursive: true });
+fs.writeFileSync(files.next, `${text.trim()}\n`);
+noteVerb({ fresh: true });
+console.log(`critique: ${path.relative('.', files.next)}\n${verdict}`);

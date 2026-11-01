@@ -87,8 +87,11 @@ stills in real time order, or from measured numbers.
 A judge scoring a film it wrote inflates the score. That is a measured bias, and it is why a slideshow
 was once recorded PASS by the agent that made it. Hand the sheet and rubric to a fresh session that did
 not author the film, and record PASS only when that eye agrees. A subagent shares the author's session
-and process id, so run the judge with `VAWE_AGENT=<its-name>`: the tag is the only thing that tells the
-two apart (`harness/lib/judge-self-record.mjs`).
+and process id. Recording a PASS with `vawe judge` accepts a `VAWE_AGENT=<its-name>` tag that differs from the
+author's (`harness/lib/judge-self-record.mjs`). The ship gate does not: a tag does not make a new session, so
+it counts a review as fresh only when it is `bin/vawe judge <page> --fresh`, `bin/vawe critique <page> --fresh`
+(each starts its own headless session), or a critique logged from a session other than the one that rendered
+the draft (`harness/lib/critique-gate.mjs`). Run one of the first two.
 
 Three judges drawn from one model share their blind spots, so a 3-0 is weaker evidence than it looks.
 The real control is a position swap: if the winner follows the arm, it is real. If it follows the
