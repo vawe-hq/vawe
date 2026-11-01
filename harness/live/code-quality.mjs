@@ -35,15 +35,18 @@ const tally = (found) => {
   return counts;
 };
 
+// A commit hook runs with GIT_DIR and GIT_INDEX_FILE set, which point every git call here at the wrong repo.
+const GIT_ENV = Object.fromEntries(Object.entries(process.env).filter(([k]) => k !== 'GIT_DIR' && k !== 'GIT_INDEX_FILE'));
+
 // A file inside a linked worktree (.claude/worktrees/<x>/...) is compared with that worktree's HEAD.
 function checkoutOf(file) {
-  const r = spawnSync('git', ['rev-parse', '--show-toplevel'], { cwd: path.dirname(file), encoding: 'utf8' });
+  const r = spawnSync('git', ['rev-parse', '--show-toplevel'], { cwd: path.dirname(file), encoding: 'utf8', env: GIT_ENV });
   return r.status === 0 ? r.stdout.trim() : ROOT;
 }
 
 /** The file's content at git HEAD, or null for an untracked/new file. */
 function headContent(top, rel) {
-  const r = spawnSync('git', ['show', `HEAD:${rel}`], { cwd: top, encoding: 'utf8' });
+  const r = spawnSync('git', ['show', `HEAD:${rel}`], { cwd: top, encoding: 'utf8', env: GIT_ENV });
   return r.status === 0 ? r.stdout : null;
 }
 

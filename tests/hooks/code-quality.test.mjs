@@ -6,6 +6,7 @@
 // and a real new complexity finding is still reported. A scratch fixture is used and registered in the
 // baseline directly, so the test does not depend on which real file happens to carry debt today.
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -63,4 +64,23 @@ test('an edit that adds a real complexity finding is reported', () => {
   const { status, err } = run();
   assert.equal(status, 2, `expected a report, got exit ${status}:\n${err}`);
   assert.match(err, /complexity: was 0, now 1/);
+});
+
+test('a commit hook environment (GIT_DIR set) does not hide the HEAD baseline of a file', () => {
+  const repo = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-cq-')));
+  const other = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-cq-other-'));
+  const g = (cwd, ...a) => spawnSync('git', a, { cwd, encoding: 'utf8' });
+  const body = `export function big(a) {\n${Array.from({ length: 25 }, (_, i) => `  if (a === ${i}) return ${i};`).join('\n')}\n  return a;\n}\n`;
+  try {
+    g(repo, 'init', '-q'); g(other, 'init', '-q');
+    fs.mkdirSync(path.join(repo, 'harness'));
+    const file = path.join(repo, 'harness', 'big.mjs');
+    fs.writeFileSync(file, body);
+    g(repo, 'add', '.'); g(repo, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'one');
+    const r = spawnSync('node', [HOOK], { input: JSON.stringify({ tool_input: { file_path: file } }), encoding: 'utf8', env: { ...process.env, GIT_DIR: path.join(repo, '.git'), GIT_INDEX_FILE: path.join(repo, '.git', 'index') } });
+    assert.equal(r.status, 0, r.stderr);
+  } finally {
+    fs.rmSync(repo, { recursive: true, force: true });
+    fs.rmSync(other, { recursive: true, force: true });
+  }
 });
