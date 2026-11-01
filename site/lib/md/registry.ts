@@ -71,7 +71,7 @@ const movesIndex: Renderer = {
     description: MOVES_DESCRIPTION,
     updated: dates["/video-components"],
     body: [
-      "Each video component is one markdown file an agent copies. Add .md to a component's URL to read it as Markdown.",
+      "Each video component is one markdown file an agent copies. Add .md to a component’s URL to read it as Markdown.",
       ...GROUPS.flatMap((g) => [heading(2, g.label), MOVES.filter((m) => m.group === g.id).map((m) => item(m.title, `/video-components/${m.name}`, m.use)).join("\n")]),
       heading(2, "By job"),
       MOVE_JOBS.map((j) => `- ${j.label}: ${j.moves.map((name) => moveByName(name)?.title ?? name).join(", ")}`).join("\n"),

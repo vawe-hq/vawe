@@ -198,7 +198,7 @@ bin/vawe approve <page>
       features: [
         {
           title: "Drafts at half size",
-          body: ["A draft is half size at 30 fps, with the audio mix, for a quick look. Only the final adds motion blur."],
+          body: ["A draft is half size at 30\u00a0fps, with the audio mix, for a quick look. Only the final adds motion blur."],
           proof: {
             kind: "code",
             code: {

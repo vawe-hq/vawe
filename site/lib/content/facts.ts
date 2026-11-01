@@ -40,7 +40,7 @@ export const FACTS: Fact[] = [
     id: "output",
     lead: "Output.",
     q: "What does vawe output?",
-    a: ["An H.264 mp4, in 16:9, 9:16, 1:1, 4:5 and 4:3 from the same page, with audio mixed offline. A final render is 60 fps. A draft is half size at 30 fps, with the same audio mix."],
+    a: ["An H.264 mp4, in 16:9, 9:16, 1:1, 4:5 and 4:3 from the same page, with audio mixed offline. A final render is 60\u00a0fps. A draft is half size at 30\u00a0fps, with the same audio mix."],
   },
   {
     id: "limits",
