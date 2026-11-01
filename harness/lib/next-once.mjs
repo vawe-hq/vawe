@@ -32,10 +32,12 @@ export function nextSeen(film, { next, why = '' }, { root, sessionId = null, age
   return false;
 }
 
-/** True when this session and agent already saw the notice for the old verb `alias`; the call records it otherwise. */
-export function aliasSeen(film, alias, { root, sessionId = null, agent = process.env.VAWE_AGENT ?? null }) {
+const ALIAS_LOG = '_unfiled';
+
+/** True when this session and agent already saw the notice for `key` (an old verb and the verb it became); the call records it otherwise. */
+export function aliasSeen(key, { root, sessionId = null, agent = process.env.VAWE_AGENT ?? null }) {
   if (!sessionId) return false;
-  if (sinceReset(readRuns(film, root), sessionId).some((r) => r.cmd === 'alias-shown' && r.alias === alias && r.shownTo === sessionId && r.shownAgent === agent)) return true;
-  try { appendRun(film, { cmd: 'alias-shown', alias, shownTo: sessionId, shownAgent: agent }, { root }); } catch { /* a hint log never fails a verb */ }
+  if (sinceReset(readRuns(ALIAS_LOG, root), sessionId).some((r) => r.cmd === 'alias-shown' && r.alias === key && r.shownTo === sessionId && r.shownAgent === agent)) return true;
+  try { appendRun(ALIAS_LOG, { cmd: 'alias-shown', alias: key, shownTo: sessionId, shownAgent: agent }, { root }); } catch { /* a hint log never fails a verb */ }
   return false;
 }

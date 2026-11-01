@@ -12,7 +12,13 @@ import { contactSheet, durationOf, keyFrameFiles } from '../lib/contact-sheet.mj
 const root = path.resolve(import.meta.dirname, '../..');
 const dir = refsDir();
 const [action, source] = positionals(process.argv.slice(2));
-const flag = (k) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : null; };
+const flag = (k) => {
+  const i = process.argv.indexOf(k);
+  if (i < 0) return null;
+  const value = process.argv[i + 1];
+  if (value === undefined || value.startsWith('--')) die(`${k} needs a value${k === '--type' ? `: ${TYPES.join(' or ')}` : ''}`);
+  return value;
+};
 const die = (m) => { console.error(`vawe refs: ${m}`); process.exit(1); };
 
 const videoOf = (id) => refVideo(dir, id);
@@ -76,12 +82,20 @@ function fromFile(file) {
   return { file: dest, id: path.basename(file).replace(/\.[^.]+$/, ''), title: null, studio: null };
 }
 
+function setType(film, type) {
+  if (!type) die(`${film.id} is in the registry: pass --type ${TYPES.join('|')} to set its type`);
+  writeRegistry(dir, readRegistry(dir).map((r) => (r.id === film.id ? { ...r, type } : r)));
+  console.log(`${film.id} is now ${type}; no download`);
+}
+
 function add() {
   const noMeasure = process.argv.includes('--no-measure');
   const plan = addPlan({ noMeasure });
   const type = flag('--type');
   if (type !== null && !TYPES.includes(type)) die(`--type is ${TYPES.join(' or ')}, not "${type}"; for example: vawe refs add ${source ?? '<mp4-or-url>'} --type ${TYPES[0]}`);
   if (!source) die('usage: vawe refs add <mp4-or-url> [--type product|brand] [--title t] [--no-measure]');
+  const known = (readRegistry(dir) ?? []).find((r) => r.id === source);
+  if (known && !fs.existsSync(source)) return setType(known, type);
   fs.mkdirSync(dir, { recursive: true });
   const got = /^https?:\/\//.test(source) ? download(source) : fromFile(source);
   if (plan.includes('measure')) {
@@ -92,7 +106,7 @@ function add() {
   const registry = (readRegistry(dir) ?? []).filter((r) => r.id !== got.id);
   writeRegistry(dir, [...registry, recorded(meta, got.file)].sort((a, b) => a.id.localeCompare(b.id)));
   console.log(`added ${got.id} (${type ?? 'no type'}) to ${path.join(dir, 'refs.json')}`);
-  if (!type) console.log(`type not set: a brief picks the film by type; run vawe refs add ${source} --type ${TYPES.join('|')} to set it`);
+  if (!type) console.log(`type not set: a brief picks the film by type; run vawe refs add ${got.id} --type ${TYPES.join('|')} to set it without downloading again`);
   console.log(`video: ${got.file}`);
   if (!plan.includes('measure')) console.log(`not measured; measure it later: bin/vawe see ${got.id}`);
 }

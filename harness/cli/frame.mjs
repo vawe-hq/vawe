@@ -94,6 +94,7 @@ const ONLY = {
   scale: ['crop'], only: ['looks'], page: ['board'], all: ['board'],
   vs: ['sheet', 'crop'], 'at-b': ['crop'],
   at: ['still', 'sheet', 'crop', 'looks'],
+  out: ['still', 'sheet', 'cuts', 'moment', 'crop', 'looks', 'board', 'directions'],
 };
 const oneSecond = (at) => /^\s*\d+(\.\d+)?\s*$/.test(String(at));
 
@@ -115,7 +116,9 @@ function withVs(v) {
 function outsideMode(v, mode) {
   for (const [flag, modes] of Object.entries(ONLY)) {
     const on = v[flag] !== undefined && v[flag] !== false;
-    if (on && !modes.includes(mode)) return `--${flag} needs ${modes.map((m) => NAME[m]).join(' or ')}`;
+    if (!on || modes.includes(mode)) continue;
+    const needs = modes.map((m) => NAME[m]).join(' or ');
+    return mode === 'still' || mode === 'sheet' ? `--${flag} needs ${needs}` : `--${flag} does not go with ${NAME[mode]}${flag === 'out' ? '' : `: it needs ${needs}`}`;
   }
   return null;
 }
@@ -179,14 +182,15 @@ const HELP = `usage: vawe frame <page|mp4|ref-id|folder> [one mode] [flags]
 one frame or a sheet (no mode flag):
   --at 4.2                  one full-size frame. --size WxH, --aspect, --param k=v
   --at 0.5,1.2,3            a labelled sheet; --at cuts, or no --at, picks the cuts. --labels --cols --from
+  --at 3 --sheet            a sheet of one tile
   --vs ref.mp4 --at 2.5,3   the reference left, yours right, same seconds
 key states and cuts:
-  --world all | s3,s5       the key state of each world and a sheet. --full full size, --sharp
+  --world all | s3,s5       a still of each world's key state. --full full size, --sharp
   --cuts                    one grid per cut
-a move:
-  --moment 8.4              frames through that second. --span --fps
-  --moment 8.4 --onion      one blended image of the path. --n
-  --moment 8.4 --velocity   speed graph per element. --sel css | --ids a,b
+a move (a page needs a draft: run vawe dev first):
+  --moment 8.4              frames through that second. --span (default ${STRIP_SPAN} s), --fps (default ${STRIP_FPS})
+  --moment 8.4 --onion      one blended image of the path. --span default ${ONION_SPAN} s, --n
+  --moment 8.4 --velocity   speed graph per element. --span default ${VELOCITY_SPAN} s, --sel css | --ids a,b
 a region:
   --at 2.4 --box x,y,w,h    pixels enlarged; --auto finds the densest edge. --scale, --vs ref, --at-b
 looks and boards:
@@ -194,7 +198,7 @@ looks and boards:
   --board                   HTML board, a card per world. --all every advice line, --page
   --directions              the directions board, A, B, C side by side, to show a person
 
-all: --out path. A flag outside its mode gets a one-line error.
+all but --world: --out path. A flag outside its mode gets a one-line error.
 example: vawe frame films/my-launch/page.html --world all   |   vawe frame films/my-launch/page.html --cuts`;
 
 const FLAGS = [

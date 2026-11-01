@@ -204,9 +204,27 @@ test('refs add without --type adds the film with no type and says how to set it;
   const bare = add();
   assert.equal(bare.status, 0, bare.stderr);
   assert.match(bare.stdout, /added t \(no type\)/);
-  assert.match(bare.stdout, /type not set: .*--type product\|brand/);
+  assert.match(bare.stdout, /type not set: .*vawe refs add t --type product\|brand to set it without downloading again/);
   assert.equal(JSON.parse(fs.readFileSync(path.join(home, 'refs', 'refs.json'), 'utf8'))[0].type, null);
   const wrong = add('--type', 'movie');
   assert.equal(wrong.status, 1);
   assert.match(wrong.stderr, /--type is product or brand, not "movie"; for example: vawe refs add .* --type product/);
+});
+
+test('refs add <id> --type sets the type of a film already in the registry without downloading; --type as the last argument is a usage error', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-refs-type-'));
+  const video = path.join(home, 't.mp4');
+  spawnSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc=size=320x180:rate=10:duration=1', '-pix_fmt', 'yuv420p', video]);
+  const refs = (...args) => spawnSync(process.execPath, [path.join(import.meta.dirname, '../../harness/dev/refs.mjs'), ...args], { encoding: 'utf8', env: { ...process.env, VAWE_REFS_DIR: path.join(home, 'refs') } });
+  assert.equal(refs('add', video).status, 0);
+  const set = refs('add', 't', '--type', 'brand');
+  assert.equal(set.status, 0, set.stderr);
+  assert.match(set.stdout, /t is now brand; no download/);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(home, 'refs', 'refs.json'), 'utf8'))[0].type, 'brand');
+  const missing = refs('add', 't');
+  assert.equal(missing.status, 1);
+  assert.match(missing.stderr, /t is in the registry: pass --type product\|brand/);
+  const last = refs('add', video, '--type');
+  assert.equal(last.status, 1);
+  assert.match(last.stderr, /--type needs a value: product or brand/);
 });

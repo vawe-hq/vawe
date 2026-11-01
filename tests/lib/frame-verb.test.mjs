@@ -53,7 +53,7 @@ test('frame: two modes are refused in one line that lists the modes', () => {
 test('frame: a flag outside its mode names the mode it needs', () => {
   refusedWith(/--span needs --moment or --cuts/, '--span', '1');
   refusedWith(/--labels needs --at s,s,s/, '--at', '4', '--labels');
-  refusedWith(/--full needs --world/, '--cuts', '--full');
+  refusedWith(/--full does not go with --cuts: it needs --world/, '--cuts', '--full');
   refusedWith(/--scale needs --box or --auto/, '--at', '4', '--scale', '3');
   refusedWith(/--only needs --looks/, '--only', 'crt');
   refusedWith(/--n needs --onion/, '--moment', '2', '--n', '4');
@@ -61,7 +61,7 @@ test('frame: a flag outside its mode names the mode it needs', () => {
   refusedWith(/--moment takes its own second/, '--moment', '2', '--at', '3');
   refusedWith(/--at-b needs --vs/, '--at', '2', '--box', '1,2,3,4', '--at-b', '1');
   refusedWith(/--n needs --onion/, '--cuts', '--n', '4');
-  refusedWith(/--onion needs --moment/, '--cuts', '--onion');
+  refusedWith(/--onion does not go with --cuts: it needs --moment/, '--cuts', '--onion');
   refusedWith(/--size needs --at <one second>/, '--size', '100x100');
 });
 
@@ -91,4 +91,27 @@ test('frame: a missing page, mp4 or folder is refused before any script runs; a 
   assert.throws(() => run(['no-such.html', '--world', 'all']), /no such page: no-such.html/);
   assert.doesNotThrow(() => run(['refid123', '--cuts']));
   assert.doesNotThrow(() => run(['https://x.test/a.mp4', '--at', '2']));
+});
+
+test('frame: an error names the flags as typed, and --out is refused in --world mode, where no script takes it', () => {
+  refusedWith(/--at does not go with --world: it needs/, '--world', 'all', '--at', '3');
+  refusedWith(/--at does not go with --cuts/, '--cuts', '--at', '2');
+  refusedWith(/--out does not go with --world/, '--world', 'all', '--out', 'x');
+  assert.ok(stepOf('--cuts', '--out', 'x'));
+  assert.doesNotMatch(verbHelp(frame), /all: --out path/);
+  assert.match(verbHelp(frame), /all but --world: --out path/);
+});
+
+test('frame --ref is folded into --vs: the same compare step', () => {
+  const ref = 'package.json';
+  assert.deepEqual(stepOf('--ref', ref, '--at', '2,3'), stepOf('--vs', ref, '--at', '2,3'));
+  assert.deepEqual(stepOf('--vs', ref, '--at', '2,3').slice(0, 2), ['harness/media/compare-frames.mjs', '--page']);
+});
+
+test('frame --help documents --sheet, the draft a moment needs and the --span defaults', () => {
+  const help = verbHelp(frame);
+  assert.match(help, /--at 3 --sheet/);
+  assert.match(help, /a move \(a page needs a draft: run vawe dev first\)/);
+  assert.match(help, /--span \(default 1 s\)[\s\S]*--span default 0\.3 s[\s\S]*--span default 1 s/);
+  assert.doesNotMatch(help, /key state of each world and a sheet/);
 });

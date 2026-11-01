@@ -6,7 +6,7 @@ const SEVERITIES = new Set(Object.keys(GLYPH));
 
 const jsonMode = process.argv.includes('--json');
 const realStdout = process.stdout.write.bind(process.stdout);
-if (jsonMode) process.stdout.write = process.stderr.write.bind(process.stderr);
+const reroute = () => { if (jsonMode) process.stdout.write = process.stderr.write.bind(process.stderr); };
 
 /**
  * gateFindings({ scene, indent, line }) -> an emitter. Named for the caller rather than the fact
@@ -32,12 +32,13 @@ const flush = () => {
   if (out) { try { fs.writeFileSync(out, payload); } catch { /* a side channel must never fail a gate */ } }
 };
 
-process.on('exit', () => { if (!emitted) flush(); });
+process.on('exit', () => { if (!emitted && ALL.length) flush(); });
 
 export function gateFindings(opts = {}) {
   const { scene = null, indent = '  ', line = null } = opts;
   const records = [];
   ALL.push(records);
+  reroute();
 
   const add = (severity, code, summary, extra = {}) => {
     if (!SEVERITIES.has(severity)) throw new Error(`findings: unknown severity "${severity}"`);
