@@ -29,7 +29,8 @@ test('help lookups and usage errors are logged with the film, its stage and the 
   try {
     vawe('dev', path.join('films', name, 'page.html'), '--help');
     vawe('still', `out/${name}.mp4`, '--at', '1');
-    const [help, usage] = fs.readFileSync(logPath, 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+    // A hook test running in parallel may log next-shown or taste-shown rows for this film too.
+    const [help, usage] = fs.readFileSync(logPath, 'utf8').trim().split('\n').map((l) => JSON.parse(l)).filter((r) => r.cmd === 'verb');
     assert.deepEqual([help.film, help.verb, help.help, help.stage], [name, 'dev', true, 'dev']);
     assert.match(help.pageHash, /^[0-9a-f]{40}$/);
     assert.deepEqual([usage.film, usage.verb, usage.usage, usage.exitCode, usage.stage], [name, 'still', true, 2, 'brief']);
