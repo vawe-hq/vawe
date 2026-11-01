@@ -62,6 +62,7 @@ function usageLine(verb) {
 }
 
 export function verbHelp(verb) {
+  if (verb.help) return `${verb.summary}\n\n${verb.help}`;
   const lines = [verb.summary, '', usageLine(verb)];
   for (const p of verb.positional || []) lines.push(`  ${`<${p.name}>`.padEnd(14)} ${p.help}`);
   if ((verb.flags || []).length) {

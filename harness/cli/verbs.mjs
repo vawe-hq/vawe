@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UsageError } from './parse.mjs';
+import { opt, needsPage, pageName } from './helpers.mjs';
+import { FRAME, STEPS } from './frame.mjs';
 import { causeOf } from '../lib/verb-log.mjs';
 import { compareProblem, CUTS } from '../media/compare-frames.mjs';
 import { STRIP_FPS, STRIP_SPAN, stripProblem } from '../media/see/strip-math.mjs';
@@ -46,10 +48,6 @@ const testFiles =(dir) => fs.readdirSync(path.join(ROOT, dir), { withFileTypes: 
 /** The two node --test runs of `vawe test`: every test file in parallel except the serial ones, then the serial ones alone. */
 export const testSteps = () => [{ node: ['--test', ...testFiles('tests').filter((f) => !SERIAL_TESTS.includes(f)).sort()] }, { node: ['--test', ...SERIAL_TESTS] }];
 
-const pageName = (page) => {
-  const base = path.basename(page, '.html');
-  return base === 'page' ? path.basename(path.dirname(path.resolve(page))) : base;
-};
 export const devFix = (reason, [page]) => {
   if (/render slot|Navigation timeout/i.test(reason)) return `bin/vawe wait ${page}`;
   if (causeOf(reason) === 'browser lost') return `the browser died mid-render: find the heavy second with bin/vawe dev ${page} --from 0 --to 4, then the next 4 s; a page with large images, canvas or WebGL work per frame crashes it`;
@@ -66,21 +64,25 @@ const devNext = (v, [page]) => {
 const readFresh = (file, sinceMs) => (fs.existsSync(file) && fs.statSync(file).mtimeMs >= sinceMs ? readFindings(file) || [] : []);
 const critiqueFindingsFile = (page) => path.join(scratch('critique', filmKey(page)), 'findings.json');
 const paramEnv = (v) => renderEnv(v);
-const needsPage = (v, input, verbName) => {
-  if (v.aspect === 'all') throw new UsageError(`--aspect all renders every aspect: dev and ship take it, ${verbName} does not`);
-  const given = ['param', 'aspect', 'size'].find((k) => v[k]);
-  if (given && !String(input).endsWith('.html')) throw new UsageError(`--${given} goes to a page: ${verbName} was given ${input}`);
-};
-const opt = (flag, value) => (value === undefined ? [] : [flag, String(value)]);
+function seeSpec(v, film) {
+  const specOnly = ['fps', 'elements', 'fast'].find((f) => v[f] !== undefined);
+  if (specOnly && !v.spec) throw new UsageError(`--${specOnly} needs --spec`);
+  if (!film.endsWith('.mp4')) throw new UsageError('--spec measures a reference mp4: usage: vawe see <ref.mp4> --spec');
+  return [{ script: 'harness/media/ref-spec.mjs', args: [film, ...opt('--out', v.out), ...opt('--fps', v.fps), ...opt('--elements', v.elements), ...(v['no-ocr'] ? [] : ['--ocr']), ...(v.fast ? ['--fast'] : []), ...(v['no-cache'] ? ['--no-cache'] : [])] }];
+}
 
-/** The compare-frames step of `vawe sheet --ref`: a page is seeked, an mp4 is read; the reference is always beside it. */
-function versus(v, input) {
-  if (v.labels || v.cols !== undefined) throw new UsageError('--labels and --cols do not go with --ref');
-  const page = input.endsWith('.html');
-  const at = v.at ?? CUTS;
-  const problem = compareProblem({ ours: page ? undefined : input, page: page ? input : undefined, ref: v.ref, at });
+function seeProbe(v, film) {
+  if (!film.endsWith('.html')) throw new UsageError('--probe reads a page: usage: vawe see <page> --probe --sel <css> --at <s>');
+  if (!v.sel) throw new UsageError('--probe needs --sel <css>, the elements to read: vawe see <page> --probe --sel ".card" --at 2.4');
+  const problem = atProblem(v.at ?? '0');
   if (problem) throw new UsageError(problem);
-  return [{ script: 'harness/media/compare-frames.mjs', args: [...(page ? ['--page', input] : [input]), '--ref', v.ref, '--at', at, ...opt('--from', v.from), ...opt('--out', v.out)] }];
+  return [{ script: 'harness/media/see.mjs', args: [film, '--probe', '--sel', v.sel, ...opt('--at', v.at)] }];
+}
+
+function seePage(v, film) {
+  const flag = v.plan ? '--plan' : '--sync-brief';
+  if (!film.endsWith('.html')) throw new UsageError(`${flag} reads a page: usage: vawe see <page> ${flag}${v.plan ? ' [--json]' : ''}`);
+  return v.plan ? [{ script: 'harness/media/timeline.mjs', args: [film, ...(v.json ? ['--json'] : [])] }] : [{ script: 'harness/media/spec-sync.mjs', args: [film] }];
 }
 
 const PAGE = { name: 'page', required: true, kind: 'file', help: 'films/<name>/page.html' };
@@ -129,34 +131,24 @@ export const VERBS = [
       { name: 'fast', type: 'bool', help: 'with --spec: half the analysis width and OCR samples, for iteration' },
       { name: 'probe', type: 'bool', help: 'a page only, nothing else is read: print the box, opacity, transform, filter and animation progress of every element matching --sel at --at; use it instead of a throwaway page.evaluate script' },
       { name: 'sel', type: 'string', help: 'with --probe: the CSS selector of the elements to read' },
+      { name: 'plan', type: 'bool', help: 'a page only, nothing else is read: no render, the worlds, the cut rhythm, the spectacle and every audio cue as text (3 s)' },
+      { name: 'json', type: 'bool', help: 'with --plan: print the same data as JSON' },
       { name: 'sync-brief', type: 'bool', help: 'a page only, nothing else is read: write the times the last draft measured into the brief\'s Words and Objects tables (after you retimed on purpose)' },
     ],
     example: 'vawe see out/my-launch.mp4   |   vawe see films/my-launch/page.html --vs <ref-id>   |   vawe see <ref-id> --at 2.4   |   vawe see refs/ad.mp4 --spec',
     build: (v, [film]) => {
-      const specOnly = ['fps', 'elements', 'fast'].find((f) => v[f] !== undefined);
-      if (specOnly && !v.spec) throw new UsageError(`--${specOnly} needs --spec`);
-      if (v.spec) {
-        if (!film.endsWith('.mp4')) throw new UsageError('--spec measures a reference mp4: usage: vawe see <ref.mp4> --spec');
-        return [{ script: 'harness/media/ref-spec.mjs', args: [film, ...opt('--out', v.out), ...opt('--fps', v.fps), ...opt('--elements', v.elements), ...(v['no-ocr'] ? [] : ['--ocr']), ...(v.fast ? ['--fast'] : []), ...(v['no-cache'] ? ['--no-cache'] : [])] }];
-      }
+      if (v.json && !v.plan) throw new UsageError('--json needs --plan');
       if (v.sel && !v.probe) throw new UsageError('--sel needs --probe');
-      if (v.probe) {
-        if (!film.endsWith('.html')) throw new UsageError('--probe reads a page: usage: vawe see <page> --probe --sel <css> --at <s>');
-        if (!v.sel) throw new UsageError('--probe needs --sel <css>, the elements to read: vawe see <page> --probe --sel ".card" --at 2.4');
-        const problem = atProblem(v.at ?? '0');
-        if (problem) throw new UsageError(problem);
-        return [{ script: 'harness/media/see.mjs', args: [film, '--probe', '--sel', v.sel, ...opt('--at', v.at)] }];
-      }
-      if (v['sync-brief']) {
-        if (!film.endsWith('.html')) throw new UsageError('--sync-brief reads a page: usage: vawe see <page> --sync-brief');
-        return [{ script: 'harness/media/spec-sync.mjs', args: [film] }];
-      }
+      if (v.spec || ['fps', 'elements', 'fast'].some((f) => v[f] !== undefined)) return seeSpec(v, film);
+      if (v.probe) return seeProbe(v, film);
+      if (v.plan || v['sync-brief']) return seePage(v, film);
       const problem = seeProblem({ at: v.at, atB: v['at-b'], from: v.from, to: v.to, vs: v.vs });
       if (problem) throw new UsageError(problem);
       return [{ script: 'harness/media/see/one.mjs', args: [film, ...opt('--vs', v.vs), ...opt('--at', v.at), ...opt('--at-b', v['at-b']), ...opt('--from', v.from), ...opt('--to', v.to), ...opt('--draft', v.draft), ...opt('--out', v.out), ...(v['no-ocr'] ? ['--no-ocr'] : []), ...(v['no-cache'] ? ['--no-cache'] : [])] }];
     },
-    next: (v, [film]) => (v.probe ? 'compare the numbers with the move you meant; vawe strip <page> --at <s> shows the frames through that second' : v.spec ? 'mark every SPEC.md line KEEP or CHANGE, then vawe new <name> and rebuild' : v['sync-brief'] ? `bin/vawe dev ${film}; the changed cells end in *` : v.vs ? 'Read see.md, then every image path in it at full size, each with the numbers under it; act on the advice lines (each names the page literal), then vawe see again' : 'Read see.md, then every image path in it at full size, each with the numbers under it; vawe see <film> --vs <ref id> puts a reference beside it'),
+    next: (v, [film]) => (v.plan ? `fix a flagged rhythm or a cue in the wrong world, then bin/vawe sound ${film} --waveform to check each sound on its event` : v.probe ? 'compare the numbers with the move you meant; vawe strip <page> --at <s> shows the frames through that second' : v.spec ? 'mark every SPEC.md line KEEP or CHANGE, then vawe new <name> and rebuild' : v['sync-brief'] ? `bin/vawe dev ${film}; the changed cells end in *` : v.vs ? 'Read see.md, then every image path in it at full size, each with the numbers under it; act on the advice lines (each names the page literal), then vawe see again' : 'Read see.md, then every image path in it at full size, each with the numbers under it; vawe see <film> --vs <ref id> puts a reference beside it'),
   },
+  FRAME,
   {
     tier: 'core',
     name: 'frames', summary: 'use when you check the key state of each world: one still per data-world element and a contact sheet; --looks tries every lens look',
@@ -172,15 +164,13 @@ export const VERBS = [
     ],
     example: 'vawe frames films/my-launch/page.html   |   vawe frames films/my-launch/page.html --full --world s3,s5   |   vawe frames films/my-launch/page.html --looks --at 4.5,9 --only anamorphic,crt',
     build: (v, [page]) => {
-      if (!v.looks) {
-        const stray = ['at', 'only', 'out'].find((f) => v[f] !== undefined);
-        if (stray) throw new UsageError(`--${stray} needs --looks`);
-        return [{ script: 'harness/media/frames.mjs', args: [page, ...(v.full ? ['--full'] : []), ...(v.zoom ? ['--zoom'] : []), ...(v.world ?? []).flatMap((w) => ['--world', w])] }];
+      if (v.looks) {
+        if (v.full || v.zoom || v.world?.length) throw new UsageError('--looks does not take --full, --zoom or --world');
+        return STEPS.looks(v, page);
       }
-      if (v.full || v.zoom || v.world?.length) throw new UsageError('--looks does not take --full, --zoom or --world');
-      const problem = looksProblem({ at: v.at, only: v.only });
-      if (problem) throw new UsageError(problem);
-      return [{ script: 'harness/media/looks.mjs', args: [page, ...opt('--at', v.at), ...opt('--only', v.only), ...opt('--out', v.out)] }];
+      const stray = ['at', 'only', 'out'].find((f) => v[f] !== undefined);
+      if (stray) throw new UsageError(`--${stray} needs --looks`);
+      return STEPS.world(v, page);
     },
     next: (v, [page]) => (v.looks
       ? 'Read each grid at full size, pick a look by sight, then put `look: \'<name>\'` in the lens options of the page (prompts/moves/lens.md lists the numbers); the page options still win over the look'
@@ -350,24 +340,7 @@ export const VERBS = [
       const velocityOnly = ['sel', 'ids'].find((f) => v[f] !== undefined);
       if (velocityOnly && !v.velocity) throw new UsageError(`--${velocityOnly} needs --velocity`);
       if (v.cuts && modes.length) throw new UsageError(`--cuts does not take --${modes[0]}`);
-      if (v.onion) {
-        const span = v.span ?? ONION_SPAN;
-        const n = v.n ?? ONION_FRAMES;
-        const problem = onionProblem({ at: v.at, span, n });
-        if (problem) throw new UsageError(problem);
-        return [{ script: 'harness/media/see.mjs', args: [film, '--onion', v.at, '--span', String(span), '--n', String(n), ...opt('--out', v.out)] }];
-      }
-      if (v.velocity) {
-        const span = v.span ?? VELOCITY_SPAN;
-        const problem = velocityProblem({ at: v.at, span, sel: v.sel, ids: v.ids });
-        if (problem) throw new UsageError(problem);
-        return [{ script: 'harness/media/see.mjs', args: [film, '--velocity', v.at, '--span', String(span), ...opt('--sel', v.sel), ...opt('--ids', v.ids), ...opt('--out', v.out)] }];
-      }
-      const span = v.span ?? STRIP_SPAN;
-      const fps = v.fps ?? STRIP_FPS;
-      const problem = stripProblem({ at: v.at, cuts: v.cuts, span, fps });
-      if (problem) throw new UsageError(problem);
-      return [{ script: 'harness/media/see.mjs', args: [film, ...(v.cuts ? ['--cuts'] : ['--moment', v.at]), '--span', String(span), '--fps', String(fps), ...opt('--out', v.out)] }];
+      return STEPS.strip(v, film);
     },
     next: (v, [film]) => {
       if (v.onion) return 'Read the PNG at full size: evenly spaced ghosts mean a linear move, ghosts bunched at one end mean an ease, a ghost past the final position means an overshoot; vawe strip <page> --velocity gives the numbers for a page';
@@ -390,7 +363,7 @@ export const VERBS = [
       { name: 'out', type: 'path', default: 'out/sheet-<name>.png (--ref: out/compare-<name>.png)', help: 'the PNG path' },
     ],
     example: 'vawe sheet films/my-launch/page.html --at 0.5,1.2,3 --labels   |   vawe sheet films/my-launch/page.html --ref refs/ad.mp4 --at 2.5,3.1,4   |   vawe sheet out/my-launch.mp4 --ref refs/ad.mp4 --at cuts',
-    build: (v, [input]) => (needsPage(v, input, 'sheet'), v.ref ? versus(v, input) : [{ script: 'harness/media/sheet.mjs', args: [input, ...opt('--at', v.at), ...opt('--from', v.from), ...(v.labels ? ['--labels'] : []), ...opt('--cols', v.cols), ...opt('--out', v.out)] }]),
+    build: (v, [input]) => STEPS.sheet({ ...v, vs: v.ref }, input),
     next: (v) => (v.ref ? `look at the PNG: ${v.at === CUTS ? 'one frame per world change, at its middle' : 'one frame per --at second'}, reference left, yours right; fix the worst row first` : 'Read the PNG at full size; vawe strip <page> --at <s> shows the frames through one moment'),
   },
   {
@@ -426,12 +399,7 @@ export const VERBS = [
       { name: 'out', type: 'path', default: 'out/still/<name>-<s>s.png', help: 'the PNG path' },
     ],
     example: 'vawe still films/my-launch/page.html --at 4.2   |   vawe still films/card/page.html --at 0 --aspect 1200:630 --size 1200x630   |   vawe still out/my-launch.mp4 --at 4.2 --out /tmp/f.png',
-    build: (v, [input]) => {
-      const problem = stillProblem({ source: input, at: v.at, size: v.size });
-      if (problem) throw new UsageError(problem);
-      needsPage(v, input, 'still');
-      return [{ script: 'harness/media/still.mjs', args: [input, '--at', v.at, ...opt('--size', v.size), ...opt('--out', v.out)] }];
-    },
+    build: (v, [input]) => STEPS.still(v, input),
     next: () => 'Read the PNG at full size; vawe zoom <page|mp4> --at <s> --box x,y,w,h enlarges one region',
   },
   {
@@ -448,12 +416,7 @@ export const VERBS = [
       { name: 'out', type: 'path', default: 'out/zoom/<film>', help: 'folder for the PNG, or a path ending in .png for the file itself' },
     ],
     example: 'vawe zoom out/my-launch.mp4 --vs <ref-id> --at 2.4 --box 800,400,240,135   |   vawe zoom films/my-launch/page.html --auto --at 3',
-    build: (v, [film]) => {
-      const scale = v.scale ?? ZOOM_SCALE;
-      const problem = zoomProblem({ at: v.at, box: v.box, auto: v.auto, scale, vs: v.vs, atB: v['at-b'] });
-      if (problem) throw new UsageError(problem);
-      return [{ script: 'harness/media/see/zoom.mjs', args: [film, '--at', v.at, ...(v.auto ? ['--auto'] : ['--box', v.box]), '--scale', String(scale), ...opt('--vs', v.vs), ...opt('--at-b', v['at-b']), ...opt('--out', v.out)] }];
-    },
+    build: (v, [film]) => STEPS.zoom(v, film),
     next: () => 'Read the PNG at full size: left is a, right is b; name the pixel pattern you see (colour fringes, a stripe mask, halo width) and then vawe see <film> for the numbers',
   },
   {
@@ -600,14 +563,14 @@ export const VERBS = [
     build: (v, [input]) => {
       if (v.directions) {
         if (v.text || v.json || v.all || v.page || !input.endsWith('.html')) throw new UsageError('--directions reads a page and takes only --out: usage: vawe storyboard <page> --directions [--out file.html]');
-        return [{ script: 'harness/media/directions-board.mjs', args: [input, ...opt('--out', v.out)] }];
+        return STEPS.directions(v, input);
       }
       if (v.text) {
         if (!input.endsWith('.html')) throw new UsageError('--text reads a page: usage: vawe storyboard <page> --text [--json]');
         return [{ script: 'harness/media/timeline.mjs', args: [input, ...(v.json ? ['--json'] : [])] }];
       }
       if (v.json) throw new UsageError('--json needs --text');
-      return [{ script: 'harness/media/storyboard.mjs', args: [input, ...opt('--page', v.page), ...opt('--out', v.out), ...(v.all ? ['--all'] : [])] }];
+      return STEPS.board(v, input);
     },
     next: (v, [input]) => (v.directions ? `Read the board, ask the person to pick one direction, then write \`picked: <A, B or C>, because <reason>\` in ${path.join(path.dirname(input), 'brief.md')}` : v.text ? `fix a flagged rhythm or a cue in the wrong world, then bin/vawe sound ${input} --waveform to check each sound on its event` : `read the plan advice (bin/vawe storyboard ${input} --all, or the board) and fix it or keep it on purpose; open the HTML from disk to present or review the board; the Board and Motion pass in brief.md fill the move, handoff and note fields`),
   },
