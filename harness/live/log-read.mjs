@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// PostToolUse hook for Read: logs an image the agent opened under out/ or the references folder to the film's runs.jsonl,
+// PostToolUse hook for Read: logs an image the agent opened, wherever it lies, to the film's runs.jsonl (_unfiled when the path names no film),
 // so `vawe runs` can say which images were looked at. Settings: matcher "Read", command "node harness/live/log-read.mjs".
 import fs from 'node:fs';
 import path from 'node:path';
@@ -24,14 +24,24 @@ export function rootOfImage(file, fallback) {
   return at > 0 && fs.existsSync(path.join(file.slice(0, at), 'bin', 'vawe')) ? file.slice(0, at) : fallback;
 }
 
+/** The vawe checkout that holds `dir` (the session's cwd, which names the worktree the hook's own path may not), or null. */
+export function checkoutOf(dir) {
+  for (let d = typeof dir === 'string' && path.isAbsolute(dir) ? dir : null; d; d = path.dirname(d) === d ? null : path.dirname(d)) {
+    if (fs.existsSync(path.join(d, 'bin', 'vawe'))) return d;
+  }
+  return null;
+}
+
 function main() {
   let input = '';
   process.stdin.on('data', (d) => { input += d; });
   process.stdin.on('end', () => {
     try {
-      const file = JSON.parse(input).tool_input?.file_path;
+      const event = JSON.parse(input);
+      const file = event.tool_input?.file_path;
       if (!file || !IMAGE.test(file)) return;
-      const root = rootOfImage(file, path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'));
+      const hookRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+      const root = rootOfImage(file, checkoutOf(event.cwd) ?? hookRoot);
       appendRun(filmOfImage(file, root), { cmd: 'read', image: file }, { root });
     } catch { /* a hook never fails the tool call */ }
   });

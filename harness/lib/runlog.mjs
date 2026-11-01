@@ -95,7 +95,7 @@ export function readHookSeen(root = '.', home = os.homedir(), sinceMs = 0) {
 
 /** The images a film's `verb` calls printed since `sinceMs` and which of them no Read event (in any film's log: a custom --out folder files its reads under another name) has opened since: { printed, unread }, absolute paths. */
 export function looksSince(film, verb, sinceMs, root = '.') {
-  const abs = (p) => path.resolve(root, p);
+  const abs = (p) => { const a = path.resolve(root, p); try { return fs.realpathSync(a); } catch { return a; } };
   const printed = [...new Set(readRuns(film, root)
     .filter((r) => r.cmd === 'verb' && r.verb === verb && r.exitCode === 0 && Date.parse(r.start ?? r.at) > sinceMs)
     .flatMap((r) => r.images ?? []).map(abs))];

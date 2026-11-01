@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { rootOfImage, filmOfImage } from '../../harness/live/log-read.mjs';
+import { rootOfImage, filmOfImage, checkoutOf } from '../../harness/live/log-read.mjs';
 import { readRuns } from '../../harness/lib/runlog.mjs';
 
 const HOOK = path.resolve('harness/live/log-read.mjs');
@@ -28,4 +28,13 @@ test('a Read of an image in another checkout is logged in that checkout, as its 
   assert.equal(r.status, 0);
   assert.equal(filmOfImage(image, other), 'f');
   assert.deepEqual(readRuns('f', other).map((x) => [x.cmd, x.image]), [['read', image]]);
+});
+
+test('a Read of an image outside any checkout is logged as _unfiled in the checkout of the session cwd', () => {
+  const wt = checkout(fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-readcwd-'))));
+  const image = path.join(os.tmpdir(), 'scratch-strip.png');
+  const r = spawnSync(process.execPath, [HOOK], { input: JSON.stringify({ cwd: path.join(wt, 'films'), tool_input: { file_path: image } }), encoding: 'utf8' });
+  assert.equal(r.status, 0);
+  assert.equal(checkoutOf(path.join(wt, 'films')), wt);
+  assert.deepEqual(readRuns('_unfiled', wt).map((x) => x.image), [image]);
 });

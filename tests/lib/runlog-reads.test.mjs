@@ -51,3 +51,14 @@ test('readHookSeen: a read event older than the draft does not count, one since 
   log(root, 'f', [{ cmd: 'read', image: 'x.png', at: iso(-5000) }, { cmd: 'read', image: 'y.png', at: iso(10) }]);
   assert.equal(readHookSeen(root, home, T), true);
 });
+
+test('looksSince: a Read of a printed image counts through a symlinked path and outside the checkout', () => {
+  const root = tmp();
+  const real = fs.realpathSync(tmp());
+  const link = path.join(tmp(), 'link');
+  fs.symlinkSync(real, link);
+  fs.writeFileSync(path.join(real, 'a.png'), '');
+  log(root, 'f', [{ cmd: 'verb', verb: 'strip', exitCode: 0, start: iso(1000), images: [path.join(real, 'a.png')] }]);
+  log(root, '_unfiled', [{ cmd: 'read', image: path.join(link, 'a.png'), at: iso(2000) }]);
+  assert.deepEqual(looksSince('f', 'strip', T, root).unread, []);
+});
