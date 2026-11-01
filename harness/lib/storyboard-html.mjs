@@ -1,13 +1,14 @@
-// The one self-contained HTML page of `vawe storyboard`: frame cards in a row, the handoff arrows between them and a rhythm strip,
+// The one self-contained HTML page of `vawe storyboard`: frame cards in a row, the scene-change arrows between them and a rhythm strip,
 // on a canvas you pan and zoom. Pure: board data (harness/lib/storyboard.mjs) in, one string out. Images are relative paths.
 import { storyboardScript } from './storyboard-script.mjs';
+import { BOARD_LABELS as L } from './plain-words.mjs';
 
 export const CARD_W = 416;
 export const PER_ROW = 5;
 const LINK_W = 168;
 const PAD = 120;
 
-const EASE_SOURCE = { page: 'read from the page', board: 'named in the Board', signature: 'the film\'s ease dial' };
+const EASE_SOURCE = { page: 'read from the page', board: 'named in the Board', signature: L.easeDial };
 export const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const voiceName = (v) => String(v).replace(/\.(mp3|wav|m4a|ogg|flac)$/i, '');
 const MAX_CHIPS = 6;
@@ -33,22 +34,22 @@ function card(s, board, image) {
   const spectacle = board.spectacle?.world === s.id;
   const cues = s.cues.slice(0, MAX_CHIPS).map((c) => `<li><i>${c.at.toFixed(2)}</i>${esc(voiceName(c.voice))}</li>`).join('') + (s.cues.length > MAX_CHIPS ? `<li class="more">+${s.cues.length - MAX_CHIPS} more</li>` : '');
   const move = s.move ? `<div class="row move"><span class="k">move</span><div><b>${esc(s.move)}</b>${s.moveDetail ? `<small>${esc(s.moveDetail)}</small>` : ''}</div></div>` : '';
-  const ease = s.ease ? `<div class="row ease"><span class="k">ease</span>${curveSvg(s.ease)}<div><b>${esc(s.ease.name)}</b><small>${EASE_SOURCE[s.ease.source]}</small></div></div>` : '';
+  const ease = s.ease ? `<div class="row ease"><span class="k">${L.speed}</span>${curveSvg(s.ease)}<div><b>${esc(s.ease.name)}</b><small>${EASE_SOURCE[s.ease.source]}</small></div></div>` : '';
   return `<article class="shot${spectacle ? ' spectacle' : ''}" id="shot-${esc(s.id)}" style="--ground:${esc(s.ground ?? '#3a3a40')}">
-  <header class="tag"><span class="no">${String(s.n).padStart(2, '0')}</span><span class="id">${esc(s.id)}</span>${spectacle ? '<span class="flag">spectacle</span>' : ''}<span class="dur">${sec(s.duration)}</span></header>
+  <header class="tag"><span class="no">${String(s.n).padStart(2, '0')}</span><span class="id">${esc(s.id)}</span>${spectacle ? `<span class="flag">${L.bigMoment}</span>` : ''}<span class="dur">${sec(s.duration)}</span></header>
   <a class="frame" href="${esc(image)}" data-full><img src="${esc(image)}" alt="${esc(s.id)} at ${s.at} s" loading="eager" draggable="false"><span class="at">frame at ${s.at.toFixed(2)} s</span></a>
   <div class="tc"><span>${s.in}</span><span class="bar"></span><span>${s.out}</span></div>
   <div class="body">
     ${s.action ? `<p class="action">${esc(s.action)}</p>` : ''}
     ${move}${ease}
     ${cues ? `<div class="row snd"><span class="k">sound</span><ul>${cues}</ul></div>` : ''}
-    ${s.note ? `<div class="note"><span class="k">motion pass</span>${esc(s.note)}</div>` : ''}
+    ${s.note ? `<div class="note"><span class="k">${L.movementCheck}</span>${esc(s.note)}</div>` : ''}
   </div>
 </article>`;
 }
 
 function link(t, last) {
-  const label = t.hard ? 'hard cut' : sec(t.length);
+  const label = t.hard ? L.straightCut : sec(t.length);
   return `<div class="link${t.hard ? ' hard' : ''}${last ? ' wrap' : ''}" title="${esc(`${t.from} to ${t.to}${t.object ? `: ${t.object}` : ''}`)}">
     <span class="pill"><b>${esc(t.name)}</b><i>${label}</i></span>
     ${last ? '<span class="obj">continues on the next row</span>' : `<svg viewBox="0 0 ${LINK_W} 14" aria-hidden="true"><line x1="2" y1="7" x2="${LINK_W - 12}" y2="7"/><path d="M${LINK_W - 14} 1 L${LINK_W - 2} 7 L${LINK_W - 14} 13 Z"/></svg>`}
@@ -101,23 +102,23 @@ function strip(board, widthPx) {
   const cuts = board.shots.slice(1).map((s) => `<div class="cutmark" style="left:${pct(s.start, dur)}"></div>`).join('');
   const cueTicks = placed.map((c) => `<div class="tick" style="left:${pct(c.at, dur)};--r:${c.row}">${c.row < MAX_LABEL_ROWS ? `<span>${esc(voiceName(c.voice))} <i>${c.at.toFixed(2)}</i></span>` : ''}</div>`).join('');
   const bed = board.bed.map((b) => `<div class="bed" style="left:${pct(b.at, dur)};right:0"><span>${esc(b.voice)} bed</span></div>`).join('');
-  const spec = board.spectacle ? `<div class="spec" style="left:${pct(board.spectacle.at, dur)}"><span>spectacle ${board.spectacle.at.toFixed(2)} s</span></div>` : '';
+  const spec = board.spectacle ? `<div class="spec" style="left:${pct(board.spectacle.at, dur)}"><span>${L.bigMoment} ${board.spectacle.at.toFixed(2)} s</span></div>` : '';
   return `<section class="strip" style="width:${widthPx}px">
-  <header class="tag"><span class="no">&#9654;</span><span class="id">rhythm</span><span class="dur">${sec(dur)} &middot; ${board.shots.length} shots</span></header>
+  <header class="tag"><span class="no">&#9654;</span><span class="id">${L.timing}</span><span class="dur">${sec(dur)} &middot; ${board.shots.length} ${L.scenes}</span></header>
   <div class="lanes">
     <div class="ruler">${ticks.map((t) => `<span style="left:${pct(t, dur)}">${Number.isInteger(t) ? t : t.toFixed(1)}</span>`).join('')}</div>
     <div class="lane shots" style="height:${nLanes * 46 - 4}px">${blocks}</div>
-    <div class="lane hand"><i class="cap">handoff</i>${hand}</div>
+    <div class="lane hand"><i class="cap">${L.sceneChange}</i>${hand}</div>
     <div class="lane sound" style="height:${12 + rows * 20}px"><i class="cap">sound</i>${bed}${cueTicks}</div>
     <div class="overlay">${cuts}${spec}</div>
   </div>
-  <footer><span class="key"><i class="sw sw-span"></i>handoff length</span><span class="key"><i class="sw sw-snd"></i>sound cue</span><span class="key"><i class="sw sw-spec"></i>spectacle</span><span class="key"><i class="sw sw-cut"></i>cut</span></footer>
+  <footer><span class="key"><i class="sw sw-span"></i>${L.sceneChangeLength}</span><span class="key"><i class="sw sw-snd"></i>sound cue</span><span class="key"><i class="sw sw-spec"></i>${L.bigMoment}</span><span class="key"><i class="sw sw-cut"></i>${L.cut}</span></footer>
 </section>`;
 }
 
 function planPanel(plan) {
   if (!plan?.length) return '';
-  return `<section class="plan"><span class="k">from the docs</span><ul>${plan.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></section>`;
+  return `<section class="plan"><span class="k">${L.fromDocs}</span><ul>${plan.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></section>`;
 }
 
 function rowsOfCards(board, images) {
@@ -229,7 +230,7 @@ const CSS = `
 export function storyboardHtml(board, { images, fontCss = '' }) {
   const perRow = Math.min(PER_ROW, board.shots.length);
   const rowW = perRow * CARD_W + (perRow - 1) * LINK_W;
-  const meta = [`<span><b>${sec(board.duration)}</b> &middot; ${board.shots.length} shots</span>`, board.spectacle ? `<span>spectacle <b>${board.spectacle.at.toFixed(2)} s</b></span>` : '', board.hasBrief ? '' : '<span>no brief.md: page data only</span>'].join('');
+  const meta = [`<span><b>${sec(board.duration)}</b> &middot; ${board.shots.length} ${L.scenes}</span>`, board.spectacle ? `<span>${L.bigMoment} <b>${board.spectacle.at.toFixed(2)} s</b></span>` : '', board.hasBrief ? '' : '<span>no brief.md: page data only</span>'].join('');
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(board.film)} storyboard</title>
@@ -240,7 +241,7 @@ export function storyboardHtml(board, { images, fontCss = '' }) {
   ${planPanel(board.plan)}
   ${rowsOfCards(board, images)}
   ${strip(board, rowW)}
-  ${board.motionPass ? `<div class="pass"><span class="k">motion pass</span>${esc(board.motionPass)}</div>` : ''}
+  ${board.motionPass ? `<div class="pass"><span class="k">${L.movementCheck}</span>${esc(board.motionPass)}</div>` : ''}
   <div id="notes"></div>
 </div></div>
 <div class="hint">drag to pan &middot; wheel or pinch to zoom &middot; + &minus; 0 &middot; F fit &middot; N note &middot; click a frame for full size</div>

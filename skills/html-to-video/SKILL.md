@@ -7,6 +7,7 @@ license: Apache-2.0
 
 # html-to-video: start here
 
+When you talk to the person, use plain words: describe what the viewer sees, not the harness terms (map: harness/lib/plain-words.mjs).
 vawe turns one HTML page into one mp4. You write the page in HTML, CSS, Web Animations, SVG, canvas or three.js. The renderer seeks the page to each frame time, screenshots it in headless Chrome, mixes the page's `<audio>` tags offline and encodes the video with ffmpeg. The same page gives the same frames in any order. There is no hosted API and no account.
 
 ## Install

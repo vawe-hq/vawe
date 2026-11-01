@@ -165,8 +165,8 @@ test('the page holds every shot, its image, timecodes, cue and handoff, and is o
     assert.ok(html.includes(images[s.id]));
     assert.ok(html.includes(s.in) && html.includes(s.out));
   }
-  assert.ok(html.includes('graphic match') && html.includes('swoosh-long') && html.includes('spectacle 2.75 s'));
-  assert.ok(html.includes('hard cut') && html.includes('1.00 s'));
+  assert.ok(html.includes('graphic match') && html.includes('swoosh-long') && html.includes('big moment 2.75 s'));
+  assert.ok(html.includes('straight cut') && html.includes('1.00 s'));
   assert.ok(html.includes('localStorage'), 'sticky notes are kept in the browser');
   assert.ok(!/<script[^>]+src=|<link[^>]+href=|https?:\/\//.test(html), 'no external file or library');
 });
@@ -182,4 +182,12 @@ test('text from a brief is escaped in the page', () => {
 test('a draft finds its page by the film name', () => {
   assert.ok(pageOfFilm('colour-sting').endsWith('films/examples/colour-sting/page.html'));
   assert.equal(pageOfFilm('no-such-film'), null);
+});
+
+test('the words a person reads on the board are plain: no world, spectacle, handoff, hard cut or rhythm', () => {
+  const b = storyboardOf({ film: 'colour-sting', read, brief: null });
+  const html = storyboardHtml(b, { images: Object.fromEntries(b.shots.map((s) => [s.id, 'a.jpg'])) });
+  const visible = html.replace(/<(script|style)[\s\S]*?<\/\1>/g, '').replace(/<[^>]+>/g, ' ');
+  assert.ok(!/\b(world|spectacle|handoff|hard cut|rhythm|shots?)\b/i.test(visible), visible.match(/\b(world|spectacle|handoff|hard cut|rhythm|shots?)\b/i)?.[0]);
+  assert.ok(/big moment/.test(visible) && /scene change/.test(visible) && /5 scenes/.test(visible));
 });

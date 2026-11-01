@@ -7,6 +7,7 @@ license: Apache-2.0
 
 # vawe-critique: how to look
 
+When you talk to the person, use plain words: describe what the viewer sees, not the harness terms (map: harness/lib/plain-words.mjs).
 Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe doctor`.
 
 The author never grades its own film. Run this in a session that has not seen the authoring, or
