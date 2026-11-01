@@ -117,7 +117,7 @@ test('after the frames, an unfilled Board is the next step; a filled one moves o
   fs.writeFileSync(path.join(root, 'films', 'f', 'brief.md'), IDEAS + '## Board\n\n| beat | in s | hold s | cut out s (length) |\n|---|---|---|---|\n| s1 | 0 | 1 | 0.3 |\n| s2 | 1 | 1 | 1.2 |\n\nSpectacle: at 7.\n\n| cut | move | handoff (family: object) |\n|---|---|---|\n| s1 to s2 | whip | invisible cut: the blur peak |\n\n| at s | voice | gain dB | for |\n|---|---|---|---|\n| 0 | bed, loop | -20 | all |\n');
   const plan = nextStep(page, root);
   assert.equal(plan.stage, 'plan');
-  assert.match(plan.next, /show the person the directions board \(bin\/vawe frame films\/f\/page\.html --directions\) and the Board, then end your message with one line, "If you like it, type \/vawe-approve"/);
+  assert.match(plan.next, /^show the plan to the person: the directions board \(bin\/vawe frame films\/f\/page\.html --directions\) and the Board \(If you like it, type \/vawe-approve\), then go on: bin\/vawe dev films\/f\/page\.html$/);
   writePlanApproval(page, { root });
   assert.equal(nextStep(page, root).next, 'bin/vawe dev films/f/page.html');
   fs.appendFileSync(path.join(root, 'films', 'f', 'brief.md'), '| s3 | 2 | 1 | 0.3 |\n');
@@ -292,4 +292,16 @@ test('the taste lines print once per session: a new session sees them again, the
   assert.equal(sessionOf('{"session_id":"abc","prompt":"x"}'), 'abc');
   assert.equal(sessionOf(''), null);
   assert.equal(sessionOf('not json'), null);
+});
+
+test('no plan OK never holds the draft: the plan stage names dev, and once a draft exists the film moves on', () => {
+  const { root, page } = film('<section data-world="s1"></section>', IDEAS + '## Board\n\n| beat | in s | hold s | cut out s (length) |\n|---|---|---|---|\n| s1 | 0 | 1 | 0.3 |\n| s2 | 1 | 1 | 1.2 |\n\nSpectacle: at 7.\n\n| cut | move | handoff (family: object) |\n|---|---|---|\n| s1 to s2 | whip | invisible cut: the blur peak |\n\n| at s | voice | gain dB | for |\n|---|---|---|---|\n| 0 | bed, loop | -20 | all |\n');
+  fs.writeFileSync(path.join(root, 'out', 'f-frames.png'), '');
+  assert.equal(nextStep(page, root).stage, 'plan');
+  assert.match(nextStep(page, root).next, /then go on: bin\/vawe dev films\/f\/page\.html$/);
+  const draft = path.join(root, 'out', 'f-draft.mp4');
+  fs.writeFileSync(draft, '');
+  const later = new Date(Date.now() - 1000);
+  fs.utimesSync(draft, later, later);
+  assert.equal(nextStep(page, root).stage, 'motion');
 });

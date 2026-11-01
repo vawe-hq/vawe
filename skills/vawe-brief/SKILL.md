@@ -12,7 +12,7 @@ Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live
 
 A better film comes from a better prompt, and a better prompt comes from asking the person for the
 details a thin request leaves out. This skill runs that interview once, at the start, and writes the
-brief. It is not an approval stage: never ask a person to approve a finished plan.
+brief. Ask only for missing details while you write it. Once the Board is filled, show the plan and end with "If you like it, type /vawe-approve".
 
 ## 0. Ask for the details
 
