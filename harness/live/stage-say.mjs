@@ -182,12 +182,17 @@ export function recentPage(root) {
 
 const STAGE_STEP = { states: 'frames', board: 'storyboard', motion: 'motion' };
 
-/** The rule lines of the stage's taste step the first time the film's stage is named; [] after that, or for a stage with no step. */
-export function tasteOnce(stage, name, root) {
+/** The rule lines of the stage's taste step the first time the film's stage is named in a session (`sessionId` from the hook's stdin; null counts all sessions as one); [] after that, or for a stage with no step. */
+export function tasteOnce(stage, name, root, sessionId = null) {
   const step = STAGE_STEP[stage];
-  if (!step || readRuns(name, root).some((r) => r.cmd === 'taste-shown' && r.stage === stage)) return [];
-  appendRun(name, { cmd: 'taste-shown', stage }, { root });
+  if (!step || readRuns(name, root).some((r) => r.cmd === 'taste-shown' && r.stage === stage && r.shownTo === sessionId)) return [];
+  appendRun(name, { cmd: 'taste-shown', stage, shownTo: sessionId }, { root });
   return tasteLines(step);
+}
+
+/** The session id in the hook's stdin JSON, or null when stdin is empty, a terminal or not JSON. */
+export function sessionOf(input) {
+  try { return JSON.parse(input).session_id ?? null; } catch { return null; }
 }
 
 function main() {
@@ -198,7 +203,7 @@ function main() {
   const page = recentPage(root);
   if (!page) return;
   const s = nextStep(page, root);
-  console.log([`vawe: ${s.name}: ${s.why}.\n  next: ${s.next}`, ...tasteOnce(s.stage, s.name, root)].join('\n'));
+  console.log([`vawe: ${s.name}: ${s.why}.\n  next: ${s.next}`, ...tasteOnce(s.stage, s.name, root, sessionOf(process.stdin.isTTY ? '' : read(0)))].join('\n'));
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main();

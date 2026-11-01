@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { writeApproval } from '../../harness/lib/approval.mjs';
 import { appendRun, readRuns } from '../../harness/lib/runlog.mjs';
-import { FILM_PAGE, SAY, tasteOnce, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
+import { FILM_PAGE, SAY, tasteOnce, sessionOf, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
 
 process.env.HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-home-'));
 
@@ -271,4 +271,14 @@ test('the taste lines of a stage print the first time only, and a stage with no 
   assert.ok(tasteOnce('states', 'f', root).length > 0);
   assert.deepEqual(tasteOnce('critique', 'f', root), []);
   assert.equal(readRuns('f', root).filter((r) => r.cmd === 'taste-shown').length, 2);
+});
+
+test('the taste lines print once per session: a new session sees them again, the same one does not', () => {
+  const { root } = film('<p>x</p>');
+  assert.ok(tasteOnce('motion', 'f', root, 's1').length > 0);
+  assert.deepEqual(tasteOnce('motion', 'f', root, 's1'), []);
+  assert.ok(tasteOnce('motion', 'f', root, 's2').length > 0);
+  assert.equal(sessionOf('{"session_id":"abc","prompt":"x"}'), 'abc');
+  assert.equal(sessionOf(''), null);
+  assert.equal(sessionOf('not json'), null);
 });
