@@ -6,25 +6,29 @@
 // Seek film time `t` (seconds): set the virtual clock, call window.seek(t) when the page paints as a
 // function of time, seek every CSS/WAAPI/SMIL animation, then call every vawe.onFrame hook (awaited, so a
 // hook that decodes a texture or builds three.js geometry settles before a screenshot, when it returns a Promise).
-export async function seekTo(t, win = window) {
-  // A GSAP timeline has a then() that never settles, so only a native Promise is awaited; any other return value is ignored.
-  const settle = async (result) => { if (Object.prototype.toString.call(result) === '[object Promise]') await result; };
-  if (win.__pageReady) await win.__pageReady();
-  if (win.__pageFonts) await win.__pageFonts();
-  if (win.__pageClock) win.__pageClock.set(t);
-  if (typeof win.seek === 'function') await settle(win.seek(t));
-  if (win.__pageFonts) await win.__pageFonts();
-  const seen = win.__seekAnimations || (win.__seekAnimations = new Set());
-  // getAnimations() drops a finished fill:none animation, so a later seek back would miss it.
-  for (const a of win.document.getAnimations()) seen.add(a);
-  for (const a of seen) {
-    if (a.playState === 'idle' || !a.effect?.target?.isConnected) seen.delete(a);
-    else { a.pause(); a.currentTime = t * 1000; }
-  }
-  win.document.querySelectorAll('svg').forEach((svg) => {
-    if (typeof svg.pauseAnimations === 'function') { try { svg.pauseAnimations(); svg.setCurrentTime(t); } catch { /* best-effort */ } }
-  });
-  for (const fn of win.__vaweFrameHooks || []) await settle(fn(t));
+// With `layout` set, window.__layoutSeek is true while the hooks run: a pixel-only draw (core/surfaces/lens.js) skips itself, since a probe that reads boxes and text never sees pixels.
+export async function seekTo(t, win = window, layout = false) {
+  win.__layoutSeek = layout;
+  try {
+    // A GSAP timeline has a then() that never settles, so only a native Promise is awaited; any other return value is ignored.
+    const settle = async (result) => { if (Object.prototype.toString.call(result) === '[object Promise]') await result; };
+    if (win.__pageReady) await win.__pageReady();
+    if (win.__pageFonts) await win.__pageFonts();
+    if (win.__pageClock) win.__pageClock.set(t);
+    if (typeof win.seek === 'function') await settle(win.seek(t));
+    if (win.__pageFonts) await win.__pageFonts();
+    const seen = win.__seekAnimations || (win.__seekAnimations = new Set());
+    // getAnimations() drops a finished fill:none animation, so a later seek back would miss it.
+    for (const a of win.document.getAnimations()) seen.add(a);
+    for (const a of seen) {
+      if (a.playState === 'idle' || !a.effect?.target?.isConnected) seen.delete(a);
+      else { a.pause(); a.currentTime = t * 1000; }
+    }
+    win.document.querySelectorAll('svg').forEach((svg) => {
+      if (typeof svg.pauseAnimations === 'function') { try { svg.pauseAnimations(); svg.setCurrentTime(t); } catch { /* best-effort */ } }
+    });
+    for (const fn of win.__vaweFrameHooks || []) await settle(fn(t));
+  } finally { win.__layoutSeek = false; }
 }
 
 // Resolve when every FontFace in document.fonts has finished loading, including faces whose load starts
@@ -117,6 +121,7 @@ export function installPageFrame({ aspect, width, height, eases = {}, duration }
     configurable: true,
     get() { const m = document.querySelector('meta[name="fps"]'); return m ? Number(m.content) : undefined; },
   });
+  Object.defineProperty(vawe, 'layoutSeek', { configurable: true, get: () => Boolean(window.__layoutSeek) });
   // An auto page measured for its length gets 0, so an animation sized from vawe.duration has no end; the render passes the measured length.
   // An infinite animation has no end, so it never sets the end of an auto page.
   vawe.animationEnd = () => {

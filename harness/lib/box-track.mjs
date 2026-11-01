@@ -26,7 +26,7 @@ export async function trackBoxes(times, scope) {
     return n;
   };
   for (const t of times) {
-    await window.__pageSeek(t);
+    await window.__pageSeek(t, window, scope !== 'animated');
     els.forEach((el, i) => {
       const r = el.getBoundingClientRect();
       tracks[i].push(scope === 'animated' ? [r.x, r.y, r.width, r.height, ...window.__turnAndClip(el, r), loopsOf(el)] : [r.x, r.y, r.width, r.height, alpha(el), own(el)]);

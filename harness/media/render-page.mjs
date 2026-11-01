@@ -1023,7 +1023,7 @@ function motionAdvice(pagePath, motion) {
 }
 
 // Text and spec probes read layout only, so their seeks skip the paint barrier that a screenshot needs.
-const seekLayout = (page) => (ms) => page.evaluate((t) => window.__pageSeek(t / 1000), ms);
+const seekLayout = (page) => (ms) => page.evaluate((t) => window.__pageSeek(t / 1000, window, true), ms);
 
 /**
  * The live page's motion records and text samples: what the draft check reads besides the video. `checks` (harness/lib/check-runner.mjs)

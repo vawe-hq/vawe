@@ -680,6 +680,7 @@ export function lens(source, options = {}) {
   let texScale = null;
 
   async function draw(t) {
+    if (globalThis.__layoutSeek) return;
     const p = params(t);
     bind(gl, 0, rig.srcTex);
     const tex = await source.upload(gl);

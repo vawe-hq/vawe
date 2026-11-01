@@ -3,6 +3,7 @@
 //
 //   vawe.onFrame((t) => { ... })   registers a per-frame hook; core/engine/page-seek.js defines it before any script and runs it,
 //                                  so it works without this import.
+//   vawe.layoutSeek                true while a probe that reads boxes and text seeks (no pixels read): skip canvas painting in window.seek / onFrame then.
 //   vawe.value(row, t)             samples a timing-sheet row ({at,dur,from,to,ease}) as a plain
 //                                  NUMBER; `ease` is a CSS keyword or a name in core/motion/easings.js.
 //   vawe.three.studio/extrude/material   the three.js helpers in core/three/index.js.
