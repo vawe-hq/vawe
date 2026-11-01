@@ -109,3 +109,11 @@ test('see --spec and --sync-brief take the place of spec and spec-sync', () => {
   assert.deepEqual([sync.script, sync.args], ['harness/media/spec-sync.mjs', ['p.html']]);
   assert.throws(() => verb('see').build({ 'sync-brief': true }, ['a.mp4']), /reads a page/);
 });
+
+test('critique: a motion mismatch against the reference is advice, so the critic still runs', () => {
+  const steps = verb('critique').build({ ref: 'r.mp4', fresh: true }, ['films/f/page.html']);
+  const refStep = steps.find((s) => s.args.includes('--dom'));
+  assert.equal(refStep.advice, true);
+  assert.ok(steps.indexOf(refStep) < steps.findIndex((s) => s.script.endsWith('critic-fresh.mjs')));
+  assert.equal(steps.filter((s) => s.advice).length, 1);
+});

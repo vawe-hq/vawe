@@ -313,7 +313,7 @@ export const VERBS = [
       { label: 'page code traps', script: 'quality/gates/anim-traps.mjs', args: [page] },
       { label: 'phone sheet, strip and loop seam (renders a draft with audio when the last one is stale or silent; 1 to 3 min)', script: 'harness/media/see.mjs', args: [page, '--phone', '--strip', v.at || 'auto', '--loop'] },
       v.ref
-        ? { label: 'motion against the reference (1 to 3 min)', script: 'harness/media/see.mjs', args: [page, '--dom', '--ref', v.ref, ...opt('--from', v.from), ...opt('--to', v.to), ...(v.final ? ['--final'] : [])] }
+        ? { label: 'motion against the reference (1 to 3 min)', advice: true, script: 'harness/media/see.mjs', args: [page, '--dom', '--ref', v.ref, ...opt('--from', v.from), ...opt('--to', v.to), ...(v.final ? ['--final'] : [])] }
         : { label: 'measured deltas', script: 'harness/media/see.mjs', args: [page, '--measure'] },
       { label: 'page-check: text, cues, spectacle, cuts (1 to 3 min)', script: 'quality/gates/page-check.mjs', args: [page, ...opt('--ref', v.ref)], env: { VAWE_FINDINGS_OUT: critiqueFindingsFile(page) } },
       ...(v.fresh ? [{ label: 'fresh critic session (1 to 15 min)', script: 'harness/media/critic-fresh.mjs', args: [page, '--since', String(Date.now()), ...opt('--ref', v.ref), ...opt('--model', v.model)] }] : []),

@@ -93,6 +93,7 @@ async function runSteps(verb, values, positional, steps, call, startedMs, rest) 
   for (const [i, step] of steps.entries()) {
     if (step.label) console.log(`\n[${verb.name} ${i + 1}/${steps.length}: ${step.label}]`);
     const code = stepCode(await runStep(step, call), call);
+    if (code !== 0 && step.advice && !call.signal) { console.log(`  advice: this step reported a mismatch (exit ${code}); ${verb.name} goes on`); continue; }
     if (code !== 0) return code;
   }
   if (typeof verb.report === 'function') console.log(verb.report(values, positional, startedMs).join('\n'));
