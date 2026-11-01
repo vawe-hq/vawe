@@ -20,5 +20,16 @@
   ["echo \"never run git reset --hard\"", false, "banned form inside a double-quoted string"],
   ["grep -n 'git stash' guides/README.md", false, "banned form as a grep pattern"],
   ["git checkout main", false, "checkout a branch, not the tree"],
-  ["git reset --soft HEAD~1", false, "soft reset"]
+  ["git reset --soft HEAD~1", false, "soft reset"],
+
+  ["bin/vawe approve films/f/page.html", true, "an agent approves its own film"],
+  ["./bin/vawe approve films/f/page.html --note ok", true, "relative bin path"],
+  ["VAWE_AGENT=x bin/vawe approve films/f/page.html", true, "after an env assignment"],
+  ["cd films && bin/vawe approve f/page.html", true, "after &&"],
+  ["node harness/live/approve.mjs f", true, "the script directly"],
+  ["node harness/live/approve.mjs", true, "the script with no film"],
+  ["bin/vawe ship films/f/page.html", false, "ship is not approve"],
+  ["bin/vawe storyboard films/f/page.html --directions", false, "the directions board"],
+  ["grep -n 'vawe approve' AGENTS.md", false, "the verb named as a grep pattern"],
+  ["echo \"type /vawe-approve\"", false, "the slash command named in a string"]
 ]

@@ -8,6 +8,8 @@ const BANNED = [
    'this throws away every uncommitted change in the tree, not only yours. Name the file you mean to revert.'],
   [/^git\s+reset\s+--hard\b/, 'a hard reset',
    'this destroys uncommitted work repo-wide with no recovery. If you must, name paths: git checkout HEAD -- <path>.'],
+  [/^(?:\w+=\S*\s+)*(?:(?:\S*\/)?vawe\s+(?:-\S+\s+)*approve\b|node\s+(?:-\S+\s+)*\S*harness\/live\/approve\.mjs\b)/, 'an approval an agent gave itself',
+   'only the person approves a plan or a draft. Show it, end with the line "If you like it, type /vawe-approve", and stop.'],
 ];
 
 const commandsIn = (cmd) => cmd
@@ -33,8 +35,7 @@ process.stdin.on('end', () => {
   for (const [re, name, why] of BANNED) {
     if (parts.some((p) => re.test(p))) {
       process.stderr.write(`BLOCKED: ${name}\n\n${why}\n\n`
-        + 'Refused by harness/live/no-blanket-git.mjs, because this command has already caused real\n'
-        + 'data loss in this repo with several agents sharing one tree.\n');
+        + 'Refused by harness/live/no-blanket-git.mjs.\n');
       process.exit(2);
     }
   }
