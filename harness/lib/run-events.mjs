@@ -27,7 +27,7 @@ const phaseFields = (wallS, phases, checks) => {
 
 /** `vawe dev`: the seconds of every phase (phaseFields) beside the wall time, what was rendered (`shape`: chrome 'launched' or 'reused', frames, reused, fps, width, height, workers, slices, durS), the check seconds by name, the tier and cache use, the acceptance rows (null for a window), the chosen signature dials, what the moves measured for them, and the rules the draft fired ({ id, value, t }). */
 export const devEvent = ({ file, tier, wallS, phases, shape, checks, cache, rows, signature = {}, measured = {}, fired = [], worlds = null }) => ({
-  cmd: 'dev', file, ...paramsField(), tier, wallS: tenths(wallS), ...phaseFields(wallS, phases, checks),
+  cmd: 'dev', file, ...(process.env.VAWE_PLAN_WINDOW ? { planWindow: true } : {}), ...paramsField(), tier, wallS: tenths(wallS), ...phaseFields(wallS, phases, checks),
   chrome: shape.chrome, frames: shape.frames, reusedFrames: shape.reused, fps: shape.fps, width: shape.width, height: shape.height,
   workers: shape.workers, slices: shape.slices, durS: tenths(shape.durS),
   checksS: Object.fromEntries(checks.map(([name, s]) => [name, tenths(s)])),

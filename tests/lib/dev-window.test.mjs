@@ -24,7 +24,7 @@ const span = (f, extra = {}) => { const w = planWindow(f.page, { root: f.root, .
 test('a first draft with an empty plan renders 2 s around the spectacle, and the line names the full-film flags', () => {
   const f = film(EMPTY);
   assert.deepEqual(span(f), [7, 9]);
-  assert.match(planWindow(f.page, { root: f.root }).line, /Ideas is empty.*--from 0 --to 12/);
+  assert.match(planWindow(f.page, { root: f.root }).line, /Ideas is empty.*--whole/);
 });
 
 test('the window falls back to the middle and stays inside the film', () => {
@@ -35,10 +35,15 @@ test('the window falls back to the middle and stays inside the film', () => {
 
 test('no window once the plan is filled, a range is given, a draft exists, or the length is not a number', () => {
   assert.equal(span(film(FILLED)), null);
+  assert.equal(span(film(EMPTY), { whole: true }), null);
+  assert.equal(span(film(EMPTY), { out: 'x.mp4' }), null);
   const e = film(EMPTY);
   assert.equal(span(e, { from: 0, to: 12 }), null);
+  assert.equal(span(film(EMPTY, `${META}<meta name="spectacle" content="0.1">`)).join(), '0,2');
   assert.equal(span(film(EMPTY, '<meta name="duration" content="auto">')), null);
   fs.mkdirSync(path.join(e.root, 'out'));
+  fs.writeFileSync(path.join(e.root, 'out', 'f-plan-window.mp4'), '');
+  assert.deepEqual(span(e), [7, 9], 'a window clip is not a draft');
   fs.writeFileSync(path.join(e.root, 'out', 'f-draft.mp4'), '');
   assert.equal(span(e), null);
 });
@@ -51,6 +56,11 @@ test('dev renders the window with --small, and the whole film when --from and --
   const args = render({}).args;
   assert.deepEqual([args[args.indexOf('--from') + 1], args[args.indexOf('--to') + 1], args.includes('--small')], ['7', '9', true]);
   assert.match(render({}).label, /rendered 7-9 s of 12 s/);
-  const whole = render({ from: 0, to: 12 });
-  assert.deepEqual([whole.args.includes('--small'), whole.label], [false, undefined]);
+  assert.match(args[0], /page\.html$/);
+  assert.match(args[1], /out[\\/]f-plan-window\.mp4$/);
+  assert.equal(render({}).env.VAWE_PLAN_WINDOW, '1');
+  for (const v of [{ whole: true }, { from: 0, to: 12 }, { out: 'x.mp4' }]) {
+    const full = render(v);
+    assert.deepEqual([full.args.includes('--small'), full.label, full.env.VAWE_PLAN_WINDOW], [false, undefined, undefined]);
+  }
 });

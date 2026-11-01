@@ -76,7 +76,7 @@ export function readRuns(film, root = '.') {
 
 /** The mp4 the last successful `vawe dev` of a film wrote, wherever --out put it, or null when none is logged or the file is gone. */
 export function lastDraft(film, root = '.') {
-  const file = readRuns(film, root).findLast((r) => r.cmd === 'dev' && !r.failed && r.file)?.file;
+  const file = readRuns(film, root).findLast((r) => r.cmd === 'dev' && !r.failed && !r.planWindow && r.file)?.file;
   return file && fs.existsSync(file) ? file : null;
 }
 

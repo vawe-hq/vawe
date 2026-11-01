@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { appendRun, looksSince, readHookSeen } from '../../harness/lib/runlog.mjs';
+import { appendRun, looksSince, readHookSeen, lastDraft } from '../../harness/lib/runlog.mjs';
 
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-reads-'));
 const log = (root, film, rows) => {
@@ -61,4 +61,13 @@ test('looksSince: a Read of a printed image counts through a symlinked path and 
   log(root, 'f', [{ cmd: 'verb', verb: 'strip', exitCode: 0, start: iso(1000), images: [path.join(real, 'a.png')] }]);
   log(root, '_unfiled', [{ cmd: 'read', image: path.join(link, 'a.png'), at: iso(2000) }]);
   assert.deepEqual(looksSince('f', 'strip', T, root).unread, []);
+});
+
+test('lastDraft skips a plan-window render', () => {
+  const root = tmp();
+  const file = path.join(root, 'full.mp4');
+  const win = path.join(root, 'f-plan-window.mp4');
+  fs.writeFileSync(file, ''); fs.writeFileSync(win, '');
+  log(root, 'f', [{ cmd: 'dev', file }, { cmd: 'dev', file: win, planWindow: true }]);
+  assert.equal(lastDraft('f', root), file);
 });

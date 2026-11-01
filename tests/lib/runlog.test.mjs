@@ -242,3 +242,10 @@ test('runs <film>: one phase line per draft, and the median of each phase', () =
   assert.match(allLines([{ film: 'a', last: 'x', drafts: 1, medianDraftS: 20, firstTotal: null, bestTotal: null, passed: false }], [], m).at(-1), /^median of 3 drafts, 20 s wall: start 0\.5 /);
   assert.equal(phaseMedians([]), null);
 });
+
+test('dev event: a plan-window render (VAWE_PLAN_WINDOW) is marked, a draft is not', () => {
+  const make = () => devEvent({ tier: 'draft', wallS: 1, phases: PHASES, shape: SHAPE, checks: [], cache: { hit: 0, miss: 0 }, rows: null });
+  assert.equal('planWindow' in make(), false);
+  process.env.VAWE_PLAN_WINDOW = '1';
+  try { assert.equal(make().planWindow, true); } finally { delete process.env.VAWE_PLAN_WINDOW; }
+});
