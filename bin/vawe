@@ -165,7 +165,7 @@ async function main(argv) {
     return;
   }
   if (rest.includes('--help') || rest.includes('-h')) {
-    record(verb, rest, { ...bareCall(), help: true }, 0, null, Date.now());
+    record(verb, rest, { ...bareCall(), help: true, positional: rest.filter((a) => !a.startsWith('-')) }, 0, null, Date.now());
     return console.log(verbHelp(verb));
   }
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-verb-'));

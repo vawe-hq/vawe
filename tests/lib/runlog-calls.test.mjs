@@ -25,6 +25,8 @@ test('help lookups and usage errors are logged with the film, its stage and the 
   const logPath = path.join(ROOT, 'out', `${name}.runs.jsonl`);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'page.html'), '<!doctype html><title>x</title>');
+  // An old mtime keeps this page from being the "edited last" film that a parallel test's film-less verb is filed under.
+  fs.utimesSync(path.join(dir, 'page.html'), new Date(2000, 0, 1), new Date(2000, 0, 1));
   const vawe = (...args) => spawnSync(process.execPath, [path.join(ROOT, 'bin/vawe'), ...args], { cwd: ROOT, encoding: 'utf8' });
   try {
     vawe('dev', path.join('films', name, 'page.html'), '--help');
