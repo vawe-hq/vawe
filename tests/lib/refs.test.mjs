@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { addPlan, positionals, ytDlpArgs, downscaleFilter, parseVerified, filmType, pickRefs, refsDir, listLines, chooseRefs, briefRefIds, namedRef, writeRegistry, frameManifest, frameLines, readFrameManifest, refsEmpty, noRefsLines } from '../../harness/lib/refs.mjs';
 
 test('the frame manifest numbers each frame and holds its absolute path; frameLines prints it', () => {
@@ -193,4 +194,19 @@ test("positionals keeps the source after a bool flag and drops the value of a va
 test('listLines lists a film added with --no-measure, which has no type', () => {
   const [line] = listLines([{ id: 'x1', type: null, seconds: 6, inScope: true, studio: null, title: 'X' }]);
   assert.match(line, /^x1 {2}no type {2}6 s/);
+});
+
+test('refs add without --type adds the film with no type and says how to set it; a wrong type is still refused', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-refs-add-'));
+  const video = path.join(home, 't.mp4');
+  spawnSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc=size=320x180:rate=10:duration=1', '-pix_fmt', 'yuv420p', video]);
+  const add = (...args) => spawnSync(process.execPath, [path.join(import.meta.dirname, '../../harness/dev/refs.mjs'), 'add', video, ...args], { encoding: 'utf8', env: { ...process.env, VAWE_REFS_DIR: path.join(home, 'refs') } });
+  const bare = add();
+  assert.equal(bare.status, 0, bare.stderr);
+  assert.match(bare.stdout, /added t \(no type\)/);
+  assert.match(bare.stdout, /type not set: .*--type product\|brand/);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(home, 'refs', 'refs.json'), 'utf8'))[0].type, null);
+  const wrong = add('--type', 'movie');
+  assert.equal(wrong.status, 1);
+  assert.match(wrong.stderr, /--type is product or brand, not "movie"; for example: vawe refs add .* --type product/);
 });

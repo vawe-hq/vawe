@@ -1,4 +1,5 @@
 import test from 'node:test';
+import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import { VERBS } from '../../harness/cli/verbs.mjs';
 import { TIERS, topHelp, verbHelp, UsageError } from '../../harness/cli/parse.mjs';
@@ -106,4 +107,11 @@ test('critique: a motion mismatch against the reference is advice, so the critic
   assert.equal(refStep.advice, true);
   assert.ok(steps.indexOf(refStep) < steps.findIndex((s) => s.script.endsWith('critic-fresh.mjs')));
   assert.equal(steps.filter((s) => s.advice).length, 1);
+});
+
+test('a final is waited for with wait: AGENTS.md and the ship and wait lines do not name ship --status', () => {
+  const agents = fs.readFileSync(new URL('../../AGENTS.md', import.meta.url), 'utf8');
+  assert.doesNotMatch(agents, /ship --status/);
+  assert.doesNotMatch(verb('ship').example, /ship --status/);
+  assert.doesNotMatch(verb('wait').next({}, ['films/f/page.html']), /ship --status/);
 });

@@ -1,4 +1,4 @@
-// vawe refs list [id] | index | add <mp4-or-url> --type product|brand [--title t] | frames [id]: the reference films an agent
+// vawe refs list [id] | index | add <mp4-or-url> [--type product|brand] [--title t] | frames [id]: the reference films an agent
 // studies and the fresh judge compares a film with (harness/lib/refs.mjs). They live in $VAWE_REFS_DIR (default ~/.vawe/refs),
 // never in the repo. `frames` writes the settled full-size frames of each shot, from the 1080p copy in hd/ when there is one.
 import fs from 'node:fs';
@@ -79,9 +79,9 @@ function fromFile(file) {
 function add() {
   const noMeasure = process.argv.includes('--no-measure');
   const plan = addPlan({ noMeasure });
-  const type = flag('--type') ?? (noMeasure ? null : undefined);
-  if (type !== null && !TYPES.includes(type)) die(`--type is ${TYPES.join(' or ')}${type === undefined ? '' : `, not "${type}"`}; add it, for example: vawe refs add ${source ?? '<mp4-or-url>'} --type ${TYPES[0]} (or pass --no-measure to leave the type out)`);
-  if (!source) die('usage: vawe refs add <mp4-or-url> --type product|brand [--title t] [--no-measure]');
+  const type = flag('--type');
+  if (type !== null && !TYPES.includes(type)) die(`--type is ${TYPES.join(' or ')}, not "${type}"; for example: vawe refs add ${source ?? '<mp4-or-url>'} --type ${TYPES[0]}`);
+  if (!source) die('usage: vawe refs add <mp4-or-url> [--type product|brand] [--title t] [--no-measure]');
   fs.mkdirSync(dir, { recursive: true });
   const got = /^https?:\/\//.test(source) ? download(source) : fromFile(source);
   if (plan.includes('measure')) {
@@ -92,6 +92,7 @@ function add() {
   const registry = (readRegistry(dir) ?? []).filter((r) => r.id !== got.id);
   writeRegistry(dir, [...registry, recorded(meta, got.file)].sort((a, b) => a.id.localeCompare(b.id)));
   console.log(`added ${got.id} (${type ?? 'no type'}) to ${path.join(dir, 'refs.json')}`);
+  if (!type) console.log(`type not set: a brief picks the film by type; run vawe refs add ${source} --type ${TYPES.join('|')} to set it`);
   console.log(`video: ${got.file}`);
   if (!plan.includes('measure')) console.log(`not measured; measure it later: bin/vawe see ${got.id}`);
 }

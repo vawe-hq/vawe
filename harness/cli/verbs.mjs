@@ -306,9 +306,9 @@ export const VERBS = [
     name: 'refs', summary: 'use when you study references before you design: list them, print the settled frame of every shot, add a film',
     positional: [{ name: 'action', required: true, help: 'list, index (build refs.json from the folder), add, or frames (the settled full-size frame of each shot, into frames/<id>/ with a frames.json manifest; prints every absolute path)' }, { name: 'source', help: 'with add: an mp4 file or a URL (yt-dlp, 360p); with frames: one film id (default: every film in scope); with list: one film id, whose frame paths it prints' }],
     flags: [
-      { name: 'type', type: 'string', help: 'with add: product (product and UI launch films) or brand (idents, brand and studio films)' },
+      { name: 'type', type: 'string', help: 'with add: product (product and UI launch films) or brand (idents, brand and studio films); left out, the film is added with no type and a brief does not pick it' },
       { name: 'title', type: 'string', help: 'with add: the film title' },
-      { name: 'no-measure', type: 'bool', help: 'with add: only download and record the film (no ref-spec, no OCR; --type may be left out); measure it later with vawe see <id>' },
+      { name: 'no-measure', type: 'bool', help: 'with add: only download and record the film (no ref-spec, no OCR); measure it later with vawe see <id>' },
     ],
     example: 'vawe refs list [id]   |   vawe refs frames u6iro1jHujs   |   vawe refs add https://youtu.be/xxxx --type product --title "Linear Agent"   |   vawe refs add <url> --no-measure',
     build: (v, [action, source]) => [{ script: 'harness/dev/refs.mjs', args: [action, ...(source ? [source] : []), ...opt('--type', v.type), ...opt('--title', v.title), ...(v['no-measure'] ? ['--no-measure'] : [])] }],
