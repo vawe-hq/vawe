@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { commitsBehind, fetchDue, staleLine, staleCheckoutLine, canFastForward } from '../../harness/lib/stale-checkout.mjs';
+import { commitsBehind, fetchDue, staleLine, staleCheckoutLine, canFastForward, mainCheckoutLine } from '../../harness/lib/stale-checkout.mjs';
 
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 
@@ -134,4 +134,65 @@ test('a file origin/main adds that already exists on disk blocks the move and is
   const line = staleCheckoutLine(root, { ...ONLY_NOW, git: fn });
   assert.match(line, /3 commits behind origin\/main.*not moved: origin\/main adds assets\/logo\.svg, which exists here/);
   assert.ok(!calls.some((c) => c.startsWith('merge') || c.startsWith('checkout')));
+});
+
+function mainAndWorktree(dir) {
+  const origin = path.join(dir, 'origin.git');
+  const main = path.join(dir, 'main');
+  const author = path.join(dir, 'author');
+  git(dir, 'init', '--bare', '-b', 'main', origin);
+  git(dir, 'clone', '-q', origin, author);
+  git(author, 'config', 'user.email', 't@t'); git(author, 'config', 'user.name', 't');
+  fs.writeFileSync(path.join(author, 'f.txt'), '1');
+  git(author, 'add', 'f.txt'); git(author, 'commit', '-qm', 'one'); git(author, 'push', '-q', 'origin', 'HEAD:main');
+  git(dir, 'clone', '-q', origin, main);
+  git(main, 'config', 'user.email', 't@t'); git(main, 'config', 'user.name', 't');
+  git(main, 'checkout', '-q', '--detach');
+  const wt = path.join(dir, 'wt');
+  git(main, 'worktree', 'add', '-q', '--detach', wt);
+  const publish = (name) => { fs.writeFileSync(path.join(author, name), 'x'); git(author, 'add', name); git(author, 'commit', '-qm', name); git(author, 'push', '-q', 'origin', 'HEAD:main'); };
+  return { main, wt, publish };
+}
+
+test('a worktree session moves a clean detached main checkout to origin/main, once per 10 minutes', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-mainmove-'));
+  try {
+    const { main, wt, publish } = mainAndWorktree(dir);
+    publish('two.txt');
+    git(wt, 'fetch', '-q', 'origin', 'main');
+    const line = mainCheckoutLine(wt, { now: 1_000_000 });
+    assert.match(line, /1 commit behind origin\/main: moved it to origin\/main/);
+    assert.equal(git(main, 'rev-parse', 'HEAD'), git(main, 'rev-parse', 'origin/main'));
+    publish('three.txt');
+    git(wt, 'fetch', '-q', 'origin', 'main');
+    assert.equal(mainCheckoutLine(wt, { now: 1_000_000 + 1000 }), '', 'inside the 10 minutes nothing runs');
+    assert.match(mainCheckoutLine(wt, { now: 1_000_000 + 700_000 }), /moved it/);
+    assert.equal(mainCheckoutLine(main, { now: 9_000_000 }), '', 'a session in the main checkout is the other function');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('the main checkout stays put, with one line saying why: tracked changes, a branch, local commits, a colliding file', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-mainstay-'));
+  try {
+    const { main, wt, publish } = mainAndWorktree(dir);
+    publish('two.txt');
+    git(wt, 'fetch', '-q', 'origin', 'main');
+    let at = 1_000_000;
+    const line = () => mainCheckoutLine(wt, { now: (at += 700_000) });
+    fs.writeFileSync(path.join(main, 'f.txt'), 'edited');
+    assert.match(line(), /not moved: it has tracked changes/);
+    git(main, 'checkout', '-q', '--', 'f.txt');
+    fs.writeFileSync(path.join(main, 'two.txt'), 'mine');
+    assert.match(line(), /not moved: origin\/main adds two\.txt, which exists there/);
+    fs.rmSync(path.join(main, 'two.txt'));
+    git(main, 'commit', '-q', '--allow-empty', '-m', 'local');
+    assert.match(line(), /not moved: its HEAD has commits origin\/main lacks/);
+    git(main, 'checkout', '-q', '-B', 'work', 'origin/main~1');
+    assert.match(line(), /not moved: it is on a branch/);
+    assert.notEqual(git(main, 'rev-parse', 'HEAD'), git(main, 'rev-parse', 'origin/main'));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });

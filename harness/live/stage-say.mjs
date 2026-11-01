@@ -12,7 +12,7 @@ import { handoffAdvice } from '../lib/handoffs.mjs';
 import { ideasFilled, IDEATE_ASK } from '../lib/ideas.mjs';
 import { SHOW_OWNER, shipProblem } from '../lib/approval.mjs';
 import { statedLength } from '../media/page-duration.mjs';
-import { staleCheckoutLine } from '../lib/stale-checkout.mjs';
+import { staleCheckoutLine, mainCheckoutLine } from '../lib/stale-checkout.mjs';
 import { readRuns, appendRun, looksSince, readHookSeen } from '../lib/runlog.mjs';
 import { tasteLines } from '../lib/taste-steps.mjs';
 import { nextOnce, NEXT_UNCHANGED } from '../lib/next-once.mjs';
@@ -201,6 +201,8 @@ function main() {
   const root = process.cwd();
   const stale = staleCheckoutLine(root);
   if (stale) console.log(`vawe: ${stale}`);
+  const mainLine = mainCheckoutLine(root);
+  if (mainLine) console.log(`vawe: ${mainLine}`);
   const page = recentPage(root);
   if (!page) return;
   const s = nextStep(page, root);

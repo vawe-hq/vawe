@@ -77,3 +77,45 @@ function fastForward(git) {
     return true;
   } catch { return false; }
 }
+
+const MOVED_STAMP = path.join('.vawe-data', 'main-moved.json');
+
+/** The main checkout of the repo `root` belongs to (the folder that holds the git common dir), or '' when `root` is it. */
+function mainCheckoutOf(root, git) {
+  const common = git(['rev-parse', '--path-format=absolute', '--git-common-dir']).trim();
+  const main = path.dirname(common);
+  return fs.realpathSync(main) === fs.realpathSync(root) ? '' : main;
+}
+
+/** Why the main checkout stays where it is, or '' when it is safe to move. Reads after `git fetch`, so origin/main is current. */
+function mainStays(main, git) {
+  if (git(['status', '--porcelain', '--untracked-files=no']).trim()) return 'it has tracked changes';
+  try { git(['symbolic-ref', '-q', 'HEAD']); return 'it is on a branch'; } catch { /* detached: the case this moves */ }
+  if (operationInProgress(git(['rev-parse', '--absolute-git-dir']).trim())) return 'a rebase or merge is running in it';
+  if (Number.parseInt(git(['rev-list', '--count', 'origin/main..HEAD']), 10) > 0) return 'its HEAD has commits origin/main lacks';
+  const collides = firstExistingAdd(main, git);
+  return collides ? `origin/main adds ${collides}, which exists there` : '';
+}
+
+/**
+ * Moves the main checkout to origin/main when a session runs in a linked worktree and the main checkout lags: sessions start there, and a
+ * stale one hands every subagent old AGENTS.md text. Tries at most once per 10 minutes. Returns the one line to print, or '' when nothing is due.
+ */
+export function mainCheckoutLine(root, { now = Date.now(), git = gitIn } = {}) {
+  try {
+    const main = mainCheckoutOf(root, git(root));
+    if (!main) return '';
+    const stamp = path.join(main, MOVED_STAMP);
+    if (!fetchDue(readStamp(stamp), now)) return '';
+    fs.mkdirSync(path.dirname(stamp), { recursive: true });
+    fs.writeFileSync(stamp, JSON.stringify({ at: now }));
+    const mg = git(main);
+    const behind = commitsBehind(mg, ['origin/main']);
+    if (!behind) return '';
+    const lag = `the main checkout ${main} is ${behind} commit${behind === 1 ? '' : 's'} behind origin/main`;
+    const why = mainStays(main, mg);
+    if (why) return `${lag} and was not moved: ${why}`;
+    mg(['checkout', '--detach', 'origin/main']);
+    return `${lag}: moved it to origin/main`;
+  } catch { return ''; }
+}
