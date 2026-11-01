@@ -17,6 +17,12 @@ export function filmOfImage(file, root) {
   return filmKeyOf(name.replace(/-frames$/, '').replace(/-sheet$/, ''));
 }
 
+/** The checkout an image belongs to: the path before its last /out/, else the checkout that holds this hook (a worktree's image is logged in the worktree, not where the hook runs). */
+export function rootOfImage(file, fallback) {
+  const at = file.lastIndexOf(`${path.sep}out${path.sep}`);
+  return at > 0 ? file.slice(0, at) : fallback;
+}
+
 function main() {
   let input = '';
   process.stdin.on('data', (d) => { input += d; });
@@ -24,9 +30,8 @@ function main() {
     try {
       const file = JSON.parse(input).tool_input?.file_path;
       if (!file || !IMAGE.test(file)) return;
-      const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-      process.chdir(root);
-      appendRun(filmOfImage(file, root), { cmd: 'read', image: file });
+      const root = rootOfImage(file, path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'));
+      appendRun(filmOfImage(file, root), { cmd: 'read', image: file }, { root });
     } catch { /* a hook never fails the tool call */ }
   });
 }
