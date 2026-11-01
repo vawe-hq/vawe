@@ -15,6 +15,7 @@ import { statedLength } from '../media/page-duration.mjs';
 import { staleCheckoutLine } from '../lib/stale-checkout.mjs';
 import { readRuns, appendRun, looksSince, readHookSeen } from '../lib/runlog.mjs';
 import { tasteLines } from '../lib/taste-steps.mjs';
+import { nextOnce, NEXT_UNCHANGED } from '../lib/next-once.mjs';
 
 export { boardFilled };
 
@@ -203,7 +204,9 @@ function main() {
   const page = recentPage(root);
   if (!page) return;
   const s = nextStep(page, root);
-  console.log([`vawe: ${s.name}: ${s.why}.\n  next: ${s.next}`, ...tasteOnce(s.stage, s.name, root, sessionOf(process.stdin.isTTY ? '' : read(0)))].join('\n'));
+  const sessionId = sessionOf(process.stdin.isTTY ? '' : read(0));
+  const said = nextOnce(s.name, s.next, root, sessionId) === NEXT_UNCHANGED ? `vawe: ${s.name}: ${NEXT_UNCHANGED}` : `vawe: ${s.name}: ${s.why}.\n  next: ${s.next}`;
+  console.log([said, ...tasteOnce(s.stage, s.name, root, sessionId)].join('\n'));
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main();

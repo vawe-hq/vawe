@@ -21,6 +21,7 @@ import { newEvent } from '../harness/lib/run-events.mjs';
 import { doctorHintFromFile } from '../harness/lib/doctor-hint.mjs';
 import { ensureHooks, gitAt } from '../harness/lib/git-hooks.mjs';
 import { renderEnv } from '../harness/lib/page-params.mjs';
+import { nextOnce } from '../harness/lib/next-once.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const MAX_SCAN = 4_000_000;
@@ -85,10 +86,10 @@ async function execute(verb, rest, call) {
   }
   const startedMs = Date.now();
   const unmark = verb.name === 'critique' && call.positional[0] ? markRunning(call.positional[0], verb.name, ROOT) : () => {};
-  try { return await runSteps(verb, values, positional, steps, call, startedMs); } finally { unmark(); }
+  try { return await runSteps(verb, values, positional, steps, call, startedMs, rest); } finally { unmark(); }
 }
 
-async function runSteps(verb, values, positional, steps, call, startedMs) {
+async function runSteps(verb, values, positional, steps, call, startedMs, rest) {
   for (const [i, step] of steps.entries()) {
     if (step.label) console.log(`\n[${verb.name} ${i + 1}/${steps.length}: ${step.label}]`);
     const code = stepCode(await runStep(step, call), call);
@@ -96,7 +97,7 @@ async function runSteps(verb, values, positional, steps, call, startedMs) {
   }
   if (typeof verb.report === 'function') console.log(verb.report(values, positional, startedMs).join('\n'));
   const next = verb.next && !verb.nextInline ? verb.next(values, positional) : null;
-  if (next) console.log(`\nnext: ${next}`);
+  if (next) console.log(`\n${nextOnce(filmOfRun(verb.name, call, rest).film, `next: ${next}`, ROOT, process.env.CLAUDE_CODE_SESSION_ID ?? null)}`);
   return 0;
 }
 
