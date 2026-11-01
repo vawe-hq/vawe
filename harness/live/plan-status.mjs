@@ -57,7 +57,7 @@ function emptySections(brief, early) {
 }
 
 /** What is empty or stale for a page, most costly first: [{ what, fix }]. `early` is true until a draft exists. */
-export function openItems({ rel, brief, design, early, frames, storyboardRan }) {
+export function openItems({ rel, brief, design, early, frames, storyboardRan, looked = null }) {
   if (brief === null) return [{ what: 'brief.md is missing', fix: SKILLS.brief }];
   const items = [];
   const empty = emptySections(brief, early);
@@ -68,6 +68,8 @@ export function openItems({ rel, brief, design, early, frames, storyboardRan }) 
   const rungs = early && taken !== null ? missingRungs(design ?? '') : [];
   if (rungs.length) items.push({ what: `DESIGN.md has no line for ${rungs.join(', ')}`, fix: SKILLS.design });
   if (early && frames !== 'ok') items.push({ what: frames === 'stale' ? 'the frames are older than the page' : 'no frames run', fix: `bin/vawe frames ${rel}` });
+  if (looked?.printed.length && !looked.hook) items.push({ what: 'the log-read hook is not registered, so the strips you Read are not counted', fix: 'harness/README.md "Hooks"' });
+  else if (looked?.unread.length) items.push({ what: `read ${looked.printed.length - looked.unread.length} of ${looked.printed.length} strips of the last draft`, fix: `Read ${looked.unread[0]}` });
   return items;
 }
 
@@ -114,8 +116,8 @@ function pageLines(page, rel) {
  * no finding exists. `findings` are plan finding lines (planLines) and attractor lines; `page` the draft advice the opened page shows
  * (plan-read.mjs), ranked first; `digest` is taste/build/DIGEST.md; `next` is nextStep's command.
  */
-export function planStatusLines({ name, rel, brief, design, early, frames, storyboardRan, findings = [], page = [], digest = '', next }) {
-  const items = openItems({ rel, brief, design, early, frames, storyboardRan });
+export function planStatusLines({ name, rel, brief, design, early, frames, storyboardRan, looked = null, findings = [], page = [], digest = '', next }) {
+  const items = openItems({ rel, brief, design, early, frames, storyboardRan, looked });
   const score = page.map((l) => SCORE.exec(l)?.[1]).find(Boolean);
   const tells = page.filter((l) => !SCORE.test(l));
   if (!items.length && !findings.length && !tells.length) return [];

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import os from 'node:os';
 import { execFileSync } from 'node:child_process';
 
 const RUNS_SUFFIX = '.runs.jsonl';
@@ -83,4 +84,24 @@ export function readAllRuns(dir = 'out') {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir).filter((f) => f.endsWith(RUNS_SUFFIX)).sort()
     .map((f) => ({ film: f.slice(0, -RUNS_SUFFIX.length), runs: parseRuns(fs.readFileSync(path.join(dir, f), 'utf8')) }));
+}
+
+const HOOK_NAME = 'log-read.mjs';
+const settingsFiles = (root, home) => [path.join(root, '.claude', 'settings.json'), path.join(root, '.claude', 'settings.local.json'), path.join(home, '.claude', 'settings.json')];
+
+/** True when the log-read hook has left a read event in any film's log, or a settings file names it: false means the hook is missing, not that nothing was looked at. */
+export function readHookSeen(root = '.', home = os.homedir()) {
+  if (readAllRuns(path.join(root, 'out')).some((f) => f.runs.some((r) => r.cmd === 'read'))) return true;
+  return settingsFiles(root, home).some((f) => { try { return fs.readFileSync(f, 'utf8').includes(HOOK_NAME); } catch { return false; } });
+}
+
+/** The images a film's `verb` calls printed since `sinceMs` and which of them no Read event (in any film's log: a custom --out folder files its reads under another name) has opened since: { printed, unread }, absolute paths. */
+export function looksSince(film, verb, sinceMs, root = '.') {
+  const abs = (p) => path.resolve(root, p);
+  const printed = [...new Set(readRuns(film, root)
+    .filter((r) => r.cmd === 'verb' && r.verb === verb && r.exitCode === 0 && Date.parse(r.start ?? r.at) > sinceMs)
+    .flatMap((r) => r.images ?? []).map(abs))];
+  const opened = new Set(readAllRuns(path.join(root, 'out'))
+    .flatMap((f) => f.runs).filter((r) => r.cmd === 'read' && Date.parse(r.at) >= sinceMs).map((r) => abs(r.image)));
+  return { printed, unread: printed.filter((p) => !opened.has(p)) };
 }

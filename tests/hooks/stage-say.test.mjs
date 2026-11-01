@@ -5,7 +5,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { writeApproval } from '../../harness/lib/approval.mjs';
-import { FILM_PAGE, SAY, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
+import { appendRun, readRuns } from '../../harness/lib/runlog.mjs';
+import { FILM_PAGE, SAY, tasteOnce, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
+
+process.env.HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-home-'));
 
 const IDEAS = '## Ideas\n\n| at | meaning | i1 | i2 | i3 | i4 | chosen | why |\n|---|---|---|---|---|---|---|---|\n| s1 | m | a: x, 0.1 | b: y, 0.2 | c: z, 0.3 | d: w, 0.4 | 1 | because |\n\n';
 
@@ -216,4 +219,56 @@ test('a test page under a film folder is not a film', () => {
   assert.ok(FILM_PAGE.test('films/examples/colour-sting/page.html'));
   assert.ok(!FILM_PAGE.test('films/riso-brand/variations/bleed/page.html'));
   assert.ok(!FILM_PAGE.test('films/riso-brand/kit/page.html'));
+});
+
+function drafted(brief) {
+  const { root, page } = film('<section data-world="s1"></section>', brief);
+  const draft = path.join(root, 'out', 'f-draft.mp4');
+  fs.writeFileSync(draft, '');
+  const at = new Date(Date.now() - 30000);
+  fs.utimesSync(draft, at, at);
+  return { root, page, drafted: at.getTime() };
+}
+
+test('a draft made with an empty Ideas or Board sends the agent back to that stage, as advice', () => {
+  const emptyBoard = '## Board\n\n| beat | in s |\n|---|---|\n| [s1] | [0] |\n';
+  const { root, page } = drafted(`${IDEAS.replace('| s1 | m | a: x, 0.1 | b: y, 0.2 | c: z, 0.3 | d: w, 0.4 | 1 | because |', '| [s1] | [m] | [a] | [b] | [c] | [d] | [n] | [because] |')}${emptyBoard}`);
+  const s = nextStep(page, root);
+  assert.equal(s.stage, 'ideas');
+  assert.match(s.why, /draft was made without a plan/);
+  fs.writeFileSync(path.join(root, 'films', 'f', 'brief.md'), IDEAS + emptyBoard);
+  assert.equal(nextStep(page, root).stage, 'board');
+  fs.writeFileSync(path.join(root, 'films', 'f', 'brief.md'), `${IDEAS}## Board\n\n| beat | in s |\n|---|---|\n| s1 | 0 |\n`);
+  assert.equal(nextStep(page, root).stage, 'motion');
+});
+
+test('strips rendered but not Read: the motion stage names the first unread strip; Read strips move on', () => {
+  const { root, page, drafted: at } = drafted('## Look\n');
+  const strips = ['a', 'b'].map((n) => path.join(root, 'out', 'strip', 'f', `${n}.png`));
+  fs.mkdirSync(path.join(root, 'out', 'strip', 'f'), { recursive: true });
+  const call = { cmd: 'verb', verb: 'strip', exitCode: 0, start: new Date(at + 1000).toISOString(), images: strips };
+  fs.writeFileSync(path.join(root, 'out', 'f.runs.jsonl'), `${JSON.stringify(call)}\n${JSON.stringify({ cmd: 'read', image: strips[0], at: new Date(at + 2000).toISOString() })}\n`);
+  const s = nextStep(page, root);
+  assert.equal(s.stage, 'motion');
+  assert.equal(s.next, `Read the 2 cut strips of this draft (1 of 2 read): ${strips[1]}`);
+  fs.appendFileSync(path.join(root, 'out', 'f.runs.jsonl'), `${JSON.stringify({ cmd: 'read', image: strips[1], at: new Date(at + 3000).toISOString() })}\n`);
+  assert.equal(nextStep(page, root).stage, 'critique');
+});
+
+test('with no read event anywhere the hook is missing: the agent is not nagged to Read', () => {
+  const { root, page, drafted: at } = drafted('## Look\n');
+  fs.mkdirSync(path.join(root, 'out', 'strip', 'f'), { recursive: true });
+  const call = { cmd: 'verb', verb: 'strip', exitCode: 0, start: new Date(at + 1000).toISOString(), images: [path.join(root, 'out', 'strip', 'f', 'a.png')] };
+  fs.writeFileSync(path.join(root, 'out', 'f.runs.jsonl'), `${JSON.stringify(call)}\n`);
+  assert.equal(nextStep(page, root).stage, 'critique');
+});
+
+test('the taste lines of a stage print the first time only, and a stage with no step prints none', () => {
+  const { root } = film('<p>x</p>');
+  const first = tasteOnce('motion', 'f', root);
+  assert.match(first[0], /^taste, /);
+  assert.deepEqual(tasteOnce('motion', 'f', root), []);
+  assert.ok(tasteOnce('states', 'f', root).length > 0);
+  assert.deepEqual(tasteOnce('critique', 'f', root), []);
+  assert.equal(readRuns('f', root).filter((r) => r.cmd === 'taste-shown').length, 2);
 });

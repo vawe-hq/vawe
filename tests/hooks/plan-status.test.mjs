@@ -69,9 +69,9 @@ test('a full film is quiet', () => {
 test('after a draft the pre-draft items are dropped and an empty Board still warns', () => {
   const f = film({ brief: TAKEN + IDEAS + BOARD_EMPTY });
   fs.writeFileSync(path.join(f.root, 'out', 'f-draft.mp4'), '');
-  const text = status(f).join('\n');
-  assert.match(text, /brief\.md sections empty: Board/);
-  assert.doesNotMatch(text, /storyboard|frames|DESIGN/);
+  const lines = status(f);
+  assert.match(lines.join('\n'), /brief\.md sections empty: Board/);
+  assert.doesNotMatch(lines.filter((l) => !l.startsWith('next:')).join('\n'), /storyboard|frames|DESIGN/);
 });
 
 test('the block is capped: many open items and findings stay inside 8 lines and count the rest', () => {
@@ -127,4 +127,14 @@ test('dev-warn prints the status on a real page and exits 0', () => {
   const r = spawnSync(process.execPath, [path.resolve('harness/live/dev-warn.mjs'), 'films/examples/colour-sting/page.html'], { encoding: 'utf8' });
   assert.equal(r.status, 0);
   assert.ok(r.stdout.trim().split('\n').length <= STATUS_MAX_LINES);
+});
+
+test('a draft with unread strips adds one "read M of N strips" item; with no read hook it says so instead', () => {
+  const looked = { printed: ['/o/a.png', '/o/b.png', '/o/c.png'], unread: ['/o/b.png', '/o/c.png'], hook: true };
+  const base = { name: 'f', rel: 'films/f/page.html', brief: IDEAS + BOARD, design: '', early: false, frames: 'ok', storyboardRan: true, next: 'x' };
+  const lines = planStatusLines({ ...base, looked });
+  assert.ok(lines.some((l) => l.includes('read 1 of 3 strips of the last draft: Read /o/b.png')), lines.join('\n'));
+  const nohook = planStatusLines({ ...base, looked: { ...looked, hook: false } });
+  assert.ok(nohook.some((l) => l.includes('log-read hook is not registered') && l.includes('harness/README.md "Hooks"')), nohook.join('\n'));
+  assert.deepEqual(planStatusLines({ ...base, looked: { ...looked, unread: [] } }), []);
 });

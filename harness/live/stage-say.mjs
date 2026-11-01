@@ -13,6 +13,8 @@ import { ideasFilled, IDEATE_ASK } from '../lib/ideas.mjs';
 import { SHOW_OWNER, shipProblem } from '../lib/approval.mjs';
 import { statedLength } from '../media/page-duration.mjs';
 import { staleCheckoutLine } from '../lib/stale-checkout.mjs';
+import { readRuns, appendRun, looksSince, readHookSeen } from '../lib/runlog.mjs';
+import { tasteLines } from '../lib/taste-steps.mjs';
 
 export { boardFilled };
 
@@ -151,8 +153,18 @@ export function nextStep(page, root = process.cwd()) {
   if (boardAdvice.length) {
     return { name, stage: 'board', next: `check "Board" in films/${name}/brief.md (advice; a plan you keep on purpose needs no change), then ${SAY.dev(name, rel)}`, why: boardAdvice.map((l) => l.replace(/^board: /, '')).join('; ') };
   }
+  if (draft && final < t && (ideasFilled(brief) === false || boardFilled(brief) === false)) {
+    return ideasFilled(brief) === false
+      ? { name, stage: 'ideas', next: SAY.ideas(name, rel), why: 'the draft was made without a plan: the Ideas ledger is empty; fill it, then the board, before the next draft' }
+      : { name, stage: 'board', next: SAY.board(name, rel), why: 'the draft was made without a plan: the Board is empty; fill it before the next draft' };
+  }
   if (draft < t && final < t) return { name, stage: 'draft', next: SAY.dev(name, rel), why: 'the page changed after its last draft' };
   if (final < t && !stripped) return { name, stage: 'motion', next: SAY.motion(name, rel), why: 'a draft exists; the motion pass comes before the critique (dev: overshoot-share, live-hold and seam-variety clean or waived with a reason)' };
+  const looks = final < t ? looksSince(name, 'strip', draft, root) : { printed: [], unread: [] };
+  if (looks.unread.length && readHookSeen(root)) {
+    const n = looks.printed.length;
+    return { name, stage: 'motion', next: `Read the ${n} cut strips of this draft (${n - looks.unread.length} of ${n} read): ${looks.unread[0]}`, why: 'the strips are rendered; the motion pass starts with looking at them' };
+  }
   if (final < t && motionFilled(brief) === false) return { name, stage: 'motion', next: SAY.motionRows(name), why: 'the cuts are stripped; the Motion pass section is empty' };
   if (final < t && !verbRanSince(runsOf(root, name), 'critique', draft)) {
     return { name, stage: 'critique', next: SAY.critique(name, rel), why: `the motion pass is done; critique the draft in a fresh session, fix the named seconds, then bin/vawe ship; ${CRITIQUE_ASK}` };
@@ -168,6 +180,16 @@ export function recentPage(root) {
   return recent.length ? recent[0].p : null;
 }
 
+const STAGE_STEP = { states: 'frames', board: 'storyboard', motion: 'motion' };
+
+/** The rule lines of the stage's taste step the first time the film's stage is named; [] after that, or for a stage with no step. */
+export function tasteOnce(stage, name, root) {
+  const step = STAGE_STEP[stage];
+  if (!step || readRuns(name, root).some((r) => r.cmd === 'taste-shown' && r.stage === stage)) return [];
+  appendRun(name, { cmd: 'taste-shown', stage }, { root });
+  return tasteLines(step);
+}
+
 function main() {
   if (process.argv.includes('--reset')) return;
   const root = process.cwd();
@@ -176,7 +198,7 @@ function main() {
   const page = recentPage(root);
   if (!page) return;
   const s = nextStep(page, root);
-  console.log(`vawe: ${s.name}: ${s.why}.\n  next: ${s.next}`);
+  console.log([`vawe: ${s.name}: ${s.why}.\n  next: ${s.next}`, ...tasteOnce(s.stage, s.name, root)].join('\n'));
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main();

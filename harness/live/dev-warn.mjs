@@ -11,7 +11,7 @@ import { attractorProblems } from '../lib/directions.mjs';
 import { pageAuthoring } from '../lib/motion-stamp.mjs';
 import { ideasFilled } from '../lib/ideas.mjs';
 import { statedLength } from '../media/page-duration.mjs';
-import { readRuns } from '../lib/runlog.mjs';
+import { readRuns, looksSince, readHookSeen } from '../lib/runlog.mjs';
 import { isClipDemo } from '../lib/clip-demo.mjs';
 import { nextStep } from './stage-say.mjs';
 import { planStatusLines } from './plan-status.mjs';
@@ -35,8 +35,10 @@ export function readPlanState(pagePath, root = ROOT, opened = null) {
   const covered = ideasFilled(brief ?? '') === false ? 'ideas-missing' : null;
   const findings = [...(brief === null ? [] : attractorProblems(brief)), ...planLines(found.filter((f) => f.code !== covered), root)];
   const step = nextStep(abs, root);
+  const draft = mtime(path.join(root, 'out', `${name}-draft.mp4`));
+  const looked = draft ? { ...looksSince(name, 'strip', draft, root), hook: readHookSeen(root) } : null;
   return {
-    name, rel, brief, findings, page: opened?.advice ?? [],
+    name, rel, brief, findings, looked, page: opened?.advice ?? [],
     design: read(path.join(path.dirname(abs), 'DESIGN.md')),
     early: !mtime(path.join(root, 'out', `${name}-draft.mp4`)) && !mtime(path.join(root, 'out', `${name}.mp4`)),
     frames: !frames ? 'none' : frames < mtime(abs) ? 'stale' : 'ok',
