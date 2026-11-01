@@ -16,10 +16,21 @@ test('a marked critique shows as running for its film until it is cleared', () =
   assert.deepEqual(runningVerbs('riso', root), []);
 });
 
+test('two critiques of one film keep their own markers, and an old marker is ignored', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wait-critique-'));
+  const a = markRunning('riso', 'critique', root);
+  const b = markRunning('riso', 'critique', root);
+  assert.equal(runningVerbs('riso', root).length, 2);
+  a();
+  assert.equal(runningVerbs('riso', root).length, 1);
+  assert.deepEqual(runningVerbs('riso', root, Date.now() + 31 * 60 * 1000), []);
+  b();
+});
+
 test('a marker whose process is dead is ignored', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wait-critique-'));
   fs.mkdirSync(path.join(root, 'out'));
-  fs.writeFileSync(path.join(root, 'out', 'riso.running.json'), JSON.stringify({ pid: 2 ** 22 + 1, kind: 'critique', who: 'riso', start: new Date().toISOString() }));
+  fs.writeFileSync(path.join(root, 'out', 'riso.running-1-1.json'), JSON.stringify({ pid: 2 ** 22 + 1, kind: 'critique', who: 'riso', start: new Date().toISOString() }));
   assert.deepEqual(runningVerbs('riso', root), []);
 });
 

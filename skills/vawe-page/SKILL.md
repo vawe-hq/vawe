@@ -86,6 +86,7 @@ early, and the motion reads jerky. Use the After Effects eases in `EASE` (`core/
 camera move) are in the table in `taste/craft/motion-craft.md`. Each is an exact CSS `linear()` easing,
 and plain CSS reads it as `var(--ease-land)`, `var(--ease-launch)` (the renderer sets them on `:root`);
 in `window.seek` or `vawe.onFrame` code use `easeFn(name)`, a function of 0..1. Multi-key motion: `keys()`.
+Under `vawe.layoutSeek` (the measure and layout probes) skip only canvas painting in `window.seek` and `vawe.onFrame`; still set every element's position, size and text, since the probes read the DOM.
 
 ```js
 import { EASE } from '../../core/motion/presets.js';

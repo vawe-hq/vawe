@@ -388,7 +388,11 @@ async function main() {
   const page = argv.find((a, i) => !a.startsWith('--') && !(argv[i - 1] || '').startsWith('--'));
   if (!page || !fs.existsSync(page)) die('usage: node harness/media/render-spec.mjs <page.html> [--out dir] [--aspect 16:9]');
   const outDir = path.resolve(flag('--out', scratch('render-spec', path.basename(path.dirname(path.resolve(page))))));
-  const spec = await renderSpec({ page: path.resolve(page), outDir, aspect: flag('--aspect', undefined) });
+  let spec;
+  try { spec = await renderSpec({ page: path.resolve(page), outDir, aspect: flag('--aspect', undefined) }); } catch (e) {
+    if (e instanceof MeasureTimeout) die(`measure ${e.message}: raise the limit with VAWE_MEASURE_TIMEOUT=<seconds>`);
+    throw e;
+  }
   console.log(`✓ render-spec: ${spec.shots.length} shot(s), ${spec.cuts.length} cut(s) -> ${path.join(outDir, 'render-spec.json')}`);
 }
 

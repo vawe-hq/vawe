@@ -6,7 +6,7 @@ import { bucketMean, computeEnergy, describeRatio, die, edgeMean, findHolds, HOL
 import { renderGrids } from './ocr.mjs';
 import { runWordEventCompare } from './words.mjs';
 import { compareFrames } from '../compare-frames.mjs';
-import { lastDraft } from '../../lib/runlog.mjs';
+import { approveProblem, fullDraftPath } from '../../lib/approval.mjs';
 
 
 // ── --shot <from>-<to>: a dense strip of ONE window, plus its motion curve ──────────────────────────
@@ -311,10 +311,18 @@ export async function referenceSpec(refPath, outDirRoot, fps) {
   return refSpec({ video: path.resolve(refPath), outDir: dir, fps, ocr });
 }
 
-// The page's last full draft when it is newer than the page and as long as the page: the critique renders it first, so a second render adds minutes and no information.
-export function reusableDraft(htmlPath, pageDur, fps, draft = lastDraft(htmlPath)) {
-  if (!draft || fs.statSync(draft).mtimeMs < fs.statSync(htmlPath).mtimeMs) return null;
-  return probeVideo(draft).dur >= pageDur - 2 / fps ? draft : null;
+const hasAudioStream = (video) => spawnSync('ffprobe', ['-v', 'error', '-select_streams', 'a:0', '-show_entries', 'stream=codec_type', '-of', 'csv=p=0', video], { encoding: 'utf8' }).stdout.trim() !== '';
+
+// The page's full draft (fullDraftPath: the default aspect and the current params) when approval.mjs finds it newer than the page and every file it names,
+// as long as the page, at the page's fps and aspect, and with sound when the page has audio tags. The critique renders it first, so a second render adds minutes and no information.
+export function reusableDraft(htmlPath, pageDur, fps, aspect, root = '.') {
+  if (approveProblem(htmlPath, { root })) return null;
+  const draft = fullDraftPath(htmlPath, root);
+  const { dur, fps: draftFps, width, height } = probeVideo(draft);
+  const [aw, ah] = aspect.split(':').map(Number);
+  const fits = dur >= pageDur - 2 / fps && Math.abs(draftFps - fps) < 0.5 && Math.abs(width / height - aw / ah) < 0.02;
+  if (!fits) return null;
+  return /<audio\b/i.test(fs.readFileSync(htmlPath, 'utf8')) && !hasAudioStream(draft) ? null : draft;
 }
 
 // Otherwise the page rendered at the reference's pixel size when the aspects agree, so both mp4s go through the same decode.
@@ -322,7 +330,7 @@ export async function pageSpec(htmlPath, refSpecOut, outDirRoot, fps) {
   const { renderPage, readPageMeta } = await import('../render-page.mjs');
   const { refSpec } = await import('../ref-spec.mjs');
   const { resolveDuration } = await import('../page-duration.mjs');
-  const draft = reusableDraft(htmlPath, await resolveDuration(htmlPath), fps);
+  const draft = reusableDraft(htmlPath, await resolveDuration(htmlPath), fps, readPageMeta(htmlPath, 'aspect') || '16:9');
   if (draft) {
     console.log(`  measuring the draft ${path.relative(process.cwd(), draft)}, not rendering the page again`);
     return { mp4: draft, spec: await refSpec({ video: path.resolve(draft), outDir: path.join(outDirRoot, 'page-spec'), fps, ocr: refSpecOut.ocr }) };

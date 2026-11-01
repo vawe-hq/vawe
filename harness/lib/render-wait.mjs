@@ -9,12 +9,13 @@ export const WAIT_CAP_DEFAULT_MS = 210_000;
 const POLL_MS = 1000;
 const SETTLE_MS = 60_000;
 
-const markerFile = (film, root) => path.join(root, 'out', `${filmKeyOf(film)}.running.json`);
+const MARKER_MAX_AGE_MS = 30 * 60 * 1000;
+const markerPrefix = (film) => `${filmKeyOf(film)}.running-`;
 const pidAlive = (pid) => { try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; } };
 
-/** Records that `verb` runs for `film` (a critique holds no render slot for minutes); returns the function that clears it. The file also goes when the process exits. */
+/** Records that `verb` runs for `film` (a critique holds no render slot for minutes); returns the function that clears this run's marker. The file also goes when the process exits. */
 export function markRunning(film, verb, root = '.') {
-  const file = markerFile(film, root);
+  const file = path.join(root, 'out', `${markerPrefix(film)}${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, JSON.stringify({ pid: process.pid, kind: verb, who: filmKeyOf(film), start: new Date().toISOString() }));
   const clear = () => fs.rmSync(file, { force: true });
@@ -22,12 +23,18 @@ export function markRunning(film, verb, root = '.') {
   return () => { process.off('exit', clear); clear(); };
 }
 
-/** The verb marked as running for `film` whose process is alive, as a slot-shaped row, else none. */
-export function runningVerbs(film, root = '.') {
-  try {
-    const m = JSON.parse(fs.readFileSync(markerFile(film, root), 'utf8'));
-    return pidAlive(m.pid) ? [m] : [];
-  } catch { return []; }
+/** The verbs marked as running for `film` whose process is alive and whose marker is under 30 minutes old (a reused pid cannot hold a wait for ever), as slot-shaped rows. */
+export function runningVerbs(film, root = '.', now = Date.now()) {
+  const dir = path.join(root, 'out');
+  if (!fs.existsSync(dir)) return [];
+  const rows = [];
+  for (const name of fs.readdirSync(dir).filter((n) => n.startsWith(markerPrefix(film)) && n.endsWith('.json'))) {
+    try {
+      const m = JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8'));
+      if (pidAlive(m.pid) && now - Date.parse(m.start) < MARKER_MAX_AGE_MS) rows.push(m);
+    } catch { /* a marker being written or removed */ }
+  }
+  return rows;
 }
 
 /** The slots held for `film` (a page path, an mp4 path or a film name). */

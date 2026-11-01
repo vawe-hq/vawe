@@ -40,8 +40,11 @@ const inputs = {
   images: freshImages(scratch('see', film), Number(arg('--since') || 0)),
 };
 const draftMp4 = inputs.mp4;
-const stripDir = path.resolve('out', 'strip', film);
-if (draftMp4 && !pngsSince(stripDir, draftMp4).length) spawnSync('node', [path.join(repoRoot, 'harness/media/see.mjs'), page, '--cuts'], { encoding: 'utf8' });
+const stripDir = path.resolve('out', 'strip', film, 'cuts');
+if (draftMp4 && !pngsSince(stripDir, draftMp4).length) {
+  const cuts = spawnSync('node', [path.join(repoRoot, 'harness/media/see.mjs'), page, '--cuts', '--out', stripDir], { encoding: 'utf8', timeout: 120_000 });
+  if (cuts.status !== 0) console.error(`vawe critique --fresh: the cut strips were not written (${cuts.error ? cuts.error.message : `exit ${cuts.status}`}); the critic gets the other views`);
+}
 const sheet = draftMp4 ? draftMp4.replace(/\.mp4$/, '.png') : null;
 if (sheet && !(fs.existsSync(sheet) && fs.statSync(sheet).mtimeMs >= fs.statSync(draftMp4).mtimeMs)) {
   try { writeDraftSheet({ video: draftMp4, out: sheet, fps: 30 }); } catch { /* the critic still gets the other views */ }

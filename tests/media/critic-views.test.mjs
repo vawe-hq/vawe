@@ -24,3 +24,11 @@ test('pngsSince is empty without a draft', () => {
   assert.deepEqual(pngsSince(os.tmpdir(), null), []);
   assert.deepEqual(pngsSince(os.tmpdir(), '/no/such/draft.mp4'), []);
 });
+
+test('pngsSince orders strips by film second, not by path', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'critic-views-'));
+  const mp4 = path.join(dir, 'film-draft.mp4');
+  touch(mp4, 100);
+  for (const s of ['10.5-12.5', '2-4', '9-11']) { fs.mkdirSync(path.join(dir, `shot-${s}`)); touch(path.join(dir, `shot-${s}`, 'grid-01.png'), 10); }
+  assert.deepEqual(pngsSince(dir, mp4).map((f) => path.basename(path.dirname(f))), ['shot-2-4', 'shot-9-11', 'shot-10.5-12.5']);
+});

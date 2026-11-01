@@ -52,11 +52,12 @@ export function freshImages(dir, sinceMs) {
 
 export const MAX_CUT_STRIPS = 8;
 
-/** The pngs of `dir` written at or after the draft `mp4`, sorted and capped at `cap`. Empty when the draft is missing. */
+/** The pngs of `dir` written at or after the draft `mp4`, in film-second order of their shot-<from>-<to> folder, capped at `cap`. Empty when the draft is missing. */
 export function pngsSince(dir, mp4, cap = MAX_CUT_STRIPS) {
   if (!mp4 || !fs.existsSync(mp4)) return [];
   const since = fs.statSync(mp4).mtimeMs;
-  return freshImages(dir, since).filter((f) => f.endsWith('.png')).slice(0, cap);
+  const second = (f) => Number(/shot-([\d.]+)-/.exec(f)?.[1] ?? 0);
+  return freshImages(dir, since).filter((f) => f.endsWith('.png')).sort((a, b) => second(a) - second(b) || a.localeCompare(b)).slice(0, cap);
 }
 
 export function summaryLines(records, images) {

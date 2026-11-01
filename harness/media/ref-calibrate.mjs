@@ -165,8 +165,12 @@ async function measure(name, mp4, page) {
   if (name === 'layout-grid') return { samples: [...layoutSamples(spec), ...paletteSamples(name, spec)], hits: [] };
   if (name === 'transitions') return transitionSamples(spec);
   if (name === 'audio-click') return { samples: audioSamples(spec), hits: [] };
-  const { measurePage } = await import('./render-spec.mjs');
-  return textSamples(name, spec, await measurePage(page));
+  const { measurePage, MeasureTimeout } = await import('./render-spec.mjs');
+  try { return textSamples(name, spec, await measurePage(page)); } catch (e) {
+    if (!(e instanceof MeasureTimeout)) throw e;
+    console.error(`✗ measure ${e.message}: raise the limit with VAWE_MEASURE_TIMEOUT=<seconds>`);
+    process.exit(2);
+  }
 }
 
 const quantile = (a, q) => [...a].sort((x, y) => x - y)[Math.min(a.length - 1, Math.floor(q * a.length))];

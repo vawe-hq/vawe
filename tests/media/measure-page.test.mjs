@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { measurePage, MeasureTimeout, measureLimitS } from '../../harness/media/render-spec.mjs';
 import { reusableDraft } from '../../harness/media/see/compare.mjs';
 
@@ -32,22 +32,40 @@ test('measureLimitS reads VAWE_MEASURE_TIMEOUT and defaults to 300', () => {
   assert.equal(measureLimitS({ VAWE_MEASURE_TIMEOUT: '45' }), 45);
 });
 
-test('reusableDraft takes a draft newer than the page and as long as the page, and nothing else', () => {
-  const dir = tmp();
+test('reusableDraft reuses only a fresh, full, same-fps, same-aspect, sounding draft of the page and its kit files', () => {
+  const root = tmp();
+  const dir = path.join(root, 'films', 'demo');
+  fs.mkdirSync(path.join(dir, 'kit'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'out'));
   const page = path.join(dir, 'page.html');
-  fs.writeFileSync(page, PAGE);
-  const make = (name, d) => {
-    const f = path.join(dir, name);
-    execFileSync('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-f', 'lavfi', '-i', `testsrc=s=160x90:d=${d}:r=10`, '-pix_fmt', 'yuv420p', f]);
-    return f;
-  };
-  const full = make('full.mp4', 1), short = make('short.mp4', 0.5);
+  fs.writeFileSync(page, PAGE.replace('<body>', '<body><link rel="stylesheet" href="kit/a.css">'));
+  fs.writeFileSync(path.join(dir, 'kit', 'a.css'), 'body{}');
+  const draft = path.join(root, 'out', 'demo-draft.mp4');
+  const make = (d, r = 30, extra = []) => execFileSync('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-f', 'lavfi', '-i', `testsrc=s=160x90:d=${d}:r=${r}`, ...extra, '-pix_fmt', 'yuv420p', draft]);
   const old = new Date(Date.now() - 60000);
+  for (const f of [page, path.join(dir, 'kit', 'a.css')]) fs.utimesSync(f, old, old);
+  make(1);
+  assert.equal(reusableDraft(page, 1, 30, '16:9', root), draft);
+  make(0.5);
+  assert.equal(reusableDraft(page, 1, 30, '16:9', root), null, 'a range draft is too short');
+  make(1, 24);
+  assert.equal(reusableDraft(page, 1, 30, '16:9', root), null, 'a draft at another fps');
+  make(1);
+  assert.equal(reusableDraft(page, 1, 30, '9:16', root), null, 'a draft of another aspect');
+  fs.writeFileSync(page, fs.readFileSync(page, 'utf8').replace('<body>', '<body><audio src="x.wav"></audio>'));
   fs.utimesSync(page, old, old);
-  assert.equal(reusableDraft(page, 1, 10, full), full);
-  assert.equal(reusableDraft(page, 1, 10, short), null);
-  assert.equal(reusableDraft(page, 1, 10, null), null);
-  fs.utimesSync(full, old, old);
-  fs.utimesSync(page, new Date(), new Date());
-  assert.equal(reusableDraft(page, 1, 10, full), null);
+  assert.equal(reusableDraft(page, 1, 30, '16:9', root), null, 'a silent draft of a page with audio');
+  fs.writeFileSync(page, PAGE.replace('<body>', '<body><link rel="stylesheet" href="kit/a.css">'));
+  fs.utimesSync(page, old, old);
+  fs.writeFileSync(path.join(dir, 'kit', 'a.css'), 'body{color:red}');
+  assert.equal(reusableDraft(page, 1, 30, '16:9', root), null, 'a kit file edited after the draft');
+});
+
+test('the render-spec CLI reports a measure timeout in one line, no stack', () => {
+  const page = path.join(tmp(), 'page.html');
+  fs.writeFileSync(page, PAGE);
+  const r = spawnSync('node', [path.resolve('harness/media/render-spec.mjs'), page, '--out', path.join(path.dirname(page), 'o')], { encoding: 'utf8', env: { ...process.env, VAWE_MEASURE_TIMEOUT: '0.001' } });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /measure stopped at frame \d+ of 10 after 0\.001 s: raise the limit with VAWE_MEASURE_TIMEOUT/);
+  assert.doesNotMatch(r.stderr, /\n\s+at /);
 });
