@@ -9,6 +9,7 @@ import { isUrl } from '../harness/lib/url.mjs';
 import { closest, parseArgs, topHelp, UsageError, verbHelp } from '../harness/cli/parse.mjs';
 import { VERBS, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
 import { newFilm, newFilmLines, readDetails, questionsJson } from '../harness/cli/new.mjs';
+import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
 import { pageDigest } from '../harness/lib/approval.mjs';
 import { verbEvent, footerLine, filmOfCall, imagesIn, reasonOf, readNotes, causeOf, refusalOf, UNFILED } from '../harness/lib/verb-log.mjs';
@@ -83,6 +84,11 @@ async function execute(verb, rest, call) {
     return 0;
   }
   const startedMs = Date.now();
+  const unmark = verb.name === 'critique' && call.positional[0] ? markRunning(call.positional[0], verb.name, ROOT) : () => {};
+  try { return await runSteps(verb, values, positional, steps, call, startedMs); } finally { unmark(); }
+}
+
+async function runSteps(verb, values, positional, steps, call, startedMs) {
   for (const [i, step] of steps.entries()) {
     if (step.label) console.log(`\n[${verb.name} ${i + 1}/${steps.length}: ${step.label}]`);
     const code = stepCode(await runStep(step, call), call);

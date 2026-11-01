@@ -257,7 +257,7 @@ export const VERBS = [
   },
   {
     tier: 'core',
-    name: 'wait', summary: 'use when a draft, clip or final render is running, instead of sleep, ps or an until loop: waits for it and prints its result line; exit 1 when it failed',
+    name: 'wait', summary: 'use when a draft, clip or final render or a critique is running, instead of sleep, ps or an until loop: waits for it and prints its result line; exit 1 when it failed',
     positional: [{ name: 'page|film', required: true, help: 'films/<name>/page.html, or the film name; a call returns after about 3.5 minutes with a STILL RUNNING line and a progress line a minute: call it again' }],
     flags: [],
     example: 'vawe wait films/my-launch/page.html   |   vawe wait my-launch',

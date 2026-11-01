@@ -1,4 +1,6 @@
 // `vawe wait`: block until the render slot of a film is free, then read the result of its verb. A ship job is waited on by ship-job.mjs.
+import fs from 'node:fs';
+import path from 'node:path';
 import { slotsInUse } from './render-slots.mjs';
 import { readRuns, filmKeyOf } from './runlog.mjs';
 import { footerLine } from './verb-log.mjs';
@@ -7,13 +9,34 @@ export const WAIT_CAP_DEFAULT_MS = 210_000;
 const POLL_MS = 1000;
 const SETTLE_MS = 60_000;
 
+const markerFile = (film, root) => path.join(root, 'out', `${filmKeyOf(film)}.running.json`);
+const pidAlive = (pid) => { try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; } };
+
+/** Records that `verb` runs for `film` (a critique holds no render slot for minutes); returns the function that clears it. The file also goes when the process exits. */
+export function markRunning(film, verb, root = '.') {
+  const file = markerFile(film, root);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify({ pid: process.pid, kind: verb, who: filmKeyOf(film), start: new Date().toISOString() }));
+  const clear = () => fs.rmSync(file, { force: true });
+  process.on('exit', clear);
+  return () => { process.off('exit', clear); clear(); };
+}
+
+/** The verb marked as running for `film` whose process is alive, as a slot-shaped row, else none. */
+export function runningVerbs(film, root = '.') {
+  try {
+    const m = JSON.parse(fs.readFileSync(markerFile(film, root), 'utf8'));
+    return pidAlive(m.pid) ? [m] : [];
+  } catch { return []; }
+}
+
 /** The slots held for `film` (a page path, an mp4 path or a film name). */
 export const slotsOfFilm = (film, slots) => slots.filter((s) => s.who === filmKeyOf(film));
 
 /** One progress line for the slots a film holds. */
 export const waitingLine = (film, held, now) => {
   const age = Math.max(0, Math.round((now - Math.min(...held.map((s) => Date.parse(s.start)))) / 1000));
-  return `vawe wait: ${filmKeyOf(film)} has a ${held.map((s) => s.kind).join(' and ')} render running, ${age}s in`;
+  return `vawe wait: ${filmKeyOf(film)} has ${held.map((s) => (/^(draft|final|clip)$/.test(s.kind) ? `a ${s.kind} render` : `a ${s.kind}`)).join(' and ')} running, ${age}s in`;
 };
 
 /** The one command that waits for a render of `page`: named while a render of its film holds a slot, else null. */
@@ -34,7 +57,7 @@ const newestAt = (runs) => runs.filter(isResult).pop()?.at ?? '';
  * Waits up to `capMs` for the film's render slots to free, one progress line per `progressMs`, then up to SETTLE_MS for the verb that
  * held them to log its result (dev runs a directions check after the render). Resolves { running, result }.
  */
-export async function waitForFilm(film, { capMs, progressMs, slots = () => slotsInUse(), runs = () => readRuns(film), now = Date.now, sleep = (ms) => new Promise((r) => setTimeout(r, ms)), log = console.log } = {}) {
+export async function waitForFilm(film, { capMs, progressMs, slots = () => [...slotsInUse(), ...runningVerbs(film)], runs = () => readRuns(film), now = Date.now, sleep = (ms) => new Promise((r) => setTimeout(r, ms)), log = console.log } = {}) {
   const since = newestAt(runs());
   const until = now() + capMs;
   let nextProgress = now() + progressMs;
