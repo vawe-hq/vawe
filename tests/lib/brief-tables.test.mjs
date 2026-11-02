@@ -58,3 +58,10 @@ test('a cell spec-sync marked with * still reads as its number', () => {
   assert.equal(numberOf('1.2 s*'), 1.2);
   assert.equal(numberOf('14%'), 14);
 });
+
+test('columnIndex: a header that misses a required column is read by position, not as empty cells', async () => {
+  const { columnIndex } = await import('../../harness/lib/brief-tables.mjs');
+  assert.equal(columnIndex('Words', ['text', 'shot', 'appear s', 'settle s']).cap, 4);
+  assert.equal(columnIndex('Words', ['text', 'shot', 'appear s', 'settle s', 'cap %', 'x %', 'y %', 'weight', 'colour']).cap, 4);
+  assert.equal(columnIndex('Shots', ['id', 'start s', 'end s', 'the viewer notices', 'move in', 'move out', 'camera']).ground, -1);
+});

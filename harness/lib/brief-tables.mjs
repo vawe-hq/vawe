@@ -38,11 +38,24 @@ function rowsAfter(lines, from) {
   return { header: rows[0]?.cells ?? [], rows: rows.slice(1).filter((r) => !isSeparator(r.cells)) };
 }
 
-/** The column index of each key of table `name` in `header`: by header name, or by position when the header names none of the keys. Pure. */
+const warned = new Set();
+const OPTIONAL = new Set(['ground']);
+
+/**
+ * The column index of each key of table `name` in `header`: by header name. A header that names none of the keys, or misses a required one, is read by
+ * position (the second case warns once per header: the author's table is not the one the brief writes). Pure apart from the warning.
+ */
 export function columnIndex(name, header) {
   const keys = COLUMNS[name];
   const named = header.map(headerKey);
-  return keys.some((k) => named.includes(k)) ? Object.fromEntries(keys.map((k) => [k, named.indexOf(k)])) : Object.fromEntries(keys.map((k, i) => [k, i]));
+  const byName = Object.fromEntries(keys.map((k) => [k, named.indexOf(k)]));
+  const byPosition = Object.fromEntries(keys.map((k, i) => [k, i]));
+  if (!keys.some((k) => named.includes(k))) return byPosition;
+  const missing = keys.filter((k) => byName[k] < 0 && !OPTIONAL.has(k));
+  if (!missing.length) return byName;
+  const id = `${name}|${header.join('|')}`;
+  if (!warned.has(id)) { warned.add(id); console.error(`brief: the ${name} table has no ${missing.join(', ')} column by name; reading its columns by position`); }
+  return byPosition;
 }
 
 /** The data rows of one table as { line (index in `lines`), cells, row (the parsed object), index (key to column, -1 when the table has none) }; [] when the table is missing. */
