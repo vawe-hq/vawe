@@ -23,7 +23,7 @@ bin/vawe-dev doctor      # checks Node 22+, git, ffmpeg and Chrome; prints the i
 ```bash
 bin/vawe new hello --request "a 6 second title sting for a note-taking app"
 bin/vawe dev  films/hello/page.html     # draft: half size, 30 fps, audio mixed
-bin/vawe ship films/hello/page.html     # final: full size, 60 fps, motion blur, audio (after the owner runs bin/vawe approve)
+bin/vawe ship films/hello/page.html     # final: full size, 60 fps, motion blur, audio (after the owner types /vawe-approve)
 bin/vawe --help                         # every verb; run `bin/vawe <verb> --help` before any raw ffmpeg or Chrome
 ```
 
@@ -63,7 +63,7 @@ A whole film:
 4. Study references, fill `brief.md`, then build one key frame per beat: `bin/vawe frame <page> --world all`.
 5. Draft with `bin/vawe dev <page> [--from s --to s]`. Draft the hardest 2 to 4 seconds first.
 6. Critique in a session that did not write the page: `bin/vawe critique <page>` (skill `vawe-critique`). Fix only the seconds it names.
-7. Final: show the owner the whole draft. They run `bin/vawe approve <page>`; an agent never does. Then `bin/vawe ship <page>`. A pass is never self-recorded: score with `bin/vawe critique <page> --fresh`.
+7. Final: show the owner the whole draft. They type `/vawe-approve`; an agent never does. Then `bin/vawe ship <page>`. A pass is never self-recorded: score with `bin/vawe critique <page> --fresh`.
 
 Skills in the repo: `vawe-brief` (request to brief), `vawe-page` (write the page), `vawe-critique` (look at a render), `vawe-reference` (match a reference video).
 

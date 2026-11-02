@@ -191,7 +191,7 @@ test('after a draft the next step follows what is done: strips under any out/str
   const draftAsk = nextStep(page, root);
   assert.equal(draftAsk.stage, 'approve');
   assert.match(draftAsk.next, /^waiting for the person's OK on the draft of f: show the person the draft \(bin\/vawe frame <draft>\), then end your message with one line, \"If you like it, type \/vawe-approve\", and stop$/);
-  assert.doesNotMatch(draftAsk.next, /run bin\/vawe approve/);
+  assert.doesNotMatch(draftAsk.next, /run bin\/vawe(-dev)? approve/);
   writeApproval(page, { root });
   const s = nextStep(page, root);
   assert.equal(s.stage, 'ship');

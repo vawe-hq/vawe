@@ -4,13 +4,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UsageError } from './parse.mjs';
-import { opt, needsPage, pageName } from './helpers.mjs';
+import { opt, pageName, PAGE, ASPECT, ASPECT_FLAG, PARAM } from './helpers.mjs';
 import { FRAME } from './frame.mjs';
 import { causeOf } from '../lib/verb-log.mjs';
 
 import { atProblem } from '../media/see/at-problem.mjs';
 import { parseTargets, shotProblem } from '../media/shot-math.mjs';
-import { renderEnv, paramsFlags } from '../lib/page-params.mjs';
 import { seeProblem } from '../media/see/one-math.mjs';
 import { filmKey, freshImages, summaryLines } from '../lib/critique-summary.mjs';
 import { readFindings } from '../lib/findings.mjs';
@@ -47,7 +46,6 @@ const devNext = (v, [page]) => {
 };
 const readFresh = (file, sinceMs) => (fs.existsSync(file) && fs.statSync(file).mtimeMs >= sinceMs ? readFindings(file) || [] : []);
 const critiqueFindingsFile = (page) => path.join(scratch('critique', filmKey(page)), 'findings.json');
-const paramEnv = (v) => renderEnv(v);
 function seeSpec(v, film) {
   const specOnly = ['fps', 'elements', 'fast'].find((f) => v[f] !== undefined);
   if (specOnly && !v.spec) throw new UsageError(`--${specOnly} needs --spec`);
@@ -68,11 +66,6 @@ function seePage(v, film) {
   if (!film.endsWith('.html')) throw new UsageError(`${flag} reads a page: usage: vawe see <page> ${flag}${v.plan ? ' [--json]' : ''}`);
   return v.plan ? [{ script: 'harness/media/timeline.mjs', args: [film, ...(v.json ? ['--json'] : [])] }] : [{ script: 'harness/media/spec-sync.mjs', args: [film] }];
 }
-
-const PAGE = { name: 'page', required: true, kind: 'file', help: 'films/<name>/page.html' };
-const ASPECT = 'a W:H ratio of whole numbers (16:9 9:16 1:1 4:5 4:3 are the common ones, 1200:630 and 2:1 work too): overrides the page aspect meta, the page sees it as it sees the meta, and the default output name gets it (-2x1), so two aspects do not overwrite each other';
-const ASPECT_FLAG = { name: 'aspect', type: 'string', default: 'the page meta, else 16:9', help: ASPECT };
-const PARAM = { name: 'param', type: 'string', repeat: true, help: 'a page option key=value, repeatable: the page reads it with new URLSearchParams(location.search), for example --param look=riso. A page only; part of the render key; the default output name gets it (-look-riso), so renders of two looks do not overwrite each other' };
 
 export const VERBS = [
   {
@@ -215,20 +208,6 @@ export const VERBS = [
     example: 'vawe wait films/my-launch/page.html   |   vawe wait my-launch',
     build: (v, [film]) => [{ script: 'harness/media/ship-job.mjs', args: ['wait', film] }],
     next: (v, [film]) => `${WAIT_WORK}`,
-  },
-  {
-    tier: 'maintainer',
-    name: 'approve', summary: 'use when the owner signs off the full draft of a page: vawe ship needs it; a film session never runs this',
-    positional: [PAGE],
-    flags: [
-      ASPECT_FLAG,
-      PARAM,
-      { name: 'reject', type: 'bool', help: 'record that the owner rejects the draft, and withdraw any approval' },
-      { name: 'note', type: 'string', default: 'none', help: 'the owner\'s reason, kept in the run log' },
-    ],
-    example: 'vawe approve films/my-launch/page.html   (after vawe dev without --from and --to)',
-    build: (v, [page]) => (needsPage(v, page, 'approve'), [{ script: 'harness/live/approve.mjs', args: [page, ...(v.reject ? ['--reject'] : []), ...opt('--note', v.note)] }]),
-    next: (v, [page]) => `bin/vawe ship ${page}${paramsFlags(paramEnv(v))}`,
   },
   {
     tier: 'core',

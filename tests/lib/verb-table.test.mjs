@@ -15,23 +15,25 @@ const overlap = (a, b) => [...a].filter((t) => b.has(t)).length / Math.min(a.siz
 
 test('every verb has a tier, a unique name and a one-line summary', () => {
   const tiers = TIERS.map(([tier]) => tier);
+  assert.deepEqual(tiers, ['core', 'more']);
   assert.equal(new Set(VERBS.map((v) => v.name)).size, VERBS.length);
   for (const v of VERBS) {
-    assert.ok(tiers.includes(v.tier), `${v.name} has no tier (core, more or maintainer)`);
+    assert.ok(tiers.includes(v.tier), `${v.name} has no tier (core or more)`);
     assert.equal(typeof v.summary, 'string', `${v.name} summary is not a string`);
     assert.ok(!v.summary.includes('\n'), `${v.name} summary spans lines`);
   }
 });
 
 test('the verb set stays small', () => {
-  assert.ok(VERBS.length <= 24, `${VERBS.length} verbs: merge into a flag of the owner verb before you add one`);
-  assert.ok(VERBS.filter((v) => v.tier === 'core').length <= 10);
+  assert.ok(VERBS.length <= 15, `${VERBS.length} verbs: merge into a flag of the owner verb, or put a framework tool in bin/vawe-dev, before you add one`);
+  assert.equal(VERBS.filter((v) => v.tier === 'core').length, 10);
+  assert.equal(VERBS.filter((v) => v.tier === 'more').length, 5);
 });
 
 test('the core list is the ten verbs of the loop, and vawe --help stays under 300 words', () => {
   const core = VERBS.filter((v) => v.tier === 'core').map((v) => v.name).sort();
   assert.deepEqual(core, ['check', 'critique', 'dev', 'frame', 'new', 'refs', 'see', 'ship', 'sound', 'wait']);
-  assert.equal(verb('approve').tier, 'maintainer');
+  assert.equal(verb('approve'), undefined);
   const words = topHelp(VERBS).split(/\s+/).length;
   assert.ok(words <= 300, `${words} words in vawe --help`);
 });
@@ -75,7 +77,7 @@ test('--help lists the core verbs, and --help --all lists every verb under its t
     assert.match(all, new RegExp(`^  ${v.name}\\s`, 'm'), `${v.name} in the full help`);
   }
   assert.match(short, /\d+ more verbs: vawe --help --all/);
-  assert.ok(all.indexOf('the loop:') < all.indexOf('more:') && all.indexOf('more:') < all.indexOf('maintainers'));
+  assert.ok(all.indexOf('the loop:') < all.indexOf('more:') && !/maintainers/.test(all));
 });
 
 test('verb --help starts with the summary', () => {

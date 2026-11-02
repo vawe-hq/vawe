@@ -79,7 +79,6 @@ export function verbHelp(verb) {
 export const TIERS = [
   ['core', 'the loop'],
   ['more', 'more'],
-  ['maintainer', 'maintainers (the framework, not a film)'],
 ];
 
 /** The text of `vawe --help`: the core verbs, or with `all` every verb in its tier. Pure. */

@@ -20,3 +20,10 @@ test('a frame call has the stage its mode names, in the new and the old spelling
   ];
   for (const [verb, args, seen, want] of rows) assert.equal(stage(verb, args, seen), want, `${verb} ${args}`);
 });
+
+test('judge and approve keep their stages after the move to vawe-dev, and old transcripts still count their calls', async () => {
+  const { commandVerbs } = await import('../../harness/lib/trace/calls.mjs');
+  assert.equal(stage('judge', 'p --fresh'), 'judge');
+  assert.equal(stage('approve', 'p'), 'approve');
+  assert.deepEqual(commandVerbs('bin/vawe judge p --fresh; bin/vawe land; bin/vawe-dev test').map((v) => v.verb), ['judge', 'land']);
+});

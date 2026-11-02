@@ -4,7 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UsageError } from '../cli/parse.mjs';
-import { opt } from '../cli/helpers.mjs';
+import { opt, needsPage, PAGE, ASPECT_FLAG, PARAM } from '../cli/helpers.mjs';
+import { renderEnv, paramsFlags } from '../lib/page-params.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 // A test that compares seconds with a stamped budget reads a slowdown from the other test files as a slow check, so it runs alone, last.
@@ -135,5 +136,18 @@ export const DEV_VERBS = [
     example: 'vawe-dev judge out/my-launch.mp4 --struct --runs A,B   |   vawe-dev judge --fresh films/x/page.html --brief films/x/brief.md',
     build: (v, [input]) => v.fresh ? [{ script: 'harness/media/judge-fresh.mjs', args: [input, ...opt('--brief', v.brief), ...opt('--stage', v.stage)] }] : [{ script: 'quality/gates/judge.mjs', args: [input, ...opt('--ref', v.ref), ...(v.struct ? ['--struct'] : []), ...opt('--runs', v.runs), ...opt('--verdict', v.verdict), ...opt('--at', v.at), ...opt('--top-fix', v['top-fix'])] }],
     next: (v) => (v.fresh ? 'read the report; fix the lines under 8, worst first' : 'judge returns at once; do not poll for it'),
+  },
+  {
+    name: 'approve', summary: 'use when the owner signs off the full draft of a page: vawe ship needs it; a film session never runs this',
+    positional: [PAGE],
+    flags: [
+      ASPECT_FLAG,
+      PARAM,
+      { name: 'reject', type: 'bool', help: 'record that the owner rejects the draft, and withdraw any approval' },
+      { name: 'note', type: 'string', default: 'none', help: 'the owner\'s reason, kept in the run log' },
+    ],
+    example: 'vawe-dev approve films/my-launch/page.html   (after vawe dev without --from and --to)',
+    build: (v, [page]) => (needsPage(v, page, 'approve'), [{ script: 'harness/live/approve.mjs', args: [page, ...(v.reject ? ['--reject'] : []), ...opt('--note', v.note)] }]),
+    next: (v, [page]) => `bin/vawe ship ${page}${paramsFlags(renderEnv(v))}`,
   },
 ];

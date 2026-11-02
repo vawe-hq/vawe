@@ -10,7 +10,7 @@ import { DEV_VERBS } from '../../harness/dev/verbs.mjs';
 import { GATES } from '../../harness/lib/check-gate.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
-const MOVED = ['land', 'claim', 'e2e', 'test', 'runs', 'moves', 'doctor'];
+const MOVED = ['land', 'claim', 'e2e', 'test', 'runs', 'moves', 'doctor', 'judge', 'approve'];
 const run = (bin, args, env = {}) => spawnSync(process.execPath, [path.join(ROOT, 'bin', bin), ...args], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, ...env } });
 
 test('the maintainer verbs live in vawe-dev, not in the vawe verb table or its --help', () => {
@@ -98,4 +98,14 @@ test('no maker-facing text sends the maker to judge: the ship gate, ship and cri
   assert.match(critique.next({ fresh: true }, ['films/x/page.html']), /^Read the critique file/);
   assert.doesNotMatch(critique.next({ fresh: true }, ['films/x/page.html']), /judge/);
   assert.doesNotMatch(critique.next({}, ['films/x/page.html']), /judge/);
+});
+
+test('approve lives in vawe-dev and keeps the page, the flags and the script the /vawe-approve skill calls', () => {
+  const approve = DEV_VERBS.find((v) => v.name === 'approve');
+  assert.deepEqual(approve.flags.map((f) => f.name), ['aspect', 'param', 'reject', 'note']);
+  const [step] = approve.build({ reject: true, note: 'no' }, ['films/x/page.html']);
+  assert.deepEqual([step.script, step.args], ['harness/live/approve.mjs', ['films/x/page.html', '--reject', '--note', 'no']]);
+  assert.match(approve.next({}, ['films/x/page.html']), /^bin\/vawe ship films\/x\/page\.html/);
+  assert.match(fs.readFileSync(path.join(ROOT, 'skills/vawe-approve/SKILL.md'), 'utf8'), /!`node \$\{CLAUDE_PROJECT_DIR\}\/harness\/live\/approve\.mjs \$ARGUMENTS`/);
+  assert.equal(OLD_NAMES.includes('approve'), true);
 });

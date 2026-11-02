@@ -183,7 +183,7 @@ pass a glint), never a camera drift`,
 // in a session that did not write the page
 bin/vawe critique <page> --fresh
 // a separate headless session scores
-bin/vawe approve <page>
+/vawe-approve
 // only the owner runs it; ship refuses without it`,
             },
           },
