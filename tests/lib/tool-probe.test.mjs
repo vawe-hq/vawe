@@ -28,21 +28,35 @@ test('one line names each required tool that is missing and its fix; an optional
   assert.equal(missingLine(CHECKS.slice(1)), null);
 });
 
-test('a missing doctor.json runs the probe once and prints its line only when a tool is missing', () => {
+test('a missing doctor.json runs the probe and prints its line when a tool is missing; a result with a missing tool is probed again', () => {
   let runs = 0;
   const root = rootWith(null);
-  const run = () => { runs += 1; fs.mkdirSync(path.join(root, '.vawe')); fs.writeFileSync(path.join(root, '.vawe', 'doctor.json'), JSON.stringify(CHECKS)); };
+  const run = () => { runs += 1; fs.mkdirSync(path.join(root, '.vawe'), { recursive: true }); fs.writeFileSync(path.join(root, '.vawe', 'doctor.json'), JSON.stringify(CHECKS)); return { status: 1 }; };
   assert.match(toolProbeLine(root, { run }), /ffmpeg: brew install ffmpeg/);
   assert.equal(runs, 1);
   assert.match(toolProbeLine(root, { run }), /ffmpeg/);
-  assert.equal(runs, 1, 'a fresh result is not probed again');
+  assert.equal(runs, 2, 'the user may have installed the tool since');
+});
+
+test('a doctor that crashed, timed out or left no list gives one line that names the exit and bin/vawe-dev doctor', () => {
+  const line = (result, content) => {
+    const root = rootWith(null);
+    return toolProbeLine(root, { run: () => { if (content !== undefined) { fs.mkdirSync(path.join(root, '.vawe')); fs.writeFileSync(path.join(root, '.vawe', 'doctor.json'), content); } return result; } });
+  };
+  assert.equal(line({ status: 2 }), 'tool probe could not run (doctor exit 2): run bin/vawe-dev doctor');
+  assert.equal(line({ status: null, signal: 'SIGTERM' }), 'tool probe could not run (doctor exit SIGTERM): run bin/vawe-dev doctor');
+  assert.match(line({ status: 0 }, '{"not":"a list"}'), /^tool probe could not run \(doctor exit 0\)/);
+  assert.match(line({ status: 0 }, 'not json'), /^tool probe could not run/);
+  assert.equal(line({ status: 0 }, JSON.stringify([CHECKS[1]])), null);
 });
 
 test('a clean fresh probe prints nothing and runs nothing; a stale one probes again', () => {
   let runs = 0;
-  const run = () => { runs += 1; };
+  const run = () => { runs += 1; return { status: 0 }; };
   assert.equal(toolProbeLine(rootWith([CHECKS[1]]), { run }), null);
   assert.equal(runs, 0);
-  assert.equal(toolProbeLine(rootWith([CHECKS[1]], PROBE_MAX_AGE_MS + 1000), { run }), null);
+  const stale = rootWith([CHECKS[1]], PROBE_MAX_AGE_MS + 1000);
+  const rewrite = () => { runs += 1; fs.writeFileSync(path.join(stale, '.vawe', 'doctor.json'), JSON.stringify([CHECKS[1]])); return { status: 0 }; };
+  assert.equal(toolProbeLine(stale, { run: rewrite }), null);
   assert.equal(runs, 1);
 });
