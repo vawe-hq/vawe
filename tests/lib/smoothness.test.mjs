@@ -55,3 +55,9 @@ test('a hard cut between worlds is not a speed change inside a move; a spike els
   assert.deepEqual(smoothness(diffs, { worldCuts: [5 / 30] }).jerky.map((j) => +(j.t * 30).toFixed(0)), [14]);
   assert.equal(smoothness(diffs, { worldCuts: [10 / 30] }).jerky.length, 3);
 });
+
+test('a jump inside a declared wipe span is a cut; just past it is a jump', () => {
+  const diffs = [...steady(9, 2), 60, ...steady(9, 2)];
+  assert.equal(smoothness(diffs, { cutSpans: [[0.2, 0.5]] }).jumps.length, 0);
+  assert.equal(smoothness(diffs, { cutSpans: [[0.0, 0.2]] }).jumps.length, 1);
+});

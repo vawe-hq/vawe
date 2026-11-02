@@ -149,16 +149,25 @@ export function measuredSpec(words, times, objects, worlds = []) {
 }
 
 /**
+ * [start, end] seconds of each transition into a shot after the first: a shot that starts before the previous one ends
+ * (the Shots table overlap) is a wipe or fade that long, and its picture may jump anywhere inside. Pure.
+ */
+export const cutSpans = (shots) => shots.slice(1).flatMap((s, i) => (has(s.start) ? [[s.start, Math.max(s.start, has(shots[i].end) ? shots[i].end : s.start)]] : []));
+
+/**
  * Each shot start after the first is a cut in the spec. Where the film has a hard jump within half a second,
- * the cut must land within one frame; with no jump nearby the shot change is a soft transition and is left alone. Pure.
+ * the cut must land within one frame, or anywhere inside the transition the table overlap declares; with no jump nearby
+ * the shot change is a soft transition and is left alone. Pure.
  */
 export function cutChecks(shots, jumps, fps = 30) {
   const out = [];
-  for (const s of shots.slice(1)) {
-    if (!has(s.start)) continue;
-    const nearest = jumps.filter((j) => Math.abs(j - s.start) <= 0.5).sort((a, b) => Math.abs(a - s.start) - Math.abs(b - s.start))[0];
-    if (nearest !== undefined) out.push({ label: `${s.id} cut`, spec: s.start, got: nearest, dev: Math.abs(nearest - s.start) * fps, unit: 's', frames: true });
-  }
+  shots.slice(1).forEach((s, i) => {
+    if (!has(s.start)) return;
+    const [a, b] = cutSpans([shots[i], s])[0];
+    const inside = jumps.find((j) => j >= a - 1e-9 && j <= b + 1e-9);
+    const nearest = inside ?? jumps.filter((j) => Math.abs(j - s.start) <= 0.5).sort((x, y) => Math.abs(x - s.start) - Math.abs(y - s.start))[0];
+    if (nearest !== undefined) out.push({ label: `${s.id} cut`, spec: s.start, got: nearest, dev: inside === undefined ? Math.abs(nearest - s.start) * fps : 0, unit: 's', frames: true });
+  });
   return out;
 }
 

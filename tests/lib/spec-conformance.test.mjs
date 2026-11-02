@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { specTimes, runStart, lineFor, findable, skippedWords, wordTimes, wordChecks, objectChecks, measuredSpec, cutChecks, checkLines, APPEAR_TOL_S, LAYOUT_TOL_PCT } from '../../harness/lib/spec-conformance.mjs';
+import { specTimes, runStart, lineFor, findable, skippedWords, wordTimes, wordChecks, objectChecks, measuredSpec, cutChecks, cutSpans, checkLines, APPEAR_TOL_S, LAYOUT_TOL_PCT } from '../../harness/lib/spec-conformance.mjs';
 
 const frame = { frameW: 1000, frameH: 500 };
 const word = { text: 'Ship it', appear: 1, settle: 1.5, cap: 8, x: 10, y: 40 };
@@ -144,4 +144,12 @@ test('cutChecks: a hard jump near a shot start must land within one frame; soft 
   assert.equal(Math.round(checks[0].dev), 3);
   assert.deepEqual(cutChecks(shots, [2.03], 30).map((c) => c.dev <= 1), [true]);
   assert.match(checkLines(checks, 1)[0], /S2 cut: spec 2.00 s, film 2.10 s \(3.0 frames off\)/);
+});
+
+test('cutChecks: a jump inside the wipe the Shots overlap declares is on the cut', () => {
+  const shots = [{ id: 'S1', start: 0, end: 2.3 }, { id: 'S2', start: 2, end: 4 }];
+  assert.deepEqual(cutSpans(shots), [[2, 2.3]]);
+  assert.equal(cutChecks(shots, [2.23], 30)[0].dev, 0);
+  assert.ok(cutChecks(shots, [2.4], 30)[0].dev > 1);
+  assert.ok(cutChecks([{ id: 'S1', start: 0, end: 2 }, { id: 'S2', start: 2 }], [2.23], 30)[0].dev > 1);
 });

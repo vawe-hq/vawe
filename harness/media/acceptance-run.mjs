@@ -14,7 +14,7 @@ import { tailTiles } from '../lib/sheet-tiles.mjs';
 import { heldTextRuns } from '../lib/draft-check.mjs';
 import { textCollisions } from '../lib/text-collision.mjs';
 import { readHoldProblems, readHoldUnmeasured, probeTracks } from '../lib/read-hold.mjs';
-import { wordChecks, cutChecks, measuredSpec } from '../lib/spec-conformance.mjs';
+import { wordChecks, cutChecks, cutSpans as cutSpansOf, measuredSpec } from '../lib/spec-conformance.mjs';
 import { buildRows, withHistory, tableLines, allMeasuredGreen, acceptanceCounts } from '../lib/acceptance.mjs';
 import { syncSpec } from '../lib/spec-sync.mjs';
 import { pageLook, writeLook, firstFamily } from '../lib/page-look.mjs';
@@ -35,7 +35,7 @@ export function videoMeasures({ feats, tiles, motion: diffs }, authoring, shots,
   const cuts = shots.slice(1).map((s) => s.start).filter((t) => typeof t === 'number');
   const worldCuts = (worlds ?? []).flatMap((w) => [w.start, w.end]).filter((t) => t > 0);
   return {
-    smooth: smoothness(diffs, { fps: FPS, cuts, turns: stats.turns.map((t) => t.t), worldCuts }),
+    smooth: smoothness(diffs, { fps: FPS, cuts, cutSpans: cutSpansOf(shots), turns: stats.turns.map((t) => t.t), worldCuts }),
     stills: undeclaredStills(stats.static, authoring, undefined, readHolds(worlds ?? [])),
     tail: tailTiles(tiles.diffs, tiles.fps, authoring, tailMoving),
     cuts: shots.length ? cutChecks(shots, hardJumps(diffs, FPS), FPS) : null,
