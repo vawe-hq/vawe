@@ -9,7 +9,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { ensurePageFonts } from '../lib/ensure-fonts.mjs';
 import { resolveDuration } from '../media/page-duration.mjs';
-import { pruneRuns } from '../lib/e2e-runs.mjs';
+import { pruneRuns, trackedPages, trackedFiles } from '../lib/e2e-runs.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const RUNS_DIR = path.join(repoRoot, 'quality', 'runs', 'e2e');
@@ -38,7 +38,7 @@ function findPages() {
   for (const f of listDir(path.join(repoRoot, 'tests/fixtures/pages'))) {
     if (f.name.endsWith('.html')) pages.push(path.join('tests/fixtures/pages', f.name));
   }
-  return pages;
+  return trackedPages(pages, trackedFiles(repoRoot, ['films', 'tests/fixtures/pages']));
 }
 
 function motionTests() {
