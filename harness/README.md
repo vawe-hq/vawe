@@ -61,7 +61,7 @@ Run with `node <path>`; the file header holds the usage. A film rarely needs the
 - `harness/media/kie.mjs` a generated image or video
 - `harness/media/cutout.mjs` a cutout with the background removed
 - `harness/media/ref.mjs` fetch a reference film into `refs/`
-- `harness/dev/palette.mjs` the script behind `vawe palette`: a brand seed and how to compose a palette around it
+- `harness/dev/palette.mjs` the script behind the retired palette alias: a brand seed and how to compose a palette around it
 - `harness/dev/trace-review.mjs` the one reader of agent transcripts: per agent the verb and stage order, `next:` lines and hook hints followed, raw tools, docs read, failures by class, cost and rule breaks; an aggregate table, `--json`, `--compare <sha|date>` (parts in `lib/trace/`)
 - `harness/dev/bench-capture.mjs` where capture time goes, per render variant
 - `harness/dev/check-sweep.mjs` which draft checks fire over many pages, waivers ignored (the false-flag baseline)

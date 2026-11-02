@@ -49,7 +49,17 @@ const storyboard = (args) => {
   return ['frame', ...args, ...(args.includes('--directions') ? [] : ['--board'])];
 };
 
+const kept = (name) => (args) => [name, ...args];
+
+/** Verbs that left the table and still run as they did: what `vawe new` does for them now. */
+export const RETIRED = {
+  fonts: 'vawe new writes the free faces into brief.md',
+  palette: 'vawe new writes the palette seed into brief.md',
+};
+
 export const ALIASES = {
+  fonts: kept('fonts'),
+  palette: kept('palette'),
   still,
   zoom,
   sheet,
@@ -59,10 +69,14 @@ export const ALIASES = {
 };
 
 /** The line an agent sees when it types an old verb: what the call now is. `short` leaves the arguments out, for a call that has no session to remember it. */
-export const aliasNotice = (name, argv, { short = false } = {}) => `vawe: \`vawe ${name}\` is now \`vawe ${short ? argv[0] : argv.join(' ')}\``;
+export const aliasNotice = (name, argv, { short = false } = {}) => (argv[0] === name
+  ? `vawe: \`vawe ${name}\` is retired: ${RETIRED[name]}; this call still runs`
+  : `vawe: \`vawe ${name}\` is now \`vawe ${short ? argv[0] : argv.join(' ')}\``);
 
 /** The key a notice is remembered by: the old verb and the verb it became. */
 export const aliasKey = (name, argv) => `${name}->${argv[0]}`;
 
+const NOW = { fonts: 'fonts', palette: 'palette' };
+
 /** The verb a call of `name` runs today: an old picture verb gives frame (or see), any other name gives itself (`storyboard --text` runs `see`, but the run log counts it with the rest). A run log written before the merge names the old verb. */
-export const verbNow = (name) => (ALIASES[name] ? 'frame' : name);
+export const verbNow = (name) => (ALIASES[name] ? NOW[name] ?? 'frame' : name);

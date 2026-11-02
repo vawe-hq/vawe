@@ -1,4 +1,4 @@
-// node harness/dev/list-assets.mjs fonts|sounds: the one-line-each listings behind `vawe fonts` and `vawe sound`.
+// node harness/dev/list-assets.mjs fonts|sounds: the one-line-each listings behind the `vawe fonts` alias and `vawe sound`.
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fontLines, parseSystemFonts, soundLines, systemFontLines } from '../lib/asset-lists.mjs';

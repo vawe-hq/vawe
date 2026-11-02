@@ -81,6 +81,6 @@ A capture of the real product beats a mock ([show-real-thing](../rules/show-real
 - Fill most of the frame. Display-size type, never web-size.
 - Real images shown whole. Set each cell to the source's own aspect ratio so `object-fit: cover` neither crops nor letterboxes. A crop that cuts the stills' own on-screen text reads as a bug.
 - Colour from theme tokens (`var(--...)`), one accent. A dark capture goes on a dark surface. A relative `<img src>` resolves against the page that loads it, not the fragment.
-- "You choose" a theme means invent one (`bin/vawe palette` seeds a colour and a mood). Take principles from the smallest useful ui-skills set, never its font or colour defaults: the local theme's tokens win.
+- "You choose" a theme means invent one (`bin/vawe new` puts a seed with its mood in the brief). Take principles from the smallest useful ui-skills set, never its font or colour defaults: the local theme's tokens win.
 - Every claim in on-screen copy must be true. A results title that said "six films shipped this week" when nobody had was replaced with the storyboard's own copy.
 - Check the laid-out page, not the source. Fill and detail statistics cannot see composition: a title cut in half and a title fully on screen can score the same. A percentage width, a grid track and an `object-fit` crop resolve only after layout, so render the fragment and read each element's real box against the frame and the safe margin ([safe-margin](../rules/safe-margin.md)). Outside the frame is a defect, inside the margin a warning.

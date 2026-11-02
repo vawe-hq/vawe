@@ -363,25 +363,6 @@ export const VERBS = [
     next: () => 'look at the clip in prompts/moves/ and run node scripts/site/moves.mjs --clips to encode its web copy',
   },
   {
-    tier: 'more',
-    name: 'fonts', summary: 'the free font faces, one line each, with the file to copy into films/<name>/assets/; with --system the faces installed on this machine, usable through local() in a film you render yourself',
-    positional: [], flags: [{ name: 'system', type: 'bool', help: 'list the installed system faces (Tahoma, Verdana, ...) with their local() name; never copy or commit the font file' }],
-    example: 'vawe fonts --system',
-    build: (v) => [{ script: 'harness/dev/list-assets.mjs', args: ['fonts', ...(v.system ? ['--system'] : [])] }],
-  },
-  {
-    tier: 'more',
-    name: 'palette', summary: 'one OKLCH brand seed with its mood, and how to compose a full palette around it; the same key always gives the same seed',
-    positional: [],
-    flags: [
-      { name: 'from', type: 'string', help: 'hash this key (a film name, a brand) to a seed: deterministic; with neither flag the seed is random' },
-      { name: 'id', type: 'string', help: 'a specific seed, for example seed-021' },
-    ],
-    example: 'vawe palette --from my-launch',
-    build: (v) => [{ script: 'harness/dev/palette.mjs', args: [...opt('--id', v.id), ...opt('--from', v.from)] }],
-    next: () => 'write the palette into films/<name>/DESIGN.md as OKLCH roles',
-  },
-  {
     tier: 'core',
     name: 'sound', summary: 'use when you choose, check or cut to sound: voices, beat grid, cues of a page, --sfx, --lab',
     positional: [{ name: 'input', required: false, help: 'an audio file (m4a, mp3, wav), an mp4 with audio, a reference id from vawe refs list, or a page (reads its <audio loop> bed, the synth cues as separate rows, and the page\'s own cuts); none: list the synth voices for <audio data-synth>' }],
@@ -478,5 +459,28 @@ export const VERBS = [
     example: 'vawe judge out/my-launch.mp4 --struct --runs A,B   |   vawe judge --fresh films/x/page.html --brief films/x/brief.md',
     build: (v, [input]) => v.fresh ? [{ script: 'harness/media/judge-fresh.mjs', args: [input, ...opt('--brief', v.brief), ...opt('--stage', v.stage)] }] : [{ script: 'quality/gates/judge.mjs', args: [input, ...opt('--ref', v.ref), ...(v.struct ? ['--struct'] : []), ...opt('--runs', v.runs), ...opt('--verdict', v.verdict), ...opt('--at', v.at), ...opt('--top-fix', v['top-fix'])] }],
     next: (v) => (v.fresh ? 'read the report; fix the lines under 8, worst first' : 'judge returns at once; do not poll for it'),
+  },
+];
+
+/** Verbs that are no longer in the table: only an alias in aliases.mjs reaches them, so they stay out of --help and the list of valid verbs. */
+export const ALIAS_TARGETS = [
+  {
+    tier: 'alias',
+    name: 'fonts', summary: 'the free font faces, one line each, with the file to copy into films/<name>/assets/; with --system the faces installed on this machine, usable through local() in a film you render yourself',
+    positional: [], flags: [{ name: 'system', type: 'bool', help: 'list the installed system faces (Tahoma, Verdana, ...) with their local() name; never copy or commit the font file' }],
+    example: 'vawe fonts --system',
+    build: (v) => [{ script: 'harness/dev/list-assets.mjs', args: ['fonts', ...(v.system ? ['--system'] : [])] }],
+  },
+  {
+    tier: 'alias',
+    name: 'palette', summary: 'one OKLCH brand seed with its mood, and how to compose a full palette around it; the same key always gives the same seed',
+    positional: [],
+    flags: [
+      { name: 'from', type: 'string', help: 'hash this key (a film name, a brand) to a seed: deterministic; with neither flag the seed is random' },
+      { name: 'id', type: 'string', help: 'a specific seed, for example seed-021' },
+    ],
+    example: 'vawe palette --from my-launch',
+    build: (v) => [{ script: 'harness/dev/palette.mjs', args: [...opt('--id', v.id), ...opt('--from', v.from)] }],
+    next: () => 'write the palette into films/<name>/DESIGN.md as OKLCH roles',
   },
 ];

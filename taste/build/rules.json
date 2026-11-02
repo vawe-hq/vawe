@@ -173,7 +173,7 @@
  },
  "theme-source": {
   "file": "taste/rules/theme-source.md",
-  "instead": "ask for a reference or a theme when none is given; seed an invented palette with `bin/vawe palette`. Never fall back to plain grey."
+  "instead": "ask for a reference or a theme when none is given; take the palette seed from the brief's Design system section. Never fall back to plain grey."
  },
  "type-scale": {
   "file": "taste/rules/type-scale.md",

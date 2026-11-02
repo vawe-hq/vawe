@@ -431,3 +431,6 @@ const HUE_WORDS = [[15, 'pure red'], [35, 'warm red / crimson'], [55, 'warm cora
 export function hueWord(H) {
   return HUE_WORDS.find(([limit]) => H < limit)?.[1] ?? 'pure red';
 }
+
+/** A seed as one line for a brief: its id, its colour, its hue word and its mood. */
+export const seedLine = (seed) => `${seed.id} ${fmtOklch(seed.oklch)}, ${hueWord(seed.oklch[2])}${seed.mood ? ` (one read: "${seed.mood}")` : ''}`;

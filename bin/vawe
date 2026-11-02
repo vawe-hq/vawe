@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { isUrl } from '../harness/lib/url.mjs';
 import { closest, parseArgs, topHelp, UsageError, verbHelp } from '../harness/cli/parse.mjs';
 import { ALIASES, aliasNotice, aliasKey } from '../harness/cli/aliases.mjs';
-import { VERBS, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
+import { VERBS, ALIAS_TARGETS, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
 import { newFilm, newFilmLines, readDetails, questionsJson } from '../harness/cli/new.mjs';
 import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
@@ -22,6 +22,7 @@ import { newEvent } from '../harness/lib/run-events.mjs';
 import { doctorHintFromFile } from '../harness/lib/doctor-hint.mjs';
 import { ensureHooks, gitAt } from '../harness/lib/git-hooks.mjs';
 import { renderEnv } from '../harness/lib/page-params.mjs';
+import { toolProbeLine } from '../harness/lib/tool-probe.mjs';
 import { nextSeen, aliasSeen, NEXT_UNCHANGED } from '../harness/lib/next-once.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -83,6 +84,8 @@ async function execute(verb, rest, call) {
       appendRun(positional[0], newEvent({ template: made.template, length: made.length, answered: made.answered, guessed: made.guesses, ranges: made.ranges }), { root: ROOT });
     }
     console.log(newFilmLines(positional[0], made).join('\n'));
+    const missing = made.asked ? null : toolProbeLine(ROOT);
+    if (missing) console.error(missing);
     for (const line of recentFailedShipLines(readAllRuns(path.join(ROOT, 'out')), Date.now())) console.error(line);
     return 0;
   }
@@ -174,7 +177,7 @@ async function main(args) {
   const hooksLine = ensureHooks(gitAt(ROOT));
   if (hooksLine) console.error(hooksLine);
   if (!name || name === '--help' || name === '-h' || name === 'help') return console.log(topHelp(VERBS, { all: rest.includes('--all') }));
-  const verb = VERBS.find((v) => v.name === name);
+  const verb = [...VERBS, ...ALIAS_TARGETS].find((v) => v.name === name);
   if (!verb) {
     const guess = closest(name, VERBS.map((v) => v.name));
     const stale = staleNote(commitsBehind((args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })));

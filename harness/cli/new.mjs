@@ -20,6 +20,8 @@ import { dialRanges, signatureSection } from '../lib/signature.mjs';
 import { recentFromDisk, varietyFor, namesBrandKit } from '../lib/variety.mjs';
 import { DIALS } from '../../core/motion/signature.js';
 import { starterBeats } from '../lib/worlds.mjs';
+import { fontsLine } from '../lib/asset-lists.mjs';
+import { SEEDS, pickSeed, seedLine } from '../lib/palette-seeds.mjs';
 
 const STARTER_TEMPLATE = `<!doctype html>
 <html data-aspect="{{aspect}}">
@@ -309,9 +311,19 @@ Then study how the references MOVE, since stills do not show it: run \`bin/vawe 
 |---|---|---|
 | [move name] | [ref id] | [s] |`;
 
-const systemText = (name) => `## Design system and kit
+const FONT_LOCK = path.join(import.meta.dirname, '../media/fonts.lock.json');
+
+/** The free faces and the palette seed for a film: the same seed each time for a name. */
+const designStarter = (name) => ({
+  fonts: fontsLine(JSON.parse(fs.readFileSync(FONT_LOCK, 'utf8')).faces),
+  seed: seedLine(pickSeed(SEEDS, { from: name })),
+});
+
+const systemText = (name, { fonts, seed }) => `## Design system and kit
 
 Phase 3. Write films/${name}/DESIGN.md: the palette as roles, the type, the ground and light devices, the text treatment. Write films/${name}/kit/: the ground layers, and every moving part as its own element (words, marks, bars, cards, icons, the wordmark).
+Free faces (copy the file from assets/fonts/ to films/${name}/assets/, then @font-face with src: url("assets/<file>")): ${fonts}.
+Palette seed for ${name}: ${seed}. It anchors the primary; keep its hue within 10 degrees, and compose bg, ink and one accent around it in OKLCH roles.
 Type is chosen from taste/craft/typography.md and colour from taste/craft/color.md. Start from a PROVEN combo in prompts/skill-combos.md and record \`Combo: <name>\` in DESIGN.md. Skill ladder: apply one skill per rung, in this order, fetched with \`command npx -y ui-skills get <slug>\`. DESIGN.md records each rung as \`Skill <rung>: <slug>: what it decided\`, or \`Skipped <rung>: <reason>\`; \`bin/vawe\` advises on a missing rung.
 1. builder: build the product UI and the kit parts as a real, beautiful interface (leonxlnx/soft-skill or emilkowalski/emil-design-eng). Real-looking data; never placeholder bars.
 2. type: scale, weight, tracking (jakubkrehel/better-typography or pbakaus/typeset).
@@ -380,7 +392,7 @@ function briefText(name, templateRel, questions, sections, answers, measured, re
     ? lines.join('\n')
     : '- the template has no question bank: write the promise, the moments and the platform';
   const own = Object.fromEntries(sections.map((s) => [s.name, s.body.replaceAll('<name>', name)]));
-  const fixed = { taken: takenFromText(), directions: directionsText(name), signature: signatureSection(undefined, variety), system: systemText(name), states: statesText(), ideas: ideasText(), board: boardText(), motion: motionText() };
+  const fixed = { taken: takenFromText(), directions: directionsText(name), signature: signatureSection(undefined, variety), system: systemText(name, designStarter(name)), states: statesText(), ideas: ideasText(), board: boardText(), motion: motionText() };
   const skeleton = SKELETON.filter(([key]) => fixed[key] || measured.sections[key]).map(([key, title]) => (
     fixed[key] ?? `## ${title}\n\n${own[key] ? `${own[key]}\n\n` : ''}${measured.sections[key]}`));
   const rest = sections.filter((s) => !SKELETON.some(([key]) => key === s.name))

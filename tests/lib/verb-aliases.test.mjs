@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { ALIASES, aliasNotice, aliasKey } from '../../harness/cli/aliases.mjs';
-import { VERBS } from '../../harness/cli/verbs.mjs';
+import { VERBS, ALIAS_TARGETS } from '../../harness/cli/verbs.mjs';
 import { parseArgs, UsageError } from '../../harness/cli/parse.mjs';
 import { aliasSeen, resetShown } from '../../harness/lib/next-once.mjs';
 
@@ -148,4 +148,19 @@ test('bin/vawe with no session prints the short notice', () => {
   const env = { ...process.env, CLAUDE_CODE_SESSION_ID: '' };
   const run = spawnSync(process.execPath, [path.join(ROOT, 'bin/vawe'), 'strip', 'no-such.html', '--cuts'], { cwd: ROOT, encoding: 'utf8', env });
   assert.match(run.stderr, /^vawe: `vawe strip` is now `vawe frame`$/m);
+});
+
+test('fonts and palette left the verb table, still run, and say once what replaced them', () => {
+  for (const name of ['fonts', 'palette']) {
+    assert.equal(VERBS.find((v) => v.name === name), undefined, name);
+    assert.deepEqual(ALIASES[name](['--x']), [name, '--x']);
+    assert.ok(ALIAS_TARGETS.some((v) => v.name === name), name);
+    assert.match(aliasNotice(name, [name]), new RegExp(`\`vawe ${name}\` is retired: vawe new writes .* into brief\\.md; this call still runs`));
+  }
+  const env = { ...process.env, CLAUDE_CODE_SESSION_ID: '' };
+  const run = spawnSync(process.execPath, [path.join(ROOT, 'bin/vawe'), 'palette', '--id', 'seed-200'], { cwd: ROOT, encoding: 'utf8', env });
+  assert.equal(run.status, 0);
+  assert.match(run.stdout, /BRAND SEED · seed-200/);
+  assert.match(run.stderr, /`vawe palette` is retired/);
+  assert.match(spawnSync(process.execPath, [path.join(ROOT, 'bin/vawe'), 'fonts'], { cwd: ROOT, encoding: 'utf8' }).stdout, /Geist \| variable 100-900 \| assets\/fonts\/Geist\.woff2/);
 });

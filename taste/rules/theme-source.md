@@ -5,7 +5,7 @@ principle: The theme comes from the brand site; with a bare prompt, ask; with "y
 limit: none
 range: none
 break-when: never
-instead: ask for a reference or a theme when none is given; seed an invented palette with `bin/vawe palette`. Never fall back to plain grey.
+instead: ask for a reference or a theme when none is given; take the palette seed from the brief's Design system section. Never fall back to plain grey.
 check: none
 judge: Does the film's theme trace to the brand site or to a stated choice?
 prevents: owner ruling (CONTENT.md): every design decision traces to the brand's real site, not to your defaults.

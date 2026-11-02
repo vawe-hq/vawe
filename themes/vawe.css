@@ -1,6 +1,6 @@
 /* The vawe brand as CSS custom properties, taken from the real site (site/app/globals.css, layout.tsx).
    Pure black ground, white ink, one blue accent used rarely (black ink on it). Import it in a page and use var(--vawe-*).
-   Geist and IBM Plex Mono are declared in core/tokens.css; `bin/vawe fonts` lists the files. */
+   Geist and IBM Plex Mono are declared in core/tokens.css; the brief's Design system section lists the files. */
 :root {
   --vawe-bg: #000000;
   --vawe-surface: #0a0a0a;

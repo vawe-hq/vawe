@@ -25,7 +25,7 @@ Vendored code and skills:
 
 - impeccable (design skill, github.com/pbakaus/impeccable) - Apache License 2.0.
   The brand seed table and the palette guidance in harness/lib/palette-seeds.mjs and
-  harness/dev/palette.mjs (`vawe palette`) are derived from its palette picker, with changes.
+  harness/dev/palette.mjs (the palette alias) are derived from its palette picker, with changes.
   The license text is the root LICENSE file.
 
 - lottie-web (runtime), assets/vendor/ - MIT License. Copyright Airbnb.

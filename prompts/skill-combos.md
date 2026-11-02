@@ -25,7 +25,7 @@ The combo test (2026-10-09): six arms built the same two Loomline frames (a type
 
 ## Soft light (PROVEN: product-UI frames)
 
-- Builder: `leonxlnx/soft-skill`. Type: none needed, Geist from `bin/vawe fonts`. Colour: `pbakaus/colorize`. Depth: `mengto/progressive-blur`.
+- Builder: `leonxlnx/soft-skill`. Type: none needed, Geist from `assets/fonts/` (the brief lists the files). Colour: `pbakaus/colorize`. Depth: `mengto/progressive-blur`.
 - Look: white ground with soft coloured light, floating glass parts with a double bezel, tinted diffused shadows, a ghost layer under a progressive blur veil.
 - Reject: soft-skill's page layout and section spacing; colorize's multi-accent palettes; a blur veil over text that must be read.
 - Evidence: `films/s9b-loomline`, `films/s9c-loomline` (owner: "we nailed the look"), `films/tidepool`; picked for the UI frame in the blind test, not for the type frame.

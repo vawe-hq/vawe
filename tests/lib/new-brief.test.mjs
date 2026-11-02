@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import { newFilm, newFilmLines, readDetails, questionsJson } from '../../harness/cli/new.mjs';
@@ -272,4 +273,16 @@ test('the Look section names bin/vawe frame --world all and --looks every look o
   assert.match(line, /bin\/vawe frame <page> --looks --at <s>/);
   for (const name of Object.keys(LOOKS)) assert.ok(line.includes(name), name);
   assert.doesNotMatch(line, /\(guess: change me\)/);
+});
+
+test('the brief carries the free faces and the palette seed that vawe palette --from <name> gives', () => {
+  const { text } = briefFor('beat-sheet.md');
+  const section = text.split('## Design system and kit')[1].split('\n## ')[0];
+  assert.match(section, /Free faces \(copy the file from assets\/fonts\/ to films\/zz\/assets\/.*\): .*Geist: Geist\.woff2.*IBM Plex Mono: IBMPlexMono-400\.woff2, IBMPlexMono-500\.woff2/);
+  const seed = /Palette seed for zz: (seed-\d+) (oklch\(\d\.\d{3} \d\.\d{3} \d+\.\d\))/.exec(section);
+  assert.ok(seed, 'a seed line');
+  const guide = execFileSync('node', ['harness/dev/palette.mjs', '--from', 'zz'], { cwd: ROOT, encoding: 'utf8' });
+  assert.ok(guide.startsWith(`BRAND SEED · ${seed[1]}\n`), 'the same seed as the palette alias');
+  assert.ok(guide.includes(seed[2]));
+  assert.equal(briefFor('beat-sheet.md').text.match(/Palette seed for zz: [^\n]*/)[0], section.match(/Palette seed for zz: [^\n]*/)[0], 'the same each run');
 });

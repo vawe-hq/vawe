@@ -22,6 +22,13 @@ export function fontLines(faces) {
   ];
 }
 
+/** The free faces as one line for a brief: "Family: file, file; ...", the files being the ones in assets/fonts/. */
+export function fontsLine(faces) {
+  const byFamily = new Map();
+  for (const [file, family] of freeFaces(faces)) byFamily.set(family, [...(byFamily.get(family) ?? []), file]);
+  return [...byFamily].map(([family, files]) => `${family}: ${files.join(', ')}`).join('; ');
+}
+
 export function soundLines(cues, gains, lengthOf) {
   return [
     'synth voices for <audio data-synth="NAME" data-at="s">; gain is the default dB, length is the tail in s:',
@@ -40,7 +47,7 @@ export function parseSystemFonts(text) {
   return [...byFamily].map(([family, styles]) => ({ family, styles })).sort((a, b) => a.family.localeCompare(b.family));
 }
 
-/** The lines of `vawe fonts --system`: each installed family usable through local(), and the rule for using it. */
+/** The lines of the retired `vawe fonts --system`: each installed family usable through local(), and the rule for using it. */
 export function systemFontLines(fonts) {
   return [
     'system faces on this machine. Use one in a film that you render yourself: @font-face { font-family: "Mine"; src: local("<name>"); }',
