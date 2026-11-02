@@ -85,7 +85,7 @@ export function siteStep(v, name) {
   const problem = shotProblem({ targets: parseTargets(v['from-url']), w: v.w, base: v.base, tour: v.tour, fps: v.fps, scale: v.scale });
   if (problem) throw new UsageError(problem);
   const out = v.out ?? (name ? `films/${name}/assets/${v.tour ? 'tour.mp4' : 'site'}` : undefined);
-  return { script: 'harness/media/shot.mjs', args: [v['from-url'], ...opt('--w', v.w), ...(v.full ? ['--full'] : []), ...opt('--base', v.base), ...opt('--out', out), ...opt('--tour', v.tour), ...(v.tour ? [...opt('--fps', v.fps), ...opt('--scale', v.scale)] : [])] };
+  return { where: out ?? 'out/shot', script: 'harness/media/shot.mjs', args: [v['from-url'], ...opt('--w', v.w), ...(v.full ? ['--full'] : []), ...opt('--base', v.base), ...opt('--out', out), ...opt('--tour', v.tour), ...(v.tour ? [...opt('--fps', v.fps), ...opt('--scale', v.scale)] : [])] };
 }
 
 function newSteps(v, [name]) {

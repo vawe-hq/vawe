@@ -9,7 +9,7 @@ import { isUrl } from '../harness/lib/url.mjs';
 import { closest, parseArgs, topHelp, UsageError, verbHelp } from '../harness/cli/parse.mjs';
 import { ALIASES, DEV_ALIASES, aliasNotice, aliasKey } from '../harness/cli/aliases.mjs';
 import { VERBS, ALIAS_TARGETS, siteStep, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
-import { newFilm, newFilmLines, readDetails, questionsJson, siteAssets } from '../harness/cli/new.mjs';
+import { newFilm, newFilmLines, readDetails, questionsJson } from '../harness/cli/new.mjs';
 import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
 import { pageDigest } from '../harness/lib/approval.mjs';
@@ -75,7 +75,7 @@ async function execute(verb, rest, call) {
   }
   if (!steps && values['questions-json']) {
     const { length, aspect, request, from } = values;
-    console.log(JSON.stringify(questionsJson(positional[0], { request, from, fromUrl: values['from-url'], length, aspect, details: readDetails(values) }), null, 2));
+    console.log(JSON.stringify(questionsJson(positional[0], { request, from, fromUrl: values['from-url'], siteWhere: values['from-url'] ? siteStep(values, positional[0]).where : undefined, length, aspect, details: readDetails(values) }), null, 2));
     return 0;
   }
   if (!steps) return startFilm(values, positional[0], call);
@@ -87,8 +87,11 @@ async function execute(verb, rest, call) {
 async function startFilm(values, name, call) {
   const site = values['from-url'] ? siteStep(values, name) : null;
   const exists = fs.existsSync(path.join(ROOT, 'films', name, 'page.html'));
-  if (!(site && exists)) {
-    const made = newFilm(name, { from: values.from, fromUrl: values['from-url'], root: ROOT, length: values.length, aspect: values.aspect, title: values.title, request: values.request, details: readDetails(values), defaults: values.defaults });
+  if (site && exists) {
+    const ignored = ['request', 'from', 'length', 'aspect', 'title', 'answers', 'detail', 'defaults'].filter((f) => values[f] !== undefined);
+    if (ignored.length) console.log(`films/${name} exists: only the capture runs; ${ignored.map((f) => `--${f}`).join(', ')} ignored`);
+  } else {
+    const made = newFilm(name, { from: values.from, fromUrl: values['from-url'], siteWhere: site?.where, root: ROOT, length: values.length, aspect: values.aspect, title: values.title, request: values.request, details: readDetails(values), defaults: values.defaults });
     if (!made.asked) {
       appendRun(name, newEvent({ template: made.template, length: made.length, answered: made.answered, guessed: made.guesses, ranges: made.ranges }), { root: ROOT });
     }
@@ -99,8 +102,7 @@ async function startFilm(values, name, call) {
     if (made.asked || !site) return 0;
   }
   const code = stepCode(await runStep(site, call), call);
-  const where = values.out ?? (values.tour ? `films/${name}/assets/tour.mp4` : siteAssets(name));
-  if (code === 0) console.log(`captured: ${where}: ${values.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html)' : 'Read each PNG at full size, then name the frames you take in "Taken from"'}`);
+  if (code === 0) console.log(`captured: ${site.where}: ${values.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html)' : 'Read each PNG at full size, then name the frames you take in "Taken from"'}`);
   return code;
 }
 

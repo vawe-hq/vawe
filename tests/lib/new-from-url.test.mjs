@@ -5,7 +5,8 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { VERBS, siteStep } from '../../harness/cli/verbs.mjs';
 import { parseArgs } from '../../harness/cli/parse.mjs';
-import { askLines, questionsJson } from '../../harness/cli/new.mjs';
+import os from 'node:os';
+import { askLines, questionsJson, newFilm } from '../../harness/cli/new.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
 const NEW = VERBS.find((v) => v.name === 'new');
@@ -52,16 +53,54 @@ test('bin/vawe new <name> --from-url writes the film and its captures; a second 
     assert.equal(fs.existsSync(dir), false, 'a refused call writes no film');
     const first = run(name, '--request', 'a launch film for acme', '--defaults', '--from-url', page, '--w', '400');
     assert.equal(first.status, 0, first.stderr + first.stdout);
-    assert.match(fs.readFileSync(path.join(dir, 'brief.md'), 'utf8'), /captured in films\/zz-fromurl-\d+\/assets\/site\//);
+    assert.match(fs.readFileSync(path.join(dir, 'brief.md'), 'utf8'), /captured in films\/zz-fromurl-\d+\/assets\/site \(the real UI/);
     assert.deepEqual(fs.readdirSync(path.join(dir, 'assets/site')), ['colour-sting-page-400.png']);
     assert.match(first.stdout, /captured: films\/zz-fromurl-\d+\/assets\/site: Read each PNG at full size/);
     fs.rmSync(path.join(dir, 'assets/site'), { recursive: true });
-    const again = run(name, '--from-url', page, '--w', '400');
+    const again = run(name, '--request', 'x', '--length', '9', '--from-url', page, '--w', '400');
     assert.equal(again.status, 0, again.stderr);
     assert.doesNotMatch(again.stdout, /wrote films/);
+    assert.match(again.stdout, /films\/zz-fromurl-\d+ exists: only the capture runs; --request, --length ignored/);
     assert.deepEqual(fs.readdirSync(path.join(dir, 'assets/site')), ['colour-sting-page-400.png']);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
     fs.rmSync(path.join(ROOT, 'out', `${name}.runs.jsonl`), { force: true });
   }
+});
+
+const siteRoot = () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-site-'));
+  for (const d of ['prompts', 'guides']) fs.symlinkSync(path.join(ROOT, d), path.join(root, d));
+  fs.mkdirSync(path.join(root, 'assets'));
+  fs.symlinkSync(path.join(ROOT, 'assets/fonts'), path.join(root, 'assets/fonts'));
+  return root;
+};
+
+test('a film started from a website uses the from-url template, whatever the request words say, and --from still wins', () => {
+  const root = siteRoot();
+  try {
+    const log = console.log;
+    console.log = () => {};
+    try {
+      const made = newFilm('zz', { root, defaults: true, request: 'a five second intro sting', fromUrl: 'https://acme.com', siteWhere: 'films/zz/assets/site' });
+      assert.equal(made.template, 'prompts/brand-launch-from-url.md');
+      assert.equal(made.route.template, 'prompts/brand-launch-from-url.md');
+      const other = newFilm('zy', { root, defaults: true, from: path.join(root, 'prompts/beat-sheet.md'), fromUrl: 'https://acme.com', siteWhere: 'films/zy/assets/site' });
+      assert.equal(other.template, 'prompts/beat-sheet.md');
+    } finally { console.log = log; }
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});
+
+test('the brief names where the capture really goes: the tour mp4 or --out, not always assets/site', () => {
+  const where = (v) => siteStep({ 'from-url': 'https://acme.com', ...v }, 'zz').where;
+  assert.equal(where({}), 'films/zz/assets/site');
+  assert.equal(where({ tour: 't.json' }), 'films/zz/assets/tour.mp4');
+  assert.equal(where({ out: 'out/x' }), 'out/x');
+  const root = siteRoot();
+  try {
+    newFilm('zz', { root, defaults: true, request: 'a launch film', fromUrl: 'https://acme.com', siteWhere: where({ tour: 't.json' }) });
+    const brief = fs.readFileSync(path.join(root, 'films/zz/brief.md'), 'utf8');
+    assert.match(brief, /captured in films\/zz\/assets\/tour\.mp4 \(the real UI/);
+    assert.doesNotMatch(brief, /assets\/site/);
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });

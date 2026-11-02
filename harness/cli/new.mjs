@@ -450,15 +450,14 @@ function askedFormat(details, request) {
 
 const answerCommand = (name, request, from, fromUrl) => `bin/vawe new ${name} --request ${JSON.stringify(request ?? '<the ask>')}${from ? ` --from ${from}` : ''}${fromUrl ? ` --from-url ${fromUrl}` : ''}`;
 
-/** The folder of site captures a film started from a website keeps. */
-export const siteAssets = (name) => `films/${name}/assets/site`;
+const withSite = (fromUrl, where, details) => (fromUrl ? { assets: `the website ${fromUrl}, captured in ${where} (the real UI to show; invent nothing else)`, ...details } : details);
 
-const withSite = (name, fromUrl, details) => (fromUrl ? { assets: `the website ${fromUrl}, captured in ${siteAssets(name)}/ (the real UI to show; invent nothing else)`, ...details } : details);
+export const SITE_TEMPLATE = 'prompts/brand-launch-from-url.md';
 
 /** The open details as AskUserQuestion calls; writes nothing. */
-export function questionsJson(name, { request, from, fromUrl, details = {}, length, aspect }) {
+export function questionsJson(name, { request, from, fromUrl, siteWhere, details = {}, length, aspect }) {
   const format = askedFormat(details, request);
-  const answered = answeredDetails({ request, given: withSite(name, fromUrl, details), length: length ?? format.length, aspect: aspect ?? format.aspect });
+  const answered = answeredDetails({ request, given: withSite(fromUrl, siteWhere, details), length: length ?? format.length, aspect: aspect ?? format.aspect });
   return { calls: questionCalls(unansweredDetails(answered), request), answer_with: `${answerCommand(name, request, from, fromUrl)} --answers <file>` };
 }
 
@@ -475,11 +474,12 @@ export function askLines(name, request, from, open, fromUrl) {
   return lines;
 }
 
-function chooseTemplate(root, { from, request, name, title, length }) {
+function chooseTemplate(root, { from, fromUrl, request, name, title, length }) {
   if (from) return { template: path.resolve(from), route: null, length: path.basename(from) === 'beat-sheet.md' ? beatSheetLength({ request, name, title, length }) : undefined };
   const route = pickTemplate({ request, name, title, length }, readRouting(root));
   const recipe = pickRecipe({ request, name, title, length }, readRecipes(root));
-  return { template: path.join(root, route.template), route: recipe ? { ...route, recipe } : route, length: route.length };
+  const picked = fromUrl ? { ...route, template: SITE_TEMPLATE } : route;
+  return { template: path.join(root, picked.template), route: recipe ? { ...picked, recipe } : picked, length: route.length };
 }
 
 // The starter's face goes into the film's own assets folder: a film carries its files.
@@ -520,7 +520,7 @@ export function newFilmLines(name, { page, route, title, guesses = [], asked, re
  * Writes the film folder; returns { page, route, template, length, answered } (route is null when --from chose the template).
  * When a required detail is unanswered and `defaults` is off it writes nothing and returns { asked }.
  */
-export function newFilm(name, { from, fromUrl, root, length, aspect, title, request, details = {}, defaults = false }) {
+export function newFilm(name, { from, fromUrl, siteWhere, root, length, aspect, title, request, details = {}, defaults = false }) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) throw new UsageError(`film name "${name}" must be lowercase letters, digits and dashes`);
   const dir = path.join(root, 'films', name);
   if (fs.existsSync(path.join(dir, 'page.html'))) throw new UsageError(`${path.relative(root, dir)}/page.html already exists`);
@@ -528,11 +528,11 @@ export function newFilm(name, { from, fromUrl, root, length, aspect, title, requ
   length ??= format.length;
   aspect ??= format.aspect;
   readAnswers({ length, aspect, title });
-  details = withSite(name, fromUrl, details);
+  details = withSite(fromUrl, siteWhere, details);
   const answered = answeredDetails({ request, given: details, length, aspect });
   const open = unansweredDetails(answered);
   if (!defaults && open.some((d) => d.required)) return { asked: open, request, from, fromUrl };
-  const { template, route, length: routedLength } = chooseTemplate(root, { from, request: fromUrl ? `${request ?? ''} website` : request, name, title, length });
+  const { template, route, length: routedLength } = chooseTemplate(root, { from, fromUrl, request: fromUrl ? `${request ?? ''} website` : request, name, title, length });
   const markdown = fs.readFileSync(template, 'utf8');
   const questions = parseQuestions(markdown);
   length ??= routedLength;
