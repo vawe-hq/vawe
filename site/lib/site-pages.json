@@ -99,6 +99,13 @@
       "label": "Remotion alternatives"
     },
     {
+      "path": "/compare/remotion-vs-hyperframes",
+      "priority": 0.8,
+      "changeFrequency": "monthly",
+      "group": "comparison",
+      "label": "Remotion vs HyperFrames vs vawe"
+    },
+    {
       "path": "/when-determinism-matters",
       "priority": 0.7,
       "changeFrequency": "monthly",
@@ -146,6 +153,13 @@
       "changeFrequency": "monthly",
       "group": "comparison",
       "label": "vawe vs Lottie"
+    },
+    {
+      "path": "/vs/revideo",
+      "priority": 0.7,
+      "changeFrequency": "monthly",
+      "group": "comparison",
+      "label": "vawe vs Revideo"
     },
     {
       "path": "/problems",
