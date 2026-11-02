@@ -1,5 +1,6 @@
 // The SPEC and ACCEPTANCE tables of a brief.md, as plain arrays. A missing table gives an empty array, so
-// an old brief with no tables parses to nothing. Columns are read by position, in the order the brief writes them.
+// an old brief with no tables parses to nothing. A column is found by its header name ("start s", "the viewer notices"); a table whose
+// header names none of the known columns is read by position, in the order COLUMNS lists them.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -21,22 +22,37 @@ export function numberOf(cell) {
   return m ? Number(m[1]) : null;
 }
 
+const HEADER_NAME = { 'the viewer notices': 'notices', 'move in': 'moveIn', 'move out': 'moveOut' };
+const headerKey = (cell) => {
+  const name = cell.toLowerCase().replace(/\s+(s|%)$/, '').trim();
+  return HEADER_NAME[name] ?? name;
+};
+
+/** { header, rows }: the header cells of the table under a heading and its data rows. */
 function rowsAfter(lines, from) {
   const rows = [];
   for (let i = from + 1; i < lines.length && !/^#{1,6}\s/.test(lines[i]); i++) {
     if (!lines[i].trim().startsWith('|')) continue;
     rows.push({ line: i, cells: cellsOf(lines[i]) });
   }
-  return rows.slice(1).filter((r) => !isSeparator(r.cells));
+  return { header: rows[0]?.cells ?? [], rows: rows.slice(1).filter((r) => !isSeparator(r.cells)) };
 }
 
-/** The data rows of one table as { line (index in `lines`), cells, row (the parsed object) }; [] when the table is missing. */
+/** The column index of each key of table `name` in `header`: by header name, or by position when the header names none of the keys. Pure. */
+export function columnIndex(name, header) {
+  const keys = COLUMNS[name];
+  const named = header.map(headerKey);
+  return keys.some((k) => named.includes(k)) ? Object.fromEntries(keys.map((k) => [k, named.indexOf(k)])) : Object.fromEntries(keys.map((k, i) => [k, i]));
+}
+
+/** The data rows of one table as { line (index in `lines`), cells, row (the parsed object), index (key to column, -1 when the table has none) }; [] when the table is missing. */
 export function tableRows(lines, name) {
   const head = lines.findIndex((l) => new RegExp(`^#{2,4}\\s+${name}\\s*$`, 'i').test(l.trim()));
   if (head < 0) return [];
-  const keys = COLUMNS[name];
-  return rowsAfter(lines, head).filter((r) => r.cells.some(Boolean)).map(({ line, cells }) => ({ line, cells, row: Object.fromEntries(keys.map((k, i) => {
-    const cell = clean(cells[i] ?? '');
+  const { header, rows } = rowsAfter(lines, head);
+  const index = columnIndex(name, header);
+  return rows.filter((r) => r.cells.some(Boolean)).map(({ line, cells }) => ({ line, cells, index, row: Object.fromEntries(Object.entries(index).map(([k, i]) => {
+    const cell = i < 0 ? '' : clean(cells[i] ?? '');
     return [k, NUMERIC.has(k) ? numberOf(cell) : cell];
   })) }));
 }

@@ -61,3 +61,29 @@ test('spec-sync writes the Shots start, end and ground from the measured worlds,
   assert.deepEqual(changes, ['Shots "s1" end: 2 -> 2.4']);
   assert.deepEqual(missing, ['Shots "s2 (guess: change me)"']);
 });
+
+test('spec-sync finds columns by header name: an author column in the ground slot or before start is kept', () => {
+  const shots = `### Shots
+| id | the viewer notices | start s | end s | move in | move out | camera | sound |
+|---|---|---|---|---|---|---|---|
+| s1 | a line | 0 | 2 | cut | fade | still | thud at 0.2 |
+| s2 | the star | 2 | 4 | cut | fade | still | sweep |
+`;
+  const worlds = [{ id: 's1', start: 0, end: 2.4, ground: '#111' }, { id: 's2', start: 2.4, end: 4, ground: '#fff' }];
+  const { text } = syncSpec(shots, { words: [], objects: [], worlds });
+  const t = text.split('\n');
+  assert.equal(t[3], '| s1 | a line | 0 | 2.4* | cut | fade | still | thud at 0.2 | #111 |');
+  assert.equal(t[4], '| s2 | the star | 2.4* | 4 | cut | fade | still | sweep | #fff |');
+  assert.match(t[1], /\| sound \| ground \|$/);
+});
+
+test('spec-sync gives each Words row with the same text its own measure', () => {
+  const twice = `### Words
+| text | shot | appear s | settle s |
+|---|---|---|---|
+| Go | S1 | 1 | 1.5 |
+| Go | S2 | 3 | 3.5 |
+`;
+  const { text } = syncSpec(twice, { words: [{ text: 'Go', appear: 1, settle: 1.5 }, { text: 'Go', appear: 3.2, settle: 3.5 }], objects: [] });
+  assert.deepEqual(parseBriefTables(text).words.map((w) => [w.appear, w.settle]), [[1, 1.5], [3.2, 3.5]]);
+});
