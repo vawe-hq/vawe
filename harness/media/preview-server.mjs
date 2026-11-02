@@ -84,7 +84,7 @@ async function connectShared(final) {
   } catch { return null; }
 }
 
-// The top level of the checkout a page lives in (its own folder when it is in none). Only `vawe shot` serves from it,
+// The top level of the checkout a page lives in (its own folder when it is in none). Only `vawe new --from-url` serves from it,
 // so a shot sees the page's own core/; still and dev serve the page with pageMount, so they see this checkout's.
 export function pageRoot(abs) {
   const dir = path.dirname(abs);

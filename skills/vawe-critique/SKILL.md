@@ -47,7 +47,7 @@ stills), `vawe frame --world all` (your page), `vawe frame --cuts` and `--moment
 moment, a reference or your draft; `--onion` and `--velocity` for one move), `vawe see <ref.mp4> --spec` (a reference
 measured into SPEC.md), `vawe frame --at s,s,s` (a labelled sheet of seconds; `--vs <mp4>` puts the reference beside
 your frames), `vawe frame --board` (one HTML board: frame cards, moves, eases, handoffs, sound, rhythm), `vawe frame
---at s` (one full-size PNG of a page or mp4 at a second). A site route, url or static html page: `vawe shot <route> --w 1440,390 [--full]`, never a puppeteer script;
+--at s` (one full-size PNG of a page or mp4 at a second). A site route, url or static html page: `vawe new --from-url <route> --w 1440,390 [--full]`, never a puppeteer script;
 the site's links: `vawe check links`. A field of many small moving parts (rain, dust, sparks): `vawe see` prints one
 "Particle field" line with count, direction and speed.
 

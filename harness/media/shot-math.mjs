@@ -1,9 +1,9 @@
-// Pure parts of `vawe shot`. No I/O and no heavy imports: harness/cli/verbs.mjs loads this file to check the arguments.
+// Pure parts of `vawe new --from-url`. No I/O and no heavy imports: harness/cli/verbs.mjs loads this file to check the arguments.
 import path from 'node:path';
 
 export const DEFAULT_WIDTHS = [1440, 390];
 export const DEFAULT_BASE = 'http://localhost:3080';
-const USAGE = 'usage: bin/vawe shot <route|url|page.html>[,more] [--w 1440,390] [--full] [--base http://localhost:3080] [--tour steps.json --fps 60]';
+const USAGE = 'usage: bin/vawe new [name] --from-url <route|url|page.html>[,more] [--w 1440,390] [--full] [--base http://localhost:3080] [--tour steps.json --fps 60]';
 
 /** The widths of `--w`, in order, or null when the text is not a comma list of widths from 200 to 4000. Pure. */
 export function parseWidths(text) {

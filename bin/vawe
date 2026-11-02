@@ -8,8 +8,8 @@ import { fileURLToPath } from 'node:url';
 import { isUrl } from '../harness/lib/url.mjs';
 import { closest, parseArgs, topHelp, UsageError, verbHelp } from '../harness/cli/parse.mjs';
 import { ALIASES, aliasNotice, aliasKey } from '../harness/cli/aliases.mjs';
-import { VERBS, ALIAS_TARGETS, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
-import { newFilm, newFilmLines, readDetails, questionsJson } from '../harness/cli/new.mjs';
+import { VERBS, ALIAS_TARGETS, siteStep, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
+import { newFilm, newFilmLines, readDetails, questionsJson, siteAssets } from '../harness/cli/new.mjs';
 import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
 import { pageDigest } from '../harness/lib/approval.mjs';
@@ -75,23 +75,33 @@ async function execute(verb, rest, call) {
   }
   if (!steps && values['questions-json']) {
     const { length, aspect, request, from } = values;
-    console.log(JSON.stringify(questionsJson(positional[0], { request, from, length, aspect, details: readDetails(values) }), null, 2));
+    console.log(JSON.stringify(questionsJson(positional[0], { request, from, fromUrl: values['from-url'], length, aspect, details: readDetails(values) }), null, 2));
     return 0;
   }
-  if (!steps) {
-    const made = newFilm(positional[0], { from: values.from, root: ROOT, length: values.length, aspect: values.aspect, title: values.title, request: values.request, details: readDetails(values), defaults: values.defaults });
-    if (!made.asked) {
-      appendRun(positional[0], newEvent({ template: made.template, length: made.length, answered: made.answered, guessed: made.guesses, ranges: made.ranges }), { root: ROOT });
-    }
-    console.log(newFilmLines(positional[0], made).join('\n'));
-    const missing = made.asked ? null : toolProbeLine(ROOT);
-    if (missing) console.error(missing);
-    for (const line of recentFailedShipLines(readAllRuns(path.join(ROOT, 'out')), Date.now())) console.error(line);
-    return 0;
-  }
+  if (!steps) return startFilm(values, positional[0], call);
   const startedMs = Date.now();
   const unmark = verb.name === 'critique' && call.positional[0] ? markRunning(call.positional[0], verb.name, ROOT) : () => {};
   try { return await runSteps(verb, values, positional, steps, call, startedMs, rest); } finally { unmark(); }
+}
+
+async function startFilm(values, name, call) {
+  const site = values['from-url'] ? siteStep(values, name) : null;
+  const exists = fs.existsSync(path.join(ROOT, 'films', name, 'page.html'));
+  if (!(site && exists)) {
+    const made = newFilm(name, { from: values.from, fromUrl: values['from-url'], root: ROOT, length: values.length, aspect: values.aspect, title: values.title, request: values.request, details: readDetails(values), defaults: values.defaults });
+    if (!made.asked) {
+      appendRun(name, newEvent({ template: made.template, length: made.length, answered: made.answered, guessed: made.guesses, ranges: made.ranges }), { root: ROOT });
+    }
+    console.log(newFilmLines(name, { ...made, fromUrl: values['from-url'] }).join('\n'));
+    const missing = made.asked ? null : toolProbeLine(ROOT);
+    if (missing) console.error(missing);
+    for (const line of recentFailedShipLines(readAllRuns(path.join(ROOT, 'out')), Date.now())) console.error(line);
+    if (made.asked || !site) return 0;
+  }
+  const code = stepCode(await runStep(site, call), call);
+  const where = values.out ?? (values.tour ? `films/${name}/assets/tour.mp4` : siteAssets(name));
+  if (code === 0) console.log(`captured: ${where}: ${values.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html)' : 'Read each PNG at full size, then name the frames you take in "Taken from"'}`);
+  return code;
 }
 
 async function runSteps(verb, values, positional, steps, call, startedMs, rest) {

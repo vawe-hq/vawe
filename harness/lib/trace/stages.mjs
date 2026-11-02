@@ -16,11 +16,19 @@ function frameStage(args, seen) {
   return !seen.dev ? 'study' : MOVE.test(args) ? 'motion' : null;
 }
 
+/** The stage of a `dev` call: the animatic is the board, the studio names none, a ranged draft after a critique is a fix. */
+function devStage(args, seen) {
+  if (/--studio\b/.test(args)) return null;
+  if (/--animatic\b/.test(args)) return 'board';
+  return (seen.critique || seen.judge) && /--(from|to)\b/.test(args) ? 'fix' : 'dev';
+}
+
 /** The loop stage a verb call belongs to, or null when its verb names none. `seen` holds the stages already used. The run log and the trace review both call this. */
 export function verbStage({ verb, args }, seen) {
   if (verb === 'frame') return frameStage(args, seen);
   if (verb === 'see' && /--plan\b/.test(args)) return 'storyboard';
-  if (verb === 'dev') return /--studio\b/.test(args) ? null : /--animatic\b/.test(args) ? 'board' : (seen.critique || seen.judge) && /--(from|to)\b/.test(args) ? 'fix' : 'dev';
+  if (verb === 'dev') return devStage(args, seen);
+  if (verb === 'new' && /^--from-url\b/.test(args)) return null;
   if (verb === 'ship') return /--(status|wait)\b/.test(args) ? null : 'ship';
   if (verb === 'critique' || verb === 'judge') return verb;
   if (STUDY_VERBS.has(verb)) {

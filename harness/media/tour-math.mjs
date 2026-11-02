@@ -1,4 +1,4 @@
-// Pure parts of `vawe shot --tour`: the steps file, the frame times and the tweens. No I/O and no heavy imports.
+// Pure parts of `vawe new --from-url --tour`: the steps file, the frame times and the tweens. No I/O and no heavy imports.
 // A tour is a JSON list of steps, or { "dur": s, "cursor": [x, y], "steps": [...] }. Every step has a time `t` in seconds and one action:
 //   { "t": 1.2, "move": "#job-exit", "dur": 0.6 }   the cursor travels to the middle of the element (or to [x, y] in CSS px); "hover" is the same step
 //   { "t": 2.4, "click": "#job-exit" }              press and release (0.12 s) at the cursor; the cursor must already be over the element

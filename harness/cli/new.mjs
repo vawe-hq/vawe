@@ -448,22 +448,27 @@ function askedFormat(details, request) {
   return { length: format.length ?? ask.length, aspect: format.aspect ?? ask.aspect };
 }
 
-const answerCommand = (name, request, from) => `bin/vawe new ${name} --request ${JSON.stringify(request ?? '<the ask>')}${from ? ` --from ${from}` : ''}`;
+const answerCommand = (name, request, from, fromUrl) => `bin/vawe new ${name} --request ${JSON.stringify(request ?? '<the ask>')}${from ? ` --from ${from}` : ''}${fromUrl ? ` --from-url ${fromUrl}` : ''}`;
+
+/** The folder of site captures a film started from a website keeps. */
+export const siteAssets = (name) => `films/${name}/assets/site`;
+
+const withSite = (name, fromUrl, details) => (fromUrl ? { assets: `the website ${fromUrl}, captured in ${siteAssets(name)}/ (the real UI to show; invent nothing else)`, ...details } : details);
 
 /** The open details as AskUserQuestion calls; writes nothing. */
-export function questionsJson(name, { request, from, details = {}, length, aspect }) {
+export function questionsJson(name, { request, from, fromUrl, details = {}, length, aspect }) {
   const format = askedFormat(details, request);
-  const answered = answeredDetails({ request, given: details, length: length ?? format.length, aspect: aspect ?? format.aspect });
-  return { calls: questionCalls(unansweredDetails(answered), request), answer_with: `${answerCommand(name, request, from)} --answers <file>` };
+  const answered = answeredDetails({ request, given: withSite(name, fromUrl, details), length: length ?? format.length, aspect: aspect ?? format.aspect });
+  return { calls: questionCalls(unansweredDetails(answered), request), answer_with: `${answerCommand(name, request, from, fromUrl)} --answers <file>` };
 }
 
-export function askLines(name, request, from, open) {
+export function askLines(name, request, from, open, fromUrl) {
   const lines = ['agents: with AskUserQuestion, run --questions-json; without it, write the answers file shown below', '', `vawe new: ${open.length} facts needed before a good brief`, '',
     'Nothing is written yet. Answer these, most film-changing first. Skip an optional one to take a guess.', ''];
   open.forEach((d, i) => {
     lines.push(`${i + 1}. ${d.key}${d.required ? '' : ' (optional)'}: ${d.question}`, `   why: ${d.why}`, `   example: ${d.example}`);
   });
-  const base = answerCommand(name, request, from);
+  const base = answerCommand(name, request, from, fromUrl);
   lines.push('', 'Write the answers to a file (Write tool), one `key: value` line each, for example:', ...open.slice(0, 3).map((d) => `  ${d.key}: ${d.example}`), 'then run:', `  ${base} --answers <file>`,
     'or give each one on the command line:', `  ${base} --detail ${open[0].key}="..." --detail ${open[1]?.key ?? open[0].key}="..."`,
     'For an unattended run that guesses instead, add --defaults.');
@@ -492,8 +497,8 @@ const LATER_DOCS = [
   'skill combos for DESIGN.md: prompts/skill-combos.md; ideas before the board: guides/IDEATE.md',
 ];
 
-export function newFilmLines(name, { page, route, title, guesses = [], asked, request, from, defaulted = [], variety = { lines: [] } }) {
-  if (asked) return askLines(name, request, from, asked);
+export function newFilmLines(name, { page, route, title, guesses = [], asked, request, from, fromUrl, defaulted = [], variety = { lines: [] } }) {
+  if (asked) return askLines(name, request, from, asked, fromUrl);
   const lines = [`wrote ${page}, films/${name}/brief.md and films/${name}/directions.html`];
   if (defaulted.length) lines.push(`--defaults: details guessed, not asked: ${defaulted.join(', ')}`);
   if (guesses.length) lines.push(`guessed, each marked "${GUESS}" in brief.md: ${guesses.join(', ')}`);
@@ -515,7 +520,7 @@ export function newFilmLines(name, { page, route, title, guesses = [], asked, re
  * Writes the film folder; returns { page, route, template, length, answered } (route is null when --from chose the template).
  * When a required detail is unanswered and `defaults` is off it writes nothing and returns { asked }.
  */
-export function newFilm(name, { from, root, length, aspect, title, request, details = {}, defaults = false }) {
+export function newFilm(name, { from, fromUrl, root, length, aspect, title, request, details = {}, defaults = false }) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) throw new UsageError(`film name "${name}" must be lowercase letters, digits and dashes`);
   const dir = path.join(root, 'films', name);
   if (fs.existsSync(path.join(dir, 'page.html'))) throw new UsageError(`${path.relative(root, dir)}/page.html already exists`);
@@ -523,10 +528,11 @@ export function newFilm(name, { from, root, length, aspect, title, request, deta
   length ??= format.length;
   aspect ??= format.aspect;
   readAnswers({ length, aspect, title });
+  details = withSite(name, fromUrl, details);
   const answered = answeredDetails({ request, given: details, length, aspect });
   const open = unansweredDetails(answered);
-  if (!defaults && open.some((d) => d.required)) return { asked: open, request, from };
-  const { template, route, length: routedLength } = chooseTemplate(root, { from, request, name, title, length });
+  if (!defaults && open.some((d) => d.required)) return { asked: open, request, from, fromUrl };
+  const { template, route, length: routedLength } = chooseTemplate(root, { from, request: fromUrl ? `${request ?? ''} website` : request, name, title, length });
   const markdown = fs.readFileSync(template, 'utf8');
   const questions = parseQuestions(markdown);
   length ??= routedLength;

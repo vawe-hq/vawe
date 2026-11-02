@@ -1,4 +1,4 @@
-// tests/media/shot-tour.test.mjs: the steps file and the tweens of `vawe shot --tour` (pure, no browser).
+// tests/media/shot-tour.test.mjs: the steps file and the tweens of `vawe new --from-url --tour` (pure, no browser).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CLICK_S, TAIL_S, frameCount, frameTime, inside, parseTour, pressedAt, stepsDue, tourSize, tween, valueAt } from '../../harness/media/tour-math.mjs';

@@ -41,6 +41,11 @@ const ROWS = [
   [['animatic', P], ['dev', P, '--animatic']],
   [['animatic', P, '--fps', '5', '--out', 'out/a.mp4'], ['dev', P, '--fps', '5', '--out', 'out/a.mp4', '--animatic']],
   [['studio', P, '--port', '8800'], ['dev', P, '--port', '8800', '--studio']],
+  [['shot', '/blog', '--w', '390'], ['new', '--from-url', '/blog', '--w', '390']],
+  [['shot', '/,/blog', '--full'], ['new', '--from-url', '/,/blog', '--full']],
+  [['shot', '--w', '390', '/moves'], ['new', '--from-url', '/moves', '--w', '390']],
+  [['shot', P, '--w=1920'], ['new', '--from-url', P, '--w=1920']],
+  [['shot', 'https://vawe.dev/easing', '--tour', 'tour.json', '--w', '1600', '--out', 'out/e.mp4', '--fps', '30', '--scale', '2'], ['new', '--from-url', 'https://vawe.dev/easing', '--tour', 'tour.json', '--w', '1600', '--out', 'out/e.mp4', '--fps', '30', '--scale', '2']],
 ];
 
 test('every old picture command maps to the command that replaced it', () => {
@@ -76,6 +81,11 @@ const STEPS = [
   ['harness/media/animatic.mjs', [P]],
   ['harness/media/animatic.mjs', [P, '--fps', '5', '--out', 'out/a.mp4']],
   ['studio/page-server.mjs', [P]],
+  ['harness/media/shot.mjs', ['/blog', '--w', '390']],
+  ['harness/media/shot.mjs', ['/,/blog', '--full']],
+  ['harness/media/shot.mjs', ['/moves', '--w', '390']],
+  ['harness/media/shot.mjs', [P, '--w', '1920']],
+  ['harness/media/shot.mjs', ['https://vawe.dev/easing', '--w', '1600', '--out', 'out/e.mp4', '--tour', 'tour.json', '--fps', '30', '--scale', '2']],
 ];
 
 test('every mapped command parses and builds the script and arguments the old verb ran', () => {
@@ -109,6 +119,12 @@ test('animatic and studio are modes of dev, each exclusive with the other and wi
   assert.throws(() => build(P, '--port', '8800'), /--port needs --studio/);
   assert.equal(dev.next({ animatic: true }, [P]).startsWith('Watch the mp4'), true);
   assert.equal(dev.next({ studio: true }, [P]), null);
+});
+
+test('shot needs a target; every capture flag of shot is a flag of new --from-url', () => {
+  assert.throws(() => ALIASES.shot(['--w', '390']), (e) => e instanceof UsageError && /shot needs a <route\|url\|page\.html>: vawe new --from-url/.test(e.message));
+  const flags = VERBS.find((v) => v.name === 'new').flags.map((f) => f.name);
+  for (const f of ['from-url', 'w', 'full', 'base', 'tour', 'fps', 'scale', 'out']) assert.ok(flags.includes(f), f);
 });
 
 test('bin/vawe prints a refused old call as a usage error, exit 2, logged under the old name', () => {

@@ -57,9 +57,18 @@ export const RETIRED = {
   palette: 'vawe new writes the palette seed into brief.md',
 };
 
+const SHOT_VALUED = new Set(['--w', '--base', '--out', '--tour', '--fps', '--scale']);
+
+const shot = (args) => {
+  const at = args.findIndex((a, i) => !a.startsWith('--') && !(SHOT_VALUED.has(args[i - 1]) && i > 0));
+  if (at < 0) throw new UsageError('shot needs a <route|url|page.html>: vawe new --from-url <route|url|page.html> [--w 1440,390] [--full]');
+  return ['new', '--from-url', args[at], ...args.filter((_, i) => i !== at)];
+};
+
 const dev = (flag) => (args) => ['dev', ...args, flag];
 
 export const ALIASES = {
+  shot,
   animatic: dev('--animatic'),
   studio: dev('--studio'),
   fonts: kept('fonts'),
@@ -80,7 +89,7 @@ export const aliasNotice = (name, argv, { short = false } = {}) => (argv[0] === 
 /** The key a notice is remembered by: the old verb and the verb it became. */
 export const aliasKey = (name, argv) => `${name}->${argv[0]}`;
 
-const NOW = { fonts: 'fonts', palette: 'palette', animatic: 'dev', studio: 'dev' };
+const NOW = { fonts: 'fonts', palette: 'palette', animatic: 'dev', studio: 'dev', shot: 'new' };
 
 /** The verb a call of `name` runs today: an old picture verb gives frame (or see), any other name gives itself (`storyboard --text` runs `see`, but the run log counts it with the rest). A run log written before the merge names the old verb. */
 export const verbNow = (name) => (ALIASES[name] ? NOW[name] ?? 'frame' : name);

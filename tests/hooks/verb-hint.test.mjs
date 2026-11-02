@@ -9,6 +9,13 @@ test('a screenshot script or a headless chrome shot points at vawe shot', () => 
   assert.equal(id('"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --screenshot=/tmp/a.png http://localhost:3055/'), 'shot');
 });
 
+test('the screenshot advice names new --from-url, and the old advice text still counts as the same rule', () => {
+  const rule = hintFor('node -e "require(\'puppeteer\')"');
+  assert.match(rule.say, /bin\/vawe new --from-url <route\|url\|page\.html> --w 1440,390/);
+  assert.doesNotMatch(rule.say, /bin\/vawe shot/);
+  assert.match('bin/vawe shot <route|url|page.html> --w 1440,390 [--full] takes site', rule.legacy);
+});
+
 test('a curl status loop points at vawe check links', () => {
   assert.equal(id('for u in /blog /moves; do curl -s -o /dev/null -w "%{http_code}\\n" localhost:3100$u; done'), 'links');
 });

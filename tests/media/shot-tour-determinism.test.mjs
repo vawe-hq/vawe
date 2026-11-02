@@ -1,4 +1,4 @@
-// tests/media/shot-tour-determinism.test.mjs: `vawe shot --tour` on a fixture page, run twice. Launches Chrome and ffmpeg.
+// tests/media/shot-tour-determinism.test.mjs: `vawe new --from-url --tour` on a fixture page, run twice. Launches Chrome and ffmpeg.
 //   node tests/media/shot-tour-determinism.test.mjs
 // The two mp4 hold the same frame hashes, so a frame depends on its second alone: the hover transition, the looping
 // animation and the scroll all ran at the time of the frame, not at the time of the screenshot.

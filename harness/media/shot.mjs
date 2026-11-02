@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `vawe shot <route|url|page.html>[,more] [--w 1440,390] [--full] [--base url] [--out dir]`: a PNG of a site page, a url or a static html page at each width.
+// `vawe new [name] --from-url <route|url|page.html>[,more] [--w 1440,390] [--full] [--base url] [--out dir]`: a PNG of a site page, a url or a static html page at each width.
 //   node harness/media/shot.mjs /blog,/moves --w 1440,390 --full
 // A route needs a site server: a running one at --base is reused; a localhost one that is down is started here (site/ `npm run dev`) and stopped when the shots are done.
 // Lazy images are loaded before the shot. Each line also reports page errors, failed requests and sideways overflow, the three things a screenshot hides.

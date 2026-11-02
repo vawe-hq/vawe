@@ -1,4 +1,4 @@
-// `vawe shot <url> --tour steps.json`: drive a scripted cursor through the real page and write an mp4 of it.
+// `vawe new --from-url <url> --tour steps.json`: drive a scripted cursor through the real page and write an mp4 of it.
 // Every frame is made alone, at its exact second: the page clock (core/engine/page-clock.js) owns Date, rAF and timers,
 // every CSS and Web Animation is paused and set to the time since it began, the scroll and the cursor are
 // pure functions of t (core/motion eases), and the mouse is a real one (CDP Input.dispatchMouseEvent), so :hover styles and

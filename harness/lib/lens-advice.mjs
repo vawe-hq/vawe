@@ -10,7 +10,7 @@ const f1 = (n) => n.toFixed(1);
 export function texelLine(samples) {
   const worst = samples.filter((s) => s.texel != null).sort((a, b) => b.texel - a.texel)[0];
   if (!worst || worst.texel <= TEXEL_MAX) return null;
-  return `lens texel: the focused region is drawn ${worst.texel.toFixed(2)}x its source pixels at ${f1(worst.t)} s, so text reads soft; fix: a sharper source (a page capture: bin/vawe shot <url> --tour --scale 2), or a smaller zoom there`;
+  return `lens texel: the focused region is drawn ${worst.texel.toFixed(2)}x its source pixels at ${f1(worst.t)} s, so text reads soft; fix: a sharper source (a page capture: bin/vawe new --from-url <url> --tour steps.json --scale 2), or a smaller zoom there`;
 }
 
 const worldAt = (worlds, t) => worlds?.find((w) => w.start != null && t >= w.start && t < w.end)?.id ?? `${f1(t)}s`;

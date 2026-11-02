@@ -12,7 +12,7 @@ test('the texel line names the worst second, the ratio and the fix; none at 1.0x
   assert.equal(texelLine([sample(1), sample(2, { texel: 1.0 })]), null);
   const line = texelLine([sample(1, { texel: 1.2 }), sample(5.9, { texel: 1.46 })]);
   assert.match(line, /1\.46x its source pixels at 5\.9 s/);
-  assert.match(line, /--tour --scale 2/);
+  assert.match(line, /bin\/vawe new --from-url <url> --tour steps\.json --scale 2/);
 });
 
 test('the pose line marks a tilt over the readable range and over the clamp', () => {

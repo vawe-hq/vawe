@@ -94,11 +94,31 @@ const ASPECT = 'a W:H ratio of whole numbers (16:9 9:16 1:1 4:5 4:3 are the comm
 const ASPECT_FLAG = { name: 'aspect', type: 'string', default: 'the page meta, else 16:9', help: ASPECT };
 const PARAM = { name: 'param', type: 'string', repeat: true, help: 'a page option key=value, repeatable: the page reads it with new URLSearchParams(location.search), for example --param look=riso. A page only; part of the render key; the default output name gets it (-look-riso), so renders of two looks do not overwrite each other' };
 
+const SITE_FLAGS = ['w', 'full', 'base', 'tour', 'fps', 'scale', 'out'];
+
+/** The shot step of `new --from-url`: PNGs of the site (or the tour mp4) into the film's assets, or into out/shot when no film is named. Throws a UsageError for a bad argument. */
+export function siteStep(v, name) {
+  const problem = shotProblem({ targets: parseTargets(v['from-url']), w: v.w, base: v.base, tour: v.tour, fps: v.fps, scale: v.scale });
+  if (problem) throw new UsageError(problem);
+  const out = v.out ?? (name ? `films/${name}/assets/${v.tour ? 'tour.mp4' : 'site'}` : undefined);
+  return { script: 'harness/media/shot.mjs', args: [v['from-url'], ...opt('--w', v.w), ...(v.full ? ['--full'] : []), ...opt('--base', v.base), ...opt('--out', out), ...opt('--tour', v.tour), ...(v.tour ? [...opt('--fps', v.fps), ...opt('--scale', v.scale)] : [])] };
+}
+
+function newSteps(v, [name]) {
+  const siteFlag = SITE_FLAGS.find((f) => v[f] !== undefined);
+  if (siteFlag && !v['from-url']) throw new UsageError(`--${siteFlag} needs --from-url`);
+  if (v.ref && v['from-url']) throw new UsageError('--ref recreates an mp4 and --from-url captures a website: run one');
+  const site = v['from-url'] ? siteStep(v, name) : null;
+  if (!name && !site) throw new UsageError('missing <name>; usage: vawe new <name> [flags], or vawe new --from-url <route|url|page.html>');
+  if (v.ref) return [{ script: 'harness/dev/recreation-new.mjs', args: [], env: { TYPE: 'recreation', NAME: name, REF: v.ref, ...(v.score ? { SCORE: '1' } : {}) } }];
+  return name ? null : [site];
+}
+
 export const VERBS = [
   {
     tier: 'core',
-    name: 'new', summary: 'use when you start a film or recreate a reference mp4: writes page.html and brief.md, asks for missing facts first',
-    positional: [{ name: 'name', required: true, help: 'film name, lowercase with dashes' }],
+    name: 'new', summary: 'use when you start a film, recreate a reference mp4 or capture a website: writes page.html and brief.md, asks for missing facts first',
+    positional: [{ name: 'name', help: 'film name, lowercase with dashes; left out with --from-url, the captures go to out/shot and no film is written' }],
     flags: [
       { name: 'from', type: 'path', default: 'the guides/ROUTING.md row that --request, the name and --length point at; a sting when none does', help: 'prompts/<template>.md whose inputs section becomes brief.md', kind: 'file' },
       { name: 'request', type: 'string', help: 'the ask in its own words: picks the template when --from is absent, and goes into brief.md' },
@@ -111,9 +131,18 @@ export const VERBS = [
       { name: 'aspect', type: 'string', help: 'a W:H ratio of whole numbers (16:9 9:16 1:1 4:5 4:3 are the common ones): written to brief.md and the page aspect meta' },
       { name: 'title', type: 'string', help: 'the starter headline: written to brief.md and the page' },
       { name: 'score', type: 'bool', help: 'with --ref: also render the starter and score it against the reference (slow)' },
+      { name: 'from-url', type: 'string', help: 'the website the film shows, or a route (/blog) or a static .html file, a comma list shoots each: with a name, the film is started from prompts/brand-launch-from-url.md and the PNGs of the site go to films/<name>/assets/site/ (an existing film gets only the captures); without a name, only the PNGs, to out/shot' },
+      { name: 'w', type: 'string', default: '1440,390', help: 'with --from-url: comma list of viewport widths' },
+      { name: 'full', type: 'bool', help: 'with --from-url: the whole page height, not the first screen' },
+      { name: 'base', type: 'string', default: 'http://localhost:3080', help: 'with --from-url: the site server for routes; a localhost one that is down is started and stopped by this verb' },
+      { name: 'tour', type: 'path', help: 'with --from-url: a steps file (JSON list of { t, move | click | scrollTo | scroll, dur }, see harness/media/tour-math.mjs): drives a drawn macOS cursor with real mouse events through one route or url, at a 16:9 viewport of the first --w, and writes an mp4 to films/<name>/assets/tour.mp4' },
+      { name: 'fps', type: 'number', default: 60, help: 'with --tour: the frame rate of the mp4' },
+      { name: 'scale', type: 'number', default: 1, help: 'with --tour: the device scale factor (3 gives a 3840 by 2160 mp4 of a 1280 wide page, sharp enough for a macro close-up)' },
+      { name: 'out', type: 'path', help: 'with --from-url: the folder for the PNGs, named <route>-<width>.png, or with --tour the mp4 file; overrides the places named above' },
     ],
-    example: 'vawe new my-launch --from prompts/story-explainer.md',
-    build: (v, [name]) => (v.ref ? [{ script: 'harness/dev/recreation-new.mjs', args: [], env: { TYPE: 'recreation', NAME: name, REF: v.ref, ...(v.score ? { SCORE: '1' } : {}) } }] : null),
+    example: 'vawe new my-launch --from prompts/story-explainer.md   |   vawe new acme-launch --request "a launch film for acme" --from-url https://acme.com --full   |   vawe new --from-url /,/blog --full   |   vawe new acme-tour --from-url https://acme.com/app --tour tour.json --w 1600',
+    build: newSteps,
+    next: (v) => (v['from-url'] ? (v.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html); vawe frame <film mp4> reads it' : 'Read each PNG at full size; the 390 one shows the phone layout; vawe check links crawls every link of the site') : null),
   },
   {
     tier: 'core',
@@ -281,27 +310,6 @@ export const VERBS = [
     next: (v, [page]) => (v.fresh
       ? `Read the critique file above, fix its top five with bin/vawe dev ${page} --from s --to s, then ${SAY.judge(pageName(page), page, v.ref)}`
       : `look at the sheets above, or start a critic session with ${SAY.critique(pageName(page), page)}, then ${SAY.judge(pageName(page), page, v.ref)}`),
-  },
-  {
-    tier: 'more',
-    name: 'shot', summary: 'a PNG of a site route, a url or a static html page at each width (default 1440 and 390): lazy images loaded, the site server reused or started and stopped, and page errors, failed requests and sideways overflow reported; with --tour, an mp4 of a scripted cursor working the page, every frame at its exact second',
-    positional: [{ name: 'target', required: true, help: 'a route (/blog), a url, or a .html file; a comma list shoots each' }],
-    flags: [
-      { name: 'w', type: 'string', default: '1440,390', help: 'comma list of viewport widths' },
-      { name: 'full', type: 'bool', help: 'the whole page height, not the first screen' },
-      { name: 'base', type: 'string', default: 'http://localhost:3080', help: 'the site server for routes; a localhost one that is down is started and stopped by this verb' },
-      { name: 'out', type: 'path', default: 'out/shot', help: 'the folder for the PNGs, named <route>-<width>.png; with --tour, the mp4 file (default <that folder>/<route>-<width>-tour.mp4)' },
-      { name: 'tour', type: 'path', help: 'a steps file (JSON list of { t, move | click | scrollTo | scroll, dur }, see harness/media/tour-math.mjs): drives a drawn macOS cursor with real mouse events through one route or url, at a 16:9 viewport of the first --w, and writes an mp4' },
-      { name: 'fps', type: 'number', default: 60, help: 'with --tour: the frame rate of the mp4' },
-      { name: 'scale', type: 'number', default: 1, help: 'with --tour: the device scale factor (3 gives a 3840 by 2160 mp4 of a 1280 wide page, sharp enough for a macro close-up)' },
-    ],
-    example: 'vawe shot /,/blog --full   |   vawe shot /moves --w 390   |   vawe shot films/design/frame.html --w 1920   |   vawe shot https://vawe.dev/easing --tour tour.json --w 1600 --out out/easing-tour.mp4',
-    build: (v, [target]) => {
-      const problem = shotProblem({ targets: parseTargets(target), w: v.w, base: v.base, tour: v.tour, fps: v.fps, scale: v.scale });
-      if (problem) throw new UsageError(problem);
-      return [{ script: 'harness/media/shot.mjs', args: [target, ...opt('--w', v.w), ...(v.full ? ['--full'] : []), ...opt('--base', v.base), ...opt('--out', v.out), ...opt('--tour', v.tour), ...(v.tour ? [...opt('--fps', v.fps), ...opt('--scale', v.scale)] : [])] }];
-    },
-    next: (v) => v.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html); vawe frame <film mp4> reads it' : 'Read each PNG at full size; the 390 one shows the phone layout; vawe check links crawls every link of the site',
   },
   {
     tier: 'core',
