@@ -115,13 +115,17 @@ export function accentFlood(samples) {
 const pure = (c) => Boolean(c) && c[3] >= 0.95 && (c.slice(0, 3).every((v) => v === 0) || c.slice(0, 3).every((v) => v === 255));
 const hex = (c) => (c[0] === 0 ? '#000' : '#fff');
 
-/** Pure #000 or #fff as the ground: an element over the limit share of the frame. Pure ink on it is named too. Pure ink on a tinted ground is not flagged: the house ink is #fff (rule palette-from-brand). */
+/**
+ * Pure #000 or #fff as the ground: an element over the limit share of the frame. Pure ink on it is named too. Pure ink on a tinted ground is not flagged: the house ink is #fff (rule palette-from-brand).
+ * A pure colour the page declares as a :root custom property is its chosen palette (sample.palette), not a default, and is left alone.
+ */
 export function pureBlackWhite(samples) {
   const min = L['palette-from-brand'].ground_area_pct_min;
   for (const s of samples) {
-    const ground = s.boxes.find((b) => pure(b.bg) && b.op >= 0.95 && (100 * area(b.box, s)) / (s.w * s.h) >= min);
+    const chosen = (c) => (s.palette ?? []).some((p) => sameColour(p, c));
+    const ground = s.boxes.find((b) => pure(b.bg) && !chosen(b.bg) && b.op >= 0.95 && (100 * area(b.box, s)) / (s.w * s.h) >= min);
     if (!ground) continue;
-    const inks = copy(s).filter((t) => pure(t.color));
+    const inks = copy(s).filter((t) => pure(t.color) && !chosen(t.color));
     const ink = inks.length ? ` and pure ${hex(inks[0].color)} ink on ${inks.length} text(s), e.g. "${inks[0].text.slice(0, 24)}"` : '';
     return [finding('pure-black-white', 'palette-from-brand', s.t, `pure ${hex(ground.bg)} as the ground${ink}`, 'tint the neutrals: a warm or cool near-black and off-white from the palette')];
   }

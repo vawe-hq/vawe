@@ -278,18 +278,29 @@ function layoutBoxes(env) {
   return boxes;
 }
 
+// The colours the :root custom properties declare, as [r, g, b, a]; a property that is no colour (--weight: bold) is left out.
+function rootPalette(rgba) {
+  const root = getComputedStyle(document.documentElement);
+  const isColour = (v) => /^(#[0-9a-f]{3,8}|(rgb|hsl|hwb|lab|lch|oklab|oklch|color)a?\(|black$|white$)/i.test(v);
+  const declared = (sheet) => { try { return [...sheet.cssRules]; } catch { return []; } };
+  const names = [...document.styleSheets].flatMap(declared).filter((rule) => rule.selectorText === ':root').flatMap((rule) => [...rule.style]).filter((n) => n.startsWith('--'));
+  return [...new Set(names)].map((n) => root.getPropertyValue(n).trim()).filter(isColour).map(rgba);
+}
+
 // One moment's layout for the layout lint (harness/lib/layout-lint.mjs): { w, h, accent, texts, blocks, boxes }. texts is one entry per
 // visible text node (colour as [r, g, b, a], tracking in em, `block` the index of its block-level ancestor in blocks); boxes is one entry
-// per painted HTML element (SVG is not read; at most 300), `p` the index of its nearest listed ancestor. accent is :root --accent, or null.
+// per painted HTML element (SVG is not read; at most 300), `p` the index of its nearest listed ancestor. accent is :root --accent, or null; palette is every colour the :root custom properties declare.
 function layoutSample(decorative, chrome) {
   const [w, h] = [innerWidth, innerHeight];
   const rgba = layoutColours();
   const env = { rgba, frame: layoutFrame(w, h), decorative, chrome };
-  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-  return { w, h, accent: accent ? rgba(accent) : null, ...layoutTexts(env), boxes: layoutBoxes(env) };
+  const root = getComputedStyle(document.documentElement);
+  const accent = root.getPropertyValue('--accent').trim();
+  const palette = rootPalette(rgba);
+  return { w, h, accent: accent ? rgba(accent) : null, palette, ...layoutTexts(env), boxes: layoutBoxes(env) };
 }
 
-const LAYOUT_SOURCE = [layoutColours, layoutFrame, layoutTexts, layoutBoxes, layoutSample].map((fn) => fn.toString()).join('\n');
+const LAYOUT_SOURCE = [layoutColours, layoutFrame, layoutTexts, layoutBoxes, rootPalette, layoutSample].map((fn) => fn.toString()).join('\n');
 const readLayout = (page) => page.evaluate((src, d, c) => new Function(`${src}\nreturn layoutSample(${JSON.stringify(d)}, ${JSON.stringify(c)});`)(), LAYOUT_SOURCE, DECORATIVE, CHROME);
 
 /** Seek to each time and read the page's layout there. `seek(ms)` is a layout seek: layout needs no paint. */

@@ -79,6 +79,14 @@ test('pure black and white: a pure ground fires and names pure ink on it; tinted
   assert.equal(pureBlackWhite([sample({ texts: [text({ color: [255, 255, 255, 1] })], boxes: [ground([22, 21, 26, 1])] })]).length, 0);
 });
 
+test('pure black and white the page declares as :root custom properties is its palette, not a default', () => {
+  const ground = box({ box: [0, 0, 1920, 1080], bg: [0, 0, 0, 1] });
+  const inked = { texts: [text({ color: [255, 255, 255, 1] })], boxes: [ground] };
+  assert.equal(pureBlackWhite([sample({ ...inked, palette: [[0, 0, 0, 1]] })]).length, 0);
+  assert.match(pureBlackWhite([sample({ ...inked, palette: [[255, 255, 255, 1]] })])[0].what, /pure #000 as the ground$/);
+  assert.equal(pureBlackWhite([sample({ ...inked, palette: [[22, 21, 26, 1]] })]).length, 1);
+});
+
 test('template chrome: eyebrow, step markers, side stripe, nested cards and identical cards each fire; plain frames do not', () => {
   const title = text({ text: 'Ship the thing', fontPx: 120, box: [200, 400, 900, 130], block: 0 });
   const eyebrow = text({ text: 'FEATURES', fontPx: 28, caps: true, trackingEm: 0.12, box: [200, 340, 300, 34], block: 1 });

@@ -41,3 +41,15 @@ test('extractStillFrames writes the frames asked for in one pass, in the order o
     assert.ok(files.every((f) => fs.statSync(f).size > 0));
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('the layout sample lists the colours :root declares, and no other custom property', async () => {
+  const { sampleLayout } = await import('../../harness/media/draft-check.mjs');
+  const page = 'tests/fixtures/pages/declared-palette.html';
+  const opened = await openPage(page, resolveFrame(page, {}));
+  try {
+    await opened.page.goto(opened.url, { waitUntil: 'load' });
+    await settle(opened.page);
+    const [sample] = await sampleLayout(opened.page, [0], async () => {});
+    assert.deepEqual(sample.palette, [[0, 0, 0, 1], [241, 234, 219, 1]]);
+  } finally { await opened.close(); }
+});
