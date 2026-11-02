@@ -60,7 +60,7 @@ export async function awaitFonts(timeoutMs = 10000) {
 }
 
 // Runs in the page before any page script: lists the async work a page starts that a module-level `await` can wait on (an image
-// decode or load, a fetch and the reading of its body), so awaitReady can tell a page that is still starting from a finished one.
+// decode or load, a font load, a fetch and the reading of its body), so awaitReady can tell a page that is still starting from a finished one.
 // Injected via toString(), so it references nothing outside its body.
 export function installPageReady() {
   if (window.__pagePending) return;
@@ -84,6 +84,11 @@ export function installPageReady() {
       track(`image ${this.src}`, new Promise((resolve) => { this.addEventListener('load', resolve, { once: true }); this.addEventListener('error', resolve, { once: true }); }));
     },
   });
+  const faceLoad = FontFace.prototype.load;
+  FontFace.prototype.load = function trackedLoad() { return track(`font ${this.family}`, faceLoad.call(this)); };
+  const fontSet = Object.getPrototypeOf(document.fonts);
+  const setLoad = fontSet.load;
+  fontSet.load = function trackedSetLoad(font, text) { return track(`font ${font}`, setLoad.call(this, font, text)); };
   const fetchNow = window.fetch;
   window.fetch = (input, init) => track(`fetch ${input?.url ?? input}`, fetchNow(input, init));
   for (const read of ['arrayBuffer', 'blob', 'json', 'text']) {

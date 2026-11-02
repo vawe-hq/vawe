@@ -18,6 +18,23 @@ test('the first seek of a page with a module-level image decode runs its hook', 
   } finally { await opened.close(); }
 });
 
+test('a font load the page starts itself counts as pending until it settles', async () => {
+  const opened = await openPage(PAGE, resolveFrame(PAGE, { aspect: '16:9', final: false }), { final: false });
+  try {
+    await gotoLoaded(opened.page, opened.url, PAGE);
+    const pending = await opened.page.evaluate(async () => {
+      const loading = new FontFace('PendingFont', 'url(/assets/fonts/Anybody.woff2)').load();
+      const setLoading = document.fonts.load('40px PendingFont');
+      const seen = window.__pagePending();
+      await Promise.all([loading, setLoading]);
+      return { seen, after: window.__pagePending() };
+    });
+    assert.ok(pending.seen.includes('font PendingFont'), pending.seen.join());
+    assert.ok(pending.seen.includes('font 40px PendingFont'), pending.seen.join());
+    assert.deepEqual(pending.after.filter((w) => w.startsWith('font')), []);
+  } finally { await opened.close(); }
+});
+
 const withWindow = async (pending, fn) => {
   const had = globalThis.window;
   globalThis.window = { __pagePending: () => pending() };
