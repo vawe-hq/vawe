@@ -10,7 +10,7 @@ import { causeOf } from '../lib/verb-log.mjs';
 
 import { atProblem } from '../media/see/at-problem.mjs';
 import { parseTargets, shotProblem } from '../media/shot-math.mjs';
-import { renderEnv, paramsFilm, paramsFlags } from '../lib/page-params.mjs';
+import { renderEnv, paramsFlags } from '../lib/page-params.mjs';
 import { seeProblem } from '../media/see/one-math.mjs';
 import { filmKey, freshImages, summaryLines } from '../lib/critique-summary.mjs';
 import { readFindings } from '../lib/findings.mjs';
@@ -19,7 +19,7 @@ import { refsDir, refsEmpty } from '../lib/refs.mjs';
 import { isClipDemo } from '../lib/clip-demo.mjs';
 import { planWindow } from '../lib/dev-window.mjs';
 import { SAY, WAIT_WORK, nextStep } from '../live/stage-say.mjs';
-import { critiqueProblem, critiqueCommand, judgeCommand } from '../lib/critique-gate.mjs';
+import { critiqueProblem, critiqueCommand, critiqueFreshCommand } from '../lib/critique-gate.mjs';
 export { commitsBehind } from '../lib/stale-checkout.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -40,7 +40,7 @@ export const devFix = (reason, [page]) => {
 const devNext = (v, [page]) => {
   if (isClipDemo(page)) return nextStep(path.resolve(page), ROOT).next;
   if (v.from != null || v.to != null) return `bin/vawe frame ${page} --moment <the second you fixed> and Read it; when every named second is fixed: ${SAY.critique(pageName(page), page)}`;
-  if (critiqueProblem(page, { root: ROOT })) return `before anything else: ${judgeCommand(page)} (its own session), or in a separate terminal ${critiqueCommand(page)}`;
+  if (critiqueProblem(page, { root: ROOT })) return `before anything else: ${critiqueFreshCommand(page)} (its own session), or in a separate terminal ${critiqueCommand(page)}`;
   const state = nextStep(path.resolve(page), ROOT);
   if (state.stage === 'draft') return SAY.motion(pageName(page), page);
   return state.stage === 'motion' && !/Motion pass/.test(state.why) ? state.next : `${state.next} (${state.why})`;
@@ -203,7 +203,7 @@ export const VERBS = [
     fix: (reason, [page]) => (page?.endsWith('.html') && !/ship refused/.test(reason) ? `bin/vawe dev ${page}` : null),
     next: (v, [page]) => {
       if (v.status) return null;
-      if (v.wait) return `vawe judge out/${paramsFilm(pageName(page), paramEnv(v))}.mp4`;
+      if (v.wait) return critiqueFreshCommand(page);
       return `rendering in the background: bin/vawe wait ${page} (one call waits up to 3.5 minutes, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`;
     },
   },
@@ -259,8 +259,8 @@ export const VERBS = [
       freshImages(scratch('see', filmKey(page)), sinceMs),
     ),
     next: (v, [page]) => (v.fresh
-      ? `Read the critique file above, fix its top five with bin/vawe dev ${page} --from s --to s, then ${SAY.judge(pageName(page), page, v.ref)}`
-      : `look at the sheets above, or start a critic session with ${SAY.critique(pageName(page), page)}, then ${SAY.judge(pageName(page), page, v.ref)}`),
+      ? `Read the critique file above, fix its top five with bin/vawe dev ${page} --from s --to s`
+      : `look at the sheets above, or start a critic session with ${SAY.critique(pageName(page), page)}`),
   },
   {
     tier: 'more',
@@ -378,25 +378,5 @@ export const VERBS = [
     next: (v, [input]) => (v.lab ? 'verdicts are kept in quality/baselines/sound-verdicts.json' : v.sfx ? 'set data-at on the <audio> line, then bin/vawe sound <page> --at <s> to check the cue sounds on its event' : !input ? 'a voice goes in <audio data-synth="name" data-at="s">; vawe sound <track> gives the beat grid and hits of a music file the user gave'
       : v.at || v.waveform ? (v.waveform ? 'Read the PNG: each orange tick must sit on the dashed world line of its visual event; move a cue with data-at or data-on' : 'a cue 0 s into itself starts at that second; move one that is off its event with data-at')
         : 'Read sound.md and sound.png; put each cut on a hit or a beat line at the frame the cut table names, then vawe sound <track> --cuts <page> again'),
-  },
-  {
-    tier: 'more',
-    name: 'judge', summary: 'prepare key frames and the rubric for a fresh session to score',
-    positional: [{ name: 'page|mp4', required: true, kind: 'file', help: 'a page or a rendered mp4' }],
-    flags: [
-      { name: 'ref', type: 'path', help: 'reference mp4 (default: the reference the brief names)', kind: 'file' },
-      { name: 'struct', type: 'bool', help: 'add the structure pass' },
-      { name: 'runs', type: 'string', help: 'double-run labels, for example A,B' },
-      { name: 'verdict', type: 'string', help: 'record PASS or FIX; writes out/<name>.judge.json' },
-      { name: 'at', type: 'number', help: 'with a FIX verdict: the second of the top fix' },
-      { name: 'top-fix', type: 'string', help: 'with a FIX verdict: the one concrete fix' },
-      { name: 'fresh', type: 'bool', help: 'score now with a separate headless claude session (Read tool only); about 30 s; advises, never blocks' },
-      { name: 'brief', type: 'path', help: 'with --fresh: the brief the judge reads', kind: 'file' },
-      { name: 'stage', type: 'string', help: 'with --fresh: stills, draft or final' },
-    ],
-    defaultRef: (v, [input]) => (v.fresh || v.verdict ? null : input),
-    example: 'vawe judge out/my-launch.mp4 --struct --runs A,B   |   vawe judge --fresh films/x/page.html --brief films/x/brief.md',
-    build: (v, [input]) => v.fresh ? [{ script: 'harness/media/judge-fresh.mjs', args: [input, ...opt('--brief', v.brief), ...opt('--stage', v.stage)] }] : [{ script: 'quality/gates/judge.mjs', args: [input, ...opt('--ref', v.ref), ...(v.struct ? ['--struct'] : []), ...opt('--runs', v.runs), ...opt('--verdict', v.verdict), ...opt('--at', v.at), ...opt('--top-fix', v['top-fix'])] }],
-    next: (v) => (v.fresh ? 'read the report; fix the lines under 8, worst first' : 'judge returns at once; do not poll for it'),
   },
 ];

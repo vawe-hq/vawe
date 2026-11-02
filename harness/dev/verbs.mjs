@@ -117,4 +117,23 @@ export const DEV_VERBS = [
     example: 'vawe-dev check doc-refs',
     build: (v, args) => [{ script: 'harness/lib/check-gate.mjs', args }],
   },
+  {
+    name: 'judge', summary: 'prepare key frames and the rubric for a fresh session to score',
+    positional: [{ name: 'page|mp4', required: true, kind: 'file', help: 'a page or a rendered mp4' }],
+    flags: [
+      { name: 'ref', type: 'path', help: 'reference mp4 (default: the reference the brief names)', kind: 'file' },
+      { name: 'struct', type: 'bool', help: 'add the structure pass' },
+      { name: 'runs', type: 'string', help: 'double-run labels, for example A,B' },
+      { name: 'verdict', type: 'string', help: 'record PASS or FIX; writes out/<name>.judge.json' },
+      { name: 'at', type: 'number', help: 'with a FIX verdict: the second of the top fix' },
+      { name: 'top-fix', type: 'string', help: 'with a FIX verdict: the one concrete fix' },
+      { name: 'fresh', type: 'bool', help: 'score now with a separate headless claude session (Read tool only); about 30 s; advises, never blocks' },
+      { name: 'brief', type: 'path', help: 'with --fresh: the brief the judge reads', kind: 'file' },
+      { name: 'stage', type: 'string', help: 'with --fresh: stills, draft or final' },
+    ],
+    defaultRef: (v, [input]) => (v.fresh || v.verdict ? null : input),
+    example: 'vawe-dev judge out/my-launch.mp4 --struct --runs A,B   |   vawe-dev judge --fresh films/x/page.html --brief films/x/brief.md',
+    build: (v, [input]) => v.fresh ? [{ script: 'harness/media/judge-fresh.mjs', args: [input, ...opt('--brief', v.brief), ...opt('--stage', v.stage)] }] : [{ script: 'quality/gates/judge.mjs', args: [input, ...opt('--ref', v.ref), ...(v.struct ? ['--struct'] : []), ...opt('--runs', v.runs), ...opt('--verdict', v.verdict), ...opt('--at', v.at), ...opt('--top-fix', v['top-fix'])] }],
+    next: (v) => (v.fresh ? 'read the report; fix the lines under 8, worst first' : 'judge returns at once; do not poll for it'),
+  },
 ];

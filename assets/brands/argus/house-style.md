@@ -1,6 +1,6 @@
 # House style: argus
 
-> The persisted Design Read for argus. `bin/vawe judge` reads this file as the scoring key for brand
+> The persisted Design Read for argus. `bin/vawe-dev judge` reads this file as the scoring key for brand
 > fidelity, so keep it short and declarative.
 
 ## Measured facts

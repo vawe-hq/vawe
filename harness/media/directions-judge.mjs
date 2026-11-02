@@ -28,7 +28,7 @@ function main(page) {
   const result = r.status === 0 ? readJson(out) : null;
   if (!result) {
     const why = String(r.stderr || r.stdout || r.error?.message || 'no output').trim().split('\n').at(-1);
-    console.log(adviceBlock([`stills judge did not run (${why}); run it yourself: bin/vawe judge ${path.relative(process.cwd(), htmlFile)} --fresh --stage stills --brief ${path.relative(process.cwd(), briefFile)}`]).join('\n'));
+    console.log(adviceBlock([`stills judge did not run (${why}); run it yourself: bin/vawe-dev judge ${path.relative(process.cwd(), htmlFile)} --fresh --stage stills --brief ${path.relative(process.cwd(), briefFile)}`]).join('\n'));
     return;
   }
   fs.writeFileSync(out, JSON.stringify({ ...result, key: stillsKey(html, brief) }, null, 1));

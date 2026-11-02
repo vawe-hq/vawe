@@ -55,7 +55,7 @@ the site's links: `vawe-dev check links`. A field of many small moving parts (ra
 
 Score the film axes of `guides/judge.md` (hook, motion, scenes, type, colour, sound, pace,
 expensive), 1 to 10. A score under 8 needs a fix. Two
-runs, A and B, before a beat closes; one judge is an opinion: `bin/vawe judge <page> --struct --runs A,B`. A
+runs, A and B, before a beat closes; one judge is an opinion: `bin/vawe-dev judge <page> --struct --runs A,B`. A
 PASS is never self-recorded.
 
 Name the idea in each beat and each cut: read the brief's `## Ideas` table (`guides/IDEATE.md`) and look at the frames. Does the frame show the chosen idea (the shared element, the object), or only the plan text? An idea planned in the ledger and absent in the frames is a finding, with the second and the fix. Also name an Ideas row whose four ideas are one idea reworded.

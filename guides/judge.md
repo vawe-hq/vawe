@@ -1,6 +1,6 @@
 ---
 when: the render is done and something must actually LOOK at it
-answers: "what `bin/vawe judge` does · the axes a fresh judge scores · the verdict contract · why the PASS is never the author's to record"
+answers: "what `bin/vawe-dev judge` does · the axes a fresh judge scores · the verdict contract · why the PASS is never the author's to record"
 group: process
 codes: judge-not-ready
 ---
@@ -14,9 +14,9 @@ check that looks. It reads rendered key frames against a rubric. It advises: it 
 ## Commands
 
 ```bash
-bin/vawe judge out/<name>.mp4 [--ref ref.mp4] [--struct] [--runs A,B]   # prepare the sheet and rubric
-bin/vawe judge --fresh films/<name>/page.html --brief films/<name>/brief.md [--stage stills|draft|final]
-bin/vawe judge <page|mp4> --verdict PASS|FIX [--at <s> --top-fix "<fix>"] [--fix <code>@<beat> ...]
+bin/vawe-dev judge out/<name>.mp4 [--ref ref.mp4] [--struct] [--runs A,B]   # prepare the sheet and rubric
+bin/vawe-dev judge --fresh films/<name>/page.html --brief films/<name>/brief.md [--stage stills|draft|final]
+bin/vawe-dev judge <page|mp4> --verdict PASS|FIX [--at <s> --top-fix "<fix>"] [--fix <code>@<beat> ...]
 ```
 
 - **Prepare** writes a key-frame sheet and `rubric.md` under the scratch base. A fresh session reads the sheet against the rubric. With `--ref`, every tile is frame-locked: reference left, film right.
@@ -87,9 +87,9 @@ stills in real time order, or from measured numbers.
 A judge scoring a film it wrote inflates the score. That is a measured bias, and it is why a slideshow
 was once recorded PASS by the agent that made it. Hand the sheet and rubric to a fresh session that did
 not author the film, and record PASS only when that eye agrees. A subagent shares the author's session
-and process id. Recording a PASS with `vawe judge` accepts a `VAWE_AGENT=<its-name>` tag that differs from the
+and process id. Recording a PASS with `vawe-dev judge` accepts a `VAWE_AGENT=<its-name>` tag that differs from the
 author's (`harness/lib/judge-self-record.mjs`). The ship gate does not: a tag does not make a new session, so
-it counts a review as fresh only when it is `bin/vawe judge <page> --fresh`, `bin/vawe critique <page> --fresh`
+it counts a review as fresh only when it is `bin/vawe critique <page> --fresh`, `bin/vawe-dev judge <page> --fresh`
 (each starts its own headless session), or a critique logged from a session other than the one that rendered
 the draft (`harness/lib/critique-gate.mjs`). Run one of the first two.
 

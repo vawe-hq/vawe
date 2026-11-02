@@ -59,7 +59,7 @@ export const ALIASES = {
 };
 
 /** The verbs that left bin/vawe for bin/vawe-dev: `vawe land` runs `vawe-dev land` and says so once. */
-export const DEV_ALIASES = ['land', 'claim', 'e2e', 'test', 'runs', 'moves', 'doctor'];
+export const DEV_ALIASES = ['land', 'claim', 'e2e', 'test', 'runs', 'moves', 'doctor', 'judge'];
 
 /** The line an agent sees when it types an old verb: what the call now is. `short` leaves the arguments out, for a call that has no session to remember it. `bin` is the binary the call now runs. */
 export const aliasNotice = (name, argv, { short = false, bin = 'vawe' } = {}) => `vawe: \`vawe ${name}\` is now \`${bin} ${short ? argv[0] : argv.join(' ')}\``;

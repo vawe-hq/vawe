@@ -79,3 +79,23 @@ test('no workflow, Makefile target or git hook calls a verb that its binary lack
   }
   assert.ok(seen.includes('vawe-dev e2e') && seen.includes('vawe-dev test') && seen.includes('vawe-dev check'), seen.join(', '));
 });
+
+test('judge lives in vawe-dev, keeps its flags and defaults the reference like critique does', () => {
+  assert.equal(VERBS.some((v) => v.name === 'judge'), false);
+  const judge = DEV_VERBS.find((v) => v.name === 'judge');
+  assert.deepEqual(judge.flags.map((f) => f.name), ['ref', 'struct', 'runs', 'verdict', 'at', 'top-fix', 'fresh', 'brief', 'stage']);
+  assert.equal(judge.defaultRef({}, ['films/x/page.html']), 'films/x/page.html');
+  assert.equal(judge.defaultRef({ fresh: true }, ['films/x/page.html']), null);
+  assert.ok(DEV_ALIASES.includes('judge'));
+});
+
+test('no maker-facing text sends the maker to judge: the ship gate, ship and critique name critique --fresh', async () => {
+  const { critiqueProblem } = await import('../../harness/lib/critique-gate.mjs');
+  const problem = critiqueProblem('films/none/page.html', { root: ROOT, env: {}, runs: [], digest: 'x' });
+  assert.match(problem, /^no fresh review of the current page .*run bin\/vawe critique films\/none\/page\.html --fresh /);
+  assert.doesNotMatch(problem, /judge/);
+  const critique = VERBS.find((v) => v.name === 'critique');
+  assert.match(critique.next({ fresh: true }, ['films/x/page.html']), /^Read the critique file/);
+  assert.doesNotMatch(critique.next({ fresh: true }, ['films/x/page.html']), /judge/);
+  assert.doesNotMatch(critique.next({}, ['films/x/page.html']), /judge/);
+});

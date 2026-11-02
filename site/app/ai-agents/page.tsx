@@ -75,8 +75,8 @@ export default function AiAgents() {
               <h2>The writer never grades its own film.</h2>
               <p>
                 A critique runs in a session that did not write the page, and{" "}
-                <code>bin/vawe judge</code> prepares the key frames and the rubric for a fresh
-                session to score. A pass is never self-recorded. The agent that wrote the film fixes
+                <code>bin/vawe critique --fresh</code> starts a fresh session to score the
+                draft. A pass is never self-recorded. The agent that wrote the film fixes
                 only the seconds the critique named and renders those seconds again, not the whole
                 film.
               </p>

@@ -42,7 +42,7 @@ Read `taste/build/DIGEST.md` first: the one list of taste pitfalls. Read `skills
 | 7 | motion pass | `bin/vawe frame <page> --cuts`, then one "Motion pass" row per cut |
 | 8 | critique | `bin/vawe critique <page> --fresh` (a separate critic session; `vawe-critique`) |
 | 9 | fix | `bin/vawe dev <page> --from s --to s`: only the seconds the critique named |
-| 10 | final | `bin/vawe judge <page> --fresh` (its own session), then the person's OK (`/vawe-approve`); then `bin/vawe ship <page>` and `bin/vawe wait <page>`; `ship` refuses without both |
+| 10 | final | `bin/vawe critique <page> --fresh` (its own session), then the person's OK (`/vawe-approve`); then `bin/vawe ship <page>` and `bin/vawe wait <page>`; `ship` refuses without both |
 
 ## The proof before you say done
 
