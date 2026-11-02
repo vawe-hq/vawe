@@ -45,7 +45,7 @@ export const RIVALS: Rival[] = [
     what:
       "Remotion is a framework to make videos programmatically with React. You write components, preview them in Remotion Studio, and render with Remotion locally or on AWS Lambda or Google Cloud Run.",
     stronger: [
-      "Community and history. The Remotion site lists more than 5 million monthly npm installs and 10,000 Discord members, and the GitHub repo shows about 61,600 stars.",
+      "Community and history. The Remotion site lists more than 5 million monthly npm installs and 10,000 Discord members, and the GitHub repo showed about 70,000 stars on 2026-11-03.",
       "Distributed rendering. Remotion Lambda splits a render across several functions and stitches the result. vawe renders on one machine.",
       "A React model. If your team already writes React, components, props and a Player you can embed in an app come with it.",
       "Documentation volume. The site lists about 1,000 documentation pages.",
@@ -105,6 +105,7 @@ export const RIVALS: Rival[] = [
     related: [
       { href: "/remotion-alternatives", label: "Remotion alternatives, categorized" },
       { href: "/vs/hyperframes", label: "vawe vs HyperFrames" },
+      { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },
     ],
   },
   {
@@ -120,16 +121,16 @@ export const RIVALS: Rival[] = [
     what:
       "HyperFrames turns HTML, CSS, media and seekable animations into MP4. A composition is plain HTML with data attributes for timing and tracks, animated by GSAP, CSS, Lottie, Three.js, Anime.js or the Web Animations API.",
     stronger: [
-      "Ecosystem. The HyperFrames repo shows about 55,900 stars and ships 21 installable skills, a Studio browser editor and a catalog of reusable blocks such as transitions, overlays and charts.",
+      "Ecosystem. The HyperFrames repo showed about 77,600 stars on 2026-11-03. Its README lists 8 published skills, a Studio browser editor and desktop apps, and a registry skill.",
       "Render targets. Its docs list local, AWS Lambda, Google Cloud Run and HeyGen cloud rendering. vawe renders on one machine.",
-      "Ready workflows. Its skills include product-launch-video, faceless-explainer, pr-to-video and music-to-video.",
+      "Named workflows. Its README lists on-demand skills such as /figma, /slideshow, /remotion-to-hyperframes and /reverse-any-video.",
       "Time in market.",
     ],
     chooseThem: [
       "You want a block catalog and a browser Studio to start from.",
       "You want cloud rendering on Lambda, Cloud Run or HeyGen.",
       "You like GSAP timelines and data-attribute timing in the HTML.",
-      "You want skills for a named workflow such as a launch video or a PR video.",
+      "You want skills for a named workflow such as a Figma import or a slideshow.",
     ],
     choosevawe: [
       "You want ordinary web code to keep working: vawe replaces Date, timers and Math.random with seek-driven versions, where HyperFrames forbids them.",
@@ -143,7 +144,7 @@ export const RIVALS: Rival[] = [
       { feature: "Authoring model", them: "HTML with data attributes for timing and tracks; GSAP, CSS, Lottie, Three.js, Anime.js, WAAPI", vawe: "One HTML page timed by CSS keyframes, element.animate() or window.seek(t)" },
       { feature: "Rendering", them: "Headless Chrome seeks each frame, FFmpeg encodes; local, Lambda, Cloud Run, HeyGen cloud", vawe: "Headless Chrome seeks and screenshots each frame; renders on your machine" },
       { feature: "Determinism", them: "Forbids Date.now, requestAnimationFrame, system timers and unseeded Math.random in a composition", vawe: "A virtual clock replaces those calls with functions of the seek time", t: "partial", v: "yes" },
-      { feature: "Agent support", them: "21 skills, a /hyperframes router skill, non-interactive CLI defaults", vawe: "bin/vawe CLI and skills; a separate session critiques and judges the film", t: "yes", v: "yes" },
+      { feature: "Agent support", them: "8 published skills, with /hyperframes as the entry point (README, read 2026-11-03)", vawe: "bin/vawe CLI and skills; a separate session critiques and judges the film", t: "yes", v: "yes" },
       { feature: "Editor", them: "Studio browser editor and a block catalog", vawe: "No timeline editor: the page is the film", t: "yes", v: "no" },
       { feature: "Distributed rendering", them: "Yes: Lambda, Cloud Run, HeyGen cloud", vawe: "No", t: "yes", v: "no" },
     ],
@@ -175,6 +176,7 @@ export const RIVALS: Rival[] = [
     related: [
       { href: "/hyperframes-alternatives", label: "HyperFrames alternatives" },
       { href: "/vs/remotion", label: "vawe vs Remotion" },
+      { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },
       { href: "/determinism", label: "How vawe keeps renders deterministic" },
     ],
   },
@@ -193,7 +195,7 @@ export const RIVALS: Rival[] = [
     stronger: [
       "A purpose-built editor. It gives a real-time preview and audio sync for scenes you write in code.",
       "A flow model for diagrams. Generators describe what happens step by step, with duration and speed instead of hard-coded keyframes.",
-      "Licence and age. It is MIT-licensed and has about 19,200 GitHub stars.",
+      "Licence and age. It is MIT-licensed and has about 19,700 GitHub stars on 2026-11-03.",
     ],
     chooseThem: [
       "You make explainer or diagram animation synced to a voice-over.",
@@ -261,7 +263,7 @@ export const RIVALS: Rival[] = [
       "Playback in products. One Lottie file plays on the web, iOS, Android and embedded devices, and can react to clicks and hover.",
       "File size. The dotLottie container compresses animations and shares assets.",
       "A standard. The format has a spec, a validator and a list of implementations, and a non-profit community hosted by the Linux Foundation.",
-      "Reach. The lottie-web repo shows about 32,100 stars.",
+      "Reach. The lottie-web repo shows about 32,300 stars on 2026-11-03.",
     ],
     chooseThem: [
       "You ship an animated icon, loader or illustration inside an app or web page.",
@@ -312,6 +314,80 @@ export const RIVALS: Rival[] = [
       { label: "LottieFiles export help", url: "https://help.lottiefiles.com/hc/en-us/articles/29062996652057-troubleshooting-exporting-lottie-animations-as-gif-or-mp4-files" },
     ],
     related: [
+      { href: "/vs/motion-canvas", label: "vawe vs Motion Canvas" },
+      { href: "/vs/remotion", label: "vawe vs Remotion" },
+    ],
+  },
+  {
+    slug: "revideo",
+    name: "Revideo",
+    read: "2026-11-03",
+    metaTitle: "vawe vs Revideo: TypeScript scenes or one HTML page",
+    metaDescription:
+      "Revideo renders videos from TypeScript scenes under the MIT licence. vawe renders one HTML page under Apache-2.0. A sourced comparison of authoring, rendering, preview, licence and project status.",
+    h1: "vawe vs Revideo.",
+    intro:
+      "Revideo is an MIT-licensed rendering engine that makes video from TypeScript scenes. vawe makes video from one HTML page. This page compares them on authoring, rendering, preview, agent support and project status, and says where Revideo is stronger.",
+    what:
+      "Revideo describes itself as a rendering engine for creating videos in code. You write a scene as a TypeScript generator function, render it with renderVideo() or a render endpoint, and preview it with a React Player. Its README calls it the engine behind Midrender.",
+    stronger: [
+      "A TypeScript scene model. Scenes are generator functions, so duration and order come from yield* calls and not from keyframes.",
+      "Parallel rendering. The README says renders can be split across workers and run on serverless platforms such as Google Cloud Run. vawe renders on one machine.",
+      "An embeddable Player. A React Player previews the same project that renders the final video and accepts dynamic inputs.",
+      "A headless render API with a render endpoint you can expose from its CLI.",
+    ],
+    chooseThem: [
+      "Your team writes TypeScript and wants animation as generator functions.",
+      "You need to split renders across workers or run them on Cloud Run.",
+      "You want a React Player in your own app.",
+      "You want an MIT licence.",
+    ],
+    choosevawe: [
+      "You want an agent to write the film in plain HTML, CSS and Web Animations, with no scene API to learn.",
+      "You want one page to give the same frames every time, with the clock, timers and Math.random controlled for you.",
+      `You want built-in motion blur and a library of ${MOVES.length} video components with After Effects eases.`,
+      "You want a critique of the film by a session that did not write it.",
+    ],
+    rows: [
+      { feature: "What it is", them: "Rendering engine to create videos in code", vawe: "Framework to make films from one HTML page" },
+      { feature: "Licence", them: "MIT", vawe: "Apache-2.0", t: "yes", v: "yes" },
+      { feature: "Authoring model", them: "TypeScript generator functions (makeScene2D) that add components and animate them with yield*", vawe: "One HTML page: CSS, Web Animations, SVG, canvas, three.js" },
+      { feature: "Rendering", them: "renderVideo() or a render endpoint from the CLI; runs where Node and a headless browser run", vawe: "Headless Chrome seeks and screenshots each frame; renders on your machine" },
+      { feature: "Distributed rendering", them: "Yes: split across workers; Google Cloud Run named as a target", vawe: "No", t: "yes", v: "no" },
+      { feature: "Preview", them: "A React Player that previews the project in the browser", vawe: "bin/vawe studio: a scrubbable preview that edits the page’s literals", t: "yes", v: "partial" },
+      { feature: "Agent support", them: "Its GitHub page says Claude or Codex can generate a scene from a prompt; no skills named on the pages read", vawe: "bin/vawe CLI and skills for writing, critiquing and judging a film", t: "partial", v: "yes" },
+      { feature: "Project status", them: "Not archived. Latest tag v0.11.0; last commit on main 2026-07-15. docs.re.video redirects to midrender.com/revideo/docs", vawe: "Source install from GitHub" },
+    ],
+    faq: [
+      {
+        q: "Is Revideo open source?",
+        a: "Yes, under the MIT licence. vawe is Apache-2.0.",
+      },
+      {
+        q: "Is Revideo still maintained?",
+        a: "On 2026-11-03 the GitHub repository was not archived. The last commit on main was dated 2026-07-15, and the latest tag was v0.11.0. The old docs address, docs.re.video, now redirects to midrender.com/revideo/docs. Check the repository for recent activity before you depend on it.",
+      },
+      {
+        q: "What is the relation between Revideo and Midrender?",
+        a: "The Revideo README says Revideo is the engine behind Midrender. The Revideo docs now sit on the Midrender site. This page found no pricing for Midrender and gives none.",
+      },
+      {
+        q: "Can an AI agent use Revideo?",
+        a: "The Revideo GitHub page says Claude or Codex can generate a scene from a prompt. This page found no agent skills named in the Revideo docs or README.",
+      },
+      {
+        q: "Does vawe need TypeScript?",
+        a: "No. A vawe film is one HTML page. You write HTML, CSS and Web Animations, or SVG, canvas or three.js.",
+      },
+    ],
+    sources: [
+      { label: "Revideo README", url: "https://github.com/redotvideo/revideo" },
+      { label: "Revideo README (raw)", url: "https://raw.githubusercontent.com/redotvideo/revideo/main/README.md" },
+      { label: "Revideo docs (redirect from docs.re.video)", url: "https://midrender.com/revideo/docs" },
+      { label: "Revideo releases and tags", url: "https://github.com/redotvideo/revideo/tags" },
+    ],
+    related: [
+      { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },
       { href: "/vs/motion-canvas", label: "vawe vs Motion Canvas" },
       { href: "/vs/remotion", label: "vawe vs Remotion" },
     ],
