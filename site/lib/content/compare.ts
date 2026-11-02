@@ -99,7 +99,7 @@ export const COMPARE_REMOTION_HYPERFRAMES = {
       feature: "Editor and preview",
       remotion: { text: "Remotion Studio to preview, edit and render; a Player to embed a video in an app.", mark: "yes" },
       hyperframes: { text: "A browser Studio (listed as available, evolving) and desktop apps.", mark: "yes" },
-      vawe: { text: "No timeline editor. bin/vawe studio gives a scrubbable preview that edits the page’s literals.", mark: "partial" },
+      vawe: { text: "No timeline editor. bin/vawe dev --studio gives a scrubbable preview that edits the page’s literals.", mark: "partial" },
     },
     {
       feature: "Agent support",

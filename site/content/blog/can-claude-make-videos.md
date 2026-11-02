@@ -28,11 +28,11 @@ Both ways make real MP4 files. They suit different jobs. Code suits motion graph
 
 Claude in a chat window cannot render a film by itself, because it has no shell. You need an agent that can write files and run commands. Claude Code does both. You also need a renderer.
 
-We use [vawe](https://github.com/vawe-hq/vawe), a framework that renders one HTML page into one film. You need Node 22 or later, git, ffmpeg and the Chrome that puppeteer downloads. The check is one command:
+We use [vawe](https://github.com/vawe-hq/vawe), a framework that renders one HTML page into one film. You need Node 22 or later, git, ffmpeg and the Chrome that puppeteer downloads. Install it, and the first `new` checks the tools for you:
 
 ```bash
 npm install
-bin/vawe doctor
+bin/vawe new my-first-film
 ```
 
 Claude Code reads `CLAUDE.md` when it starts in the repository, and that file imports `AGENTS.md`, so it already knows the page contract. To use the skills outside the repository, run `npx skills add vawe-hq/skills` or read [use vawe with an agent](/docs/agents).

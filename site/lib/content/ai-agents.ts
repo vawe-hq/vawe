@@ -14,7 +14,7 @@ export const AGENT_STEPS: Section = {
         [{ strong: "Renders a draft. " }, { code: "bin/vawe dev" }, " renders half size at 30\u00a0fps with the audio mixed. The agent can render only the hard 2 to 4\u00a0seconds."],
         [{ strong: "Asks a fresh session to look. " }, { code: "bin/vawe critique" }, " lays out the frames. A session that did not write the page reads them and names the seconds to fix."],
         [{ strong: "Fixes only those seconds. " }, "The agent renders the named range again, not the whole film."],
-        [{ strong: "Ships after approval. " }, "The owner runs ", { code: "bin/vawe approve" }, ". The agent never does. ", { code: "bin/vawe ship" }, " then renders 60\u00a0fps with motion blur, and ", { code: "bin/vawe wait" }, " prints the result."],
+        [{ strong: "Ships after approval. " }, "The owner types ", { code: "/vawe-approve" }, " twice: once for the plan, once for the draft. The agent never does. ", { code: "bin/vawe ship" }, " then renders 60\u00a0fps with motion blur, and ", { code: "bin/vawe wait" }, " prints the result."],
       ],
     },
   ],
