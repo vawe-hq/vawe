@@ -3,12 +3,12 @@ import type { Crumb, Link, Meta, NextBlock, Section } from "./types";
 export const WHEN_DETERMINISM = {
   path: "/when-determinism-matters",
   meta: {
-    title: "Vawe · when determinism actually matters",
+    title: "Deterministic video rendering: when it matters",
     description:
-      "Byte-identical rendering is a real property, not a universal one. When it decides which engine to pick, and when a human editing a timeline by eye makes it beside the point.",
+      "Use cases for deterministic video rendering: agent drafts that match the final, ad variants, parallel renders and regression diffs, and when a human editing a timeline makes it beside the point.",
   } as Meta,
   crumb: { group: "Compare", current: "When determinism matters" } as Crumb,
-  h1: "When determinism matters.",
+  h1: "When deterministic video rendering matters.",
   lede: "Byte-identical rendering is a real, checkable property. It is also not the reason to pick a rendering engine most of the time. Here is what changes when it is, and what stays the same when it is not.",
   toc: [
     { href: "#nobody", label: "Nobody looks" },
