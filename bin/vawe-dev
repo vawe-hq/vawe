@@ -5,10 +5,12 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { closest, parseArgs, UsageError, verbHelp } from '../harness/cli/parse.mjs';
+import { applyRenderEnv } from '../harness/cli/helpers.mjs';
 import { DEV_VERBS } from '../harness/dev/verbs.mjs';
 import { doctorHintFromFile } from '../harness/lib/doctor-hint.mjs';
 import { defaultRefFor } from '../harness/lib/refs.mjs';
 import { appendRun } from '../harness/lib/runlog.mjs';
+import { ensureHooks, gitAt } from '../harness/lib/git-hooks.mjs';
 import { verbEvent, UNFILED } from '../harness/lib/verb-log.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -32,7 +34,9 @@ function requireFiles(verb, values, positional) {
 function runStep(step, cwd) {
   const argv = step.node || [path.join(ROOT, step.script), ...step.args];
   return new Promise((resolve) => {
-    const child = spawn(process.execPath, argv, { stdio: ['inherit', 'inherit', 'pipe'], cwd, env: { ...process.env, ...step.env } });
+    const env = { ...process.env, ...step.env };
+    delete env.VAWE_LOGGED;
+    const child = spawn(process.execPath, argv, { stdio: ['inherit', 'inherit', 'pipe'], cwd, env });
     let stderr = '';
     child.stderr.on('data', (d) => { process.stderr.write(d); stderr += d; });
     child.on('close', (code) => resolve({ code: code ?? 1, stderr }));
@@ -45,6 +49,8 @@ function resultLine(name, code) {
 
 async function main(argv) {
   const [name, ...rest] = argv;
+  const hooksLine = ensureHooks(gitAt(ROOT));
+  if (hooksLine) console.error(hooksLine);
   if (!name || name === '--help' || name === '-h') return console.log(topHelp());
   const verb = DEV_VERBS.find((v) => v.name === name);
   if (!verb) {
@@ -64,16 +70,22 @@ async function main(argv) {
   const startMs = Date.now();
   let code = 0;
   let stderr = '';
-  for (const step of verb.build(values, positional)) {
+  const steps = verb.build(values, positional);
+  applyRenderEnv(verb, values, steps);
+  for (const step of steps) {
     ({ code, stderr } = await runStep(step, verb.caller ? process.cwd() : ROOT));
     if (code !== 0) break;
   }
   if (code !== 0) {
-    const hint = doctorHintFromFile(ROOT, stderr);
+    const hint = process.env.VAWE_LOGGED ? null : doctorHintFromFile(ROOT, stderr);
     if (hint) console.error(hint);
   }
   if (LOGGED.includes(name) && !process.env.VAWE_LOGGED) {
-    appendRun(UNFILED, verbEvent({ verb: name, args: rest, startMs, endMs: Date.now(), exitCode: code, reason: code === 0 ? null : `exit ${code}` }), { root: ROOT });
+    try {
+      appendRun(UNFILED, verbEvent({ verb: name, args: rest, startMs, endMs: Date.now(), exitCode: code, reason: code === 0 ? null : `exit ${code}` }), { root: ROOT });
+    } catch (e) {
+      console.error(`vawe-dev: could not write the run log: ${e.message}`);
+    }
   }
   if (!rest.includes('--json')) {
     const next = code === 0 && verb.next ? verb.next(values, positional) : null;

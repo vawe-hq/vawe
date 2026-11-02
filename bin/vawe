@@ -21,7 +21,7 @@ import { recentFailedShipLines } from '../harness/lib/ship-status.mjs';
 import { newEvent } from '../harness/lib/run-events.mjs';
 import { doctorHintFromFile } from '../harness/lib/doctor-hint.mjs';
 import { ensureHooks, gitAt } from '../harness/lib/git-hooks.mjs';
-import { renderEnv } from '../harness/lib/page-params.mjs';
+import { applyRenderEnv } from '../harness/cli/helpers.mjs';
 import { toolProbeLine } from '../harness/lib/tool-probe.mjs';
 import { nextSeen, aliasSeen, NEXT_UNCHANGED } from '../harness/lib/next-once.mjs';
 
@@ -68,11 +68,7 @@ async function execute(verb, rest, call) {
     console.log(`ref: ${named.id}, named in the brief (${named.file}); pass --ref to use another`);
   }
   const steps = verb.build ? verb.build(values, positional) : null;
-  if (steps && verb.flags.some((f) => f.name === 'param')) {
-    let env;
-    try { env = renderEnv(values); } catch (e) { throw new UsageError(e.message); }
-    for (const step of steps) step.env = { ...step.env, ...env };
-  }
+  applyRenderEnv(verb, values, steps);
   if (!steps && values['questions-json']) {
     const { length, aspect, request, from } = values;
     console.log(JSON.stringify(questionsJson(positional[0], { request, from, fromUrl: values['from-url'], siteWhere: values['from-url'] ? siteStep(values, positional[0]).where : undefined, length, aspect, details: readDetails(values) }), null, 2));
@@ -168,19 +164,20 @@ function announceAlias(alias, argv, bin = 'vawe') {
 /** A verb that moved to bin/vawe-dev: run it there, say so once, and log the call with its old name. */
 async function runDevAlias(name, rest) {
   announceAlias(name, [name, ...rest], 'vawe-dev');
-  const startMs = Date.now();
-  const code = await new Promise((resolve) => {
-    spawn(process.execPath, [path.join(ROOT, 'bin', 'vawe-dev'), name, ...rest], { stdio: 'inherit', env: { ...process.env, VAWE_LOGGED: '1' } }).on('close', (c) => resolve(c ?? 1));
-  });
+  const call = { ...bareCall(), positional: rest.filter((a) => !a.startsWith('-')), help: rest.includes('--help') || rest.includes('-h') };
+  const { code, signal } = await runStep({ node: [path.join(ROOT, 'bin', 'vawe-dev'), name, ...rest], env: { VAWE_LOGGED: '1' } }, call);
   const endMs = Date.now();
-  const reason = code === 0 ? null : `exit ${code}`;
-  record({ name }, rest, { ...bareCall(), startMs, positional: rest.filter((a) => !a.startsWith('-')) }, code, reason, endMs, name);
-  if (!quietFooter(rest)) console.log(footerLine({ verb: name, code, reason, seconds: (endMs - startMs) / 1000 }));
+  const reason = code === 0 ? null : reasonOf({ code, signal, stderr: call.stderr });
+  call.usage = code === 2;
+  record({ name }, rest, call, code, reason, endMs, name);
+  if (!quietFooter(rest)) console.log(footerLine({ verb: name, code, reason, seconds: (endMs - call.startMs) / 1000 }));
   process.exitCode = code;
 }
 
 async function main(args) {
   let [name, ...rest] = args;
+  const hooksLine = ensureHooks(gitAt(ROOT));
+  if (hooksLine) console.error(hooksLine);
   if (name && DEV_ALIASES.includes(name) && !VERBS.some((v) => v.name === name)) return runDevAlias(name, rest);
   const alias = name && !VERBS.some((v) => v.name === name) && ALIASES[name] ? name : null;
   if (alias) {
@@ -196,8 +193,6 @@ async function main(args) {
     }
     announceAlias(alias, [name, ...rest]);
   }
-  const hooksLine = ensureHooks(gitAt(ROOT));
-  if (hooksLine) console.error(hooksLine);
   if (!name || name === '--help' || name === '-h' || name === 'help') return console.log(topHelp(VERBS, { all: rest.includes('--all') }));
   const verb = [...VERBS, ...ALIAS_TARGETS].find((v) => v.name === name);
   if (!verb) {
