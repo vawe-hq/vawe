@@ -121,6 +121,13 @@ test('animatic and studio are modes of dev, each exclusive with the other and wi
   assert.equal(dev.next({ studio: true }, [P]), null);
 });
 
+test('shot --help shows help and exits 0 without a target', () => {
+  assert.deepEqual(ALIASES.shot(['--help']), ['new', '--help']);
+  const run = spawnSync(process.execPath, [path.join(ROOT, 'bin/vawe'), 'shot', '--help'], { cwd: ROOT, encoding: 'utf8' });
+  assert.equal(run.status, 0);
+  assert.match(run.stdout, /--from-url/);
+});
+
 test('shot needs a target; every capture flag of shot is a flag of new --from-url', () => {
   assert.throws(() => ALIASES.shot(['--w', '390']), (e) => e instanceof UsageError && /shot needs a <route\|url\|page\.html>: vawe new --from-url/.test(e.message));
   const flags = VERBS.find((v) => v.name === 'new').flags.map((f) => f.name);

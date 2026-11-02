@@ -28,7 +28,7 @@ export function verbStage({ verb, args }, seen) {
   if (verb === 'frame') return frameStage(args, seen);
   if (verb === 'see' && /--plan\b/.test(args)) return 'storyboard';
   if (verb === 'dev') return devStage(args, seen);
-  if (verb === 'new' && /^--from-url\b/.test(args)) return null;
+  if (verb === 'new' && /(^|\s)--from-url\b/.test(args) && !/^[a-z0-9]/.test(args.trim())) return null;
   if (verb === 'ship') return /--(status|wait)\b/.test(args) ? null : 'ship';
   if (verb === 'critique' || verb === 'judge') return verb;
   if (STUDY_VERBS.has(verb)) {

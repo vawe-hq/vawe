@@ -25,7 +25,7 @@ test('the animatic is the board stage in the old and the new spelling, the studi
   const rows = [
     ['dev', 'p --animatic', {}, 'board'], ['animatic', 'p', {}, 'board'],
     ['dev', 'p --studio --port 8800', {}, null], ['studio', 'p', {}, null],
-    ['new', '--from-url /blog --full', {}, null], ['shot', '/blog', {}, null], ['new', 'acme --request a --from-url https://acme.com', {}, 'new'],
+    ['new', '--from-url /blog --full', {}, null], ['new', '--w 390 --from-url /blog', {}, null], ['shot', '/blog', {}, null], ['new', 'acme --request a --from-url https://acme.com', {}, 'new'],
     ['dev', 'p', {}, 'dev'], ['dev', 'p --from 2 --to 4', { critique: true }, 'fix'],
   ];
   for (const [verb, args, seen, want] of rows) assert.equal(stage(verb, args, seen), want, `${verb} ${args}`);

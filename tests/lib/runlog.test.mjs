@@ -158,6 +158,11 @@ test('runs <film> lists each judge round with its verdict and total, and the own
 
 const call = (over) => ({ at: '2026-10-09T20:00:00.000Z', cmd: 'verb', agent: 'hud', verb: 'dev', stage: 'draft', durationS: 30, exitCode: 0, error: null, slotWaitS: 0, images: [], tagged: true, ...over });
 
+test('runs <film>: a studio session (dev --studio, or the old studio verb) is left out of the verb time', () => {
+  const text = filmLines('hud', [call({ durationS: 30 }), call({ durationS: 3000, args: ['p.html', '--studio'] }), call({ verb: 'studio', durationS: 3000, args: ['p.html'] })]).join('\n');
+  assert.match(text, /where time went: 1 verb calls, 1 min of verb time/);
+});
+
 test('runs <film>: time by stage and verb, slot wait, failures grouped by cause, untagged calls left out', () => {
   const records = [
     call({ durationS: 30, slotWaitS: 12 }),

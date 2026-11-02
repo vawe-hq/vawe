@@ -60,6 +60,7 @@ export const RETIRED = {
 const SHOT_VALUED = new Set(['--w', '--base', '--out', '--tour', '--fps', '--scale']);
 
 const shot = (args) => {
+  if (args.includes('--help') || args.includes('-h')) return ['new', ...args];
   const at = args.findIndex((a, i) => !a.startsWith('--') && !(SHOT_VALUED.has(args[i - 1]) && i > 0));
   if (at < 0) throw new UsageError('shot needs a <route|url|page.html>: vawe new --from-url <route|url|page.html> [--w 1440,390] [--full]');
   return ['new', '--from-url', args[at], ...args.filter((_, i) => i !== at)];

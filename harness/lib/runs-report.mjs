@@ -47,7 +47,7 @@ export function normalize(r) {
     notes: Array.isArray(e.notes) ? e.notes : null, waivers: Array.isArray(e.waivers) ? e.waivers : null,
     sameness: e.sameness ?? null, template: e.template ?? null, bar: Array.isArray(e.bar) ? e.bar : null,
     note: e.cmd === 'approve' ? e.note ?? null : null,
-    verb: e.verb ?? null, loopStage: e.cmd === 'verb' ? e.stage ?? null : null, exitCode: e.exitCode ?? null, error: e.error ?? e.reason ?? null,
+    verb: e.verb ?? null, args: e.cmd === 'verb' ? e.args ?? null : null, loopStage: e.cmd === 'verb' ? e.stage ?? null : null, exitCode: e.exitCode ?? null, error: e.error ?? e.reason ?? null,
     phases: phasesOf(e), shape: phasesOf(e) ? { chrome: e.chrome, frames: e.frames, reused: e.reusedFrames } : null,
     slotWaitS: e.slotWaitS ?? null, red: e.acceptance?.red ?? null, tagged: e.cmd === 'verb' ? e.tagged !== false : agentName(e.agent) !== null,
   };
@@ -88,11 +88,14 @@ const tally = (events, keyOf) => {
 
 const timeTable = (head, rows) => table([[head, 'calls', 'secs', 'slot wait', 'failed'], ...rows.slice(0, TOP).map((r) => [r.key, r.calls, num(r.secs, 0), num(r.wait, 0), r.failed])]).map((l) => `  ${l}`);
 
+const isStudio = (e) => e.verb === 'studio' || (e.verb === 'dev' && /--studio\b/.test([e.args].flat().join(' ')));
+
 /** The three questions about one film: where the time went, what failed, whether the drafts improved. */
 function timeLines(calls) {
   const tagged = calls.filter((e) => e.tagged);
-  const used = tagged.length ? tagged : calls;
-  const rest = calls.length - used.length;
+  const counted = tagged.length ? tagged : calls;
+  const used = counted.filter((e) => !isStudio(e));
+  const rest = calls.length - counted.length;
   const minutes = used.reduce((a, e) => a + (e.seconds ?? 0), 0) / 60;
   const wait = used.reduce((a, e) => a + (e.slotWaitS ?? 0), 0);
   return [
