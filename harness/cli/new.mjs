@@ -177,8 +177,8 @@ carried by a circle, orb, sun, ring or glow. Budget: 2 colours, 1 typeface, 1 si
 Story and structure: the spine is taste/craft/story.md (hook, build, proof, payoff, CTA); what carries across each cut is taste/craft/film-structure.md; reject the median first (guides/PITCH.md).
 
 films/${name}/directions.html holds one working still per family: rewrite each into its slot's key frame.
-Score the three (about 30 s): bin/vawe judge films/${name}/directions.html --fresh --stage stills --brief films/${name}/brief.md
-Show the three to the person as one board: bin/vawe frame films/${name}/page.html --directions
+Show the three to the person as one board: bin/vawe frame films/${name}/page.html --directions. The person picks one, and later types /vawe-approve.
+bin/vawe dev scores the three with the stills judge by itself, once per change of directions.html or their brief lines.
 
 ${slotText('A', 'type')}
 

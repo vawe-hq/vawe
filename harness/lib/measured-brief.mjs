@@ -173,7 +173,7 @@ const swapText = () => `${table(['item', 'keep or swap', 'what replaces it'], [
 const gatesText = (name) => `Do the gates in order. A failed gate sends you back to the one before it.
 
 1. Stills: three directions in directions.html, then the five frames that define the look.
-   \`bin/vawe judge films/${name}/directions.html --fresh --stage stills --brief films/${name}/brief.md\`
+   \`bin/vawe dev\` scores the directions with the stills judge by itself; show the board with \`bin/vawe frame films/${name}/page.html --directions\`.
    Each frame must be as beautiful as the anchor at full size.
 2. Component labs: the 4 to 6 hardest pieces (a light, a material, a type move, a real UI), each alone
    on its own page films/${name}/labs/<piece>.html at 3 sizes (\`bin/vawe dev <lab> --aspect 16:9\`, then
