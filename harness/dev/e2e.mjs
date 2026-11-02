@@ -38,7 +38,9 @@ function findPages() {
   for (const f of listDir(path.join(repoRoot, 'tests/fixtures/pages'))) {
     if (f.name.endsWith('.html')) pages.push(path.join('tests/fixtures/pages', f.name));
   }
-  return trackedPages(pages, trackedFiles(repoRoot, ['films', 'tests/fixtures/pages']));
+  const tracked = trackedFiles(repoRoot, ['films', 'tests/fixtures/pages']);
+  if (tracked === null) console.log('note: git ls-files failed, so e2e renders every page on disk, untracked films included');
+  return trackedPages(pages, tracked);
 }
 
 function motionTests() {

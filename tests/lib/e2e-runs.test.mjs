@@ -33,6 +33,17 @@ test('pruneRuns deletes only the old run directories and keeps latest.json', () 
   }
 });
 
+test('trackedFiles reads non-ASCII paths and gives null when git cannot run', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'e2e-utf-'));
+  fs.mkdirSync(path.join(root, 'films', 'é'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'films', 'é', 'page.html'), 'x');
+  execFileSync('git', ['init', '-q'], { cwd: root });
+  execFileSync('git', ['add', '.'], { cwd: root });
+  assert.ok(trackedFiles(root, ['films']).has('films/é/page.html'));
+  assert.equal(trackedFiles(path.join(root, 'nope'), ['films']), null);
+  assert.deepEqual(trackedPages(['a'], null), ['a']);
+});
+
 test('e2e renders tracked pages only, not an untracked work-in-progress film', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'e2e-tracked-'));
   const write = (f) => { fs.mkdirSync(path.dirname(path.join(root, f)), { recursive: true }); fs.writeFileSync(path.join(root, f), '<p>x</p>'); };

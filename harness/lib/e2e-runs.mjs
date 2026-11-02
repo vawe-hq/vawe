@@ -19,7 +19,9 @@ export function pruneRuns(runsDir, keep) {
 }
 
 /** The pages git tracks: e2e checks the framework, so a person's untracked work-in-progress film is not rendered. Pure given `tracked`. */
-export const trackedPages = (pages, tracked) => pages.filter((p) => tracked.has(p.split(path.sep).join('/')));
+export const trackedPages = (pages, tracked) => (tracked === null ? pages : pages.filter((p) => tracked.has(p.split(path.sep).join('/'))));
 
-/** The set of files git tracks under `dirs`, relative to `root`. */
-export const trackedFiles = (root, dirs) => new Set(execFileSync('git', ['ls-files', '--', ...dirs], { cwd: root, encoding: 'utf8' }).split('\n').filter(Boolean));
+/** The set of files git tracks under `dirs`, relative to `root`; null when git is missing or fails. */
+export function trackedFiles(root, dirs) {
+  try { return new Set(execFileSync('git', ['ls-files', '-z', '--', ...dirs], { cwd: root, encoding: 'utf8' }).split('\0').filter(Boolean)); } catch { return null; }
+}
