@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { ffmpegOrDie } from '../../lib/scratch.mjs';
 import { motionDeltaSeries } from '../shot-detect.mjs';
 import { findHolds, HOLD_FLOOR, HOLD_MIN, pngDims, probeVideo, writeJsonAtomic } from './core.mjs';
-import { ocrOneFrame } from './ocr.mjs';
+import { ocrFrames } from './ocr.mjs';
 
 
 // ── word events: what a beat table's one line ("words build, hold, fade") cannot say: WHERE each word
@@ -41,6 +41,18 @@ export function extractStillFrame(video, t, outPath) {
   ffmpegOrDie(['-v', 'error', '-y', '-ss', t.toFixed(3), '-i', video, '-frames:v', '1', outPath],
     outPath, `word-event frame @${t.toFixed(2)}s`);
 }
+
+/** The frames at `times` in one decode pass, written as f_0.png, f_1.png ... in `dir` (one ffmpeg run, not one seek per frame). Returns the paths. */
+export function extractStillFrames(video, times, fps, dir) {
+  const frames = [...new Set(times.map((t) => Math.round(t * fps)))].sort((a, b) => a - b);
+  ffmpegOrDie(['-v', 'error', '-y', '-i', video, '-vf', `select='${frames.map((n) => `eq(n\\,${n})`).join('+')}'`, '-fps_mode', 'passthrough', path.join(dir, 'f_%d.png')],
+    null, 'word-event frames');
+  const index = new Map(frames.map((n, i) => [n, i + 1]));
+  return times.map((t) => path.join(dir, `f_${index.get(Math.round(t * fps))}.png`));
+}
+
+/** True when the centre of an OCR word box lies inside one of the rects ({ x, y, w, h } as fractions of the frame). Pure. */
+export const insideRects = (box, rects) => rects.some((r) => box.cxFrac >= r.x && box.cxFrac <= r.x + r.w && box.cyFrac >= r.y && box.cyFrac <= r.y + r.h);
 
 // A frame's mean colour inside one word's box, via ffmpeg's own area-averaging scale filter (a crop
 // scaled down to 1x1 IS the crop's average colour): no image-decoding dependency, one subprocess call.
@@ -198,23 +210,19 @@ export function trackRegions(frameFiles, times, wordBoxesByTime) {
 
 // Extracts a still + OCR + per-word colour at every adaptive sample time, then tracks words and non-text
 // regions across them. `outDir` gets a `.word-events` scratch folder, removed before returning.
-export function wordEventTracks(video, from, to, outDir) {
+export function wordEventTracks(video, from, to, outDir, { skip = [] } = {}) {
   // Clamped to the FILE's own probed duration, not the caller's window end: a windowed clip is cut to
   // ~`to` seconds by ffmpeg's own encoder rounding, so a candidate time sitting right at the caller's
   // `to` can land a hair past the last real frame and make `-ss` return nothing.
-  const dur = probeVideo(video).dur;
+  const { dur, fps } = probeVideo(video);
   const times = adaptiveSampleTimes(video, from, to).map((t) => Math.min(t, dur - 0.05));
   const workDir = path.join(outDir, '.word-events');
   fs.mkdirSync(workDir, { recursive: true });
-  const frameFiles = times.map((t, i) => {
-    const p = path.join(workDir, `f_${i}.png`);
-    extractStillFrame(video, t, p);
-    return p;
-  });
+  const frameFiles = extractStillFrames(video, times, fps, workDir);
   const { width: frameW, height: frameH } = pngDims(frameFiles[0]);
+  const read = ocrFrames(frameFiles.map((src) => ({ src, base: src.replace(/\.png$/, '') })), 60, 3, frameW, frameH);
   const perFrame = times.map((t, i) => {
-    const base = path.join(workDir, `f_${i}`);
-    const words = ocrOneFrame(frameFiles[i], base, 60, 3, frameW, frameH)
+    const words = read[i].filter((w) => !insideRects(w.box, skip))
       .map((w) => ({ ...w, color: colorName(cropMeanColor(frameFiles[i], w.box, frameW, frameH)) }));
     return { t, words };
   });

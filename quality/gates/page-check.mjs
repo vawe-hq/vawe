@@ -37,6 +37,8 @@ import { pageAudio } from '../../harness/lib/sound-read.mjs';
 import { onsetEnvelope, estimateTempo, estimatePhase, beatGrid } from '../../core/beats/detect.js';
 import { sampleText, clippedGlyphs } from '../../harness/lib/text-timing.mjs';
 import { readHoldProblems } from '../../harness/lib/read-hold.mjs';
+import { TEXTURE } from '../../harness/lib/draft-check.mjs';
+import { textureCanvases } from '../../harness/lib/canvas-film.mjs';
 import { lowContrast, passingColour, hexOf, shownAndHidden } from '../../harness/lib/text-contrast.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -316,9 +318,20 @@ function checkReference(ctx) {
   if (Math.abs(refDur - dur) > 1 / fps) ctx.notes.push(`length: reference ${refDur.toFixed(2)}s, render ${dur.toFixed(2)}s`);
 }
 
-function checkText(ctx) {
+async function textureRects(ctx) {
+  if (!ctx.page) return [];
+  const { openPage, settle, resolveFrame } = await import('../../harness/media/render-page.mjs');
+  const opened = await openPage(ctx.page, resolveFrame(ctx.page, {}));
+  try {
+    await opened.page.goto(opened.url, { waitUntil: 'load' });
+    await settle(opened.page);
+    return await opened.page.evaluate(textureCanvases, TEXTURE.reasonMin);
+  } finally { await opened.close(); }
+}
+
+async function checkText(ctx) {
   if (spawnSync('tesseract', ['-version']).error) { ctx.notes.push('text-unreadable-hold: tesseract is not on PATH, skipped'); return; }
-  const { words } = wordEventTracks(ctx.video, 0, ctx.dur, ctx.work);
+  const { words } = wordEventTracks(ctx.video, 0, ctx.dur, ctx.work, { skip: await textureRects(ctx) });
   for (const p of readHoldProblems(words)) {
     ctx.f.warn('text-unreadable-hold', `"${p.text.slice(0, 40)}" (${p.n} word${p.n > 1 ? 's' : ''}) is still for ${p.hold.toFixed(2)}s and needs ${p.need.toFixed(2)}s`,
       { at: fmtT(p.tSettled, ctx.fps), fix: `hold ${(p.need - p.hold).toFixed(2)}s longer: delay the exit to ${(p.tSettled + p.need).toFixed(2)}s. Keep the motion quick; the time to read comes from the hold.` });
@@ -372,7 +385,7 @@ async function main() {
   if (!skip.has('audio') && page) checkCues(ctx);
   if (!skip.has('cuts') && ctx.cutTimes.length) checkCutsAgainstBeats(ctx);
   if (!skip.has('cuts') && ctx.ref && fs.existsSync(ctx.ref)) checkReference(ctx);
-  if (!skip.has('text')) checkText(ctx);
+  if (!skip.has('text')) await checkText(ctx);
   if (!skip.has('live') && page) { await checkLive(ctx); await checkClipped(ctx); }
   else if (!page) ctx.notes.push('contrast, fonts, audio cues and meta checks need the page: pass page.html, or render to out/<film>.mp4 with films/<film>/page.html beside it');
   if (page && readPageMeta(page, 'loop') === 'true') checkLoop(ctx);

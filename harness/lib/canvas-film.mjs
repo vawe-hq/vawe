@@ -16,3 +16,11 @@ export const DOM_PICTURE_CHECKS = new Set(['text-motion', 'worlds', 'spec']);
 
 /** One line for the dev notes: which probes did not run and why. */
 export const canvasFilmNote = () => `checks skipped: ${[...DOM_PICTURE_CHECKS].join(', ')} (a canvas covers the frame, so the DOM text and worlds are not the picture)`;
+
+/**
+ * Runs in the page: the { x, y, w, h } (fractions of the frame) of each canvas the page marks as texture the way the DOM rules do:
+ * under aria-hidden or data-chrome, with a data-texture reason of `reasonMin` characters or more. Text painted there is not copy to read.
+ */
+export const textureCanvases = (reasonMin) => [...document.querySelectorAll('canvas')]
+  .filter((c) => (c.closest('[aria-hidden="true"]') || c.closest('[data-chrome]')) && (c.closest('[data-texture]')?.getAttribute('data-texture') || '').trim().length >= reasonMin)
+  .map((c) => { const r = c.getBoundingClientRect(); return { x: r.left / innerWidth, y: r.top / innerHeight, w: r.width / innerWidth, h: r.height / innerHeight }; });

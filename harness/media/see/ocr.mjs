@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { ffmpegOrDie, drawtext } from '../../lib/scratch.mjs';
@@ -36,6 +37,19 @@ export function ocrOneFrame(src, base, minConf, minLen, frameW, frameH) {
   if (r.status !== 0) r = spawnSync('tesseract', args, { encoding: 'utf8' });
   const tsv = fs.existsSync(`${base}.tsv`) ? fs.readFileSync(`${base}.tsv`, 'utf8') : '';
   return parseTesseractTsv(tsv, minConf, minLen, frameW, frameH);
+}
+
+/**
+ * ocrOneFrame for many frames at once: tesseract runs `jobs` processes at a time (one thread each), then any frame without a tsv is read again alone.
+ * `frames` is [{ src, base }]; the result lists the words of each frame in order.
+ */
+export function ocrFrames(frames, minConf, minLen, frameW, frameH, jobs = Math.max(1, os.cpus().length - 1)) {
+  const real = frames.map((f) => ({ src: fs.realpathSync(f.src), base: path.join(fs.realpathSync(path.dirname(f.base)), path.basename(f.base)) }));
+  spawnSync('xargs', ['-0', '-n', '2', '-P', String(jobs), 'sh', '-c', 'tesseract "$0" "$1" --psm 11 tsv >/dev/null 2>&1'],
+    { input: real.flatMap((f) => [f.src, f.base]).join('\0') + '\0', env: { ...process.env, OMP_THREAD_LIMIT: '1' } });
+  return frames.map((f, i) => (fs.existsSync(`${real[i].base}.tsv`)
+    ? parseTesseractTsv(fs.readFileSync(`${real[i].base}.tsv`, 'utf8'), minConf, minLen, frameW, frameH)
+    : ocrOneFrame(f.src, f.base, minConf, minLen, frameW, frameH)));
 }
 
 // ── OCR: tesseract on downscaled frames at ocrFps, psm 11 (sparse text, no layout) ─────────────────
