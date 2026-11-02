@@ -10,7 +10,8 @@ import { spawnSync } from 'node:child_process';
 import { openPage, settle, resolveFrame } from '../../harness/media/render-page.mjs';
 import { textureCanvases } from '../../harness/lib/canvas-film.mjs';
 import { TEXTURE } from '../../harness/lib/draft-check.mjs';
-import { insideRects, extractStillFrames } from '../../harness/media/see/words.mjs';
+import { insideRects, extractStillFrames, extractStillFrame } from '../../harness/media/see/words.mjs';
+import { ocrFrames } from '../../harness/media/see/ocr.mjs';
 
 const PAGE = 'tests/fixtures/pages/texture-canvas.html';
 
@@ -35,14 +36,17 @@ test('extractStillFrames writes the frames asked for in one pass, in the order o
   try {
     const video = path.join(dir, 'count.mp4');
     spawnSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc=size=160x90:rate=30:duration=2', '-pix_fmt', 'yuv420p', video]);
+    fs.mkdirSync(path.join(dir, 'one'));
     const files = extractStillFrames(video, [1, 0.2, 1], 30, dir);
     assert.equal(files[0], files[2]);
     assert.notEqual(files[0], files[1]);
     assert.ok(files.every((f) => fs.statSync(f).size > 0));
+    extractStillFrame(video, 0.21, path.join(dir, 'ss.png'));
+    assert.deepEqual(fs.readFileSync(extractStillFrames(video, [0.21], 30, path.join(dir, 'one'))[0]), fs.readFileSync(path.join(dir, 'ss.png')));
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('the layout sample lists the colours :root declares, and no other custom property', async () => {
+test('the layout sample lists the :root colours the page paints with, not an unused one or a custom property that is no colour', async () => {
   const { sampleLayout } = await import('../../harness/media/draft-check.mjs');
   const page = 'tests/fixtures/pages/declared-palette.html';
   const opened = await openPage(page, resolveFrame(page, {}));
@@ -52,4 +56,14 @@ test('the layout sample lists the colours :root declares, and no other custom pr
     const [sample] = await sampleLayout(opened.page, [0], async () => {});
     assert.deepEqual(sample.palette, [[0, 0, 0, 1], [241, 234, 219, 1]]);
   } finally { await opened.close(); }
+});
+
+test('ocrFrames reads a file named twice once and gives both entries the same words', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ocr-frames-'));
+  try {
+    const png = path.join(dir, 'f_1.png');
+    spawnSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'color=white:size=320x180', '-frames:v', '1', png]);
+    const [a, b] = ocrFrames([{ src: png, base: png.replace(/\.png$/, '') }, { src: png, base: png.replace(/\.png$/, '') }], 60, 3, 320, 180);
+    assert.deepEqual(a, b);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });

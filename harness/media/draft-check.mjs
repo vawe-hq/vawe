@@ -278,13 +278,19 @@ function layoutBoxes(env) {
   return boxes;
 }
 
-// The colours the :root custom properties declare, as [r, g, b, a]; a property that is no colour (--weight: bold) is left out.
+// The colours the :root custom properties declare AND the page paints with (a var() in a colour or background declaration, directly or through
+// another custom property), as [r, g, b, a]. A property nothing uses, or that is no colour (--weight: bold), is left out.
 function rootPalette(rgba) {
   const root = getComputedStyle(document.documentElement);
   const isColour = (v) => /^(#[0-9a-f]{3,8}|(rgb|hsl|hwb|lab|lch|oklab|oklch|color)a?\(|black$|white$)/i.test(v);
-  const declared = (sheet) => { try { return [...sheet.cssRules]; } catch { return []; } };
-  const names = [...document.styleSheets].flatMap(declared).filter((rule) => rule.selectorText === ':root').flatMap((rule) => [...rule.style]).filter((n) => n.startsWith('--'));
-  return [...new Set(names)].map((n) => root.getPropertyValue(n).trim()).filter(isColour).map(rgba);
+  const rulesOf = (sheet) => { try { return [...sheet.cssRules].filter((r) => r.style); } catch { return []; } };
+  const refs = (value) => [...value.matchAll(/var\(\s*(--[\w-]+)/g)].map((m) => m[1]);
+  const paints = (css) => [...css.matchAll(/(?:^|[;\s])(?:color|background[\w-]*)\s*:\s*([^;]*)/g)].flatMap((m) => refs(m[1]));
+  const rules = [...document.styleSheets].flatMap(rulesOf);
+  const declared = rules.filter((r) => r.selectorText === ':root').flatMap((r) => [...r.style].filter((n) => n.startsWith('--')).map((name) => ({ name, value: r.style.getPropertyValue(name) })));
+  const used = new Set([...rules.map((r) => r.style.cssText), ...[...document.querySelectorAll('[style]')].map((el) => el.getAttribute('style'))].flatMap(paints));
+  for (let pass = 0; pass < declared.length; pass++) declared.filter((d) => used.has(d.name)).forEach((d) => refs(d.value).forEach((n) => used.add(n)));
+  return [...new Set(declared.filter((d) => used.has(d.name)).map((d) => d.name))].map((n) => root.getPropertyValue(n).trim()).filter(isColour).map(rgba);
 }
 
 // One moment's layout for the layout lint (harness/lib/layout-lint.mjs): { w, h, accent, texts, blocks, boxes }. texts is one entry per
