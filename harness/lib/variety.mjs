@@ -87,7 +87,7 @@ export function repeatAdvice(sigs, exempt = []) {
   return lines;
 }
 
-const HISTORY_ONLY = 'these count past films, not this ask: choose the dials for this direction in the Signature section of brief.md';
+const HISTORY_ONLY = 'these count past films, not this ask: choose the dials for this direction in <meta name="signature"> (ranges: brief.md, ## Signature)';
 
 /** What `vawe new` shows and the brief block uses: { lines, unused, exempt }. Nothing to show when no film has declared a signature. */
 export function varietyFor(sigs, brand) {
