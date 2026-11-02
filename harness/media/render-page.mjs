@@ -55,7 +55,7 @@ import { ASPECTS, aspectDims } from '../../core/layout/aspects.js';
 import { appendRun, filmKeyOf, readRuns } from '../lib/runlog.mjs';
 import { finalFailedLine, lastFailedShip, failedShipLine } from '../lib/ship-status.mjs';
 import { devEvent, devFailedEvent, shipEvent } from '../lib/run-events.mjs';
-import { REPO_ROOT, serveRepo, trackBrowser, pageArgs, insideRoot, PROTOCOL_TIMEOUT_MS } from '../lib/render-harness.mjs';
+import { REPO_ROOT, serveRepo, trackBrowser, pageArgs, insideRoot, PROTOCOL_TIMEOUT_MS, loadPuppeteer } from '../lib/render-harness.mjs';
 import { openPreview, treeSignature } from './preview-server.mjs';
 import { pageQuery, paramsFilm, paramsFlags, aspectOverride, aspectProblem, aspectSlug } from '../lib/page-params.mjs';
 import { writeDraftSheet, draftSheetPath } from './draft-sheet.mjs';
@@ -207,7 +207,7 @@ export async function openPage(pagePath, frame, { warm = false, final = true, la
 }
 
 async function openLane(software) {
-  const { default: puppeteer } = await import('puppeteer');
+  const puppeteer = await loadPuppeteer();
   const server = await serveRepo({ root: REPO_ROOT });
   const browser = trackBrowser(await puppeteer.launch({ headless: true, args: pageArgs(software), protocolTimeout: PROTOCOL_TIMEOUT_MS }));
   return { browser, port: server.port, close: async () => { await browser.close().catch(() => {}); server.close(); } };

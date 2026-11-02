@@ -34,7 +34,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/puppeteer
-          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json', '.puppeteerrc.cjs') }}
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
       - run: npm ci
       - name: static gates
@@ -61,7 +61,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/puppeteer
-          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json', '.puppeteerrc.cjs') }}
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
       - run: npm ci
       - name: fetch the locked faces

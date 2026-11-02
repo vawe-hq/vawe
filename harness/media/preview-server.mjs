@@ -13,7 +13,7 @@ import { createHash } from 'node:crypto';
 import { spawn, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { scratch } from '../lib/scratch.mjs';
-import { serveRepo, launchPage, trackBrowser, insideRoot, REPO_ROOT, pageArgs, PROTOCOL_TIMEOUT_MS } from '../lib/render-harness.mjs';
+import { serveRepo, launchPage, trackBrowser, insideRoot, REPO_ROOT, pageArgs, PROTOCOL_TIMEOUT_MS, loadPuppeteer } from '../lib/render-harness.mjs';
 import { pageQuery } from '../lib/page-params.mjs';
 
 const SELF = fileURLToPath(import.meta.url);
@@ -76,7 +76,7 @@ async function connectShared(final) {
     if (!state) return null;
   }
   try {
-    const { default: puppeteer } = await import('puppeteer');
+    const puppeteer = await loadPuppeteer();
     // Puppeteer's default viewport (800x600) is applied to every page a client attaches to, including another process's tab.
     const browser = await puppeteer.connect({ browserWSEndpoint: state.wsEndpoint, protocolTimeout: PROTOCOL_TIMEOUT_MS, defaultViewport: null });
     touch(final);
@@ -223,7 +223,7 @@ function claimDaemon(final) {
 async function daemonMain(final) {
   const lock = claimDaemon(final);
   if (!lock) return process.exit(0);
-  const { default: puppeteer } = await import('puppeteer');
+  const puppeteer = await loadPuppeteer();
   const { close: closeServer, port } = await serveRepo({ root: REPO_ROOT });
   const browser = trackBrowser(await puppeteer.launch({ headless: true, args: pageArgs(final), protocolTimeout: PROTOCOL_TIMEOUT_MS, dumpio: true }));
   browser.on('disconnected', () => console.error(`${new Date().toISOString()} chrome disconnected (pid ${browser.process()?.pid ?? '?'})`));

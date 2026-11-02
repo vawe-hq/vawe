@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
-import { serveRepo } from '../../harness/lib/render-harness.mjs';
+import { serveRepo, SANDBOX_ARGS } from '../../harness/lib/render-harness.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const name = process.argv[2] || 'Anybody';
@@ -88,7 +88,7 @@ window.__vertexCount = geo.attributes.position.count;
 const tmp = path.join(repoRoot, `_glyphs-verify-${name}.html`);
 fs.writeFileSync(tmp, html);
 
-const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--enable-unsafe-swiftshader'] });
+const browser = await puppeteer.launch({ headless: true, args: [...SANDBOX_ARGS, '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage();
 await page.setViewport({ width: 1240, height: 620, deviceScaleFactor: 1 });
 const errors = [];

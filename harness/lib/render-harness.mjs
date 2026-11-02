@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
 export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -57,8 +58,11 @@ export async function serveRepo({ root = REPO_ROOT, port = 0, route = null, moun
   return { server, port: server.address().port, close: () => server.close() };
 }
 
-// The flags a deterministic capture needs: no sandbox (CI), no scrollbars over the canvas, and a device scale the caller owns rather than the host's display.
-export const RENDER_ARGS = ['--no-sandbox', '--hide-scrollbars', '--force-device-scale-factor=1'];
+// Chrome's sandbox cannot start on Linux CI runners and containers (user namespaces are blocked); everywhere else it stays on, because `new --from-url` opens untrusted sites.
+export const SANDBOX_ARGS = process.platform === 'linux' ? ['--no-sandbox'] : [];
+
+// The flags a deterministic capture needs: no scrollbars over the canvas, and a device scale the caller owns rather than the host's display.
+export const RENDER_ARGS = [...SANDBOX_ARGS, '--hide-scrollbars', '--force-device-scale-factor=1'];
 
 // A final keeps GPU compositing off: ~150+ rapid seek+screenshot round trips crashed the GPU compositor
 // there, and its pixels must not depend on the GPU. A draft composites on the GPU (1.5x faster at half
@@ -151,9 +155,17 @@ export function trackBrowser(browser) {
 // Puppeteer's default is 180 s per protocol call; a heavy WebGL frame late in a long render can exceed it.
 export const PROTOCOL_TIMEOUT_MS = 30 * 60 * 1000;
 
+// Puppeteer finds .puppeteerrc.cjs only from the working directory up, and a render may run from a temp dir; without the pin it wants its own older Chrome.
+export async function loadPuppeteer() {
+  const pin = createRequire(import.meta.url)(path.join(REPO_ROOT, '.puppeteerrc.cjs'));
+  process.env.PUPPETEER_CHROME_VERSION ??= pin.chrome.version;
+  process.env.PUPPETEER_CHROME_HEADLESS_SHELL_VERSION ??= pin['chrome-headless-shell'].version;
+  return (await import('puppeteer')).default;
+}
+
 /** launchPage({ width, height, scale, args }) → { browser, page, close } */
 export async function launchPage({ width, height, scale = 1, args = RENDER_ARGS } = {}) {
-  const { default: puppeteer } = await import('puppeteer');
+  const puppeteer = await loadPuppeteer();
   const browser = trackBrowser(await puppeteer.launch({ headless: true, args, protocolTimeout: PROTOCOL_TIMEOUT_MS }));
   const page = await browser.newPage();
   await page.setViewport({ width, height, deviceScaleFactor: scale });

@@ -12,6 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import puppeteer from 'puppeteer';
+import { SANDBOX_ARGS } from '../../harness/lib/render-harness.mjs';
 import { dismissOverlays } from './dismiss-overlays.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
@@ -28,7 +29,7 @@ const dir = path.join(ROOT, 'assets/brands', brand, 'sections');
 if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir)) if (/\.(png|json)$/.test(f)) fs.rmSync(path.join(dir, f));
 fs.mkdirSync(dir, { recursive: true });
 
-const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+const browser = await puppeteer.launch({ headless: true, args: SANDBOX_ARGS });
 const page = await browser.newPage();
 // A real browser's User-Agent, because a growing number of marketing sites CONTENT-NEGOTIATE on it and
 // serve automated clients something else entirely. ramp.com answers puppeteer's default (which says

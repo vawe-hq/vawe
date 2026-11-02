@@ -42,8 +42,9 @@ function probeFfmpeg() {
 async function probeChrome() {
   let browser;
   try {
-    const { default: puppeteer } = await import('puppeteer');
-    if (!fs.existsSync(puppeteer.executablePath())) return lacks('puppeteer has no Chrome download');
+    const { loadPuppeteer } = await import('../lib/render-harness.mjs');
+    const puppeteer = await loadPuppeteer();
+    if (!fs.existsSync(await puppeteer.executablePath())) return lacks('puppeteer has no Chrome download');
     browser = await puppeteer.launch({ headless: true });
     await (await browser.newPage()).goto('about:blank');
     return found(await browser.version());

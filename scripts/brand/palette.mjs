@@ -8,6 +8,7 @@
 //   node scripts/brand/palette.mjs assets/brands/<brand>/sections   # whole page (recommended)
 //   node scripts/brand/palette.mjs path/to/one-screenshot.png              # single image
 import puppeteer from 'puppeteer';
+import { SANDBOX_ARGS } from '../../harness/lib/render-harness.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -20,7 +21,7 @@ const sat = ({ r, g, b }) => { const mx = Math.max(r, g, b), mn = Math.min(r, g,
 // human eyedrop read the same numbers.
 export async function eyedrop(files) {
   const uris = files.map((f) => `data:image/${f.match(/jpe?g$/i) ? 'jpeg' : 'png'};base64,` + fs.readFileSync(f).toString('base64'));
-  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--force-color-profile=srgb'] });
+  const browser = await puppeteer.launch({ headless: true, args: [...SANDBOX_ARGS, '--force-color-profile=srgb'] });
   const page = await browser.newPage();
   const result = await page.evaluate(async (uris) => {
   const bins = new Map(); let lumSum = 0, n = 0;
@@ -79,7 +80,7 @@ export async function writeSwatch(outPath, { light, bg, text, accents, cols }) {
   const sw = cols.map((c) => `<div style="flex:1;background:${hex(c)}"></div>`).join('');
   const html = `<body style="margin:0"><div style="display:flex;height:120px;width:1280px">${sw}</div>
   <div style="font:600 20px monospace;padding:14px 8px">${light ? 'LIGHT / white-first' : 'DARK-first'} · bg ${bg} · text ${text} · accents ${accents.join(' ')}</div></body>`;
-  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+  const browser = await puppeteer.launch({ headless: true, args: SANDBOX_ARGS });
   const page = await browser.newPage(); await page.setViewport({ width: 1296, height: 190 });
   await page.setContent(html); await page.screenshot({ path: outPath }); await browser.close();
 }
