@@ -43,10 +43,22 @@ export function servedFile(root, mounts, rel) {
  * `mounts` is a list of { prefix, dir }: a path under `prefix` (any path when it is '') is read from `dir` when the file is there,
  * so a page outside `root` keeps its own files beside root's core/ and assets/.
  */
+// Any site open in the person's browser can reach 127.0.0.1: through DNS rebinding (a foreign Host)
+// or a cross-site POST, which browsers send with no preflight (a foreign Origin).
+export function localRequest(req, port) {
+  const hosts = [`127.0.0.1:${port}`, `localhost:${port}`];
+  if (!hosts.includes(req.headers.host)) return false;
+  const origin = req.headers.origin;
+  return origin === undefined || hosts.some((h) => origin === `http://${h}`);
+}
+
 export async function serveRepo({ root = REPO_ROOT, port = 0, route = null, mounts = [] } = {}) {
   const server = http.createServer((req, res) => {
+    if (!localRequest(req, server.address().port)) { res.writeHead(403); return res.end(); }
     if (route && route(req, res)) return;
-    const p = servedFile(root, mounts, decodeURIComponent(req.url.split('?')[0]).replace(/^\/+/, ''));
+    let rel;
+    try { rel = decodeURIComponent(req.url.split('?')[0]).replace(/^\/+/, ''); } catch { res.writeHead(400); return res.end(); }
+    const p = servedFile(root, mounts, rel);
     if (!p) { res.writeHead(404); return res.end(); }
     res.writeHead(200, { 'Content-Type': MIME[path.extname(p)] || 'application/octet-stream' });
     fs.createReadStream(p).pipe(res);

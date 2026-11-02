@@ -53,6 +53,16 @@ const nextConfig = {
   async headers() {
     const media = "/moves/:file(.+\\.(?:mp4|webm|webp|md))";
     return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Strict-Transport-Security", value: "max-age=63072000" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        ],
+      },
       // Link headers (canonical, describedby) come from the markdown
       // handler and middleware.ts, not from here.
       // Data files for agents: fetchable, not for the index.

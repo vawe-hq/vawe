@@ -85,6 +85,8 @@ ARG DOCS_ORIGIN=
 ENV DOCS_ORIGIN=$DOCS_ORIGIN
 
 RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
+# The server needs only node; the npm bundled in the base image carried 10 HIGH CVEs (Trivy, 2026-11-03).
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 
 # standalone traces the server; public/ and .next/static are NOT included by it — copy explicitly.
 # the site sets outputFileTracingRoot to its own dir, so its standalone root holds server.js
@@ -104,4 +106,5 @@ VOLUME /data/bots
 
 USER nextjs
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD wget -qO /dev/null http://127.0.0.1:3000/robots.txt || exit 1
 CMD ["./docker-start.sh"]

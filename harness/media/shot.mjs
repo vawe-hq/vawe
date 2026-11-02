@@ -10,7 +10,7 @@ import path from 'node:path';
 import { launchPage, serveRepo } from '../lib/render-harness.mjs';
 import { pageRoot } from './preview-server.mjs';
 import { withSite } from '../lib/site-server.mjs';
-import { DEFAULT_BASE, DEFAULT_WIDTHS, isFaviconUrl, isRequestNoise, navigationProblem, parseTargets, parseWidths, problemLines, resolveTarget, shotName, shotProblem, viewportHeight } from './shot-math.mjs';
+import { DEFAULT_BASE, DEFAULT_WIDTHS, isFaviconUrl, isPrivateHost, isRequestNoise, navigationProblem, parseTargets, parseWidths, problemLines, resolveTarget, shotName, shotProblem, viewportHeight } from './shot-math.mjs';
 import { parseTour, tourSize } from './tour-math.mjs';
 import { captureTour, encodeTour, tourTmpDir } from './tour.mjs';
 
@@ -33,6 +33,16 @@ async function serveFile(file) {
   return { url: `http://127.0.0.1:${port}/${path.relative(root, abs).split(path.sep).join('/')}`, close };
 }
 
+/** An outside site in the capture browser could reach this machine's local servers; its requests to them are dropped. */
+async function guardLocalNetwork(page, url) {
+  if (isPrivateHost(new URL(url).hostname)) return;
+  await page.setRequestInterception(true);
+  page.on('request', (r) => {
+    const u = new URL(r.url());
+    if (/^(https?|wss?):$/.test(u.protocol) && isPrivateHost(u.hostname)) r.abort('blockedbyclient'); else r.continue();
+  });
+}
+
 async function loadLazy(page) {
   await page.evaluate(async () => {
     document.querySelectorAll('img[loading=lazy]').forEach((i) => { i.loading = 'eager'; });
@@ -52,6 +62,7 @@ async function loadLazy(page) {
 
 async function shoot({ url, name, width, full, outDir }) {
   const { page, close } = await launchPage({ width, height: viewportHeight(width) });
+  await guardLocalNetwork(page, url);
   const problems = { errors: [], failed: [] };
   page.on('pageerror', (e) => { problems.errors.push(String(e.message ?? e).split('\n')[0]); });
   page.on('console', (m) => { if (m.type() === 'error' && !isRequestNoise(m.text())) problems.errors.push(m.text().split('\n')[0]); });
@@ -77,6 +88,7 @@ async function shoot({ url, name, width, full, outDir }) {
 async function tour({ url, file, width, fps, scale, out }) {
   const plan = parseTour(fs.readFileSync(file, 'utf8'));
   const { page, close } = await launchPage({ ...tourSize(width), scale });
+  await guardLocalNetwork(page, url);
   const tmpDir = tourTmpDir();
   try {
     await gotoChecked(page, url);

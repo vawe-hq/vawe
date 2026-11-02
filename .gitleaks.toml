@@ -1,0 +1,11 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known non-secrets"
+paths = [
+  # "key" here is a GitHub repo slug (owner/name) from the discovery search runs
+  '''scripts/discovery/runs/.*\.json''',
+  # fixtures that prove redact() strips keys from run logs
+  '''tests/lib/trace-review\.test\.mjs''',
+]

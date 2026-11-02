@@ -134,6 +134,10 @@ export type EventInput = RequestFacts & {
 // Coding agents run on a person's machine, so their IP is a person's IP and is never kept.
 const KEEPS_IP: ReadonlySet<BotClass> = new Set(["ai-training", "ai-search", "ai-user-fetch", "search-engine"]);
 
+// Any client can send a bot's User-Agent, so the log bounds what one request and one day may write.
+const MAX_PATH = 512;
+const MAX_DAY_BYTES = 50 * 1024 * 1024;
+
 export function buildBotEvent(i: EventInput): BotEvent | null {
   const c = classifyRequest(i);
   if (c.class === "other") return null;
@@ -141,7 +145,7 @@ export function buildBotEvent(i: EventInput): BotEvent | null {
     t: (i.now ?? new Date()).toISOString(),
     class: c.class,
     bot: c.bot,
-    path: i.path,
+    path: i.path.slice(0, MAX_PATH),
     served: i.served ?? (i.path.endsWith(".md") ? "md" : "html"),
     wantsMd: wantsMarkdown(i.accept),
     refHost: refererHost(i.referer),
@@ -164,12 +168,14 @@ async function pruneOldLogs(dir: string, today: string): Promise<void> {
 }
 
 export async function appendBotEvent(dir: string, event: BotEvent): Promise<void> {
-  const { appendFile, mkdir, access } = await import("node:fs/promises");
+  const { appendFile, mkdir, stat } = await import("node:fs/promises");
   const path = await import("node:path");
   await mkdir(dir, { recursive: true });
   const day = event.t.slice(0, 10);
   const file = path.join(dir, `bots-${day}.jsonl`);
-  const firstOfDay = await access(file).then(() => false, () => true);
+  const size = await stat(file).then((s) => s.size, () => -1);
+  if (size > MAX_DAY_BYTES) return;
+  const firstOfDay = size === -1;
   await appendFile(file, JSON.stringify(event) + "\n");
   if (firstOfDay) await pruneOldLogs(dir, day).catch(() => {});
 }

@@ -63,3 +63,14 @@ export function problemLines({ errors, failed }, max = PROBLEM_LINES_MAX) {
 // Chrome logs "Failed to load resource" for every 404, and the failed-request line already names the URL. A page without a favicon always misses /favicon.ico.
 export const isRequestNoise = (text) => /^Failed to load resource/.test(text);
 export const isFaviconUrl = (url) => /\/favicon\.ico(\?|$)/.test(url);
+
+/** True for a host an outside page must not reach from the capture browser: loopback, private and link-local addresses. Pure. */
+export function isPrivateHost(hostname) {
+  const h = hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  if (h === 'localhost' || h.endsWith('.localhost')) return true;
+  if (h.includes(':')) return h === '::1' || /^(fc|fd|fe[89ab])/.test(h) || h.startsWith('::ffff:') && isPrivateHost(h.slice(7));
+  const m = h.match(/^(\d+)\.(\d+)\.\d+\.\d+$/);
+  if (!m) return false;
+  const [a, b] = [Number(m[1]), Number(m[2])];
+  return a === 127 || a === 10 || a === 0 || (a === 192 && b === 168) || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31);
+}

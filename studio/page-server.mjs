@@ -51,7 +51,7 @@ const pageModel = async () => {
 async function framedPage(aspect) {
   const length = await resolveLength(pageFile, { aspect });
   const [width, height] = aspectDims(aspect);
-  const boot = `<script>(${installPageClock})();(${installPageFrame})(${JSON.stringify({ aspect, width, height, eases: EASE_VARS, duration: length.auto ? length.seconds : undefined })});(${installPageReady})();window.__pageReady = ${awaitReady};</script>`;
+  const boot = `<script>(${installPageClock})();(${installPageFrame})(${JSON.stringify({ aspect, width, height, eases: EASE_VARS, duration: length.auto ? length.seconds : undefined }).replace(/</g, '\\u003c')});(${installPageReady})();window.__pageReady = ${awaitReady};</script>`;
   const html = fs.readFileSync(pageFile, 'utf8');
   const at = html.match(/<head[^>]*>/i) || html.match(/<html[^>]*>/i) || html.match(/<!doctype[^>]*>/i);
   if (!at) return boot + html;
@@ -101,7 +101,11 @@ const routes = (req, res) => {
     send(res, 200, name.endsWith('.css') ? 'text/css' : name.endsWith('.html') ? 'text/html' : 'text/javascript', fs.readFileSync(path.join(UI, name)));
     return true;
   }
-  if (url === '/' + pageRel && q.has('aspect')) { framedPage(q.get('aspect')).then((html) => send(res, 200, 'text/html', html), (e) => send(res, 500, 'text/plain', String(e.message))); return true; }
+  if (url === '/' + pageRel && q.has('aspect')) {
+    if (!/^\d+:\d+$/.test(q.get('aspect'))) { send(res, 400, 'text/plain', 'aspect must be W:H'); return true; }
+    framedPage(q.get('aspect')).then((html) => send(res, 200, 'text/html', html), (e) => send(res, 500, 'text/plain', String(e.message)));
+    return true;
+  }
   if (url === '/api/page') {
     pageModel().then((m) => sendJson(res, 200, m), (e) => sendJson(res, 500, { error: String(e.message) }));
     return true;
