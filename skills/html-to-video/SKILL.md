@@ -16,7 +16,7 @@ vawe turns one HTML page into one mp4. You write the page in HTML, CSS, Web Anim
 git clone https://github.com/vawe-hq/vawe.git
 cd vawe
 npm install
-bin/vawe-dev doctor     # checks Node, ffmpeg and Chrome and prints the install line for each missing tool
+bin/vawe new <name> --request "<the ask>"   # also checks Node, ffmpeg and Chrome and prints the install line for each missing tool
 ```
 
 ## Make a video
