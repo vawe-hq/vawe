@@ -24,7 +24,13 @@ const mtime = (p) => { try { return fs.statSync(p).mtimeMs; } catch { return 0; 
 
 // A checkout rewrites mtimes, so only a page git sees as changed or new counts as being worked on.
 // A test page in a film's own folder (films/<name>/variations/<id>/page.html) is not a film.
-export const FILM_PAGE = /^films\/(examples\/)?[^/]+\/page\.html$/;
+export const FILM_PAGE = /^films\/(examples\/)?[^/]+\/(page\.html|ch\/[^/]+\.html)$/;
+
+/** The folder of the film a page belongs to: a long-form chapter page (films/<name>/ch/<nn>-x.html) belongs to the film above ch/. */
+export const filmDirOf = (page) => {
+  const dir = path.dirname(path.resolve(page));
+  return path.basename(dir) === 'ch' ? path.dirname(dir) : dir;
+};
 
 /** True for a page inside films/ that is not a film's own page.html: a direction, variation or kit page, which has no brief of its own. */
 export const isTestPage = (page, root = process.cwd()) => {
@@ -112,12 +118,12 @@ export function nextStep(page, root = process.cwd()) {
     const clip = path.basename(page, '.html');
     return { name: clip, stage: 'clip', next: `bin/vawe moves --only ${clip}`, why: 'a page under prompts/moves/demo/ is a clip: it has no brief, and bin/vawe moves renders it' };
   }
-  const name = path.basename(path.dirname(page));
+  const name = path.basename(filmDirOf(page));
   const rel = path.relative(root, page);
   if (isTestPage(page, root)) {
     return { name, stage: 'test', next: `bin/vawe frame ${rel} --moment <the second to check>`, why: 'a test page inside a film folder has no brief of its own' };
   }
-  const dir = path.dirname(page);
+  const dir = filmDirOf(page);
   const t = mtime(page);
   const draft = mtime(path.join(root, 'out', `${name}-draft.mp4`));
   const final = mtime(path.join(root, 'out', `${name}.mp4`));

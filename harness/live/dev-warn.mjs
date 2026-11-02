@@ -13,7 +13,7 @@ import { ideasFilled } from '../lib/ideas.mjs';
 import { statedLength } from '../media/page-duration.mjs';
 import { readRuns, looksSince, isBoardRun, readHookSeen } from '../lib/runlog.mjs';
 import { isClipDemo } from '../lib/clip-demo.mjs';
-import { nextStep, isTestPage } from './stage-say.mjs';
+import { nextStep, isTestPage, filmDirOf } from './stage-say.mjs';
 import { planStatusLines } from './plan-status.mjs';
 import { readPlan } from '../media/plan-read.mjs';
 
@@ -26,10 +26,11 @@ const worldIds = (html) => [...html.matchAll(/\bdata-world="([^"]+)"/g)].flatMap
 /** The facts planStatusLines needs, read from the page's files and the run log. `opened` is the opened page's plan (plan-read.mjs readPlan), or null for the files alone. */
 export function readPlanState(pagePath, root = ROOT, opened = null) {
   const abs = path.resolve(pagePath);
-  const name = path.basename(path.dirname(abs));
+  const filmDir = filmDirOf(abs);
+  const name = path.basename(filmDir);
   const rel = path.relative(root, abs);
   const html = read(abs) ?? '';
-  const brief = read(path.join(path.dirname(abs), 'brief.md'));
+  const brief = read(path.join(filmDir, 'brief.md'));
   const frames = mtime(path.join(root, 'out', `${name}-frames.png`));
   const found = opened?.findings ?? (brief === null ? [] : planFindings({ brief: readBrief(abs), duration: Number(statedLength(html)), probe: null, worlds: worldIds(html), authoring: pageAuthoring(abs) }));
   const covered = ideasFilled(brief ?? '') === false ? 'ideas-missing' : null;
@@ -39,7 +40,7 @@ export function readPlanState(pagePath, root = ROOT, opened = null) {
   const looked = draft ? { ...looksSince(name, draft, root), hook: readHookSeen(root, undefined, draft) } : null;
   return {
     name, rel, brief, findings, looked, page: opened?.advice ?? [],
-    design: read(path.join(path.dirname(abs), 'DESIGN.md')),
+    design: read(path.join(filmDir, 'DESIGN.md')),
     early: !mtime(path.join(root, 'out', `${name}-draft.mp4`)) && !mtime(path.join(root, 'out', `${name}.mp4`)),
     frames: !frames ? 'none' : frames < mtime(abs) ? 'stale' : 'ok',
     storyboardRan: readRuns(name, root).some((r) => isBoardRun(r) && r.exitCode === 0),

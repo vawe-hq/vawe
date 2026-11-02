@@ -232,6 +232,19 @@ test('a test page under a film folder is not a film', () => {
   assert.ok(!FILM_PAGE.test('films/riso-brand/kit/page.html'));
 });
 
+test('a long-form chapter page is a film page that reads its parent film', () => {
+  assert.ok(FILM_PAGE.test('films/long/ch/01-intro.html'));
+  const { root } = film('<p>x</p>');
+  const ch = path.join(root, 'films', 'f', 'ch');
+  fs.mkdirSync(ch, { recursive: true });
+  const page = path.join(ch, '01-intro.html');
+  fs.writeFileSync(page, '<p>x</p>');
+  assert.ok(!isTestPage(page, root));
+  const s = nextStep(page, root);
+  assert.equal(s.name, 'f');
+  assert.notEqual(s.stage, 'test');
+});
+
 test('a test page inside a film folder gets no brief advice from nextStep', () => {
   const { root } = film('<p>x</p>');
   const dir = path.join(root, 'films', 'f', 'directions', 'a');
