@@ -11,7 +11,7 @@ import { openPage, resolveFrame, settle, readPageMeta, probePage, pageAdvice, NO
 import { readBrief } from '../../harness/lib/brief-tables.mjs';
 import { moveDocLines } from '../../harness/lib/move-docs.mjs';
 
-const WAIVED = /^\d+ waived: /;
+const WAIVED = /^(\d+ waived: |fix first: )/;
 const EXAMPLES = path.resolve('films/examples');
 const pages = fs.readdirSync(EXAMPLES).map((d) => path.join(EXAMPLES, d, 'page.html')).filter((p) => fs.existsSync(p));
 
