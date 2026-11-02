@@ -37,7 +37,7 @@ or [llms.txt](https://vawe.dev/llms.txt).
 ```bash
 git clone https://github.com/vawe-hq/vawe.git && cd vawe
 npm install                                  # Node 22+; ffmpeg must be on PATH
-npx puppeteer browsers install chrome        # bin/vawe doctor prints this and every other missing tool
+npx puppeteer browsers install chrome        # bin/vawe-dev doctor prints this and every other missing tool
 bin/vawe new hello --request "a 10 s sting for a coffee brand"
 # then run the next: line that each command prints (AGENTS.md is the map)
 ```
@@ -147,11 +147,11 @@ From source: Node 22+, git, ffmpeg (with libx264 and drawtext), and tesseract (o
 
 ```bash
 npm install
-bin/vawe doctor
+bin/vawe-dev doctor
 bin/vawe dev films/<name>/page.html
 ```
 
-`bin/vawe doctor` checks each tool and prints the install line for your system (macOS, Linux or Windows)
+`bin/vawe-dev doctor` checks each tool and prints the install line for your system (macOS, Linux or Windows)
 for each missing one. It exits 1 only when a required tool is missing. A verb that fails because
 Chrome is missing prints the same install command. Output can differ between hosts that rasterise on a
 different GPU or Chrome version.

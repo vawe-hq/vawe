@@ -1,5 +1,5 @@
 import { VERBS } from '../../cli/verbs.mjs';
-import { ALIASES } from '../../cli/aliases.mjs';
+import { OLD_NAMES } from '../../cli/aliases.mjs';
 import { noteAggregate } from './notes.mjs';
 
 const used = (a, stage) => stage in a.stages.first;
@@ -78,7 +78,7 @@ const round = (x) => Number(x.toFixed(1));
 
 /** For each vawe verb, how many agents ran it (help calls left out); a verb no agent ran has 0. Pure. */
 function verbUse(agents) {
-  const use = Object.fromEntries([...VERBS.map((v) => v.name), ...Object.keys(ALIASES)].map((name) => [name, 0]));
+  const use = Object.fromEntries([...VERBS.map((v) => v.name), ...OLD_NAMES].map((name) => [name, 0]));
   for (const a of agents) for (const verb of new Set(a.verbs.filter((v) => !v.help).map((v) => v.verb))) use[verb] = (use[verb] ?? 0) + 1;
   return use;
 }

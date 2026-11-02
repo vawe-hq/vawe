@@ -9,7 +9,7 @@ test('a screenshot script or a headless chrome shot points at vawe shot', () => 
   assert.equal(id('"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --screenshot=/tmp/a.png http://localhost:3055/'), 'shot');
 });
 
-test('a curl status loop points at vawe check links', () => {
+test('a curl status loop points at vawe-dev check links', () => {
   assert.equal(id('for u in /blog /moves; do curl -s -o /dev/null -w "%{http_code}\\n" localhost:3100$u; done'), 'links');
 });
 

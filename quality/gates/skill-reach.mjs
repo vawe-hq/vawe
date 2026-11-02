@@ -1,9 +1,9 @@
 // quality/gates/skill-reach.mjs: is every skills/*/SKILL.md actually ROUTED to, by something an
 // agent reads before it would need it?
 //
-//   node quality/gates/skill-reach.mjs      ·   vawe check skill-reach
+//   node quality/gates/skill-reach.mjs      ·   vawe-dev check skill-reach
 //
-// WHY THIS EXISTS. `vawe check doc-refs` checks that a doc link resolves; `vawe check discovery` checks that a
+// WHY THIS EXISTS. `vawe-dev check doc-refs` checks that a doc link resolves; `vawe-dev check discovery` checks that a
 // registry entry can be found through the search corpus. Neither checked whether a SKILL could be
 // found at all. `vawe-review-loop` carried the judge loop's stopping rule (STOP-done ·
 // STOP-converged · STOP-hand-it-back) and nothing pointed at it: not AGENTS.md's skill router table,

@@ -17,6 +17,11 @@ test('doc-refs flags an old picture verb and a flag the verb does not have, and 
     assert.match(gate('Run `bin/vawe sheet p`.\n'), /`vawe sheet`: no such verb or gate/);
     assert.match(gate('Run `bin/vawe frame p --cuts --nope`.\n'), /`vawe frame --nope`/);
     assert.doesNotMatch(gate('Run `bin/vawe frame p --moment 2 --onion` and then `bin/vawe wait p`.\n'), /vawe (frame|wait)/);
+    assert.match(gate('Run `bin/vawe land`.\n'), /`vawe land`: no such verb or gate/);
+    assert.match(gate('Run `bin/vawe-dev nope`.\n'), /`vawe-dev nope`: no such verb or gate/);
+    assert.match(gate('Run `bin/vawe-dev check nope`.\n'), /`vawe-dev check nope`/);
+    assert.match(gate('Run `bin/vawe-dev runs --nope`.\n'), /`vawe-dev runs --nope`/);
+    assert.doesNotMatch(gate('Run `bin/vawe-dev land` and `bin/vawe-dev check doc-refs` and `bin/vawe-dev runs --all`.\n'), /vawe-dev/);
   } finally {
     fs.rmSync(file, { force: true });
   }

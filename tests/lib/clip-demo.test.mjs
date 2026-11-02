@@ -12,7 +12,7 @@ test('isClipDemo: only pages under prompts/moves/demo/', () => {
 test('nextStep: a clip demo points at the clip workflow, not at a brief', () => {
   const s = nextStep('prompts/moves/demo/mask-rise.html');
   assert.equal(s.stage, 'clip');
-  assert.equal(s.next, 'bin/vawe moves --only mask-rise');
+  assert.equal(s.next, 'bin/vawe-dev moves --only mask-rise');
 });
 
 test('unwaived: a clip drops the film-shape rules and keeps the others', () => {

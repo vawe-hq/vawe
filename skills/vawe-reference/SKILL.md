@@ -7,7 +7,7 @@ license: Apache-2.0
 
 # vawe-reference: reference -> SPEC -> KEEP/CHANGE -> rebuild -> match
 
-Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe doctor`.
+Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe-dev doctor`.
 
 Use when a reference film exists and the deliverable must match its light, pacing, type and curves.
 Not for "inspired by"; that is a director's brief (`prompts/directors-brief-long-form.md`).

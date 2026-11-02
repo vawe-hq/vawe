@@ -8,7 +8,7 @@ license: Apache-2.0
 # vawe-critique: how to look
 
 When you talk to the person, use plain words: describe what the viewer sees, not the harness terms (map: harness/lib/plain-words.mjs).
-Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe doctor`.
+Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe-dev doctor`.
 
 The author never grades its own film. Run this in a session that has not seen the authoring, or
 let `bin/vawe critique <page> --fresh` start one (a headless critic with the prompt below; it writes
@@ -48,7 +48,7 @@ moment, a reference or your draft; `--onion` and `--velocity` for one move), `va
 measured into SPEC.md), `vawe frame --at s,s,s` (a labelled sheet of seconds; `--vs <mp4>` puts the reference beside
 your frames), `vawe frame --board` (one HTML board: frame cards, moves, eases, handoffs, sound, rhythm), `vawe frame
 --at s` (one full-size PNG of a page or mp4 at a second). A site route, url or static html page: `vawe shot <route> --w 1440,390 [--full]`, never a puppeteer script;
-the site's links: `vawe check links`. A field of many small moving parts (rain, dust, sparks): `vawe see` prints one
+the site's links: `vawe-dev check links`. A field of many small moving parts (rain, dust, sparks): `vawe see` prints one
 "Particle field" line with count, direction and speed.
 
 ## The judge

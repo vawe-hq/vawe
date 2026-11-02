@@ -36,6 +36,7 @@ import cp from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gateFindings } from '../../harness/lib/findings.mjs';
 import { VERBS } from '../../harness/cli/verbs.mjs';
+import { DEV_VERBS } from '../../harness/dev/verbs.mjs';
 import { GATES } from '../../harness/lib/check-gate.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -168,18 +169,19 @@ function targetsIn(text) {
 
 // `vawe dev <page>` names a verb; `vawe check <gate>` names a gate; the flags after a verb are that verb's own.
 // Both come from the CLI's own tables. A flag is read up to the next `vawe`, `|` or `;`, so the prose after a command is not judged.
-const VERB_NAMES = new Set(VERBS.map((v) => v.name));
-const COMMAND = /(?:^|\bbin\/|[$&;|]\s*)vawe\s+([a-z][a-z0-9-]*)(?:\s+([a-z][a-z0-9-]*))?([^|;`\n]*)/g;
+const COMMAND = /(?:^|\bbin\/|[$&;|]\s*)(vawe(?:-dev)?)\s+([a-z][a-z0-9-]*)(?:\s+([a-z][a-z0-9-]*))?([^|;`\n]*)/g;
+const TABLES = { vawe: VERBS, 'vawe-dev': DEV_VERBS };
 function vawesIn(text) {
   const bad = [];
   for (const m of text.matchAll(COMMAND)) {
-    const verb = VERBS.find((v) => v.name === m[1]);
-    if (!verb) { bad.push(`vawe ${m[1]}`); continue; }
-    if (m[1] === 'check' && m[2] && !GATES[m[2]] && !/^(?:name|gate)$/.test(m[2])) bad.push(`vawe check ${m[2]}`);
+    const [, bin, name, second = '', tail] = m;
+    const verb = TABLES[bin].find((v) => v.name === name);
+    if (!verb) { bad.push(`${bin} ${name}`); continue; }
+    if (name === 'check' && second && !GATES[second] && !/^(?:name|gate)$/.test(second)) bad.push(`${bin} check ${second}`);
     if (verb.raw) continue;
     const known = new Set((verb.flags ?? []).map((f) => f.name));
-    const rest = `${m[2] ?? ''}${m[3]}`.split(/\bvawe\b/)[0];
-    for (const flag of rest.matchAll(/(?:^|\s)--([a-z][a-z0-9-]*)/g)) if (!known.has(flag[1]) && !/^(?:help|flag|flags)$/.test(flag[1])) bad.push(`vawe ${m[1]} --${flag[1]}`);
+    const rest = `${second}${tail}`.split(/\bvawe\b/)[0];
+    for (const flag of rest.matchAll(/(?:^|\s)--([a-z][a-z0-9-]*)/g)) if (!known.has(flag[1]) && !/^(?:help|flag|flags)$/.test(flag[1])) bad.push(`${bin} ${name} --${flag[1]}`);
   }
   return bad;
 }

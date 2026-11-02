@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // quality/gates/seo-pseo.mjs: do the site's template pages and hubs hold up as search and AI-crawler pages?
 //
-//   node quality/gates/seo-pseo.mjs [--base http://localhost:3187] [--all] [--json]   ·   vawe check seo-pseo
+//   node quality/gates/seo-pseo.mjs [--base http://localhost:3187] [--all] [--json]   ·   vawe-dev check seo-pseo
 //
 // Run it against a production build (`npm --prefix site run build && npm --prefix site run start`), because
 // the third read is the HTML the server sends. It advises and never fails: every finding is a warning.

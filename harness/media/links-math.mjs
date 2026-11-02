@@ -1,11 +1,11 @@
-// Pure parts of `vawe check links`. No I/O and no heavy imports: harness/cli/verbs.mjs loads this file to check the arguments.
+// Pure parts of `vawe-dev check links`. No I/O and no heavy imports: harness/cli/verbs.mjs loads this file to check the arguments.
 import { DEFAULT_BASE } from './shot-math.mjs';
 
 export const DEFAULT_MAX = 400;
 
 /** The first problem in the arguments of links, or null. Pure. */
 export function linksProblem({ base, max }) {
-  if (base !== undefined && !/^https?:\/\//.test(base)) return `--base is not an http(s) url: "${base}"; usage: bin/vawe check links [--base ${DEFAULT_BASE}] [--from /,/blog] [--max ${DEFAULT_MAX}] [--external]`;
+  if (base !== undefined && !/^https?:\/\//.test(base)) return `--base is not an http(s) url: "${base}"; usage: bin/vawe-dev check links [--base ${DEFAULT_BASE}] [--from /,/blog] [--max ${DEFAULT_MAX}] [--external]`;
   if (max !== undefined && !(Number.isInteger(max) && max >= 1)) return `--max is not a whole number of pages: "${max}"`;
   return null;
 }

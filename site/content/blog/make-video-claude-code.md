@@ -77,7 +77,7 @@ Three habits follow from this table. First, put the rule in the tool and print t
 Yes, if the video is an HTML page. Claude Code writes the page and runs a renderer such as vawe to turn it into an MP4. It cannot edit video on a timeline.
 
 **Which tools does Claude Code need?**
-Node 22 or newer, git and ffmpeg. Run `bin/vawe doctor` and it names each missing tool.
+Node 22 or newer, git and ffmpeg. Run `bin/vawe-dev doctor` and it names each missing tool.
 
 **Does the agent need a special skill file?**
 No. The repo ships `AGENTS.md`, which Claude Code reads on start. It holds the page contract and the commands.

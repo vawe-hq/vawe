@@ -43,7 +43,7 @@ Later, repeated judge findings became defaults in the starter page, the video co
 
 ## What we found
 
-The numbers come from a trace review on 2026-10-10, read with `vawe runs --all`:
+The numbers come from a trace review on 2026-10-10, read with `vawe-dev runs --all`:
 
 | Measure | Value |
 | --- | --- |
@@ -52,7 +52,7 @@ The numbers come from a trace review on 2026-10-10, read with `vawe runs --all`:
 | Median first judged total | 45 |
 | Films that passed the judge | 0 of 6 |
 
-The review also showed where the new checks did not reach. On one film, 15 of 17 `dev` calls used `--no-judge`, and the one stills judge that ran scored 17 on stills. The acceptance count stayed at 7 of 14 or 15 rows for 10 drafts in a row. Nine of 12 later drafts fixed no rule that had fired. Nothing counted the skip flag, so `vawe runs` showed "judge -" for every draft.
+The review also showed where the new checks did not reach. On one film, 15 of 17 `dev` calls used `--no-judge`, and the one stills judge that ran scored 17 on stills. The acceptance count stayed at 7 of 14 or 15 rows for 10 drafts in a row. Nine of 12 later drafts fixed no rule that had fired. Nothing counted the skip flag, so `vawe-dev runs` showed "judge -" for every draft.
 
 ## One rule, one owner
 

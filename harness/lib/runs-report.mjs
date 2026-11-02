@@ -165,7 +165,7 @@ export function phaseMedians(events) {
   return { drafts: drafts.length, wall: median(drafts.map((e) => e.seconds)), phases: Object.fromEntries(PHASES.map(([name]) => [name, median(drafts.map((e) => e.phases[name]))])) };
 }
 
-/** The lines of `vawe runs <film>`: time by stage and verb, failures by cause, the draft series, then one summary line. */
+/** The lines of `vawe-dev runs <film>`: time by stage and verb, failures by cause, the draft series, then one summary line. */
 export function filmLines(film, records) {
   const events = records.map(normalize).sort((a, b) => String(a.at).localeCompare(String(b.at)));
   if (!events.length) return [`${film}: no runs logged`];
@@ -209,7 +209,7 @@ export function modelRows(rows) {
   });
 }
 
-/** The lines of `vawe runs --all`: at most 40, plain text; `phases` is phaseMedians over the drafts of the last 30 days. */
+/** The lines of `vawe-dev runs --all`: at most 40, plain text; `phases` is phaseMedians over the drafts of the last 30 days. */
 export function allLines(rows, models, phases = null) {
   if (!rows.length) return ['no films with runs in the last 30 days'];
   const modelBlock = models.length ? ['', ...table([['model', 'films', 'med drafts', 'med draft s', 'med first total', 'passed'],

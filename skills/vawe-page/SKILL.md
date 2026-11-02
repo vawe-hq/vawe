@@ -7,7 +7,7 @@ license: Apache-2.0
 
 # vawe-page: write the page
 
-Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe doctor`.
+Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe-dev doctor`.
 
 A film is one HTML page; the renderer seeks it, screenshots every frame and mixes the audio offline.
 The contract (duration meta, seek, aspect, literals) is in `AGENTS.md`. Start with

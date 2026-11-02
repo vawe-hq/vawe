@@ -15,7 +15,7 @@ vawe runs from source. There is no hosted API and no account.
 git clone https://github.com/vawe-hq/vawe.git
 cd vawe
 npm install
-bin/vawe doctor      # checks Node 22+, git, ffmpeg and Chrome; prints the install line for each missing tool
+bin/vawe-dev doctor      # checks Node 22+, git, ffmpeg and Chrome; prints the install line for each missing tool
 ```
 
 ## Make a film

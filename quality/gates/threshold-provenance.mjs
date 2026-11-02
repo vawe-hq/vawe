@@ -1,6 +1,6 @@
 // quality/gates/threshold-provenance.mjs · does every new verdict-deciding constant name its source?
 //
-//   node quality/gates/threshold-provenance.mjs            ·   vawe check provenance
+//   node quality/gates/threshold-provenance.mjs            ·   vawe-dev check provenance
 //   node quality/gates/threshold-provenance.mjs --list     ·   every sourceless constant found
 //   node quality/gates/threshold-provenance.mjs --stamp    ·   record today's sourceless count as the new ceiling
 //

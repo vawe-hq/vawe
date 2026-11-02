@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // quality/gates/seo-surface.mjs: does the marketing site's SEO surface still hold?
 //
-//   node quality/gates/seo-surface.mjs [--json]   ·   vawe check seo-surface
+//   node quality/gates/seo-surface.mjs [--json]   ·   vawe-dev check seo-surface
 //
 // WHY THIS EXISTS. sitemap.ts, robots.ts, seo.ts, ogCard.tsx and schema.ts (all landed 2026-09-19,
 // see their own file headers) are each a fact nothing used to check: a new route with no canonical, a

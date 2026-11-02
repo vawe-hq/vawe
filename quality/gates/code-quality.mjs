@@ -101,7 +101,7 @@ if (better.length) {
   console.log(`  ${better.length} file/rule pair(s) improved since the baseline:`);
   for (const [k, was, has] of better.slice(0, 10)) console.log(`    ${k.replace('::', '  ')}  ${was} -> ${has}`);
   if (better.length > 10) console.log(`    and ${better.length - 10} more`);
-  console.log(`  Lock it in: vawe check code-quality WRITE=1\n`);
+  console.log(`  Lock it in: vawe-dev check code-quality WRITE=1\n`);
 }
 
 if (!worse.length) {
@@ -120,5 +120,5 @@ for (const [k, had, n] of worse) {
 }
 f.emit();
 console.error(`\n  Split the function so it does one job. The rules and their limits are in .oxlintrc.json.`);
-console.error(`  If the new shape is genuinely right and the rule is wrong, say so and run: vawe check code-quality WRITE=1`);
+console.error(`  If the new shape is genuinely right and the rule is wrong, say so and run: vawe-dev check code-quality WRITE=1`);
 process.exit(f.records.some((r) => r.severity === 'error') ? 1 : 0);

@@ -5,6 +5,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { filmKeyOf } from './runlog.mjs';
 
 export const REGISTRY = 'refs.json';
 export const VERIFIED = 'reference_films_verified.md';
@@ -137,6 +138,14 @@ export function namedRef({ dir, briefText }) {
     if (file) return { id, file };
   }
   return null;
+}
+
+/** The reference that the brief next to a page (or of a film name) names: namedRef of that brief; null when there is no brief. */
+export function defaultRefFor(input, { root, dir = refsDir() }) {
+  const page = input && String(input).endsWith('.html') ? input : input && filmKeyOf(input) ? path.join('films', filmKeyOf(input), 'page.html') : null;
+  let briefText = '';
+  try { briefText = page ? fs.readFileSync(path.resolve(root, path.dirname(page), 'brief.md'), 'utf8') : ''; } catch (e) { if (e.code !== 'ENOENT') throw e; }
+  return namedRef({ dir, briefText });
 }
 
 /** The references for a film: { refs: [{ id, title, studio, file }], skipped: null, named }, or { refs: [], skipped: <one line why> }. `file` is the absolute path of the sheet. A reference the brief names comes first; `named` is its id. */

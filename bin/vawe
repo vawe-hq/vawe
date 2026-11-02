@@ -7,14 +7,14 @@ import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { isUrl } from '../harness/lib/url.mjs';
 import { closest, parseArgs, topHelp, UsageError, verbHelp } from '../harness/cli/parse.mjs';
-import { ALIASES, aliasNotice, aliasKey } from '../harness/cli/aliases.mjs';
+import { ALIASES, DEV_ALIASES, aliasNotice, aliasKey } from '../harness/cli/aliases.mjs';
 import { VERBS, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
 import { newFilm, newFilmLines, readDetails, questionsJson } from '../harness/cli/new.mjs';
 import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
 import { pageDigest } from '../harness/lib/approval.mjs';
 import { verbEvent, footerLine, filmOfCall, imagesIn, reasonOf, readNotes, causeOf, refusalOf, UNFILED } from '../harness/lib/verb-log.mjs';
-import { namedRef, refsDir } from '../harness/lib/refs.mjs';
+import { defaultRefFor } from '../harness/lib/refs.mjs';
 import { nextStep, recentPage } from '../harness/live/stage-say.mjs';
 import { verbStage } from '../harness/lib/trace/stages.mjs';
 import { recentFailedShipLines } from '../harness/lib/ship-status.mjs';
@@ -61,7 +61,7 @@ async function execute(verb, rest, call) {
   const { values, positional } = parseArgs(verb, rest);
   call.positional = [...positional, ...(values.page ? [values.page] : [])];
   requireFiles(verb, values, positional);
-  const named = verb.defaultRef && !values.ref && !values.alone ? namedRef({ dir: refsDir(), briefText: briefOf(verb.defaultRef(values, positional)) }) : null;
+  const named = verb.defaultRef && !values.ref && !values.alone ? defaultRefFor(verb.defaultRef(values, positional), { root: ROOT }) : null;
   if (named) {
     values.ref = named.file;
     console.log(`ref: ${named.id}, named in the brief (${named.file}); pass --ref to use another`);
@@ -116,11 +116,6 @@ function orNone(read, none) {
   }
 }
 
-function briefOf(input) {
-  const page = input && String(input).endsWith('.html') ? input : input && filmKeyOf(input) ? path.join('films', filmKeyOf(input), 'page.html') : null;
-  return page ? orNone(() => fs.readFileSync(path.resolve(ROOT, path.dirname(page), 'brief.md'), 'utf8'), '') : '';
-}
-
 /** The film a call concerns and its page: the page or mp4 it names, else the page film git sees as edited last (a remote still names none). */
 function filmOfRun(verbName, call, rest) {
   const named = filmOfCall(verbName, call.positional, rest);
@@ -150,13 +145,28 @@ const bareCall = () => ({ startMs: Date.now(), positional: [], stdout: '', stder
 
 const quietFooter =(rest) => rest.includes('--json') || rest.includes('--questions-json');
 
-function announceAlias(alias, argv) {
+function announceAlias(alias, argv, bin = 'vawe') {
   const sessionId = process.env.CLAUDE_CODE_SESSION_ID ?? null;
-  if (!aliasSeen(aliasKey(alias, argv), { root: ROOT, sessionId })) console.error(aliasNotice(alias, argv, { short: !sessionId }));
+  if (!aliasSeen(aliasKey(alias, argv, { bin }), { root: ROOT, sessionId })) console.error(aliasNotice(alias, argv, { short: !sessionId, bin }));
+}
+
+/** A verb that moved to bin/vawe-dev: run it there, say so once, and log the call with its old name. */
+async function runDevAlias(name, rest) {
+  announceAlias(name, [name, ...rest], 'vawe-dev');
+  const startMs = Date.now();
+  const code = await new Promise((resolve) => {
+    spawn(process.execPath, [path.join(ROOT, 'bin', 'vawe-dev'), name, ...rest], { stdio: 'inherit', env: { ...process.env, VAWE_LOGGED: '1' } }).on('close', (c) => resolve(c ?? 1));
+  });
+  const endMs = Date.now();
+  const reason = code === 0 ? null : `exit ${code}`;
+  record({ name }, rest, { ...bareCall(), startMs, positional: rest.filter((a) => !a.startsWith('-')) }, code, reason, endMs, name);
+  if (!quietFooter(rest)) console.log(footerLine({ verb: name, code, reason, seconds: (endMs - startMs) / 1000 }));
+  process.exitCode = code;
 }
 
 async function main(args) {
   let [name, ...rest] = args;
+  if (name && DEV_ALIASES.includes(name) && !VERBS.some((v) => v.name === name)) return runDevAlias(name, rest);
   const alias = name && !VERBS.some((v) => v.name === name) && ALIASES[name] ? name : null;
   if (alias) {
     try {

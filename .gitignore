@@ -298,13 +298,13 @@ assets/edit-montage/
 
 # recreations of the owner's in-house references (their text, audio and look): private, never committed
 films/recreations/
-# draft key-frame sheets that bin/vawe moves leaves next to each clip
+# draft key-frame sheets that bin/vawe-dev moves leaves next to each clip
 prompts/moves/*.png
-# the master clips: bin/vawe moves renders them, site/public/moves holds the web encode
+# the master clips: bin/vawe-dev moves renders them, site/public/moves holds the web encode
 prompts/moves/*.mp4
 # render-page keeps a failed render's frames next to the output so a resume finds them; never source
 *.mp4.frames-*/
-# the page bin/vawe moves renders a theme variant from, deleted after the render
+# the page bin/vawe-dev moves renders a theme variant from, deleted after the render
 prompts/moves/demo/*.variant.html
 # Stock footage under the Mixkit licence: used in the rendered clip, never redistributed as a file. credits.json keeps the provenance.
 prompts/moves/demo/assets/mask-rise/*.source.mp4

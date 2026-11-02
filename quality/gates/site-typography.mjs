@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // quality/gates/site-typography.mjs: does the site's source still obey site/DESIGN.md "Typography rules"?
 //
-//   node quality/gates/site-typography.mjs [--json]   ·   vawe check site-typography
+//   node quality/gates/site-typography.mjs [--json]   ·   vawe-dev check site-typography
 //
 // A static read, like seo-surface: it cannot see a rendered line length or a computed size (that is
 // scripts/site/typography-audit.mjs, run against a live server). It catches what rots in a diff:

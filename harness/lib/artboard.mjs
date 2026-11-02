@@ -1,5 +1,5 @@
 // The one owner of the artboard sheet: frames at true aspect on a quiet canvas, a label line above each one. `vawe frame --world all` writes it
-// as films/<film>/frames.html and a PNG of it; `vawe frame` (so `vawe moves --only`) writes the same layout. Time strips are not
+// as films/<film>/frames.html and a PNG of it; `vawe frame` (so `vawe-dev moves --only`) writes the same layout. Time strips are not
 // artboards and keep tile.mjs.
 
 export const ARTBOARD = {

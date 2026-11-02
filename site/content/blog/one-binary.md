@@ -67,7 +67,7 @@ The question that caused the revert was short: if the agent wants to write this,
 
 The guard now covers only the four git commands that destroy local changes. The fixes that followed all change the environment. The habit then works, or the failure names its cause.
 
-- The `vawe doctor` verb has a `--json` output and probes for encode, `drawtext` and launching Chrome. A render failure names the failed check.
+- The `vawe-dev doctor` verb has a `--json` output and probes for encode, `drawtext` and launching Chrome. A render failure names the failed check.
 - The `vawe wait` verb blocks until any render of a film ends and prints a progress line each minute. AGENTS.md says: never `sleep`, run `vawe wait`.
 - A quality hook compares an edit only with the `HEAD` of its own worktree, so a tangle the edit did not add never blocks it.
 - The `vawe-page` skill gives the macOS `sed -i ''` form, and the Shell section of AGENTS.md lists what fails in this shell.

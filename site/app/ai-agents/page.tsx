@@ -24,7 +24,7 @@ bin/vawe critique films/launch/page.html
 bin/vawe ship films/launch/page.html`;
 
 const INSTALL = `npm install
-bin/vawe doctor      # names each missing tool
+bin/vawe-dev doctor      # names each missing tool
 bin/vawe new hello`;
 
 export default function AiAgents() {
@@ -103,7 +103,7 @@ export default function AiAgents() {
             <div className="isec-text">
               <h2>Wire it into an agent.</h2>
               <p>
-                Clone the repo, install, and let <code>bin/vawe doctor</code> name any missing tool
+                Clone the repo, install, and let <code>bin/vawe-dev doctor</code> name any missing tool
                 with the install line for your system. Then point the agent at{" "}
                 <code>AGENTS.md</code> and ask for a film.
               </p>

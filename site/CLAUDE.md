@@ -39,14 +39,14 @@ tag `arsenal-final` and match that register.
 ## Routes and the sitemap
 
 `site/lib/site-pages.json` lists every route; the footer nav and `app/sitemap.ts` both read it, and
-`bin/vawe check seo-surface` fails when it and `app/` disagree. Edit it by hand when you add a page.
+`bin/vawe-dev check seo-surface` fails when it and `app/` disagree. Edit it by hand when you add a page.
 
 ## Look at it before you say it is done
 
 Do not write a screenshot or link-check script: the verbs do it from the repo root.
 `bin/vawe shot /,/blog --full` writes each route at 1440 and 390 (lazy images loaded, the dev server
 started and stopped for you) and says which route has page errors, failed requests or sideways overflow.
-`bin/vawe check links` crawls the site and lists broken links, redirects and dead anchors; `--base https://vawe.dev`
+`bin/vawe-dev check links` crawls the site and lists broken links, redirects and dead anchors; `--base https://vawe.dev`
 checks the live site. `node scripts/site/typography-audit.mjs` measures the type rules.
 
 ## Known gaps, so you do not rediscover them

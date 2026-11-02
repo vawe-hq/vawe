@@ -23,9 +23,6 @@ import { critiqueProblem, critiqueCommand, judgeCommand } from '../lib/critique-
 export { commitsBehind } from '../lib/stale-checkout.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-// A test that compares seconds with a stamped budget reads a slowdown from the other test files as a slow check, so it runs alone, last.
-export const SERIAL_TESTS = ['tests/media/check-budget.test.mjs'];
-
 // Chrome on macOS prints these to stderr on every launch; they mean nothing for a render.
 const CHROME_NOISE = [/task_policy_set/, /CVDisplayLinkCreateWithCGDisplay/];
 
@@ -34,12 +31,6 @@ export const stripChromeNoise = (text) => String(text).split('\n').filter((l) =>
 
 /** The sentence for an unknown verb on a checkout that lags main, or '' when it does not. Pure. */
 export const staleNote = (behind) => (behind > 0 ? `this checkout is ${behind} commit${behind === 1 ? '' : 's'} behind main: the verb may exist there (git pull or rebase on main)` : '');
-
-const testFiles =(dir) => fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true })
-  .flatMap((e) => (e.isDirectory() ? testFiles(path.join(dir, e.name)) : e.name.endsWith('.test.mjs') ? [path.join(dir, e.name)] : []));
-
-/** The two node --test runs of `vawe test`: every test file in parallel except the serial ones, then the serial ones alone. */
-export const testSteps = () => [{ node: ['--test', ...testFiles('tests').filter((f) => !SERIAL_TESTS.includes(f)).sort()] }, { node: ['--test', ...SERIAL_TESTS] }];
 
 export const devFix = (reason, [page]) => {
   if (/render slot|Navigation timeout/i.test(reason)) return `bin/vawe wait ${page}`;
@@ -227,15 +218,6 @@ export const VERBS = [
   },
   {
     tier: 'maintainer',
-    name: 'land', summary: 'put the current branch on main: fetch, rebase onto origin/main (stops on a conflict), scan for files over 5 MB, run tests/lib and tests/hooks, push with ssh keep-alive, print the e2e line and the pushed range',
-    positional: [],
-    flags: [],
-    example: 'vawe land   (from a worktree branch with every change committed)',
-    build: () => [{ script: 'harness/dev/land.mjs', args: [] }],
-    next: () => 'delete the merged branch and its worktree (git branch -d <topic>)',
-  },
-  {
-    tier: 'maintainer',
     name: 'approve', summary: 'use when the owner signs off the full draft of a page: vawe ship needs it; a film session never runs this',
     positional: [PAGE],
     flags: [
@@ -299,7 +281,7 @@ export const VERBS = [
       if (problem) throw new UsageError(problem);
       return [{ script: 'harness/media/shot.mjs', args: [target, ...opt('--w', v.w), ...(v.full ? ['--full'] : []), ...opt('--base', v.base), ...opt('--out', v.out), ...opt('--tour', v.tour), ...(v.tour ? [...opt('--fps', v.fps), ...opt('--scale', v.scale)] : [])] }];
     },
-    next: (v) => v.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html); vawe frame <film mp4> reads it' : 'Read each PNG at full size; the 390 one shows the phone layout; vawe check links crawls every link of the site',
+    next: (v) => v.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html); vawe frame <film mp4> reads it' : 'Read each PNG at full size; the 390 one shows the phone layout; vawe-dev check links crawls every link of the site',
   },
   {
     tier: 'core',
@@ -329,38 +311,6 @@ export const VERBS = [
     flags: [], raw: true,
     example: 'vawe check anim-traps films/my-launch/page.html',
     build: (v, args) => [{ script: 'harness/lib/check-gate.mjs', args }],
-  },
-  {
-    tier: 'maintainer',
-    name: 'claim', summary: 'declare or release the scope a worktree works in: add <name> [branch] [scope ...] | rm <name>',
-    positional: [{ name: 'args', help: 'the arguments of the script, as in the example' }],
-    flags: [], raw: true,
-    example: 'vawe claim add my-fix wt-my-fix harness/media',
-    build: (v, args) => [{ script: 'harness/dev/worktree-claim.mjs', args }],
-    next: () => 'vawe claim rm <name> when the work lands',
-  },
-  {
-    tier: 'maintainer',
-    name: 'doctor', summary: 'check node, ffmpeg, Chrome and the other tools; print the install line for each missing one',
-    positional: [],
-    flags: [
-      { name: 'quiet', type: 'bool', help: 'print only problems and write .vawe/doctor.json' },
-      { name: 'json', type: 'bool', help: 'print [{tool, required, ok, version, fix}] instead of text' },
-    ],
-    example: 'vawe doctor --json',
-    build: (v) => [{ script: 'harness/dev/doctor.mjs', args: [...(v.quiet ? ['--quiet'] : []), ...(v.json ? ['--json'] : [])] }],
-  },
-  {
-    tier: 'maintainer',
-    name: 'moves', summary: 'render the stale prompts/moves/demo/<move>.html clips to prompts/moves/<move>.mp4 (1280 px, 60 fps) in parallel; the masters are not tracked, the web copy is site/public/moves/<move>.mp4; a clip is stale when its demo, demo.css or a core/ import changed; a demo with a variants meta also renders <move>-<theme>.mp4',
-    positional: [],
-    flags: [
-      { name: 'only', type: 'string', help: 'render one move by name, for example weight-morph, even when current; also writes a 12-frame contact sheet to out/moves/<move>-sheet.png' },
-      { name: 'all', type: 'bool', help: 'render every clip, stale or not' },
-    ],
-    example: 'vawe moves --only weight-morph',
-    build: (v) => [{ script: 'harness/media/render-moves.mjs', args: [...opt('--only', v.only), ...(v.all ? ['--all'] : [])] }],
-    next: () => 'look at the clip in prompts/moves/ and run node scripts/site/moves.mjs --clips to encode its web copy',
   },
   {
     tier: 'more',
@@ -428,36 +378,6 @@ export const VERBS = [
     next: (v, [input]) => (v.lab ? 'verdicts are kept in quality/baselines/sound-verdicts.json' : v.sfx ? 'set data-at on the <audio> line, then bin/vawe sound <page> --at <s> to check the cue sounds on its event' : !input ? 'a voice goes in <audio data-synth="name" data-at="s">; vawe sound <track> gives the beat grid and hits of a music file the user gave'
       : v.at || v.waveform ? (v.waveform ? 'Read the PNG: each orange tick must sit on the dashed world line of its visual event; move a cue with data-at or data-on' : 'a cue 0 s into itself starts at that second; move one that is off its event with data-at')
         : 'Read sound.md and sound.png; put each cut on a hit or a beat line at the frame the cut table names, then vawe sound <track> --cuts <page> again'),
-  },
-  {
-    tier: 'maintainer',
-    name: 'e2e', summary: 'page tests plus a parallel half-size draft of every film (about 5 s)',
-    positional: [], flags: [],
-    example: 'vawe e2e',
-    build: () => [{ script: 'harness/dev/e2e.mjs', args: [] }],
-  },
-  {
-    tier: 'maintainer',
-    name: 'test', summary: 'run every tests/**/*.test.mjs with node --test; the timing test runs alone at the end',
-    positional: [], flags: [],
-    example: 'vawe test',
-    build: () => testSteps(),
-  },
-  {
-    tier: 'maintainer',
-    name: 'runs', summary: 'where a film\'s time went (per stage and verb, slot wait), what failed (by cause) and the draft series; or, with --all, one row per film of the last 30 days',
-    positional: [{ name: 'film', help: 'film name or films/<name>/page.html' }],
-    flags: [
-      { name: 'all', type: 'bool', help: 'one row per film (drafts, median draft seconds, first and best judged total, PASS), then medians per model' },
-      { name: 'taste', type: 'bool', help: 'the taste report over every film: per rule fired, fixed, waived, score gain and a verdict; variety per dial; sibling films; template tells' },
-      { name: 'json', type: 'bool', help: 'print the records (or with --all or --taste the report) as JSON' },
-      { name: 'dir', type: 'path', default: 'out', help: 'the folder that holds the <film>.runs.jsonl files' },
-    ],
-    example: 'vawe runs my-launch   |   vawe runs --all   |   vawe runs --taste',
-    build: (v, [film]) => {
-      if (!v.all && !v.taste && !film) throw new UsageError('missing <film>; usage: vawe runs <film>, vawe runs --all or vawe runs --taste');
-      return [{ script: 'harness/dev/runs.mjs', args: [...(v.taste ? ['--taste'] : v.all ? ['--all'] : [film]), ...(v.json ? ['--json'] : []), ...opt('--dir', v.dir)] }];
-    },
   },
   {
     tier: 'more',

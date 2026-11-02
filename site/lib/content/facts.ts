@@ -18,7 +18,7 @@ export const FACTS: Fact[] = [
     q: "How do I install vawe?",
     a: [
       "From source: ",
-      { code: "git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe doctor" },
+      { code: "git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe-dev doctor" },
       ". There is no npm package. The doctor command checks each tool and prints the install line for any that is missing. See ",
       { text: "the quickstart", href: "/docs/quickstart" },
       ".",

@@ -47,7 +47,7 @@ export function recreatePrompt(p: Pick<InspirationPost, "title" | "url" | "creat
     "",
     `Reference: ${p.url} by @${p.creator.handle}${p.duration ? `, ${Math.round(p.duration)} s` : ""}.`,
     "",
-    `1. Set up: git clone ${REPO_URL} && cd vawe && npm install && npx puppeteer browsers install chrome. Run bin/vawe doctor and fix what it lists.`,
+    `1. Set up: git clone ${REPO_URL} && cd vawe && npm install && npx puppeteer browsers install chrome. Run bin/vawe-dev doctor and fix what it lists.`,
     "2. Read AGENTS.md, then skills/vawe-reference/SKILL.md. Use bin/vawe verbs, never raw ffmpeg; run bin/vawe <verb> --help before a verb's first use.",
     `3. Fetch the reference: bin/vawe refs add ${p.url} --no-measure. Its video: line is the mp4 path.`,
     `4. Start the film: bin/vawe new ${name} --ref <the mp4 path>. It writes ${page} and SPEC.md, the reference measured shot by shot.`,

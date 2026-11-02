@@ -4,7 +4,7 @@ import { acceptanceCounts } from './acceptance.mjs';
 import { PARAMS_ENV, aspectOverride } from './page-params.mjs';
 
 const tenths = (s) => Math.round(s * 10) / 10;
-// The page options of the render (--param, --aspect), so `vawe runs` tells the looks and aspects of one page apart.
+// The page options of the render (--param, --aspect), so `vawe-dev runs` tells the looks and aspects of one page apart.
 const paramsField = (env = process.env) => ({ ...(env[PARAMS_ENV] ? { params: env[PARAMS_ENV] } : {}), ...(aspectOverride(env) ? { aspect: aspectOverride(env) } : {}) });
 
 /** `vawe new`: which details the ask answered and which the brief guessed, and the signature dial ranges offered ({ dial, range }) with any chosen values. */

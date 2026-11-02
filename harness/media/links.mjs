@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `vawe check links [--base url] [--from /,/blog] [--max 400] [--external]`: crawl the site from its start routes and check every link, image and stylesheet.
+// `vawe-dev check links [--base url] [--from /,/blog] [--max 400] [--external]`: crawl the site from its start routes and check every link, image and stylesheet.
 //   node harness/media/links.mjs --base https://vawe.dev
 // Pages are read from the start routes by following internal links; redirects are reported, not followed, so a link that lands through a hop shows up. Exit 1 when any link is broken.
 import { withSite } from '../lib/site-server.mjs';

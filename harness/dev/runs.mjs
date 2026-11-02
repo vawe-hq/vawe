@@ -1,4 +1,4 @@
-// vawe runs <film> | --all | --taste [--json] [--dir out]: reads <dir>/<film>.runs.jsonl (harness/lib/runlog.mjs) into tables (harness/lib/runs-report.mjs).
+// vawe-dev runs <film> | --all | --taste [--json] [--dir out]: reads <dir>/<film>.runs.jsonl (harness/lib/runlog.mjs) into tables (harness/lib/runs-report.mjs).
 import { readAllRuns, filmKeyOf } from '../lib/runlog.mjs';
 import { filmLines, allRows, modelRows, allLines, allPhaseMedians } from '../lib/runs-report.mjs';
 import { tasteReport, tasteLines } from '../lib/taste-report.mjs';
@@ -28,6 +28,6 @@ if (args.includes('--taste')) {
   const failed = lastFailedShip(runs);
   if (failed && !json) console.error(failedShipLine(key, failed));
 } else {
-  console.error('vawe runs: give a film name, --all or --taste');
+  console.error('vawe-dev runs: give a film name, --all or --taste');
   process.exit(2);
 }

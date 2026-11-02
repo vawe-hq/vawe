@@ -85,10 +85,10 @@ Install it. You need Node 22 or newer, git and ffmpeg:
 ```bash
 git clone https://github.com/vawe-hq/vawe.git
 cd vawe && npm install
-bin/vawe doctor
+bin/vawe-dev doctor
 ```
 
-`bin/vawe doctor` names each missing tool and prints the install line for your system. Then write a page. This is the same page as above, with a duration and a `data-world` attribute on the beat (a beat is one scene of the film):
+`bin/vawe-dev doctor` names each missing tool and prints the install line for your system. Then write a page. This is the same page as above, with a duration and a `data-world` attribute on the beat (a beat is one scene of the film):
 
 ```html
 <!doctype html>

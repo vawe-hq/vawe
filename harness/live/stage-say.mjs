@@ -116,7 +116,7 @@ function stripsSince(root, name, sinceMs) {
 export function nextStep(page, root = process.cwd()) {
   if (isClipDemo(page)) {
     const clip = path.basename(page, '.html');
-    return { name: clip, stage: 'clip', next: `bin/vawe moves --only ${clip}`, why: 'a page under prompts/moves/demo/ is a clip: it has no brief, and bin/vawe moves renders it' };
+    return { name: clip, stage: 'clip', next: `bin/vawe-dev moves --only ${clip}`, why: 'a page under prompts/moves/demo/ is a clip: it has no brief, and bin/vawe-dev moves renders it' };
   }
   const name = path.basename(filmDirOf(page));
   const rel = path.relative(root, page);

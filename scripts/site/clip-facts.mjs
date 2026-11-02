@@ -20,13 +20,13 @@ export function clipFacts(file, recorded, lockClip, stem, warn = console.warn) {
   if (fs.existsSync(file)) {
     const hash = clipHash(file);
     if (lockClip && hash !== lockClip) {
-      warn(`~ prompts/moves/${stem}.mp4 is older than the lock: bin/vawe moves --only ${stem}`);
+      warn(`~ prompts/moves/${stem}.mp4 is older than the lock: bin/vawe-dev moves --only ${stem}`);
     } else if (hash !== recorded.hash) {
       facts = { hash, date: new Date(fs.statSync(file).mtimeMs).toISOString().slice(0, 10), duration: mp4Seconds(file) };
     }
   }
   if (lockClip && lockClip !== facts.hash) {
-    warn(`~ ${stem}: render newer than the site copy: bin/vawe moves --only ${stem}, then node scripts/site/moves.mjs --clips`);
+    warn(`~ ${stem}: render newer than the site copy: bin/vawe-dev moves --only ${stem}, then node scripts/site/moves.mjs --clips`);
   }
   return facts;
 }

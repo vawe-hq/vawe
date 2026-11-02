@@ -26,7 +26,7 @@ Both arms run stages 1 to 6 only (brief to first draft), then stop. Three runs p
 3. Repeats: adjacent cuts with the same family, and families used more than twice. Both from `handoffAdvice`.
 4. Defaults: cuts whose move cell names a plain fade, crossfade, whip pan, slide-up reveal or scale-in, with and without a reason.
 5. Plan versus film: planned visible handoffs that measure as a hard cut (`measuredAdvice`).
-6. Cost: tokens and wall time of stage 5, from `bin/vawe runs <film>`. Never ask the agent for its own time.
+6. Cost: tokens and wall time of stage 5, from `bin/vawe-dev runs <film>`. Never ask the agent for its own time.
 
 ## Owner blind pick
 

@@ -7,7 +7,7 @@ group: crosscutting
 # Changing the engine
 
 A film is one HTML page (`AGENTS.md`). This file is for the code that renders, measures and edits it.
-Run `bin/vawe e2e` (about 4 s) before and after every change. Framework agents follow
+Run `bin/vawe-dev e2e` (about 4 s) before and after every change. Framework agents follow
 the template at the end of this page.
 
 ## The goal every change serves
@@ -17,7 +17,7 @@ Agent experience first: an agent builds great films with what it already knows (
 Test a change by one question: what would an agent write unprompted, and does this make that work?
 
 - Change the environment, never forbid the habit: if an agent's natural command fails, make it work
-  (tools via `bin/vawe doctor`, how agents are launched), do not add a rule or hook against it.
+  (tools via `bin/vawe-dev doctor`, how agents are launched), do not add a rule or hook against it.
 - Give the tool the agent reaches for: agents built their own frame compare until `vawe frame --vs` existed.
 - Measure with traces (`node harness/dev/trace-review.mjs --project <dir> --films --compare <sha|date>` prints the film agents before and after the change), not impressions: minutes, failed calls,
   input tokens. Keep tasks small; one six-step agent used 106 M input tokens, a one-step agent 3 M.
@@ -90,14 +90,14 @@ Code the next agent can read once and change safely. The code-quality hook
 
 ## Landing a change
 
-`bin/vawe land` is the one way to put a worktree branch on main. Commit everything first, then run it. It runs these steps and stops at the first that fails, with `land: FAILED at <step>: <reason>` and a non-zero exit:
+`bin/vawe-dev land` is the one way to put a worktree branch on main. Commit everything first, then run it. It runs these steps and stops at the first that fails, with `land: FAILED at <step>: <reason>` and a non-zero exit:
 
 1. `git fetch`, then `git rebase origin/main`. On a conflict it names the files, aborts the rebase and leaves the branch as it was; it never goes on half rebased.
 2. A scan of every commit in the range: a file over 5 MB (even one a later commit deletes) is refused by name.
 3. `tests/lib` and `tests/hooks`.
 4. `git push origin HEAD:main` with an ssh keep-alive (the pre-push e2e is slow enough to drop an idle connection). It prints the pre-push e2e line, then the pushed range.
 
-If main moved during the push, run `bin/vawe land` again. Do not use `--no-verify`.
+If main moved during the push, run `bin/vawe-dev land` again. Do not use `--no-verify`.
 
 ## A bug is closed when a check catches it
 
@@ -113,7 +113,7 @@ Prefer a refusal at the source (the renderer, the parser) over a gate. When a ga
 - Adapt instead of block: read the film's context and clamp, tolerate or reclassify. Hard refusals
   are for determinism, a missing waiver reason and data loss.
 - Put it in `quality/gates/<name>.mjs`: `bin/vawe check <name>` finds it by file name (`harness/lib/check-gate.mjs`).
-- Test it end to end: write down every way it can fail, then `bin/vawe e2e`. A unit test only for
+- Test it end to end: write down every way it can fail, then `bin/vawe-dev e2e`. A unit test only for
   what a render cannot show.
 
 ## Adding a verb
@@ -150,7 +150,7 @@ one-step agent 3 to 4 M and 3 to 7 minutes. Split a plan into one agent per step
 the files do not overlap.
 
 Review a sample of each batch: 3 of 10 items at random, plus every item that a check flagged. Use
-`bin/vawe e2e` and the checks as the gate. If one sampled item fails, review the whole batch.
+`bin/vawe-dev e2e` and the checks as the gate. If one sampled item fails, review the whole batch.
 
 ```
 RULES (read first):
@@ -180,7 +180,7 @@ STATIC CHECKS before each commit: `node --check <each changed .mjs>`,
 `node quality/gates/doc-refs.mjs <each changed .md>`, `node harness/dev/no-emdash.mjs`.
 
 ALLOWED TEST COMMANDS: `node harness/dev/e2e.mjs` (about 4 s: page tests plus half-size drafts),
-`node --test tests/<one file>`, `bin/vawe dev <page>`. No full `bin/vawe test` unless the task says so.
+`node --test tests/<one file>`, `bin/vawe dev <page>`. No full `bin/vawe-dev test` unless the task says so.
 
 REPORT (text, under 400 words): commits, what changed, what you left undone and why.
 ```

@@ -64,7 +64,7 @@ the stills line in `bin/vawe dev` shows the pick, the reason and the first fix, 
 
 When `~/.vawe/refs` exists (`bin/vawe refs list`; `$VAWE_REFS_DIR` moves it), the judge also reads the sheets of two in-scope reference films of the film's type (product or brand, the closest length, then id order) and says per dial (text, colour, motion) which is better, ours or the reference. Without the folder, one line says the comparison was skipped.
 The dials cap the axes (`AXIS_DIAL` in `harness/lib/judge-bar.mjs`): type is text, colour is colour, motion and pace are motion. Ours losing a dial to both references caps its axes at 6, losing to one caps them at 7, and the verdict is not PASS while ours loses a dial to both.
-The answers are `bar` in `out/<name>.judge.json` and the run log; `bin/vawe runs --taste` shows wins and losses per dial. The anchor question stays: it compares key frames, the bar compares whole sheets.
+The answers are `bar` in `out/<name>.judge.json` and the run log; `bin/vawe-dev runs --taste` shows wins and losses per dial. The anchor question stays: it compares key frames, the bar compares whole sheets.
 
 ## The verdict contract
 

@@ -36,7 +36,7 @@ Sound: a soft rising swell under the gather that ends on the settle, no hit; the
 Colours are sRGB as stored in the photo, so a shader that outputs them directly shows the photo's colour. Additive
 blending sums overlapping points: on a dense photo lower the point size or the light gain, or the filaments burn to white.
 
-The clip is dense, so `bin/vawe moves` encodes it again at a higher CRF to fit its 2 MB budget (CRF 31, 1.3 MB; the CRF is in `clips.lock.json`). Grain is off in the demo for the same reason.
+The clip is dense, so `bin/vawe-dev moves` encodes it again at a higher CRF to fit its 2 MB budget (CRF 31, 1.3 MB; the CRF is in `clips.lock.json`). Grain is off in the demo for the same reason.
 
 Measured: 1 000 000 points from a 2048 by 1536 image take about 0.5 s. The demo builds its cloud on the first seek of
 each page, so every render slice pays about 1 s once. Load the photo inside the frame hook, not with a top-level `await`:
