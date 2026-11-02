@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { writeApproval, writePlanApproval } from '../../harness/lib/approval.mjs';
 import { appendRun, readRuns } from '../../harness/lib/runlog.mjs';
-import { FILM_PAGE, SAY, tasteOnce, sessionOf, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
+import { FILM_PAGE, isTestPage, SAY, tasteOnce, sessionOf, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
 
 process.env.HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-home-'));
 
@@ -230,6 +230,20 @@ test('a test page under a film folder is not a film', () => {
   assert.ok(FILM_PAGE.test('films/examples/colour-sting/page.html'));
   assert.ok(!FILM_PAGE.test('films/riso-brand/variations/bleed/page.html'));
   assert.ok(!FILM_PAGE.test('films/riso-brand/kit/page.html'));
+});
+
+test('a test page inside a film folder gets no brief advice from nextStep', () => {
+  const { root } = film('<p>x</p>');
+  const dir = path.join(root, 'films', 'f', 'directions', 'a');
+  fs.mkdirSync(dir, { recursive: true });
+  const page = path.join(dir, 'page.html');
+  fs.writeFileSync(page, '<p>x</p>');
+  const s = nextStep(page, root);
+  assert.equal(s.stage, 'test');
+  assert.doesNotMatch(`${s.next} ${s.why}`, /brief\.md: the ask/);
+  assert.ok(isTestPage(page, root));
+  assert.ok(!isTestPage(path.join(root, 'films', 'f', 'page.html'), root));
+  assert.ok(!isTestPage('/elsewhere/page.html', root));
 });
 
 function drafted(brief) {

@@ -26,6 +26,12 @@ const mtime = (p) => { try { return fs.statSync(p).mtimeMs; } catch { return 0; 
 // A test page in a film's own folder (films/<name>/variations/<id>/page.html) is not a film.
 export const FILM_PAGE = /^films\/(examples\/)?[^/]+\/page\.html$/;
 
+/** True for a page inside films/ that is not a film's own page.html: a direction, variation or kit page, which has no brief of its own. */
+export const isTestPage = (page, root = process.cwd()) => {
+  const rel = path.relative(root, path.resolve(page)).split(path.sep).join('/');
+  return rel.startsWith('films/') && !FILM_PAGE.test(rel);
+};
+
 function pages(root) {
   const r = spawnSync('git', ['status', '--porcelain', '--untracked-files=all', '--', 'films'], { cwd: root, encoding: 'utf8' });
   return (r.stdout || '').split('\n').map((l) => l.slice(3).trim())
@@ -108,6 +114,9 @@ export function nextStep(page, root = process.cwd()) {
   }
   const name = path.basename(path.dirname(page));
   const rel = path.relative(root, page);
+  if (isTestPage(page, root)) {
+    return { name, stage: 'test', next: `bin/vawe frame ${rel} --moment <the second to check>`, why: 'a test page inside a film folder has no brief of its own' };
+  }
   const dir = path.dirname(page);
   const t = mtime(page);
   const draft = mtime(path.join(root, 'out', `${name}-draft.mp4`));
