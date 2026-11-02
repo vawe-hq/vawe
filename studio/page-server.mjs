@@ -2,7 +2,7 @@
 // rhythm, so this edits exactly what the agent wrote: every edit is a text patch at a literal's range in
 // the page file (studio/page-source.mjs), never a private format.
 //
-//   vawe studio films/<name>/page.html [--port 8799]
+//   vawe dev films/<name>/page.html --studio [--port 8799]
 //
 // The page is served as itself, with the renderer's virtual clock and frame facts injected before its
 // scripts (the same functions render-page.mjs injects), and the browser seeks it with core/engine/
@@ -22,7 +22,7 @@ import { saveEdits } from './save-edits.mjs';
 import { chatRoutes } from './chat.mjs';
 
 const pageArg = process.env.PAGE || process.argv[2];
-if (!pageArg || !fs.existsSync(pageArg)) { console.error('usage: vawe studio films/<name>/page.html [--port 8799]'); process.exit(2); }
+if (!pageArg || !fs.existsSync(pageArg)) { console.error('usage: vawe dev films/<name>/page.html --studio [--port 8799]'); process.exit(2); }
 const pageFile = path.resolve(pageArg);
 const pageRel = path.relative(REPO_ROOT, pageFile).split(path.sep).join('/');
 if (pageRel.startsWith('..')) { console.error('the page must sit inside the repo'); process.exit(2); }
@@ -138,7 +138,7 @@ const routes = (req, res) => {
 };
 
 const { server } = await serveRepo({ port: PORT, route: routes }).catch((e) => {
-  console.error(e.code === 'EADDRINUSE' ? `port ${PORT} is busy, set a free one: vawe studio ${pageRel} --port 8800` : e.message);
+  console.error(e.code === 'EADDRINUSE' ? `port ${PORT} is busy, set a free one: vawe dev ${pageRel} --studio --port 8800` : e.message);
   process.exit(1);
 });
 server.on('error', (e) => { console.error(e.message); process.exit(1); });

@@ -1,6 +1,6 @@
 const inWindow = (ms, from, to) => ms > from && ms <= to;
 const minutes = (ms) => Number((ms / 60000).toFixed(1));
-const isRender = (e) => !e.help && ['dev', 'ship'].includes(e.verb) && !/--(status|wait)\b/.test(e.args);
+const isRender = (e) => !e.help && ['dev', 'ship'].includes(e.verb) && !/--(status|wait|animatic|studio)\b/.test(e.args);
 
 function boundsOf(fold) {
   const { startMs, endMs } = fold.meta;

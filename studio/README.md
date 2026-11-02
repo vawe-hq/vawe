@@ -10,7 +10,7 @@ The live scrubbable preview for one page film: a static server that serves the p
 clock installed, a scrub bar, and in-place editing of the page's tunable literals.
 
 ```
-bin/vawe studio films/<name>/page.html [--port 8799]
+bin/vawe dev films/<name>/page.html --studio [--port 8799]
 ```
 
 Open the printed URL, leave it running (Ctrl-C to stop). The page is seeked, never played, by the

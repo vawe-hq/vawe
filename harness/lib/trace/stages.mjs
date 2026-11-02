@@ -20,14 +20,14 @@ function frameStage(args, seen) {
 export function verbStage({ verb, args }, seen) {
   if (verb === 'frame') return frameStage(args, seen);
   if (verb === 'see' && /--plan\b/.test(args)) return 'storyboard';
-  if (verb === 'dev') return (seen.critique || seen.judge) && /--(from|to)\b/.test(args) ? 'fix' : 'dev';
+  if (verb === 'dev') return /--studio\b/.test(args) ? null : /--animatic\b/.test(args) ? 'board' : (seen.critique || seen.judge) && /--(from|to)\b/.test(args) ? 'fix' : 'dev';
   if (verb === 'ship') return /--(status|wait)\b/.test(args) ? null : 'ship';
   if (verb === 'critique' || verb === 'judge') return verb;
   if (STUDY_VERBS.has(verb)) {
     if (!seen.dev) return 'study';
     return MOTION_VERBS.has(verb) || (verb === 'strip' && /--cuts/.test(args)) ? 'motion' : null;
   }
-  return { new: 'new', frames: 'frames', storyboard: 'storyboard', timeline: 'storyboard', approve: 'approve' }[verb] ?? null;
+  return { new: 'new', animatic: 'board', frames: 'frames', storyboard: 'storyboard', timeline: 'storyboard', approve: 'approve' }[verb] ?? null;
 }
 
 function writeStages({ what, text }) {

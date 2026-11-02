@@ -76,7 +76,7 @@ function waitSecs(calls, events) {
 
 function costOf(calls, events) {
   const repeats = repeatsOf(calls);
-  const renders = events.filter((e) => !e.help && ['dev', 'ship'].includes(e.verb) && !/--(status|wait)\b/.test(e.args));
+  const renders = events.filter((e) => !e.help && ['dev', 'ship'].includes(e.verb) && !/--(status|wait|animatic|studio)\b/.test(e.args));
   const hasLog = events.some((e) => e.fromRunLog);
   const big = calls.filter((c) => c.chars > BIG_RESULT).sort((a, b) => b.chars - a.chars);
   return {

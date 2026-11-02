@@ -119,6 +119,14 @@ test('a final is waited for with wait: AGENTS.md and the ship and wait lines do 
   assert.doesNotMatch(verb('wait').next({}, ['films/f/page.html']), /ship --status/);
 });
 
+test('animatic and studio left the verb table; their old names are aliases of dev', () => {
+  for (const name of ['animatic', 'studio']) {
+    assert.equal(verb(name), undefined, name);
+    assert.equal(typeof ALIASES[name], 'function', name);
+    assert.equal(ALIASES[name](['p.html'])[0], 'dev');
+  }
+});
+
 test('ship --status is a one-line usage error that names wait, and the help does not list it', () => {
   const ship = verb('ship');
   assert.throws(() => parseArgs(ship, ['--status', 'films/f/page.html', '--wait']), (e) => e instanceof UsageError && /^--status is removed from ship: wait for the render with bin\/vawe wait <page>/.test(e.message) && !e.message.includes('\n'));

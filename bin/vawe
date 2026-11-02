@@ -134,7 +134,7 @@ function filmOfRun(verbName, call, rest) {
 }
 
 function stageOf(verbName, rest, film, page) {
-  const used = Object.fromEntries(readRuns(film, ROOT).filter((r) => r.cmd === 'verb' && r.exitCode === 0).map((r) => [r.verb, true]));
+  const used = Object.fromEntries(readRuns(film, ROOT).filter((r) => r.cmd === 'verb' && r.exitCode === 0 && !(r.verb === 'dev' && /--(animatic|studio)\b/.test([r.args].flat().join(' ')))).map((r) => [r.verb, true]));
   return verbStage({ verb: verbName, args: rest.join(' ') }, used) ?? (page ? orNone(() => nextStep(page, ROOT).stage, null) : null);
 }
 

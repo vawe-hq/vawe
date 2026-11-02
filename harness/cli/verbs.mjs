@@ -46,7 +46,18 @@ export const devFix = (reason, [page]) => {
   if (causeOf(reason) === 'browser lost') return `the browser died mid-render: find the heavy second with bin/vawe dev ${page} --from 0 --to 4, then the next 4 s; a page with large images, canvas or WebGL work per frame crashes it`;
   return `bin/vawe frame ${page} --world all`;
 };
+/** The steps of `dev --animatic` or `dev --studio`, or null for a draft. */
+function devModeSteps(v, page) {
+  if (v.animatic && v.studio) throw new UsageError('--animatic and --studio are two modes of dev: run one');
+  if (v.fps !== undefined && !v.animatic) throw new UsageError('--fps needs --animatic');
+  if (v.port !== undefined && !v.studio) throw new UsageError('--port needs --studio');
+  if (v.animatic) return [{ script: 'harness/media/animatic.mjs', args: [page, ...opt('--fps', v.fps), ...opt('--out', v.out)] }];
+  if (v.studio) return [{ script: 'studio/page-server.mjs', args: [page], env: v.port ? { PORT: String(v.port) } : {} }];
+  return null;
+}
 const devNext = (v, [page]) => {
+  if (v.animatic) return 'Watch the mp4: each world holds for its planned time; retime the world starts in the page, then bin/vawe dev';
+  if (v.studio) return null;
   if (isClipDemo(page)) return nextStep(path.resolve(page), ROOT).next;
   if (v.from != null || v.to != null) return `bin/vawe frame ${page} --moment <the second you fixed> and Read it; when every named second is fixed: ${SAY.critique(pageName(page), page)}`;
   if (critiqueProblem(page, { root: ROOT })) return `before anything else: ${judgeCommand(page)} (its own session), or in a separate terminal ${critiqueCommand(page)}`;
@@ -143,20 +154,8 @@ export const VERBS = [
   },
   FRAME,
   {
-    tier: 'more',
-    name: 'animatic', summary: 'use when you check the timing of a film before you animate it: the key frame of each world held for its planned span, hard cuts, silent, in a few seconds',
-    positional: [PAGE],
-    flags: [
-      { name: 'fps', type: 'number', default: 10, help: 'frame rate of the animatic' },
-      { name: 'out', type: 'path', default: 'out/<name>-animatic.mp4', help: 'output file' },
-    ],
-    example: 'vawe animatic films/my-launch/page.html   |   vawe animatic films/my-launch/page.html --fps 5',
-    build: (v, [page]) => [{ script: 'harness/media/animatic.mjs', args: [page, ...opt('--fps', v.fps), ...opt('--out', v.out)] }],
-    next: () => 'Watch the mp4: each world holds for its planned time; retime the world starts in the page, then bin/vawe dev',
-  },
-  {
     tier: 'core',
-    name: 'dev', summary: 'draft render: half size, 30 fps, with sound; also writes a key-frame sheet PNG next to it',
+    name: 'dev', summary: 'draft render: half size, 30 fps, with sound; also writes a key-frame sheet PNG next to it; --animatic, --studio',
     positional: [PAGE],
     flags: [
       { name: 'from', type: 'number', help: 'start second' },
@@ -167,14 +166,20 @@ export const VERBS = [
       { name: 'whole', type: 'bool', help: 'render the whole film even with an empty plan (while the brief\'s Ideas or Board is empty and no full draft exists, every dev renders a 2 s window around the spectacle, small, to out/<name>-plan-window.mp4)' },
       { name: 'small', type: 'bool', help: 'encode the draft about 5x smaller for a file to post, such as an og:video share loop (x264 preset fast, CRF 24; about 0.2 s more encode for 5 s)' },
       PARAM,
-      { name: 'out', type: 'path', default: 'out/<name>-draft.mp4, or out/<name>-draft-<from>-<to>.mp4 for a range', help: 'output file' },
+      { name: 'out', type: 'path', default: 'out/<name>-draft.mp4, or out/<name>-draft-<from>-<to>.mp4 for a range (out/<name>-animatic.mp4 with --animatic)', help: 'output file' },
+      { name: 'animatic', type: 'bool', help: 'instead of a draft: the key frame of each world held for its planned span, hard cuts, silent, in a few seconds, to check the timing before you animate' },
+      { name: 'fps', type: 'number', default: 10, help: 'with --animatic: frame rate of the animatic' },
+      { name: 'studio', type: 'bool', help: 'instead of a draft: a live scrubbable preview that edits the page literals in place (Ctrl-C stops it)' },
+      { name: 'port', type: 'number', default: 8799, help: 'with --studio: http port' },
       { name: 'fast', type: 'bool', help: 'run only the fast checks (page errors, text size and collisions, still windows, tail tiles, smoothness, motion lint on declared animations)' },
       { name: 'full', type: 'bool', help: 'also run the ship-tier checks: per-frame box motion lint, object tracks, loudness and peak' },
       { name: 'taste', type: 'bool', help: 'also print the taste lines (they are always in out/<name>.dev.md)' },
       { name: 'no-judge', type: 'bool', help: 'skip the stills judge that dev runs on the three directions, once per change of directions.html or their brief lines (about 25 s)' },
     ],
-    example: 'vawe dev films/my-launch/page.html --from 2 --to 6',
+    example: 'vawe dev films/my-launch/page.html --from 2 --to 6   |   vawe dev films/my-launch/page.html --animatic   |   vawe dev films/my-launch/page.html --studio',
     build: (v, [page]) => {
+      const mode = devModeSteps(v, page);
+      if (mode) return mode;
       const planned = planWindow(path.resolve(page), { root: ROOT, from: v.from, to: v.to, out: v.out, whole: v.whole });
       const range = planned ?? v;
       const planEnv = planned ? { VAWE_PLAN_WINDOW: '1' } : {};
@@ -310,14 +315,6 @@ export const VERBS = [
     example: 'vawe refs list [id]   |   vawe refs frames u6iro1jHujs   |   vawe refs add https://youtu.be/xxxx --type product --title "Linear Agent"   |   vawe refs add <url> --no-measure',
     build: (v, [action, source]) => [{ script: 'harness/dev/refs.mjs', args: [action, ...(source ? [source] : []), ...opt('--type', v.type), ...opt('--title', v.title), ...(v['no-measure'] ? ['--no-measure'] : [])] }],
     next: (v, [action]) => (action === 'add' && v['no-measure'] ? 'bin/vawe see <id> measures it (the id is on the added line); bin/vawe refs list' : action === 'list' && refsEmpty(refsDir()) ? 'bin/vawe frame films/examples/colour-sting/page.html --world all --full, then Read the stills at full size before you design' : action === 'list' ? 'bin/vawe refs frames, then Read the absolute paths it prints (one per frame) at full size before you design; bin/vawe frame <id> --cuts shows how the film moves through each cut' : action === 'frames' ? 'Read the frames at full size; write what you take from which frame before you design' : 'bin/vawe refs list'),
-  },
-  {
-    tier: 'more',
-    name: 'studio', summary: 'live scrubbable preview; edits the page literals in place',
-    positional: [PAGE],
-    flags: [{ name: 'port', type: 'number', default: 8799, help: 'http port' }],
-    example: 'vawe studio films/my-launch/page.html --port 8800',
-    build: (v, [page]) => [{ script: 'studio/page-server.mjs', args: [page], env: v.port ? { PORT: String(v.port) } : {} }],
   },
   {
     tier: 'core',

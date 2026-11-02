@@ -38,6 +38,9 @@ const ROWS = [
   [['storyboard', P, '--all'], ['frame', P, '--all', '--board']],
   [['storyboard', P, '--directions'], ['frame', P, '--directions']],
   [['storyboard', P, '--text', '--json'], ['see', P, '--json', '--plan']],
+  [['animatic', P], ['dev', P, '--animatic']],
+  [['animatic', P, '--fps', '5', '--out', 'out/a.mp4'], ['dev', P, '--fps', '5', '--out', 'out/a.mp4', '--animatic']],
+  [['studio', P, '--port', '8800'], ['dev', P, '--port', '8800', '--studio']],
 ];
 
 test('every old picture command maps to the command that replaced it', () => {
@@ -70,6 +73,9 @@ const STEPS = [
   ['harness/media/storyboard.mjs', [P, '--all']],
   ['harness/media/directions-board.mjs', [P]],
   ['harness/media/timeline.mjs', [P, '--json']],
+  ['harness/media/animatic.mjs', [P]],
+  ['harness/media/animatic.mjs', [P, '--fps', '5', '--out', 'out/a.mp4']],
+  ['studio/page-server.mjs', [P]],
 ];
 
 test('every mapped command parses and builds the script and arguments the old verb ran', () => {
@@ -92,6 +98,17 @@ test('an old verb keeps the flags it required: a call that failed before fails n
   refused(['zoom', P, '--at', '3'], /zoom needs --at <s> and --box x,y,w,h or --auto/);
   refused(['zoom', P, '--vs', 'R', '--at', '2'], /zoom needs --at <s> and --box/);
   refused(['zoom', P, '--box', '1,2,3,4'], /zoom needs --at <s>/);
+});
+
+test('animatic and studio are modes of dev, each exclusive with the other and with the flags of the other', () => {
+  const dev = VERBS.find((v) => v.name === 'dev');
+  const build = (...args) => { const { values, positional } = parseArgs(dev, args); return dev.build(values, positional); };
+  assert.equal(build(P, '--studio', '--port', '8800')[0].env.PORT, '8800');
+  assert.throws(() => build(P, '--animatic', '--studio'), /two modes of dev/);
+  assert.throws(() => build(P, '--fps', '5'), /--fps needs --animatic/);
+  assert.throws(() => build(P, '--port', '8800'), /--port needs --studio/);
+  assert.equal(dev.next({ animatic: true }, [P]).startsWith('Watch the mp4'), true);
+  assert.equal(dev.next({ studio: true }, [P]), null);
 });
 
 test('bin/vawe prints a refused old call as a usage error, exit 2, logged under the old name', () => {

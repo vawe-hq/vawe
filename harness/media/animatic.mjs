@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `vawe animatic <page>`: the key frame of each world held for its planned span, hard cuts, silent, so timing is checked before motion is written.
+// `vawe dev <page> --animatic`: the key frame of each world held for its planned span, hard cuts, silent, so timing is checked before motion is written.
 //   node harness/media/animatic.mjs <page.html> [--fps n] [--out file.mp4]
 // Writes out/<film>-animatic.mp4 (half size, 10 fps by default) and prints each world's hold, the total length and the wall time.
 import fs from 'node:fs';
