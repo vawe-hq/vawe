@@ -34,7 +34,7 @@ function coerce(flag, raw) {
 // Returns { values, positional }. Throws UsageError with a one-line reason.
 export function parseArgs(verb, argv) {
   const flags = verb.flags || [];
-  const known = flags.map((f) => f.name);
+  const known = flags.filter((f) => !f.retired).map((f) => f.name);
   const values = {};
   const positional = [];
   for (let i = 0; i < argv.length; i++) {
@@ -46,6 +46,7 @@ export function parseArgs(verb, argv) {
       const guess = closest(name, known);
       throw new UsageError(`unknown flag --${name}; valid: ${known.map((k) => `--${k}`).join(' ') || '(none)'}${guess ? `; did you mean --${guess}?` : ''}`);
     }
+    if (flag.retired) throw new UsageError(`--${name} is removed from ${verb.name}: ${flag.retired}`);
     if (flag.type === 'bool') { values[name] = true; continue; }
     const raw = inline !== undefined ? inline : argv[++i];
     values[name] = flag.repeat ? [...(values[name] || []), coerce(flag, raw)] : coerce(flag, raw);
@@ -58,7 +59,7 @@ export function parseArgs(verb, argv) {
 
 function usageLine(verb) {
   const pos = (verb.positional || []).map((p) => (p.required ? `<${p.name}>` : `[${p.name}]`)).join(' ');
-  return `vawe ${verb.name}${pos ? ` ${pos}` : ''}${(verb.flags || []).length ? ' [flags]' : ''}`;
+  return `vawe ${verb.name}${pos ? ` ${pos}` : ''}${(verb.flags || []).some((f) => !f.retired) ? ' [flags]' : ''}`;
 }
 
 export function verbHelp(verb) {
@@ -67,7 +68,7 @@ export function verbHelp(verb) {
   for (const p of verb.positional || []) lines.push(`  ${`<${p.name}>`.padEnd(14)} ${p.help}`);
   if ((verb.flags || []).length) {
     lines.push('', 'flags:');
-    for (const f of verb.flags) {
+    for (const f of verb.flags.filter((x) => !x.retired)) {
       const type = f.type === 'bool' ? '' : ` <${f.type}>`;
       lines.push(`  ${`--${f.name}${type}`.padEnd(18)} ${f.help} (default: ${f.default ?? (f.type === 'bool' ? 'off' : 'none')})`);
     }

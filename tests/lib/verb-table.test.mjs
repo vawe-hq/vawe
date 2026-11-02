@@ -2,10 +2,13 @@ import test from 'node:test';
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import { VERBS } from '../../harness/cli/verbs.mjs';
-import { TIERS, topHelp, verbHelp, UsageError } from '../../harness/cli/parse.mjs';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { TIERS, topHelp, verbHelp, parseArgs, UsageError } from '../../harness/cli/parse.mjs';
 import { ALIASES } from '../../harness/cli/aliases.mjs';
 import { GATES } from '../../harness/lib/check-gate.mjs';
 
+const ROOT = path.resolve(import.meta.dirname, '../..');
 const verb = (name) => VERBS.find((v) => v.name === name);
 const argsOf = (name, values, positional) => verb(name).build(values, positional)[0].args;
 
@@ -114,4 +117,20 @@ test('a final is waited for with wait: AGENTS.md and the ship and wait lines do 
   assert.doesNotMatch(agents, /ship --status/);
   assert.doesNotMatch(verb('ship').example, /ship --status/);
   assert.doesNotMatch(verb('wait').next({}, ['films/f/page.html']), /ship --status/);
+});
+
+test('ship --status is a one-line usage error that names wait, and the help does not list it', () => {
+  const ship = verb('ship');
+  assert.throws(() => parseArgs(ship, ['--status', 'films/f/page.html', '--wait']), (e) => e instanceof UsageError && /^--status is removed from ship: wait for the render with bin\/vawe wait <page>/.test(e.message) && !e.message.includes('\n'));
+  assert.throws(() => parseArgs(ship, ['--nope']), (e) => !/--status/.test(e.message));
+  assert.doesNotMatch(verbHelp(ship), /--status/);
+  assert.match(verbHelp(ship), /^vawe ship <page> \[flags\]$/m);
+  assert.throws(() => parseArgs(ship, []), /missing <page>; usage: vawe ship <page>/);
+});
+
+test('bin/vawe ship --status exits 2 with the wait command, and logs a usage error', () => {
+  const run = spawnSync(process.execPath, ['bin/vawe', 'ship', '--status', 'films/f/page.html'], { cwd: ROOT, encoding: 'utf8' });
+  assert.equal(run.status, 2);
+  assert.match(run.stderr, /bin\/vawe wait <page>/);
+  assert.match(run.stdout, /vawe: ship FAILED/);
 });

@@ -75,7 +75,7 @@ const TAIL_MS = 120_000;
 // Finals of 20 s at 60 fps ran 985 to 1402 s (tracking-hud ships, 2026-10-10).
 const TYPICAL_FINAL_MS = 1_200_000;
 
-/** How many more `ship --status --wait` calls of `capMs` a running job needs: { calls, basis }. The eta is the capture's, or null before it has a rate. */
+/** How many more `wait` calls of `capMs` a running job needs: { calls, basis }. The eta is the capture's, or null before it has a rate. */
 export function waitCallsLeft({ etaMs, elapsedMs, capMs }) {
   const known = etaMs !== null && etaMs !== undefined;
   const left = known ? etaMs + TAIL_MS : Math.max(0, TYPICAL_FINAL_MS - elapsedMs);

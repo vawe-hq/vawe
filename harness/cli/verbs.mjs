@@ -191,19 +191,17 @@ export const VERBS = [
   {
     tier: 'core',
     name: 'ship', summary: 'final render: 60 fps, motion blur, audio mixed; refused until a fresh review and the owner approval',
-    positional: [{ name: 'page|job', help: 'films/<name>/page.html; with --status, that page or a job id (default: the newest job)' }],
+    positional: [{ name: 'page', required: true, help: 'films/<name>/page.html' }],
     flags: [
       { name: 'aspect', type: 'string', default: 'the page meta, else 16:9', help: `${ASPECT}, or all for one file each` },
       PARAM,
       { name: 'out', type: 'path', default: 'out/<name>.mp4', help: 'output file (not with --aspect all)' },
-      { name: 'wait', type: 'bool', help: 'block until the render ends instead of running it in the background; with --status, wait up to 3.5 minutes for the background job, one progress line per minute' },
-      { name: 'status', type: 'bool', help: 'print the progress or the result of a background render' },
+      { name: 'wait', type: 'bool', help: 'block until the render ends instead of running it in the background' },
+      { name: 'status', type: 'bool', retired: 'wait for the render with bin/vawe wait <page> (it returns within about 3.5 minutes; on STILL RUNNING run it again)' },
       { name: 'profile', type: 'bool', help: 'print a cost table: frames, subframes, screenshots, capture and encode seconds, the 5 costliest seconds' },
     ],
     example: 'vawe ship films/my-launch/page.html --aspect all   (then: vawe wait films/my-launch/page.html)',
     build: (v, [page]) => {
-      if (v.status) return [{ script: 'harness/media/ship-job.mjs', args: ['status', ...(page ? [page] : []), ...(v.wait ? ['--wait'] : [])] }];
-      if (!page) throw new UsageError('missing <page>; usage: vawe ship <page> [flags]  or  vawe ship --status [job]');
       const args = [page, ...(v.out ? [v.out] : []), ...(v.profile ? ['--profile'] : [])];
       const before = [{ script: 'harness/live/ship-approval.mjs', args: [page] }, { script: 'harness/live/ship-warn.mjs', args: [page] }];
       if (v.wait) return [...before, { script: 'harness/media/render-page.mjs', args: [...args, '--final', ...opt('--aspect', v.aspect)] }];
@@ -211,7 +209,6 @@ export const VERBS = [
     },
     fix: (reason, [page]) => (page?.endsWith('.html') && !/ship refused/.test(reason) ? `bin/vawe dev ${page}` : null),
     next: (v, [page]) => {
-      if (v.status) return null;
       if (v.wait) return `vawe judge out/${paramsFilm(pageName(page), paramEnv(v))}.mp4`;
       return `rendering in the background: bin/vawe wait ${page} (one call waits up to 3.5 minutes, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`;
     },
