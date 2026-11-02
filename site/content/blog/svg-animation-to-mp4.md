@@ -97,7 +97,7 @@ Two limits come from how the web works:
 
 Most real files come from a design tool. Open the file, copy its `<svg>` element into the page, and add the `<animate>` tags or CSS classes. Give the SVG a `viewBox` and a width in `vw`, as ours does, so it scales with the film size. The page can then render in other ratios: add `--aspect 9:16` to a render to try it, and look at the frame first. See [aspect ratios](/blog/html-video-aspect-ratios).
 
-For a logo that draws itself, the library has a move called [mark trace](/video-components/mark-trace). For a drawn underline, see [underline draw](/video-components/underline-draw). For a GSAP or a Lottie file instead of SMIL, we have [GSAP to MP4](/blog/gsap-to-mp4). We did not test Lottie.
+For a logo that draws itself, the library has a move called [mark trace](/video-components/mark-trace). For a drawn underline, see [underline draw](/video-components/underline-draw). For a GSAP timeline, see [GSAP to MP4](/blog/gsap-to-mp4).
 
 ## FAQ
 
@@ -114,4 +114,4 @@ Yes. The renderer sets the `currentTime` of every CSS and Web Animation, and tha
 Not with the MP4 output. H.264 has no alpha channel, and the page has a solid background in the render.
 
 **Is the output the same each time?**
-The frames are a function of `t` and the page. We rendered the canvas page in our [canvas to video](/blog/canvas-to-video) post twice and the frames matched byte for byte. We did not run that check on this SVG page.
+The frames are a function of `t` and the page. We took the same frame of the canvas page in [canvas to video](/blog/canvas-to-video) twice and the two PNGs had the same md5. We did not run that check on this SVG page.

@@ -115,6 +115,8 @@ MP4 with H.264 plays in most players and on most platforms, so it is the default
 
 For the odd-size error and the frame loop in detail, read [Puppeteer screenshots to MP4 with ffmpeg](/blog/puppeteer-to-mp4). For a renderer that also controls `Date` and `Math.random`, read [render HTML to MP4 with headless Chrome](/blog/render-html-to-mp4).
 
+The SVG and canvas cases each have their own post: [SVG animation to MP4](/blog/svg-animation-to-mp4) and [canvas animation to video](/blog/canvas-to-video).
+
 ## FAQ
 
 **How do I export a CSS animation as an MP4?**

@@ -95,7 +95,7 @@ Two tips from this page:
 
 ## A ready-made move
 
-The vawe moves library has two caption clips. [Caption karaoke](/video-components/caption-karaoke) turns the spoken word solid yellow on its second. [Caption editorial](/video-components/caption-editorial) is a quieter style. They use one table of `[word, second]` pairs and a `vawe.onFrame` hook, and you can copy them. They paint from a hook in JavaScript, while the page above uses only CSS. Pick CSS when a word is a one-off effect, and the hook when you want to compute the state from a table.
+The vawe moves library has two caption clips. [Caption karaoke](/video-components/caption-karaoke) turns the spoken word solid yellow on its second. [Caption editorial](/video-components/caption-editorial) is a quieter style. Caption karaoke uses one table of `[word, second]` pairs and a `vawe.onFrame` hook, and you can copy it. The page above uses only CSS. Pick CSS for a short line, and the hook when you want to compute the state from a table.
 
 For text that moves as an effect and not as a subtitle, read [kinetic typography in CSS](/blog/kinetic-typography-css). For the vertical format, see [9:16 video from HTML](/docs/vertical-social). To post it, check [video specs by platform](/docs/platforms).
 

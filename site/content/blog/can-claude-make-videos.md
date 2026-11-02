@@ -20,7 +20,7 @@ Yes, Claude can make a video, but it does not paint the frames. Claude writes te
 
 There are two ways an AI can make a video. A video model generates pixels from a prompt. You cannot edit one number in the result, and the same prompt gives a different clip each time. The other way is to write code, and the code draws the frames.
 
-Claude does the second. This is the same idea as asking Claude for a chart: it does not draw the bars, it writes the code that does. A film is a longer chart with a clock.
+Claude does the second. Ask Claude for a chart and it writes the code that draws the bars. A film works the same way, with a clock added.
 
 Both ways make real MP4 files. They suit different jobs. Code suits motion graphics: titles, product screens, charts, logos, captions, launch films and explainers. A video model suits footage of a person walking down a street. This post covers the first kind.
 
@@ -28,14 +28,14 @@ Both ways make real MP4 files. They suit different jobs. Code suits motion graph
 
 Claude in a chat window cannot render a film by itself, because it has no shell. You need an agent that can write files and run commands. Claude Code does both. You also need a renderer.
 
-We use [vawe](https://github.com/vawe-hq/vawe), a framework that renders one HTML page into one film. You need Node 22 or later, git and ffmpeg. The check is one command:
+We use [vawe](https://github.com/vawe-hq/vawe), a framework that renders one HTML page into one film. You need Node 22 or later, git, ffmpeg and the Chrome that puppeteer downloads. The check is one command:
 
 ```bash
 npm install
 bin/vawe doctor
 ```
 
-Claude Code reads `AGENTS.md` when it starts in the repository, so it already knows the page contract. To use the skills outside the repository, run `npx skills add vawe-hq/skills` or read [use vawe with an agent](/docs/agents).
+Claude Code reads `CLAUDE.md` when it starts in the repository, and that file imports `AGENTS.md`, so it already knows the page contract. To use the skills outside the repository, run `npx skills add vawe-hq/skills` or read [use vawe with an agent](/docs/agents).
 
 ## The page Claude writes
 
@@ -86,8 +86,6 @@ bin/vawe ship films/hello/page.html
 
 ## Limits
 
-These limits are real, and you should know them before you start.
-
 - A person approves the final. `ship` refuses until a fresh review is done and the person types `/vawe-approve`. Claude cannot approve its own film.
 - The first draft is plain. Our test page works but makes a weak film. Looking at frames, fixing and critiquing improves it.
 - It does not cut camera footage. It makes motion graphics from web code.
@@ -107,7 +105,7 @@ If you want to know why a page and not a JSON scene file, read [JSON video forma
 Yes, through code. Claude Code writes an HTML page from your prompt and a renderer turns the page into an MP4. Claude does not generate the pixels itself.
 
 **Can the Claude chat app make an MP4?**
-Not on its own. It can write the page, but rendering needs a shell with Node, Chrome and ffmpeg. Claude Code has the shell.
+Not on its own. It can write the page, but rendering needs a shell with Node, ffmpeg and puppeteer's Chrome. Claude Code has the shell.
 
 **Can ChatGPT or another model do the same?**
 Any agent that writes files and runs commands can follow the same loop. The page is plain HTML, so no model needs to learn a private format.
