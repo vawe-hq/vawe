@@ -75,6 +75,7 @@ test('varietyFor prints the table, the unused line and the advice; nothing witho
   assert.match(v.lines[1], /^film +band +ease +stagger +seam +palette +thread$/);
   assert.ok(v.lines.some((l) => l.startsWith('unused so far: band energy, gravity, cinematic')));
   assert.equal(v.lines.filter((l) => l.startsWith('advice: ')).length, 2);
+  assert.match(v.lines.at(-1), /^these count past films, not this ask: choose the dials .* Signature section of brief\.md$/);
   const branded = varietyFor(recent, true);
   assert.ok(branded.lines.some((l) => l.startsWith('brand kit: ')) && !/palette/.test(branded.lines.find((l) => l.startsWith('unused'))));
   assert.deepEqual(varietyFor([], false).lines, []);

@@ -87,13 +87,15 @@ export function repeatAdvice(sigs, exempt = []) {
   return lines;
 }
 
+const HISTORY_ONLY = 'these count past films, not this ask: choose the dials for this direction in the Signature section of brief.md';
+
 /** What `vawe new` shows and the brief block uses: { lines, unused, exempt }. Nothing to show when no film has declared a signature. */
 export function varietyFor(sigs, brand) {
   const exempt = brand ? BRAND_DIALS : [];
   if (!sigs.length) return { lines: [], unused: {}, exempt };
   const unused = unusedByDial(sigs, exempt);
   const brandLine = brand ? [`brand kit: the brief names brand colours or fonts, so ${exempt.join(', ')} is not varied`] : [];
-  return { lines: [`signatures of the last ${sigs.length} films:`, ...signatureTable(sigs), ...[unusedLine(unused)].filter(Boolean), ...brandLine, ...repeatAdvice(sigs, exempt)], unused, exempt };
+  return { lines: [`signatures of the last ${sigs.length} films:`, ...signatureTable(sigs), ...[unusedLine(unused)].filter(Boolean), ...brandLine, ...repeatAdvice(sigs, exempt), HISTORY_ONLY], unused, exempt };
 }
 
 /** (film) => the signature meta content of <root>/films/<film>/page.html, or null. */
