@@ -21,7 +21,7 @@ export type SectionId = (typeof SECTIONS)[number]["id"];
 
 export type Heading = { id: string; text: string };
 
-// A post's cover: public/blog/<slug>/thumb.webp when one has been rendered.
+// A post's cover: its share card, public/og/blog/<slug>.png (scripts/site/og-cards.mjs).
 export type Cover = { src: string; width: number; height: number };
 
 export type Post = {
@@ -224,7 +224,7 @@ const writtenAt = (p: Post) => (addedAt[p.slug] ? Date.parse(addedAt[p.slug]) : 
 const newestFirst = (a: Post, b: Post) => b.date.localeCompare(a.date) || writtenAt(b) - writtenAt(a) || a.title.localeCompare(b.title);
 
 function coverFor(slug: string): Cover | undefined {
-  const src = `/blog/${slug}/thumb.webp`;
+  const src = `/og/blog/${slug}.png`;
   const size = imageSize(src);
   return size ? { src, ...size } : undefined;
 }

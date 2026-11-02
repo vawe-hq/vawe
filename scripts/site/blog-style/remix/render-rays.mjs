@@ -1,12 +1,12 @@
-// Renders every post's cover to WebP (beside the review page and as site/public/blog/<slug>/thumb.webp), then the review page:
+// Renders every post's dithered-rays cover to WebP beside the review page, then the review page (the site's covers are the share cards):
 // node scripts/site/blog-style/remix/render-rays.mjs <page.html> [slug ...] [--panel solid]
-// --panel solid renders the flat panel (thumb.css .solid) and writes only beside the page, never into site/public.
+// --panel solid renders the flat panel (thumb.css .solid).
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
 import puppeteer from 'puppeteer';
-import { serveRepo, RENDER_ARGS, REPO_ROOT } from '../../../../harness/lib/render-harness.mjs';
+import { serveRepo, RENDER_ARGS } from '../../../../harness/lib/render-harness.mjs';
 
 const STRIP = ['read-load', 'run-logs', 'image-points', 'weaker-model', 'render-html-to-mp4', 'determinism'];
 const here = path.dirname(new URL(import.meta.url).pathname);
@@ -43,11 +43,7 @@ try {
     await page.screenshot({ path: png });
     await page.close();
     const webp = toWebp(png);
-    if (panel) { console.log(webp); continue; }
-    const blogThumb = path.join(REPO_ROOT, 'site/public/blog', p.slug, 'thumb.webp');
-    fs.mkdirSync(path.dirname(blogThumb), { recursive: true });
-    fs.copyFileSync(webp, blogThumb);
-    console.log(blogThumb);
+    console.log(webp);
   }
 } finally {
   await browser.close();

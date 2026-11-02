@@ -388,7 +388,7 @@ Dates are honest: posts that share a `date` sort by the time their file was firs
 (chosen 2026-10-13) until the redesign of 2026-10-14 moved the whole site to Geist. The cover images under
 `public/blog/` still carry Jakarta in their pixels. 
 
-**The cover.** A post's cover is `public/blog/<slug>/thumb.webp`, the "dithered rays" style. `lib/blog.ts`
+**The cover.** A post's cover is its riso share card, `public/og/blog/<slug>.png` (`scripts/site/og-cards.mjs`), so the list, the post and a shared link show one image. `lib/blog.ts`
 uses it when the file exists: on the index cards, as the post's header image (the post's hero diagram
 then moves to the top of the body) and as the JSON-LD image. Its alt is empty, because the
 title always sits beside it. Without the file a card has no image.
