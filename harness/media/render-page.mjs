@@ -58,7 +58,7 @@ import { devEvent, devFailedEvent, shipEvent } from '../lib/run-events.mjs';
 import { REPO_ROOT, serveRepo, trackBrowser, pageArgs, insideRoot, PROTOCOL_TIMEOUT_MS } from '../lib/render-harness.mjs';
 import { openPreview, treeSignature } from './preview-server.mjs';
 import { pageQuery, paramsFilm, paramsFlags, aspectOverride, aspectProblem, aspectSlug } from '../lib/page-params.mjs';
-import { writeDraftSheet } from './draft-sheet.mjs';
+import { writeDraftSheet, draftSheetPath } from './draft-sheet.mjs';
 import { sampleWorlds } from './world-sample.mjs';
 import { sampleTail } from './tail-sample.mjs';
 import { tailMoving } from '../lib/tail-motion.mjs';
@@ -1168,7 +1168,7 @@ async function rangeBlock(mp4, pagePath, r, fps, checks) {
 
 async function printDraft(mp4, pagePath, r, { checks, taste, next, opts, from }) {
   let look = '';
-  try { await checks.time('sheet', async () => { const { out, frames, fastest } = writeDraftSheet({ video: mp4, out: mp4.replace(/\.mp4$/, '.png'), fps: opts.fps, from }); look = `  look: ${out} (frames at ${frames.join(', ')} s; fastest motion at ${fastest} s)`; }); } catch (e) { console.error(`  no key-frame sheet: ${e.message}`); }
+  try { await checks.time('sheet', async () => { const { out, frames, fastest } = writeDraftSheet({ video: mp4, out: draftSheetPath(mp4), fps: opts.fps, from }); look = `  look: ${out} (frames at ${frames.join(', ')} s; fastest motion at ${fastest} s)`; }); } catch (e) { console.error(`  no key-frame sheet: ${e.message}`); }
   const whole = from === 0 && opts.durArg == null;
   const report = await draftReport(mp4, pagePath, { ...r, whole, checks });
   const range = whole ? await rangeBlock(mp4, pagePath, r, opts.fps, checks) : [];

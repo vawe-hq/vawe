@@ -2,6 +2,7 @@
 // each labelled with its film second, tiled 3 per row in one PNG. The draft render writes it next to
 // the mp4 so looking at the film costs no extra command.
 import fs from 'node:fs';
+import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const EVEN = 8;
@@ -23,6 +24,12 @@ function motionPerFrame(video, fps) {
     motion.push(sum / size);
   }
   return motion;
+}
+
+/** Where a draft's sheet goes: next to the mp4 as <name>.png for the default out/<film>-draft*.mp4, else <name>-sheet.png, so a --out never overwrites an author's own png. */
+export function draftSheetPath(video) {
+  const { dir, name } = path.parse(video);
+  return path.join(dir, /-draft(-|$)/.test(name) ? `${name}.png` : `${name}-sheet.png`);
 }
 
 /** The frame numbers to show: EVEN evenly spaced ones plus the frame of fastest motion, ascending. */
