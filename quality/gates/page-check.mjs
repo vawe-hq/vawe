@@ -320,13 +320,18 @@ function checkReference(ctx) {
 
 async function textureRects(ctx) {
   if (!ctx.page) return [];
-  const { openPage, settle, resolveFrame } = await import('../../harness/media/render-page.mjs');
-  const opened = await openPage(ctx.page, resolveFrame(ctx.page, {}));
   try {
-    await opened.page.goto(opened.url, { waitUntil: 'load' });
-    await settle(opened.page);
-    return await opened.page.evaluate(textureCanvases, TEXTURE.reasonMin);
-  } finally { await opened.close(); }
+    const { openPage, settle, resolveFrame } = await import('../../harness/media/render-page.mjs');
+    const opened = await openPage(ctx.page, resolveFrame(ctx.page, {}));
+    try {
+      await opened.page.goto(opened.url, { waitUntil: 'load' });
+      await settle(opened.page);
+      return await opened.page.evaluate(textureCanvases, TEXTURE.reasonMin);
+    } finally { await opened.close(); }
+  } catch (e) {
+    ctx.notes.push(`text-unreadable-hold: the page could not be read for texture canvases (${e.message.split('\n')[0]}), so no canvas is treated as texture`);
+    return [];
+  }
 }
 
 async function checkText(ctx) {

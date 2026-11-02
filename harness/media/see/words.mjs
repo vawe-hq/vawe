@@ -42,13 +42,18 @@ export function extractStillFrame(video, t, outPath) {
     outPath, `word-event frame @${t.toFixed(2)}s`);
 }
 
-/** The frames at `times` in one decode pass, written as f_0.png, f_1.png ... in `dir` (one ffmpeg run, not one seek per frame). Returns the paths. */
+/** The first frame at or after each time (what `-ss` gives) in one decode pass, written as f_0.png, f_1.png ... in `dir` (one ffmpeg run, not one seek per frame). Returns the paths. */
 export function extractStillFrames(video, times, fps, dir) {
-  const frames = [...new Set(times.map((t) => Math.round(t * fps)))].sort((a, b) => a - b);
+  const frameAt = (t) => Math.ceil(t * fps - 1e-6);
+  const frames = [...new Set(times.map(frameAt))].sort((a, b) => a - b);
+  const file = (n) => path.join(dir, `f_${frames.indexOf(n) + 1}.png`);
   ffmpegOrDie(['-v', 'error', '-y', '-i', video, '-vf', `select='${frames.map((n) => `eq(n\\,${n})`).join('+')}'`, '-fps_mode', 'passthrough', path.join(dir, 'f_%d.png')],
     null, 'word-event frames');
-  const index = new Map(frames.map((n, i) => [n, i + 1]));
-  return times.map((t) => path.join(dir, `f_${index.get(Math.round(t * fps))}.png`));
+  if (frames.some((n) => !fs.existsSync(file(n)))) {
+    console.error('word events: one decode pass wrote fewer frames than asked; reading them one at a time');
+    for (const n of frames) extractStillFrame(video, n / fps, file(n));
+  }
+  return times.map((t) => file(frameAt(t)));
 }
 
 /** True when the centre of an OCR word box lies inside one of the rects ({ x, y, w, h } as fractions of the frame). Pure. */

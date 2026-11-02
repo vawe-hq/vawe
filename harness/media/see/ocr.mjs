@@ -41,9 +41,16 @@ export function ocrOneFrame(src, base, minConf, minLen, frameW, frameH) {
 
 /**
  * ocrOneFrame for many frames at once: tesseract runs `jobs` processes at a time (one thread each), then any frame without a tsv is read again alone.
- * `frames` is [{ src, base }]; the result lists the words of each frame in order.
+ * `frames` is [{ src, base }]; the result lists the words of each frame in order. A file named twice is read once.
  */
 export function ocrFrames(frames, minConf, minLen, frameW, frameH, jobs = Math.max(1, os.cpus().length - 1)) {
+  const unique = [...new Map(frames.map((f) => [f.src, f])).values()];
+  const byFile = new Map(unique.map((f, i) => [f.src, i]));
+  const read = readEach(unique, minConf, minLen, frameW, frameH, jobs);
+  return frames.map((f) => read[byFile.get(f.src)]);
+}
+
+function readEach(frames, minConf, minLen, frameW, frameH, jobs) {
   const real = frames.map((f) => ({ src: fs.realpathSync(f.src), base: path.join(fs.realpathSync(path.dirname(f.base)), path.basename(f.base)) }));
   spawnSync('xargs', ['-0', '-n', '2', '-P', String(jobs), 'sh', '-c', 'tesseract "$0" "$1" --psm 11 tsv >/dev/null 2>&1'],
     { input: real.flatMap((f) => [f.src, f.base]).join('\0') + '\0', env: { ...process.env, OMP_THREAD_LIMIT: '1' } });
