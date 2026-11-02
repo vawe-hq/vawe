@@ -10,6 +10,9 @@ import { OPEN, PROBLEMS_PAGE, SOLVED, STATUS_LABEL, type Problem } from "../cont
 import { REMOTION_ALTERNATIVES } from "../content/remotion-alternatives";
 import { RESOURCES, resourceGroups } from "../content/resources";
 import { ROADMAP } from "../content/roadmap";
+import { COMPARE_REMOTION_HYPERFRAMES as COMPARE } from "../content/compare";
+import { GROUP_PAGES, groupFacts, groupMetaDescription, groupMetaTitle, groupPage, groupPath } from "../content/move-groups";
+import { MOVES, moveByName } from "../moves";
 import { RIVALS, RIVAL_BY_SLUG, VAWE_SOURCES, vsPage, type Rival } from "../content/vs";
 import { WHEN_DETERMINISM } from "../content/when-determinism-matters";
 import type { Block, NextBlock, Para, Section, Table } from "../content/types";
@@ -187,7 +190,9 @@ const remotionAlternatives = single(REMOTION_ALTERNATIVES.path, REMOTION_ALTERNA
     section(r.shapes),
     section(r.license),
     section(r.selfHosted),
+    section(r.revideo),
     section(r.json2video),
+    section(r.creatomate),
     evidence,
     heading(2, ALT_EVIDENCE.faqTitle),
     qa(r.faq),
@@ -242,6 +247,60 @@ const vs: Renderer = {
   },
 };
 
+function compareDoc(): Doc {
+  const c = COMPARE;
+  const n = nextOf(c.next);
+  const cell = (x: { text: string }) => x.text;
+  return {
+    title: c.h1.replace(/\.$/, ""),
+    description: c.metaDescription,
+    updated: dates[c.path],
+    body: join([
+      c.intro,
+      c.note,
+      join([heading(2, "Which one to choose"), ...c.choose.map((x) => join([heading(3, `Choose ${x.name} when`), bullets(x.items)]))]),
+      join([heading(2, "Side by side"), table(["feature", "Remotion", "HyperFrames", "vawe"], c.rows.map((x) => [x.feature, cell(x.remotion), cell(x.hyperframes), cell(x.vawe)]))]),
+      join([heading(2, "How each one handles time"), ...c.time.map((t) => `**${t.name}.** ${t.text}`)]),
+      join([heading(2, "Where each one is stronger"), ...c.stronger.map((x) => join([heading(3, x.name), bullets(x.items)]))]),
+      join([heading(2, "Questions"), qa(c.faq)]),
+      join([heading(2, `Sources (read ${c.read})`), c.sources.map((x) => item(x.label, x.url)).join("\n")]),
+      n.body,
+    ]),
+    related: n.related,
+  };
+}
+
+const compare: Renderer = {
+  entries: () => [entry(COMPARE.path, { title: COMPARE.metaTitle, description: COMPARE.metaDescription }, "item")],
+  render: ({ slug }) => (slug === COMPARE.slug ? compareDoc() : null),
+};
+
+function groupDoc(id: string): Doc | null {
+  const p = groupPage(id);
+  if (!p) return null;
+  const facts = groupFacts(id);
+  const moves = MOVES.filter((m) => m.group === id);
+  return {
+    title: p.h1.replace(/\.$/, ""),
+    description: groupMetaDescription(p),
+    updated: dates[groupPath(id)],
+    body: join([
+      ...p.intro,
+      `${facts.count} components, ${facts.clips} with a clip.`,
+      join([heading(2, p.pickLead.replace(/\.$/, "")), table(["Component", "Use it when"], p.picks.map((x) => [link(moveByName(x.name)?.title ?? x.name, `/video-components/${x.name}`), x.when]))]),
+      join([heading(2, `All ${facts.count} components in ${facts.label.toLowerCase()}`), moves.map((m) => item(m.title, `/video-components/${m.name}`, m.use)).join("\n")]),
+      join([heading(2, "Rules that come with this group"), bullets(p.rules)]),
+      join([heading(2, "More video components"), GROUP_PAGES.filter((o) => o.id !== id).map((o) => item(groupFacts(o.id).label, groupPath(o.id))).join("\n")]),
+    ]),
+    related: [...p.more.map((l) => ({ text: l.label, path: l.href })), { text: `All ${MOVES.length} video components`, path: "/video-components" }],
+  };
+}
+
+const moveGroups: Renderer = {
+  entries: () => GROUP_PAGES.map((p) => entry(groupPath(p.id), { title: groupMetaTitle(p), description: groupMetaDescription(p) }, "item")),
+  render: ({ group }) => groupDoc(group),
+};
+
 export const CONTENT_RENDERERS: Record<string, Renderer> = {
   "/": home,
   "/features": features,
@@ -255,4 +314,6 @@ export const CONTENT_RENDERERS: Record<string, Renderer> = {
   "/remotion-alternatives": remotionAlternatives,
   "/hyperframes-alternatives": hyperframesAlternatives,
   "/vs/[slug]": vs,
+  "/compare/[slug]": compare,
+  "/video-components/group/[group]": moveGroups,
 };

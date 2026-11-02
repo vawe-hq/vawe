@@ -3,6 +3,9 @@ import { MoveClips } from "../components/MoveClips";
 import { Next, PageTop, Toc } from "../components/Xp";
 import { jsonLdScript, breadcrumbSchema } from "../../lib/schema";
 import { Footer } from "../components/Footer";
+import { SectionView, TableView } from "../components/RichText";
+import { AltEvidence } from "../components/AltEvidence";
+import { AGENT_COMMANDS, AGENT_FAQ, AGENT_LIMITS, AGENT_PAGE, AGENT_STEPS } from "../../lib/content/ai-agents";
 import { pageMetadata } from "../components/seo";
 import { AGENTS_DESCRIPTION, AGENTS_TITLE } from "../../lib/agent-guide";
 import "../components/intent.css";
@@ -43,12 +46,17 @@ export default function AiAgents() {
               something it would naturally write fails, that is a bug in the engine.
             </p>
             <Toc items={[
+              { href: "#steps", label: "Step by step" },
               { href: "#loop", label: "The loop" },
+              { href: "#commands", label: "Commands" },
               { href: "#judge", label: "The judge" },
               { href: "#skills", label: "Skills" },
               { href: "#wire", label: "Wire it in" },
+              { href: "#faq", label: "Questions" },
             ]} />
           </section>
+
+          <SectionView s={AGENT_STEPS} />
 
           <section className="isec" id="loop">
             <div className="isec-text">
@@ -69,6 +77,14 @@ export default function AiAgents() {
               </div>
             </div>
           </section>
+
+          <section className="iend" id="commands">
+            <h2 className="h2">{AGENT_COMMANDS.title}</h2>
+            <p className="lead">{AGENT_COMMANDS.lead}</p>
+            <TableView t={AGENT_COMMANDS.data} />
+          </section>
+
+          <SectionView s={AGENT_PAGE} />
 
           <section className="isec" id="judge">
             <div className="isec-text">
@@ -116,6 +132,10 @@ export default function AiAgents() {
               </div>
             </div>
           </section>
+
+          <SectionView s={AGENT_LIMITS} />
+
+          <AltEvidence faq={AGENT_FAQ} />
 
           <section className="ifilms">
             <h2>What an agent writes: video components to copy.</h2>

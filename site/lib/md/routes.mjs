@@ -26,6 +26,8 @@ export const RENDERED = [
   "/remotion-alternatives",
   "/hyperframes-alternatives",
   "/vs/[slug]",
+  "/compare/[slug]",
+  "/video-components/group/[group]",
 ];
 
 // The docs are a separate app (vawe-hq/vawe-docs). It serves its own .md and negotiated markdown, and

@@ -3,6 +3,7 @@
 import { clip } from "./clip";
 import { MOVES, groupLabel, type Move } from "./moves";
 import { moveSeoDescription } from "./move-seo";
+import { groupPath } from "./content/move-groups";
 import { FAQ, faqText } from "./faq";
 import { breadcrumbSchema } from "./schema";
 import { INSPIRATION, INSPIRATION_PATH } from "./inspiration";
@@ -67,7 +68,7 @@ export function moveBreadcrumbSchema(m: Move) {
   return breadcrumbSchema([
     { name: "Home", url: "/" },
     { name: "Video components", url: "/video-components" },
-    { name: groupLabel(m.group), url: `/video-components?group=${m.group}` },
+    { name: groupLabel(m.group), url: groupPath(m.group) },
     { name: m.title, url: `/video-components/${m.name}` },
   ]);
 }

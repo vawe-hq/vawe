@@ -43,7 +43,9 @@ export default function RemotionAlternatives() {
           <SectionView s={C.shapes} />
           <SectionView s={C.license} />
           <SectionView s={C.selfHosted} />
+          <SectionView s={C.revideo} />
           <SectionView s={C.json2video} />
+          <SectionView s={C.creatomate} />
 
           <AltEvidence faq={C.faq} />
 

@@ -119,6 +119,8 @@ For the vawe version of the same page, with the install steps and a draft comman
 
 For when byte-identical output decides the choice, read [when determinism matters](/when-determinism-matters).
 
+If you are choosing a tool for an AI agent to drive, read [Claude Code with Remotion or plain HTML](/blog/claude-code-remotion-or-html).
+
 ## FAQ
 
 **Can I make a video with JavaScript only?**

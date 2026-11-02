@@ -112,6 +112,8 @@ We did not run a parallel batch, so we give no speed-up number.
 
 `bin/vawe dev` also prints advice for each page. Our three test pages got advice such as "no brief.md next to the page" and "world held 3 s". The advice does not stop the render. For a batch, write one `brief.md` next to the template, or ignore the advice lines.
 
+One example of a batch is a chart per dataset, shown in [animated chart video](/blog/animated-chart-video).
+
 ## FAQ
 
 **Does vawe have a template or data feature?**

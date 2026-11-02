@@ -5,7 +5,9 @@ import { GROUPS, JOBS, LOOKS, MOVES, MOVES_DESCRIPTION, MOVES_INTRO, MOVES_TITLE
 import { jsonLdScript } from "../../lib/schema";
 import { movesItemListSchema } from "../../lib/schema-content";
 import { MovesGallery } from "./MovesGallery";
+import Link from "next/link";
 import { Next } from "../components/Xp";
+import { GROUP_PAGES, groupFacts, groupPath } from "../../lib/content/move-groups";
 import { Hero } from "./Hero";
 import { MiscSvg } from "./icons";
 import "./moves.css";
@@ -39,6 +41,19 @@ export default function Moves() {
             looks={LOOKS}
             jobs={JOBS.map(({ id, label }) => ({ id, label }))}
           />
+          <div className="mv-sec" id="groups">
+            <h2 className="mv-sec-h">Browse by group</h2>
+            <ul className="mvd-more">
+              {GROUP_PAGES.map((g) => {
+                const f = groupFacts(g.id);
+                return (
+                  <li key={g.id}>
+                    <Link href={groupPath(g.id)} prefetch={false}>{f.label}</Link> ({f.count})
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
           <Next
             title="Copy one into a page."
             lead="Chain video components with the recipes, or hand the list to an agent."

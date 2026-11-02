@@ -29,7 +29,7 @@ The page uses CSS, Web Animations, SVG, canvas or three.js. The agent does not l
 
 ## Start with the request
 
-Install vawe, then start Claude Code in the repository. Claude Code reads `AGENTS.md` when it starts, so it already knows the page contract. Give it one sentence:
+Install vawe, then start Claude Code in the repository. Claude Code reads `CLAUDE.md` when it starts, and that file imports `AGENTS.md`, so it already knows the page contract. Give it one sentence:
 
 ```text
 Make a 6 second film that announces version 2.0 of my CLI tool.
@@ -70,6 +70,8 @@ We ran a weaker model and a stronger model on the same loop. These are the fault
 | Flash length in the agent film against the reference | 0.20 s against 0.07 to 0.10 s | [Can AI agents watch video?](/blog/watch-a-film) |
 
 Three habits follow from this table. First, put the rule in the tool and print the fix in the same line. Second, check the result with a number, because an agent that reads five frames cannot judge timing. Third, never let the session that wrote the page also approve it.
+
+If you only want the short answer, [can Claude make videos](/blog/can-claude-make-videos) gives it in one page.
 
 ## FAQ
 

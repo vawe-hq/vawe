@@ -111,6 +111,8 @@ We rendered the five clips with the script from [export a CSS animation as a vid
 
 vawe ships the same effects as copyable files in the [video components library](/video-components): [per-letter stagger](/video-components/letter-stagger), [scale punch](/video-components/scale-punch), [mask rise](/video-components/mask-rise), [tracking collapse](/video-components/tracking-collapse) and [variable weight wave](/video-components/variable-weight-wave). Each video component file has the snippet, the notes and a sound cue. To see how a page becomes a film, read [render HTML to MP4 with headless Chrome](/blog/render-html-to-mp4).
 
+To time one word at a time to a voice, see [animated captions in HTML](/blog/animated-captions-html).
+
 ## FAQ
 
 **How do I animate text letter by letter in CSS?**

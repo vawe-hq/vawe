@@ -6,6 +6,7 @@ import { Footer } from "../../components/Footer";
 import { MovePlayer } from "../MovePlayer";
 import { pageMetadata } from "../../components/seo";
 import { MOVES, NUMBERED, clip, groupLabel, moveByName, type Ease, type Move } from "../../../lib/moves";
+import { groupPath } from "../../../lib/content/move-groups";
 import { moveAlt } from "../../../lib/move-words";
 import { moreInGroup, moveSeoDescription, moveSeoTitle, relatedMoves } from "../../../lib/move-seo";
 import { jsonLdScript } from "../../../lib/schema";
@@ -97,7 +98,7 @@ export default async function MovePage({ params }: Params) {
             <p className="kicker">
               <Link href="/video-components">Video components</Link>
               <span aria-hidden="true">/</span>
-              <Link href={`/video-components?group=${move.group}`}>{groupLabel(move.group)}</Link>
+              <Link href={groupPath(move.group)}>{groupLabel(move.group)}</Link>
             </p>
             <h1>
               <span className="mvd-no" aria-hidden="true">{two(at + 1)}</span>
@@ -163,7 +164,7 @@ export default async function MovePage({ params }: Params) {
             </ul>
             {more.length ? (
               <>
-                <h3 className="mvd-more-h">More in {groupLabel(move.group)}</h3>
+                <h3 className="mvd-more-h">More in <Link href={groupPath(move.group)}>{groupLabel(move.group)}</Link></h3>
                 <ul className="mvd-more">
                   {more.slice(0, 8).map((m) => (
                     <li key={m.name}><Link href={`/video-components/${m.name}`} prefetch={false}>{m.title}</Link></li>
