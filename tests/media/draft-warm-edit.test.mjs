@@ -9,7 +9,7 @@ import { spawnSync } from 'node:child_process';
 import { renderPage } from '../../harness/media/render-page.mjs';
 
 const PAGE = 'tests/fixtures/pages/zz-warm-edit.html';
-const html = (colour) => `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="duration" content="0.3">
+const html = (colour) => `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="duration" content="0.3"><meta name="blank" content="0-0.3">
 <style>html,body{margin:0;height:100%;background:${colour}}</style></head><body></body></html>`;
 
 function firstPixel(mp4) {

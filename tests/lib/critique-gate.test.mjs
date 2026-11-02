@@ -90,8 +90,22 @@ test('a critique verb records the page digest; other verbs do not', () => {
   assert.equal('pageHash' in verbEvent({ ...base, verb: 'dev' }), false);
 });
 
+function gateRoot() {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-gate-script-'));
+  for (const dir of ['harness', 'core', 'taste', 'films/examples/colour-sting']) fs.cpSync(path.join(REPO, dir), path.join(root, dir), { recursive: true });
+  fs.cpSync(path.join(REPO, 'package.json'), path.join(root, 'package.json'));
+  return root;
+}
+
+const runGate = (unattended) => {
+  const root = gateRoot();
+  const r = spawnSync('node', ['harness/live/ship-approval.mjs', 'films/examples/colour-sting/page.html'], { cwd: root, encoding: 'utf8', env: { ...process.env, VAWE_UNATTENDED: unattended } });
+  fs.rmSync(root, { recursive: true, force: true });
+  return r;
+};
+
 test('the ship gate script prints every refusal with its command and exits 1', () => {
-  const r = spawnSync('node', ['harness/live/ship-approval.mjs', 'films/examples/colour-sting/page.html'], { cwd: REPO, encoding: 'utf8', env: { ...process.env, VAWE_UNATTENDED: '' } });
+  const r = runGate('');
   assert.equal(r.status, 1);
   const lines = r.stderr.trim().split('\n');
   assert.equal(lines.length, 2);
@@ -100,7 +114,7 @@ test('the ship gate script prints every refusal with its command and exits 1', (
 });
 
 test('the ship gate script says so when it lets an unattended run through', () => {
-  const r = spawnSync('node', ['harness/live/ship-approval.mjs', 'films/examples/colour-sting/page.html'], { cwd: REPO, encoding: 'utf8', env: { ...process.env, VAWE_UNATTENDED: '1' } });
+  const r = runGate('1');
   assert.equal(r.status, 0);
   assert.match(r.stdout, /ship runs unattended: no fresh review and no OK from the person checked/);
 });

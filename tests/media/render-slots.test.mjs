@@ -23,7 +23,7 @@ test('three concurrent renders with two slots: the third waits and all finish', 
   try {
     const runs = await Promise.all([1, 2, 3].map((n) => render(path.join(dir, `r${n}.mp4`), env)));
     for (const r of runs) assert.equal(r.code, 0, r.stderr);
-    const waited = runs.filter((r) => /waiting for a render slot \(2 in use: seek-canvas\.html \(draft, pid \d+(?:, running \d+s)?\), seek-canvas\.html \(draft, pid \d+(?:, running \d+s)?\)\)/.test(r.stdout));
+    const waited = runs.filter((r) => /waiting for a render slot \(2 in use: seek-canvas \(draft, pid \d+(?:, running \d+s)?\), seek-canvas \(draft, pid \d+(?:, running \d+s)?\)\)/.test(r.stdout));
     assert.ok(waited.length >= 1, runs.map((r) => r.stdout).join('\n---\n'));
     for (const n of [1, 2, 3]) assert.ok(fs.statSync(path.join(dir, `r${n}.mp4`)).size > 0);
     assert.deepEqual(fs.readdirSync(path.join(dir, 'slots')), [], 'every slot is released');

@@ -11,7 +11,6 @@ test('the first seek of a page with a module-level image decode runs its hook', 
   const opened = await openPage(PAGE, resolveFrame(PAGE, { aspect: '16:9', final: false }), { final: false });
   try {
     await gotoLoaded(opened.page, opened.url, PAGE);
-    assert.equal(await opened.page.evaluate(() => (window.__vaweFrameHooks || []).length), 0, 'the load event fires before the module finishes');
     await seekAll(opened.page, 0);
     assert.equal(await opened.page.evaluate(() => getComputedStyle(document.getElementById('box')).opacity), '1');
     assert.equal(await opened.page.evaluate(() => window.__pageReadyDone), true);

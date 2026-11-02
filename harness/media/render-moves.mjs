@@ -216,8 +216,8 @@ function fitBudget(name) {
 }
 
 /** Writes the 12-frame contact sheet of a rendered clip with the code of `vawe frame --at s,s,s` and returns its path. */
-export function writeClipSheet(name, out = path.join(ROOT, 'out', 'moves', `${name}-sheet.png`)) {
-  const r = spawnSync(process.execPath, ['harness/media/sheet.mjs', path.join(MOVES, `${name}.mp4`), '--out', out], { cwd: ROOT, encoding: 'utf8' });
+export function writeClipSheet(name, out = path.join(ROOT, 'out', 'moves', `${name}-sheet.png`), moves = MOVES) {
+  const r = spawnSync(process.execPath, ['harness/media/sheet.mjs', path.join(moves, `${name}.mp4`), '--out', out], { cwd: ROOT, encoding: 'utf8' });
   if (r.status !== 0) throw new Error(`the sheet of ${name} failed: ${(r.stderr || r.stdout).trim()}`);
   return out;
 }
