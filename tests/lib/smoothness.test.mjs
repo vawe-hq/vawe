@@ -39,7 +39,7 @@ test('a jump at a detected hard cut is excused within the sampling tolerance', (
 });
 
 test('hardJumps lists the seconds over the jump size', () => {
-  assert.deepEqual(hardJumps([1, 30, 1, 26]), [2 / 30, 4 / 30]);
+  assert.deepEqual(hardJumps([1, 30, 1, 26]), [{ t: 2 / 30, mag: 30 }, { t: 4 / 30, mag: 26 }]);
 });
 
 test('the first frames of a fast move from rest are not a jerky step; a spike inside a moving run is', () => {
@@ -56,8 +56,9 @@ test('a hard cut between worlds is not a speed change inside a move; a spike els
   assert.equal(smoothness(diffs, { worldCuts: [10 / 30] }).jerky.length, 3);
 });
 
-test('a jump inside a declared wipe span is a cut; just past it is a jump', () => {
-  const diffs = [...steady(9, 2), 60, ...steady(9, 2)];
-  assert.equal(smoothness(diffs, { cutSpans: [[0.2, 0.5]] }).jumps.length, 0);
-  assert.equal(smoothness(diffs, { cutSpans: [[0.0, 0.2]] }).jumps.length, 1);
+test('inside a declared wipe span only the largest jump is the cut; a glitch frame beside it still counts', () => {
+  const diffs = [...steady(9, 2), 40, 60, ...steady(9, 2)];
+  const r = smoothness(diffs, { cutSpans: [[0.2, 0.5]] });
+  assert.deepEqual(r.jumps.map((j) => +(j.t * 30).toFixed(0)), [10]);
+  assert.equal(smoothness(diffs, { cutSpans: [[0.0, 0.2]] }).jumps.length, 2);
 });

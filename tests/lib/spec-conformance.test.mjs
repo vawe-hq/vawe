@@ -139,17 +139,21 @@ test('measuredSpec: the measured times per word and per object, for spec-sync', 
 
 test('cutChecks: a hard jump near a shot start must land within one frame; soft changes are left alone', () => {
   const shots = [{ id: 'S1', start: 0 }, { id: 'S2', start: 2 }, { id: 'S3', start: 4 }];
-  const checks = cutChecks(shots, [2.1], 30);
+  const checks = cutChecks(shots, [{ t: 2.1, mag: 50 }], 30);
   assert.equal(checks.length, 1);
   assert.equal(Math.round(checks[0].dev), 3);
-  assert.deepEqual(cutChecks(shots, [2.03], 30).map((c) => c.dev <= 1), [true]);
+  assert.deepEqual(cutChecks(shots, [{ t: 2.03, mag: 50 }], 30).map((c) => c.dev <= 1), [true]);
   assert.match(checkLines(checks, 1)[0], /S2 cut: spec 2.00 s, film 2.10 s \(3.0 frames off\)/);
 });
 
-test('cutChecks: a jump inside the wipe the Shots overlap declares is on the cut', () => {
+test('cutChecks: the largest jump inside the declared wipe is the cut; the span is capped at 1 s and sorted by time', () => {
   const shots = [{ id: 'S1', start: 0, end: 2.3 }, { id: 'S2', start: 2, end: 4 }];
   assert.deepEqual(cutSpans(shots), [[2, 2.3]]);
-  assert.equal(cutChecks(shots, [2.23], 30)[0].dev, 0);
-  assert.ok(cutChecks(shots, [2.4], 30)[0].dev > 1);
-  assert.ok(cutChecks([{ id: 'S1', start: 0, end: 2 }, { id: 'S2', start: 2 }], [2.23], 30)[0].dev > 1);
+  const jumps = [{ t: 2.1, mag: 30 }, { t: 2.23, mag: 60 }];
+  assert.equal(cutChecks(shots, jumps, 30)[0].got, 2.23);
+  assert.equal(cutChecks(shots, jumps, 30)[0].dev, 0);
+  assert.ok(cutChecks(shots, [{ t: 2.4, mag: 60 }], 30)[0].dev > 1);
+  assert.ok(cutChecks([{ id: 'S1', start: 0, end: 2 }, { id: 'S2', start: 2 }], [{ t: 2.23, mag: 60 }], 30)[0].dev > 1);
+  assert.deepEqual(cutSpans([{ start: 0, end: 9 }, { start: 3, end: 9 }, { start: 5, end: 9 }]), [[3, 4], [5, 6]]);
+  assert.deepEqual(cutSpans([{ start: 0, end: 9 }, { start: 5, end: 6 }, { start: 3, end: 9 }]), [[3, 4], [5, 6]]);
 });

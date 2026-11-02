@@ -4,6 +4,7 @@
 // depend on the spec value. The samples are the draft's text probe (harness/media/draft-check.mjs sampleSpec).
 import { RULES } from './draft-check.mjs';
 import { FPS } from '../media/motion-curve.mjs';
+import { biggestJump } from './smoothness.mjs';
 
 const COARSE_FRAMES = 8;
 const REST_SHARE = 0.005;
@@ -148,25 +149,27 @@ export function measuredSpec(words, times, objects, worlds = []) {
   return { words: words.map((w, i) => ({ text: w.text, appear: times[i]?.appear ?? null, settle: times[i]?.settle ?? null })), objects: [...byId.values()], worlds };
 }
 
-/**
- * [start, end] seconds of each transition into a shot after the first: a shot that starts before the previous one ends
- * (the Shots table overlap) is a wipe or fade that long, and its picture may jump anywhere inside. Pure.
- */
-export const cutSpans = (shots) => shots.slice(1).flatMap((s, i) => (has(s.start) ? [[s.start, Math.max(s.start, has(shots[i].end) ? shots[i].end : s.start)]] : []));
+export const WIPE_MAX_S = 1;
 
 /**
- * Each shot start after the first is a cut in the spec. Where the film has a hard jump within half a second,
- * the cut must land within one frame, or anywhere inside the transition the table overlap declares; with no jump nearby
+ * [start, end] seconds of each transition into a shot after the first, by time: a shot that starts before the previous one ends
+ * (the Shots table overlap) is a wipe or fade that long, at most WIPE_MAX_S, and its picture may jump inside it. Pure.
+ */
+export const cutSpans = (shots) => shots.slice(1).flatMap((s, i) => (has(s.start) ? [[s.start, Math.min(s.start + WIPE_MAX_S, Math.max(s.start, has(shots[i].end) ? shots[i].end : s.start))]] : []))
+  .sort((a, b) => a[0] - b[0]);
+
+/**
+ * Each shot start after the first is a cut in the spec. `jumps` is hardJumps' { t, mag }. Where the film has a hard jump within half a second,
+ * the cut must land within one frame, or be the largest picture change inside the transition the table overlap declares; with no jump nearby
  * the shot change is a soft transition and is left alone. Pure.
  */
 export function cutChecks(shots, jumps, fps = 30) {
   const out = [];
   shots.slice(1).forEach((s, i) => {
     if (!has(s.start)) return;
-    const [a, b] = cutSpans([shots[i], s])[0];
-    const inside = jumps.find((j) => j >= a - 1e-9 && j <= b + 1e-9);
-    const nearest = inside ?? jumps.filter((j) => Math.abs(j - s.start) <= 0.5).sort((x, y) => Math.abs(x - s.start) - Math.abs(y - s.start))[0];
-    if (nearest !== undefined) out.push({ label: `${s.id} cut`, spec: s.start, got: nearest, dev: inside === undefined ? Math.abs(nearest - s.start) * fps : 0, unit: 's', frames: true });
+    const inside = biggestJump(jumps, cutSpans([shots[i], s])[0]);
+    const nearest = inside ?? jumps.filter((j) => Math.abs(j.t - s.start) <= 0.5).sort((x, y) => Math.abs(x.t - s.start) - Math.abs(y.t - s.start))[0];
+    if (nearest !== undefined) out.push({ label: `${s.id} cut`, spec: s.start, got: nearest.t, dev: inside === undefined ? Math.abs(nearest.t - s.start) * fps : 0, unit: 's', frames: true });
   });
   return out;
 }
