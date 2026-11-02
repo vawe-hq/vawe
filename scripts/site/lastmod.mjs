@@ -5,6 +5,7 @@
 //   /            site/app/page.tsx
 //   /features    site/app/features/page.tsx
 //   /easing/x    site/app/easing/[name]/page.tsx (any one dynamic folder)
+//   a page also takes the newest date of the site/lib/content modules it imports (route-sources.mjs)
 //   /docs        content/docs/index.mdx in the docs checkout (DOCS_DIR)
 //   /docs/x      content/docs/x.mdx in the docs checkout
 import fs from 'node:fs';
@@ -12,6 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { docsDir } from './docs-dir.mjs';
 import { lastCommitDate } from './last-commit.mjs';
+import { newest, routeSources } from './route-sources.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const OUT = path.join(root, 'site', 'lib', 'lastmod.json');
@@ -42,7 +44,8 @@ const out = {};
 for (const { path: route } of [...pages.routes, ...pages.docs]) {
   const isDoc = route.startsWith('/docs');
   const file = sourceOf(route);
-  const date = file && fs.existsSync(file) ? lastCommitDate(file) : null;
+  const files = file && fs.existsSync(file) ? (isDoc ? [file] : routeSources(file)) : [];
+  const date = newest(files.map(lastCommitDate));
   const value = date ?? (isDoc && !docsHere ? committed[route] : null);
   if (value) out[route] = value;
 }

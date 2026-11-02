@@ -43,12 +43,12 @@ export const RIVALS: Rival[] = [
     intro:
       "Remotion makes video from React components. vawe makes video from one HTML page. Both render in headless Chrome. This page compares them on authoring, rendering, licence and agent support, and says where Remotion is stronger.",
     what:
-      "Remotion is a framework to make videos programmatically with React. You write components, preview them in Remotion Studio, and render with Remotion locally or on AWS Lambda or Google Cloud Run.",
+      "Remotion is a framework to make videos programmatically with React. You write components, preview them in Remotion Studio, and render with Remotion locally or on AWS Lambda. Its Google Cloud Run renderer is in alpha and not actively developed.",
     stronger: [
-      "Community and history. The Remotion site lists more than 5 million monthly npm installs and 10,000 Discord members, and the GitHub repo showed about 70,000 stars on 2026-11-03.",
+      "Community and history. The Remotion site lists more than 6 million monthly installs and 12,000 Discord members, and the GitHub repo showed about 70,000 stars on 2026-11-03.",
       "Distributed rendering. Remotion Lambda splits a render across several functions and stitches the result. vawe renders on one machine.",
       "A React model. If your team already writes React, components, props and a Player you can embed in an app come with it.",
-      "Documentation volume. The site lists about 1,000 documentation pages.",
+      "Documentation volume. The site lists about 1,200 documentation pages.",
     ],
     chooseThem: [
       "Your team already writes React and wants video in the same component model.",
@@ -381,10 +381,10 @@ export const RIVALS: Rival[] = [
       },
     ],
     sources: [
-      { label: "Revideo README", url: "https://github.com/redotvideo/revideo" },
-      { label: "Revideo README (raw)", url: "https://raw.githubusercontent.com/redotvideo/revideo/main/README.md" },
+      { label: "Revideo README", url: "https://github.com/midrender/revideo" },
+      { label: "Revideo README (raw)", url: "https://raw.githubusercontent.com/midrender/revideo/main/README.md" },
       { label: "Revideo docs (redirect from docs.re.video)", url: "https://midrender.com/revideo/docs" },
-      { label: "Revideo releases and tags", url: "https://github.com/redotvideo/revideo/tags" },
+      { label: "Revideo releases and tags", url: "https://github.com/midrender/revideo/tags" },
     ],
     related: [
       { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },

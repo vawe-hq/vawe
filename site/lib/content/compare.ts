@@ -14,7 +14,7 @@ export const COMPARE_REMOTION_HYPERFRAMES = {
   read: READ,
   metaTitle: "Remotion vs HyperFrames vs vawe: video from code",
   metaDescription:
-    "Remotion writes video in React. HyperFrames and vawe write it in HTML. A sourced three-way comparison of authoring, time model, licence, rendering and agent support, read from each tool’s own docs.",
+    "Remotion writes video in React; HyperFrames and vawe use HTML. A sourced three-way comparison of authoring, time, licence, rendering and agents.",
   h1: "Remotion vs HyperFrames vs vawe.",
   intro:
     "Three tools make video from code. Remotion uses React components. HyperFrames and vawe use HTML. This page compares the three on authoring, how each handles time, licence, rendering targets and agent support. It also says where each one is stronger.",
@@ -32,7 +32,7 @@ export const COMPARE_REMOTION_HYPERFRAMES = {
       items: [
         "Your team writes React and wants video in the same component model.",
         "You need an embeddable Player, a Studio editor, or rendering on AWS Lambda.",
-        "Your company has three people or fewer, or you can buy a Company License.",
+        "Your company has three people or fewer, or you can buy a Company License. Non-profits are free.",
       ],
     },
     {
@@ -73,7 +73,7 @@ export const COMPARE_REMOTION_HYPERFRAMES = {
     },
     {
       feature: "Cost for a company of 4 or more",
-      remotion: { text: "Company License: $0.01 per render with a $100 a month minimum (Automators), or $25 a month per seat (Creators). Free for individuals and up to three people." },
+      remotion: { text: "Company License: $0.01 per render with a $100 a month minimum (Automators), or $25 a month per seat (Creators). Free for individuals, non-profits and up to three people." },
       hyperframes: { text: "None. The README says: no per-render fees or commercial-use thresholds." },
       vawe: { text: "None. Apache-2.0." },
     },
@@ -85,7 +85,7 @@ export const COMPARE_REMOTION_HYPERFRAMES = {
     },
     {
       feature: "Wall-clock and random calls in the page",
-      remotion: { text: "Not stated on the pages read." },
+      remotion: { text: "Math.random() breaks at render; use random(seed).", mark: "partial" },
       hyperframes: { text: "Forbidden: Date.now(), requestAnimationFrame, system timers, unseeded Math.random.", mark: "partial" },
       vawe: { text: "Allowed. A virtual clock replaces Date, requestAnimationFrame, timers and Math.random with functions of the seek time.", mark: "yes" },
     },
@@ -142,7 +142,7 @@ export const COMPARE_REMOTION_HYPERFRAMES = {
     },
     {
       q: "Do I need to avoid Date.now() and Math.random?",
-      a: "In HyperFrames, yes: its determinism page forbids them in a composition. In vawe, no: a virtual clock replaces them. Check the Remotion docs before you rely on either in a React composition.",
+      a: "In HyperFrames, yes: its determinism page forbids them in a composition. In vawe, no: a virtual clock replaces them. Remotion’s docs say Math.random() breaks at render and offer random(seed).",
     },
     {
       q: "Which one renders in the cloud?",
@@ -153,6 +153,7 @@ export const COMPARE_REMOTION_HYPERFRAMES = {
     { label: "Remotion site", url: "https://www.remotion.dev/" },
     { label: "Remotion fundamentals", url: "https://www.remotion.dev/docs/the-fundamentals" },
     { label: "Remotion render docs", url: "https://www.remotion.dev/docs/render" },
+    { label: "Remotion randomness docs", url: "https://www.remotion.dev/docs/using-randomness" },
     { label: "Remotion Lambda docs", url: "https://www.remotion.dev/docs/lambda" },
     { label: "Remotion Cloud Run docs", url: "https://www.remotion.dev/docs/cloudrun" },
     { label: "Remotion Agent Skills docs", url: "https://www.remotion.dev/docs/ai/skills" },

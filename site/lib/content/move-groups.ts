@@ -15,6 +15,8 @@ export type GroupPage = {
   more: Link[];
 };
 
+const count = (id: string) => MOVES.filter((m) => m.group === id).length;
+
 const PAGES: GroupPage[] = [
   {
     id: "reveal-a-title",
@@ -23,7 +25,7 @@ const PAGES: GroupPage[] = [
     descriptionLead: "Text reveal animations for video in CSS and Web Animations: masked rises, staggers, typing, captions and 3D letter rolls.",
     intro: [
       "The first words on screen set the tone of a film, so how they arrive matters more than how they leave. This group holds every way a line of type enters: from under a mask, letter by letter, typed, flipped, scrambled, or wiped in as a caption.",
-      "The house rule is that an entrance is a move, not only a fade. Each component is a CSS and Web Animations snippet with the exact stagger, curve and timing written out, so an agent copies it and changes the words.",
+      "Each component is a CSS and Web Animations snippet with the exact stagger, curve and timing written out, so an agent copies it and changes the words.",
     ],
     pickLead: "Pick by what the copy is, not by the effect.",
     picks: [
@@ -83,8 +85,8 @@ const PAGES: GroupPage[] = [
     titleLead: "CSS highlight animation",
     descriptionLead: "Highlight and callout animations in CSS for video: underline draw, marker bar, brackets and spotlight dim that point at one word.",
     intro: [
-      "Seven small components answer one question: where should the viewer look now? Each one marks a word or a part of the interface without moving the rest of the frame.",
-      "They are the shortest clips on the site, most between 1 and 1.5\u00a0seconds, because a pointer that lingers becomes decoration. Use them on a line that is already on screen and already readable.",
+      `${count("point-the-eye")} small components answer one question: where should the viewer look now? Each one marks a word or a part of the interface without moving the rest of the frame.`,
+      "Most of the clips run between 1 and 1.5\u00a0seconds, because a pointer that lingers becomes decoration. Use them on a line that is already on screen and already readable.",
     ],
     pickLead: "Pick by how loud the pointer should be.",
     picks: [
@@ -113,8 +115,8 @@ const PAGES: GroupPage[] = [
     titleLead: "CSS camera move animation",
     descriptionLead: "Camera move animations for HTML video: push, pull, parallax dive, rack focus and crash zoom, built from one scale and one translate.",
     intro: [
-      "A camera move in a page is a transform on a wrapper. Push toward a subject, pull back to the whole, fly through layers at real depths, or move focus from near to far. The group has 16 of these, plus the lens and gradient grounds that make a still frame feel filmed.",
-      "Scale runs on a log path, so a zoom reads at an even speed instead of racing at the end. The camera holds still by default: motion earns its place only where the story moves.",
+      "A camera move in a page is a transform on a wrapper. Push toward a subject, pull back to the whole, fly through layers at real depths, or move focus from near to far. The group also holds the lens, which films a screen as a real object, and a gradient ground that moves under the title.",
+      "Scale runs on a log path, so a zoom reads at an even speed instead of racing at the end. The camera holds still by default.",
     ],
     pickLead: "Pick by what the camera should discover.",
     picks: [
@@ -144,7 +146,7 @@ const PAGES: GroupPage[] = [
     titleLead: "End card and outro animation",
     descriptionLead: "End card, logo sting and outro animations in HTML and CSS: a mark lands, a name settles and a call to action closes the film.",
     intro: [
-      "The last two seconds are the part a viewer keeps. These ten components close a film: a logo hit, a wordmark that falls into place, a mark that draws itself, a quiet lockup, a thank-you sweep and the call to action.",
+      `These ${count("end-a-film")} components close a film: a logo hit, a wordmark that falls into place, a mark that draws itself, a quiet lockup, a thank-you sweep and the call to action.`,
       "Six of them carry the same note: use once per film. An ending that repeats an earlier gesture feels like a template, so each one is built to be the single closing beat.",
     ],
     pickLead: "Pick by how the film should feel when it stops.",
@@ -174,7 +176,7 @@ const PAGES: GroupPage[] = [
     titleLead: "Product UI animation for video",
     descriptionLead: "Product UI animations in CSS for demo and launch video: cursor click, count-up, chart build, AI stream, terminal run and diff cards.",
     intro: [
-      "A product film shows the product working. These 21 components are the moments a launch or demo film is made of: a cursor that clicks, a number that counts, a chart that builds, an agent that works through steps, a pull request that merges.",
+      `A product film shows the product working. These ${count("product-moments")} components are the moments a launch or demo film is made of: a cursor that clicks, a number that counts, a chart that builds, an agent that works through steps, a pull request that merges.`,
       "Several copy a real interface on purpose: terminal-run is a Claude Code terminal, model-picker is the claude.ai menu, diff-card is a GitHub pull request. They move as the real surface moves, so a viewer who knows the product trusts the frame.",
     ],
     pickLead: "Pick by the claim the beat has to prove.",

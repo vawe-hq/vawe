@@ -115,7 +115,7 @@ paid "Company License":
         ],
       },
     ],
-    cite: "github.com/redotvideo/revideo, midrender.com/revideo/docs · read 2026-11-03",
+    cite: "github.com/midrender/revideo, midrender.com/revideo/docs · read 2026-11-03",
   } as Section,
   creatomate: {
     id: "creatomate",
