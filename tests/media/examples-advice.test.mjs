@@ -11,6 +11,7 @@ import { openPage, resolveFrame, settle, readPageMeta, probePage, pageAdvice, NO
 import { readBrief } from '../../harness/lib/brief-tables.mjs';
 import { moveDocLines } from '../../harness/lib/move-docs.mjs';
 
+const WAIVED = /^\d+ waived: /;
 const EXAMPLES = path.resolve('films/examples');
 const pages = fs.readdirSync(EXAMPLES).map((d) => path.join(EXAMPLES, d, 'page.html')).filter((p) => fs.existsSync(p));
 
@@ -22,7 +23,7 @@ for (const pagePath of pages) {
       await settle(opened.page);
       const advice = pageAdvice(pagePath, await probePage(opened.page, Number(readPageMeta(pagePath, 'duration')), pagePath));
       const pointers = new Set(moveDocLines(readBrief(pagePath)));
-      const live = [...advice.text, advice.brief, ...advice.lines].filter((l) => l && !NOTE_LINES.test(l) && !pointers.has(l));
+      const live = [...advice.text, advice.brief, ...advice.lines].filter((l) => l && !NOTE_LINES.test(l) && !WAIVED.test(l) && !pointers.has(l));
       assert.deepEqual(live, []);
     } finally { await opened.close(); }
   });

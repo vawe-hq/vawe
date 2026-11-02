@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { VERBS } from '../../harness/cli/verbs.mjs';
+import { DEV_VERBS } from '../../harness/dev/verbs.mjs';
 import { UsageError } from '../../harness/cli/parse.mjs';
 import { isAspect, aspectProblem, aspectSlug, aspectValue, renderEnv, paramsFilm, paramsFlags, ASPECT_ENV } from '../../harness/lib/page-params.mjs';
 import { resolveFrame, defaultOut } from '../../harness/media/render-page.mjs';
@@ -118,7 +119,7 @@ test('--out of a page still must be a PNG: a .jpg would hold PNG bytes under the
   assert.equal(fs.existsSync(out), false);
 });
 
-const build = (name, v, input) => VERBS.find((x) => x.name === name).build(v, [input]);
+const build = (name, v, input) => [...VERBS, ...DEV_VERBS].find((x) => x.name === name).build(v, [input]);
 
 test('--aspect all is a dev and ship batch: frame (a frame or a sheet) and approve refuse it', () => {
   for (const [name, v] of [['frame', { at: '0', aspect: 'all' }], ['frame', { aspect: 'all' }], ['approve', { aspect: 'all' }]]) {

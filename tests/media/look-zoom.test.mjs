@@ -146,11 +146,12 @@ test('commonBox: picks the region bright in both films, not the densest one of f
   assert.equal(commonBox(plane(...stripes), plane([1000, 600, 1100, 640])), null);
 });
 
-test('verbs: zoom is registered and builds a step, and look is part of see', () => {
-  const zoom = VERBS.find((v) => v.name === 'zoom');
-  const [zs] = zoom.build({ at: '2', box: '0,0,240,135', scale: 3, vs: 'ref-a' }, ['a.mp4']);
+test('verbs: zoom is a mode of frame, and look is part of see', () => {
+  const frame = VERBS.find((v) => v.name === 'frame');
+  const [zs] = frame.build({ at: '2', box: '0,0,240,135', scale: 3, vs: 'ref-a' }, ['a.mp4']);
   assert.deepEqual(zs.args.slice(0, 3), ['a.mp4', '--at', '2']);
   assert.ok(zs.args.includes('--vs'));
-  assert.throws(() => zoom.build({ scale: 3 }, ['a.mp4']), /--at/);
+  assert.throws(() => frame.build({ box: '0,0,240,135', scale: 3 }, ['a.mp4']), /--at/);
+  assert.equal(VERBS.some((v) => v.name === 'zoom'), false);
   assert.equal(VERBS.some((v) => v.name === 'look'), false);
 });

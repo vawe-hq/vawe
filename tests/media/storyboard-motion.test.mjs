@@ -11,7 +11,7 @@ import { spawnSync } from 'node:child_process';
 const PAGE = path.resolve('tests/fixtures/pages/storyboard-lockstep/page.html');
 const run = (page) => {
   const out = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'sb-motion-')), 'board.html');
-  const r = spawnSync('node', ['harness/media/storyboard.mjs', page, '--out', out], { encoding: 'utf8' });
+  const r = spawnSync('node', ['harness/media/storyboard.mjs', page, '--out', out, '--all'], { encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
   return r.stdout;
 };
