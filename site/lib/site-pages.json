@@ -22,6 +22,41 @@
       "label": "Video components"
     },
     {
+      "path": "/video-components/group/reveal-a-title",
+      "priority": 0.7,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/video-components/group/change-between-shots",
+      "priority": 0.7,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/video-components/group/point-the-eye",
+      "priority": 0.7,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/video-components/group/move-the-camera",
+      "priority": 0.7,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/video-components/group/end-a-film",
+      "priority": 0.7,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/video-components/group/product-moments",
+      "priority": 0.7,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/video-components/group/grounds",
+      "priority": 0.7,
+      "changeFrequency": "monthly"
+    },
+    {
       "path": "/easing",
       "priority": 0.8,
       "changeFrequency": "monthly",
