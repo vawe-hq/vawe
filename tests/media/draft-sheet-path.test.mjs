@@ -9,5 +9,7 @@ test('the default draft keeps its <name>.png sheet', () => {
 
 test('a draft written to a named --out never takes the author png beside it', () => {
   assert.equal(draftSheetPath('x.mp4'), 'x-sheet.png');
+  assert.equal(draftSheetPath('my-draft.mp4'), 'my-draft-sheet.png');
+  assert.equal(draftSheetPath('/w/my-draft.mp4'), '/w/my-draft-sheet.png');
   assert.equal(draftSheetPath('/tmp/a/b.mp4'), '/tmp/a/b-sheet.png');
 });

@@ -26,10 +26,11 @@ function motionPerFrame(video, fps) {
   return motion;
 }
 
-/** Where a draft's sheet goes: next to the mp4 as <name>.png for the default out/<film>-draft*.mp4, else <name>-sheet.png, so a --out never overwrites an author's own png. */
+/** Where a draft's sheet goes: next to the mp4 as <name>.png for the default out/<film>-draft[-from-to].mp4, else <name>-sheet.png, so a --out never overwrites an author's own png. */
 export function draftSheetPath(video) {
   const { dir, name } = path.parse(video);
-  return path.join(dir, /-draft(-|$)/.test(name) ? `${name}.png` : `${name}-sheet.png`);
+  const isDefault = path.basename(dir) === 'out' && /-draft(-\d+(\.\d+)?-(\d+(\.\d+)?|end))?$/.test(name);
+  return path.join(dir, isDefault ? `${name}.png` : `${name}-sheet.png`);
 }
 
 /** The frame numbers to show: EVEN evenly spaced ones plus the frame of fastest motion, ascending. */
