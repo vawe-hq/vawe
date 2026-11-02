@@ -18,7 +18,7 @@ test('clipFacts: a master older than the lock is not used', () => {
   const warnings = [];
   const facts = clipFacts(file, recorded, 'bbbbbbbbbbbb', 'x', (w) => warnings.push(w));
   assert.deepEqual(facts, recorded);
-  assert.match(warnings[0], /prompts\/moves\/x\.mp4 is older than the lock: bin\/vawe moves --only x/);
+  assert.match(warnings[0], /prompts\/moves\/x\.mp4 is older than the lock: bin\/vawe-dev moves --only x/);
 });
 
 test('clipFacts: a master that is the lock clip is read', () => {
@@ -34,7 +34,7 @@ test('clipFacts: a lock clip newer than moves.json prints the render command', (
   const facts = clipFacts('/no/such/x.mp4', recorded, 'bbbbbbbbbbbb', 'x', (w) => warnings.push(w));
   assert.deepEqual(facts, recorded);
   assert.equal(warnings.length, 1);
-  assert.match(warnings[0], /x: render newer than the site copy: bin\/vawe moves --only x, then node scripts\/site\/moves\.mjs --clips/);
+  assert.match(warnings[0], /x: render newer than the site copy: bin\/vawe-dev moves --only x, then node scripts\/site\/moves\.mjs --clips/);
 });
 
 test('clipFacts: no master and no lock clip keeps the record without a word', () => {

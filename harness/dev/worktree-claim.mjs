@@ -2,7 +2,7 @@
 import { addClaim, removeClaim } from '../lib/worktree-claims.mjs';
 
 const [cmd, name, ...rest] = process.argv.slice(2);
-if (!cmd || !name) { console.error('usage: bin/vawe claim add|rm <name> [branch] [scope ...]'); process.exit(2); }
+if (!cmd || !name) { console.error('usage: bin/vawe-dev claim add|rm <name> [branch] [scope ...]'); process.exit(2); }
 
 if (cmd === 'rm') { removeClaim(name); process.exit(0); }
 if (cmd !== 'add') { console.error(`unknown command: ${cmd}`); process.exit(2); }

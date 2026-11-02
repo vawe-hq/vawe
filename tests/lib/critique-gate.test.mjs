@@ -52,17 +52,18 @@ test('a critique from the session that rendered the draft refuses, whatever its 
   const problem = gate(f, [dev, same]);
   assert.match(problem, /ran in the session that rendered the draft/);
   assert.ok(problem.endsWith(`bin/vawe critique ${f.page}`));
-  assert.match(gate(f, [dev, critique({ pageHash: f.digest, session: 's1', agent: 'critic' })]), /bin\/vawe judge .* --fresh.*separate terminal VAWE_AGENT=critic/);
+  assert.match(gate(f, [dev, critique({ pageHash: f.digest, session: 's1', agent: 'critic' })]), /bin\/vawe critique \S+ --fresh.*separate terminal VAWE_AGENT=critic/);
   assert.equal(gate(f, [dev, critique({ pageHash: f.digest, session: null, agent: 'critic#ab' })]), null);
 });
 
-test('a fresh judge verdict on the current page passes; one on an older page refuses and names judge first', () => {
+test('a fresh judge verdict on the current page passes; one on an older page refuses and names critique --fresh, never judge', () => {
   const f = film();
   assert.equal(gate(f, [dev, judged({ pageHash: f.digest })]), null);
   const old = gate(f, [dev, judged({ pageHash: 'old' })]);
   assert.match(old, /no fresh review of the current page/);
-  assert.ok(old.indexOf('bin/vawe judge') < old.indexOf('bin/vawe critique'));
-  assert.match(old, /exit 2 means the claude CLI is missing, then use the critique/);
+  assert.match(old, new RegExp(`run bin/vawe critique ${f.page} --fresh `));
+  assert.doesNotMatch(old, /judge/);
+  assert.match(old, /exit 2 means the claude CLI is missing/);
   assert.match(gate(f, [dev, judged()]), /no fresh review/);
 });
 

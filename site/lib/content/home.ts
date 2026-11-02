@@ -70,7 +70,7 @@ export const HOME = {
     docs: { href: "/docs", label: "Read the docs" } as Link,
     install: [
       { cmd: "npm install", note: "Node 22+, ffmpeg" },
-      { cmd: "bin/vawe doctor", note: "checks each tool" },
+      { cmd: "bin/vawe-dev doctor", note: "checks each tool" },
     ] as Command[],
   },
 };

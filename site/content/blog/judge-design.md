@@ -98,7 +98,7 @@ Do not use it either if you dismiss what it says. Our judge reported a shrinking
 
 ## How to use it
 
-Run `bin/vawe judge <page> --fresh` for a score in a separate headless session, never in the session that wrote the page. The [quality gates docs](/docs/quality-gates) list the other checks. For the checks around the judge, read [reward hacking in AI agents](/blog/loophole-audit) and [AI agent guardrails](/blog/advise-refuse). The harness around the judge is in [AI agent harness: design for the weaker model](/blog/weaker-model).
+Run `bin/vawe-dev judge <page> --fresh` for a score in a separate headless session, never in the session that wrote the page. The [quality gates docs](/docs/quality-gates) list the other checks. For the checks around the judge, read [reward hacking in AI agents](/blog/loophole-audit) and [AI agent guardrails](/blog/advise-refuse). The harness around the judge is in [AI agent harness: design for the weaker model](/blog/weaker-model).
 
 ## FAQ
 

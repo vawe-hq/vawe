@@ -165,9 +165,9 @@ export function doneLines(job) {
   const judged = /: PASS/.test(job.verdict?.[0] || '');
   const missed = job.acceptance?.allGreen === false;
   if (job.verdict) lines.push(`ship verdict: ${shipVerdict(job)} (the judge ${judged ? 'passed' : 'did not pass'}; ${missed ? 'an acceptance row missed' : 'every measured acceptance row is green'})`);
-  if (!job.verdict) lines.push(`next: bin/vawe judge ${job.outputs[0]} --fresh`);
+  if (!job.verdict) lines.push(`next: bin/vawe critique ${job.page ?? '<page>'} --fresh`);
   else if (judged && !missed) lines.push('next: show the owner');
   else if (judged) lines.push(`next: fix the acceptance rows above on drafts (bin/vawe dev), then bin/vawe ship ${job.page} again`);
-  else lines.push(`next: fix what the judge and the final check name, worst first, on drafts (bin/vawe dev, then bin/vawe judge <draft> --fresh), then bin/vawe ship ${job.page} again`);
+  else lines.push(`next: fix what the judge and the final check name, worst first, on drafts (bin/vawe dev, then bin/vawe critique <page> --fresh), then bin/vawe ship ${job.page} again`);
   return lines;
 }

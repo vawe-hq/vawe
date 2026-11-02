@@ -1,4 +1,4 @@
-// The one place that fetches the free faces: `vawe new` and `vawe moves` call it when a face they need is missing from the gitignored assets/fonts.
+// The one place that fetches the free faces: `vawe new` and `vawe-dev moves` call it when a face they need is missing from the gitignored assets/fonts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';

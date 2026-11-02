@@ -41,7 +41,7 @@ export const FEATURES_SESSION: { cmd: string; out: string[] }[] = [
     cmd: `bin/vawe critique films/ax-demo/page.html`,
     out: [
       `- no-settle: S1 h1 "Say the one thing" is still moving at 7.9 px/f when the shot ends [f89 (2.97s)]. Fix: end the move 4 frames before the cut, …`,
-      `next: … bin/vawe judge films/ax-demo/page.html --struct --runs A,B in a fresh session, then fix the named seconds with bin/vawe dev films/ax-demo/page.html --from s --to s`,
+      `next: look at the sheets above, or start a critic session with bin/vawe critique films/ax-demo/page.html --fresh`,
       `vawe: critique ok in 20.6s`,
     ],
   },
@@ -181,9 +181,9 @@ pass a glint), never a camera drift`,
               label: "the gate",
               text: `bin/vawe critique <page>
 // in a session that did not write the page
-bin/vawe judge <page> --fresh
+bin/vawe critique <page> --fresh
 // a separate headless session scores
-bin/vawe approve <page>
+/vawe-approve
 // only the owner runs it; ship refuses without it`,
             },
           },

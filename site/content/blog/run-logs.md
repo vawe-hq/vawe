@@ -32,12 +32,12 @@ Every call also ends with a result line, `vawe: dev ok in 38.2s` or `vawe: dev F
 
 ## How to read the log
 
-A JSONL file that nobody reads is storage, so the report is part of the tool. The command `vawe runs <film>` shows time per stage and verb, failures and their causes, and the draft series. The flag `--all` gives one row per film for the last 30 days. The flag `--taste` reports, for each rule, how often it fired and how often an agent fixed it. It also shows how often the rule fired again in the next draft. The report code is in `harness/lib/runs-report.mjs` and `harness/dev/runs.mjs`.
+A JSONL file that nobody reads is storage, so the report is part of the tool. The command `vawe-dev runs <film>` shows time per stage and verb, failures and their causes, and the draft series. The flag `--all` gives one row per film for the last 30 days. The flag `--taste` reports, for each rule, how often it fired and how often an agent fixed it. It also shows how often the rule fired again in the next draft. The report code is in `harness/lib/runs-report.mjs` and `harness/dev/runs.mjs`.
 
 This is the report for a film with one draft, as we ran it today:
 
 ```sh
-bin/vawe runs hello
+bin/vawe-dev runs hello
 # where time went: 1 verb calls, 0 min of verb time, none tagged with VAWE_AGENT
 #   stage  calls  secs  slot wait  failed
 #   brief  1      6     0          0
@@ -90,7 +90,7 @@ We did not rerun the reviews after the fixes, so we have before numbers and no c
 
 ## Where per-command logs go wrong
 
-- A skip flag without a counter hides intent. An early `vawe runs` printed "judge -" for every draft, because `--no-judge` had no counter.
+- A skip flag without a counter hides intent. An early `vawe-dev runs` printed "judge -" for every draft, because `--no-judge` had no counter.
 - A log that records only success hides the calls you most want to see.
 - A queue wait inside a duration looks like a slow tool. Give it its own field.
 - The log lacks intent. It tells you which call took 38 seconds. The transcript beside it tells you what the agent tried to do.

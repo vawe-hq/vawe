@@ -20,7 +20,7 @@ The function is `imagePoints(image, options)` in `core/surfaces/image-points.js`
 
 | Test | Result |
 | --- | --- |
-| Clip size of `photo-particles`, 120,000 points, filmed through the WebGL lens (the master `prompts/moves/photo-particles.mp4` is not tracked; `bin/vawe moves --only photo-particles` renders it) | 1,342,076 bytes (about 1.3 MB), CRF 31, under a 2 MiB budget; the gallery copy is a separate encode of 2.48 MB |
+| Clip size of `photo-particles`, 120,000 points, filmed through the WebGL lens (the master `prompts/moves/photo-particles.mp4` is not tracked; `bin/vawe-dev moves --only photo-particles` renders it) | 1,342,076 bytes (about 1.3 MB), CRF 31, under a 2 MiB budget; the gallery copy is a separate encode of 2.48 MB |
 | Clip size of the removed photo parallax video component | 29,964,958 bytes (about 30 MB) |
 | Unit tests for `imagePoints` (`tests/*/image-points.test.mjs`) | 10 of 10 pass |
 | Speed, 1,000,000 points from a 2048 by 1536 noise image, this machine | 1.16 s (the video component doc says about 0.5 s) |

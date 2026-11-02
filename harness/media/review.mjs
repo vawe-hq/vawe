@@ -241,7 +241,7 @@ export function cutLines(findings, { samples, moves }, step) {
   return ['Cut: remove one element and one move, then review again' + (parts.length ? `: ${parts.join('; ')}` : '')];
 }
 
-/** The latest `vawe judge` result for this page, as one header line. */
+/** The latest `vawe-dev judge` result for this page, as one header line. */
 export function judgeLine(name, page) {
   const file = path.resolve('out', `${name}.judge.json`);
   if (!fs.existsSync(file)) return 'judge: no judge yet';
@@ -257,7 +257,7 @@ export function judgeHandoff(page, ref, name) {
   if (r.status !== 0) return [`judge not prepared: ${String(r.stderr || r.stdout).trim().split('\n')[0]}`];
   const who = `VAWE_AGENT=judge-${name}`;
   return [`judge prepared. In a fresh session, read the sheet and rubric, then record:`,
-    `  ${who} bin/vawe judge ${page} --verdict FIX --at <seconds> --top-fix "<one fix>"   (or --verdict PASS)`];
+    `  ${who} bin/vawe-dev judge ${page} --verdict FIX --at <seconds> --top-fix "<one fix>"   (or --verdict PASS)`];
 }
 
 /** Compare this render with the one the last review saw. -> { line, diff } ; the render is saved for the next review. */

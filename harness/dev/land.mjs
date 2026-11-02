@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// vawe land: the one way to put a worktree branch on main. Fetch, rebase onto origin/main, scan the range for big files,
+// vawe-dev land: the one way to put a worktree branch on main. Fetch, rebase onto origin/main, scan the range for big files,
 // run tests/lib and tests/hooks, push HEAD to main, then print the pre-push e2e line and the pushed range.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -30,19 +30,19 @@ function rebase() {
   if (decision === 'merged') throw new LandError('rebase', 'nothing to land: every commit of this branch is already in origin/main');
   if (decision === 'skip') return console.log('land: the branch already contains origin/main, no rebase needed');
   const edits = git(['status', '--porcelain', '--untracked-files=no']).stdout;
-  if (hasTrackedEdits(edits)) throw new LandError('rebase', 'the tree has uncommitted edits to tracked files: commit or stash them, then run bin/vawe land again');
+  if (hasTrackedEdits(edits)) throw new LandError('rebase', 'the tree has uncommitted edits to tracked files: commit or stash them, then run bin/vawe-dev land again');
   const r = git(['rebase', 'origin/main'], { allowFail: true });
   if (r.status === 0) return;
   const files = conflictedFiles(git(['status', '--porcelain']).stdout);
   git(['rebase', '--abort'], { allowFail: true });
-  throw new LandError('rebase', `rebase onto origin/main stopped on a conflict${files.length ? ` in ${files.join(', ')}` : ''}; the rebase is aborted and the branch is as before. Run git rebase origin/main by hand, resolve it, then run bin/vawe land again`);
+  throw new LandError('rebase', `rebase onto origin/main stopped on a conflict${files.length ? ` in ${files.join(', ')}` : ''}; the rebase is aborted and the branch is as before. Run git rebase origin/main by hand, resolve it, then run bin/vawe-dev land again`);
 }
 
 function scanBigFiles() {
   const objects = git(['rev-list', '--objects', 'origin/main..HEAD']).stdout;
   const sizes = git(['cat-file', '--batch-check=%(objecttype) %(objectname) %(objectsize) %(rest)'], { input: objects });
   const big = bigBlobs(sizes.stdout);
-  if (big.length) throw new LandError('big-file scan', `a commit in the range adds a file over ${megabytes(BIG_FILE_BYTES)}: ${big.map((b) => `${b.path} (${megabytes(b.bytes)})`).join(', ')}. Remove it from the history, then run bin/vawe land again`);
+  if (big.length) throw new LandError('big-file scan', `a commit in the range adds a file over ${megabytes(BIG_FILE_BYTES)}: ${big.map((b) => `${b.path} (${megabytes(b.bytes)})`).join(', ')}. Remove it from the history, then run bin/vawe-dev land again`);
 }
 
 function runTests() {
@@ -79,7 +79,7 @@ async function main() {
   step('scan the range for big files', scanBigFiles);
   console.log(`land: ${step('run the tests', runTests)}`);
   const { code, out } = await step('push to main (the pre-push hook runs e2e)', push);
-  if (code !== 0) throw new LandError('push', `git push failed${e2eLine(out) ? ` after ${e2eLine(out)}` : ''}:\n${pushErrorText(out)}\nThe CI status line the hook prints last is not the cause. If main moved, run bin/vawe land again`);
+  if (code !== 0) throw new LandError('push', `git push failed${e2eLine(out) ? ` after ${e2eLine(out)}` : ''}:\n${pushErrorText(out)}\nThe CI status line the hook prints last is not the cause. If main moved, run bin/vawe-dev land again`);
   console.log(e2eLine(out) ?? e2eLineFromReport(readReport(), head) ?? 'e2e: no result line found in the push output or quality/runs/e2e/latest.json');
   const count = git(['rev-list', '--count', `${before}..${head}`]).stdout.trim();
   console.log(`pushed ${before.slice(0, 9)}..${head.slice(0, 9)} (${count} commit${count === '1' ? '' : 's'}) to origin/main`);

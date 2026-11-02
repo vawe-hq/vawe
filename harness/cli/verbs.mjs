@@ -4,13 +4,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UsageError } from './parse.mjs';
-import { opt, needsPage, pageName } from './helpers.mjs';
+import { opt, pageName, PAGE, ASPECT, ASPECT_FLAG, PARAM } from './helpers.mjs';
 import { FRAME } from './frame.mjs';
 import { causeOf } from '../lib/verb-log.mjs';
 
 import { atProblem } from '../media/see/at-problem.mjs';
 import { parseTargets, shotProblem } from '../media/shot-math.mjs';
-import { renderEnv, paramsFilm, paramsFlags } from '../lib/page-params.mjs';
 import { seeProblem } from '../media/see/one-math.mjs';
 import { filmKey, freshImages, summaryLines } from '../lib/critique-summary.mjs';
 import { readFindings } from '../lib/findings.mjs';
@@ -19,13 +18,10 @@ import { refsDir, refsEmpty } from '../lib/refs.mjs';
 import { isClipDemo } from '../lib/clip-demo.mjs';
 import { planWindow } from '../lib/dev-window.mjs';
 import { SAY, WAIT_WORK, nextStep } from '../live/stage-say.mjs';
-import { critiqueProblem, critiqueCommand, judgeCommand } from '../lib/critique-gate.mjs';
+import { critiqueProblem, critiqueCommand, critiqueFreshCommand } from '../lib/critique-gate.mjs';
 export { commitsBehind } from '../lib/stale-checkout.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-// A test that compares seconds with a stamped budget reads a slowdown from the other test files as a slow check, so it runs alone, last.
-export const SERIAL_TESTS = ['tests/media/check-budget.test.mjs'];
-
 // Chrome on macOS prints these to stderr on every launch; they mean nothing for a render.
 const CHROME_NOISE = [/task_policy_set/, /CVDisplayLinkCreateWithCGDisplay/];
 
@@ -34,12 +30,6 @@ export const stripChromeNoise = (text) => String(text).split('\n').filter((l) =>
 
 /** The sentence for an unknown verb on a checkout that lags main, or '' when it does not. Pure. */
 export const staleNote = (behind) => (behind > 0 ? `this checkout is ${behind} commit${behind === 1 ? '' : 's'} behind main: the verb may exist there (git pull or rebase on main)` : '');
-
-const testFiles =(dir) => fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true })
-  .flatMap((e) => (e.isDirectory() ? testFiles(path.join(dir, e.name)) : e.name.endsWith('.test.mjs') ? [path.join(dir, e.name)] : []));
-
-/** The two node --test runs of `vawe test`: every test file in parallel except the serial ones, then the serial ones alone. */
-export const testSteps = () => [{ node: ['--test', ...testFiles('tests').filter((f) => !SERIAL_TESTS.includes(f)).sort()] }, { node: ['--test', ...SERIAL_TESTS] }];
 
 export const devFix = (reason, [page]) => {
   if (/render slot|Navigation timeout/i.test(reason)) return `bin/vawe wait ${page}`;
@@ -60,14 +50,13 @@ const devNext = (v, [page]) => {
   if (v.studio) return null;
   if (isClipDemo(page)) return nextStep(path.resolve(page), ROOT).next;
   if (v.from != null || v.to != null) return `bin/vawe frame ${page} --moment <the second you fixed> and Read it; when every named second is fixed: ${SAY.critique(pageName(page), page)}`;
-  if (critiqueProblem(page, { root: ROOT })) return `before anything else: ${judgeCommand(page)} (its own session), or in a separate terminal ${critiqueCommand(page)}`;
+  if (critiqueProblem(page, { root: ROOT })) return `before anything else: ${critiqueFreshCommand(page)} (its own session), or in a separate terminal ${critiqueCommand(page)}`;
   const state = nextStep(path.resolve(page), ROOT);
   if (state.stage === 'draft') return SAY.motion(pageName(page), page);
   return state.stage === 'motion' && !/Motion pass/.test(state.why) ? state.next : `${state.next} (${state.why})`;
 };
 const readFresh = (file, sinceMs) => (fs.existsSync(file) && fs.statSync(file).mtimeMs >= sinceMs ? readFindings(file) || [] : []);
 const critiqueFindingsFile = (page) => path.join(scratch('critique', filmKey(page)), 'findings.json');
-const paramEnv = (v) => renderEnv(v);
 function seeSpec(v, film) {
   const specOnly = ['fps', 'elements', 'fast'].find((f) => v[f] !== undefined);
   if (specOnly && !v.spec) throw new UsageError(`--${specOnly} needs --spec`);
@@ -88,11 +77,6 @@ function seePage(v, film) {
   if (!film.endsWith('.html')) throw new UsageError(`${flag} reads a page: usage: vawe see <page> ${flag}${v.plan ? ' [--json]' : ''}`);
   return v.plan ? [{ script: 'harness/media/timeline.mjs', args: [film, ...(v.json ? ['--json'] : [])] }] : [{ script: 'harness/media/spec-sync.mjs', args: [film] }];
 }
-
-const PAGE = { name: 'page', required: true, kind: 'file', help: 'films/<name>/page.html' };
-const ASPECT = 'a W:H ratio of whole numbers (16:9 9:16 1:1 4:5 4:3 are the common ones, 1200:630 and 2:1 work too): overrides the page aspect meta, the page sees it as it sees the meta, and the default output name gets it (-2x1), so two aspects do not overwrite each other';
-const ASPECT_FLAG = { name: 'aspect', type: 'string', default: 'the page meta, else 16:9', help: ASPECT };
-const PARAM = { name: 'param', type: 'string', repeat: true, help: 'a page option key=value, repeatable: the page reads it with new URLSearchParams(location.search), for example --param look=riso. A page only; part of the render key; the default output name gets it (-look-riso), so renders of two looks do not overwrite each other' };
 
 const SITE_FLAGS = ['w', 'full', 'base', 'tour', 'fps', 'scale', 'out'];
 
@@ -243,7 +227,7 @@ export const VERBS = [
     },
     fix: (reason, [page]) => (page?.endsWith('.html') && !/ship refused/.test(reason) ? `bin/vawe dev ${page}` : null),
     next: (v, [page]) => {
-      if (v.wait) return `vawe judge out/${paramsFilm(pageName(page), paramEnv(v))}.mp4`;
+      if (v.wait) return critiqueFreshCommand(page);
       return `rendering in the background: bin/vawe wait ${page} (one call waits up to 3.5 minutes, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`;
     },
   },
@@ -255,29 +239,6 @@ export const VERBS = [
     example: 'vawe wait films/my-launch/page.html   |   vawe wait my-launch',
     build: (v, [film]) => [{ script: 'harness/media/ship-job.mjs', args: ['wait', film] }],
     next: (v, [film]) => `${WAIT_WORK}`,
-  },
-  {
-    tier: 'maintainer',
-    name: 'land', summary: 'put the current branch on main: fetch, rebase onto origin/main (stops on a conflict), scan for files over 5 MB, run tests/lib and tests/hooks, push with ssh keep-alive, print the e2e line and the pushed range',
-    positional: [],
-    flags: [],
-    example: 'vawe land   (from a worktree branch with every change committed)',
-    build: () => [{ script: 'harness/dev/land.mjs', args: [] }],
-    next: () => 'delete the merged branch and its worktree (git branch -d <topic>)',
-  },
-  {
-    tier: 'maintainer',
-    name: 'approve', summary: 'use when the owner signs off the full draft of a page: vawe ship needs it; a film session never runs this',
-    positional: [PAGE],
-    flags: [
-      ASPECT_FLAG,
-      PARAM,
-      { name: 'reject', type: 'bool', help: 'record that the owner rejects the draft, and withdraw any approval' },
-      { name: 'note', type: 'string', default: 'none', help: 'the owner\'s reason, kept in the run log' },
-    ],
-    example: 'vawe approve films/my-launch/page.html   (after vawe dev without --from and --to)',
-    build: (v, [page]) => (needsPage(v, page, 'approve'), [{ script: 'harness/live/approve.mjs', args: [page, ...(v.reject ? ['--reject'] : []), ...opt('--note', v.note)] }]),
-    next: (v, [page]) => `bin/vawe ship ${page}${paramsFlags(paramEnv(v))}`,
   },
   {
     tier: 'core',
@@ -308,8 +269,8 @@ export const VERBS = [
       freshImages(scratch('see', filmKey(page)), sinceMs),
     ),
     next: (v, [page]) => (v.fresh
-      ? `Read the critique file above, fix its top five with bin/vawe dev ${page} --from s --to s, then ${SAY.judge(pageName(page), page, v.ref)}`
-      : `look at the sheets above, or start a critic session with ${SAY.critique(pageName(page), page)}, then ${SAY.judge(pageName(page), page, v.ref)}`),
+      ? `Read the critique file above, fix its top five with bin/vawe dev ${page} --from s --to s`
+      : `look at the sheets above, or start a critic session with ${SAY.critique(pageName(page), page)}`),
   },
   {
     tier: 'core',
@@ -331,38 +292,6 @@ export const VERBS = [
     flags: [], raw: true,
     example: 'vawe check anim-traps films/my-launch/page.html',
     build: (v, args) => [{ script: 'harness/lib/check-gate.mjs', args }],
-  },
-  {
-    tier: 'maintainer',
-    name: 'claim', summary: 'declare or release the scope a worktree works in: add <name> [branch] [scope ...] | rm <name>',
-    positional: [{ name: 'args', help: 'the arguments of the script, as in the example' }],
-    flags: [], raw: true,
-    example: 'vawe claim add my-fix wt-my-fix harness/media',
-    build: (v, args) => [{ script: 'harness/dev/worktree-claim.mjs', args }],
-    next: () => 'vawe claim rm <name> when the work lands',
-  },
-  {
-    tier: 'maintainer',
-    name: 'doctor', summary: 'check node, ffmpeg, Chrome and the other tools; print the install line for each missing one',
-    positional: [],
-    flags: [
-      { name: 'quiet', type: 'bool', help: 'print only problems and write .vawe/doctor.json' },
-      { name: 'json', type: 'bool', help: 'print [{tool, required, ok, version, fix}] instead of text' },
-    ],
-    example: 'vawe doctor --json',
-    build: (v) => [{ script: 'harness/dev/doctor.mjs', args: [...(v.quiet ? ['--quiet'] : []), ...(v.json ? ['--json'] : [])] }],
-  },
-  {
-    tier: 'maintainer',
-    name: 'moves', summary: 'render the stale prompts/moves/demo/<move>.html clips to prompts/moves/<move>.mp4 (1280 px, 60 fps) in parallel; the masters are not tracked, the web copy is site/public/moves/<move>.mp4; a clip is stale when its demo, demo.css or a core/ import changed; a demo with a variants meta also renders <move>-<theme>.mp4',
-    positional: [],
-    flags: [
-      { name: 'only', type: 'string', help: 'render one move by name, for example weight-morph, even when current; also writes a 12-frame contact sheet to out/moves/<move>-sheet.png' },
-      { name: 'all', type: 'bool', help: 'render every clip, stale or not' },
-    ],
-    example: 'vawe moves --only weight-morph',
-    build: (v) => [{ script: 'harness/media/render-moves.mjs', args: [...opt('--only', v.only), ...(v.all ? ['--all'] : [])] }],
-    next: () => 'look at the clip in prompts/moves/ and run node scripts/site/moves.mjs --clips to encode its web copy',
   },
   {
     tier: 'core',
@@ -411,56 +340,6 @@ export const VERBS = [
     next: (v, [input]) => (v.lab ? 'verdicts are kept in quality/baselines/sound-verdicts.json' : v.sfx ? 'set data-at on the <audio> line, then bin/vawe sound <page> --at <s> to check the cue sounds on its event' : !input ? 'a voice goes in <audio data-synth="name" data-at="s">; vawe sound <track> gives the beat grid and hits of a music file the user gave'
       : v.at || v.waveform ? (v.waveform ? 'Read the PNG: each orange tick must sit on the dashed world line of its visual event; move a cue with data-at or data-on' : 'a cue 0 s into itself starts at that second; move one that is off its event with data-at')
         : 'Read sound.md and sound.png; put each cut on a hit or a beat line at the frame the cut table names, then vawe sound <track> --cuts <page> again'),
-  },
-  {
-    tier: 'maintainer',
-    name: 'e2e', summary: 'page tests plus a parallel half-size draft of every film (about 5 s)',
-    positional: [], flags: [],
-    example: 'vawe e2e',
-    build: () => [{ script: 'harness/dev/e2e.mjs', args: [] }],
-  },
-  {
-    tier: 'maintainer',
-    name: 'test', summary: 'run every tests/**/*.test.mjs with node --test; the timing test runs alone at the end',
-    positional: [], flags: [],
-    example: 'vawe test',
-    build: () => testSteps(),
-  },
-  {
-    tier: 'maintainer',
-    name: 'runs', summary: 'where a film\'s time went (per stage and verb, slot wait), what failed (by cause) and the draft series; or, with --all, one row per film of the last 30 days',
-    positional: [{ name: 'film', help: 'film name or films/<name>/page.html' }],
-    flags: [
-      { name: 'all', type: 'bool', help: 'one row per film (drafts, median draft seconds, first and best judged total, PASS), then medians per model' },
-      { name: 'taste', type: 'bool', help: 'the taste report over every film: per rule fired, fixed, waived, score gain and a verdict; variety per dial; sibling films; template tells' },
-      { name: 'json', type: 'bool', help: 'print the records (or with --all or --taste the report) as JSON' },
-      { name: 'dir', type: 'path', default: 'out', help: 'the folder that holds the <film>.runs.jsonl files' },
-    ],
-    example: 'vawe runs my-launch   |   vawe runs --all   |   vawe runs --taste',
-    build: (v, [film]) => {
-      if (!v.all && !v.taste && !film) throw new UsageError('missing <film>; usage: vawe runs <film>, vawe runs --all or vawe runs --taste');
-      return [{ script: 'harness/dev/runs.mjs', args: [...(v.taste ? ['--taste'] : v.all ? ['--all'] : [film]), ...(v.json ? ['--json'] : []), ...opt('--dir', v.dir)] }];
-    },
-  },
-  {
-    tier: 'more',
-    name: 'judge', summary: 'prepare key frames and the rubric for a fresh session to score',
-    positional: [{ name: 'page|mp4', required: true, kind: 'file', help: 'a page or a rendered mp4' }],
-    flags: [
-      { name: 'ref', type: 'path', help: 'reference mp4 (default: the reference the brief names)', kind: 'file' },
-      { name: 'struct', type: 'bool', help: 'add the structure pass' },
-      { name: 'runs', type: 'string', help: 'double-run labels, for example A,B' },
-      { name: 'verdict', type: 'string', help: 'record PASS or FIX; writes out/<name>.judge.json' },
-      { name: 'at', type: 'number', help: 'with a FIX verdict: the second of the top fix' },
-      { name: 'top-fix', type: 'string', help: 'with a FIX verdict: the one concrete fix' },
-      { name: 'fresh', type: 'bool', help: 'score now with a separate headless claude session (Read tool only); about 30 s; advises, never blocks' },
-      { name: 'brief', type: 'path', help: 'with --fresh: the brief the judge reads', kind: 'file' },
-      { name: 'stage', type: 'string', help: 'with --fresh: stills, draft or final' },
-    ],
-    defaultRef: (v, [input]) => (v.fresh || v.verdict ? null : input),
-    example: 'vawe judge out/my-launch.mp4 --struct --runs A,B   |   vawe judge --fresh films/x/page.html --brief films/x/brief.md',
-    build: (v, [input]) => v.fresh ? [{ script: 'harness/media/judge-fresh.mjs', args: [input, ...opt('--brief', v.brief), ...opt('--stage', v.stage)] }] : [{ script: 'quality/gates/judge.mjs', args: [input, ...opt('--ref', v.ref), ...(v.struct ? ['--struct'] : []), ...opt('--runs', v.runs), ...opt('--verdict', v.verdict), ...opt('--at', v.at), ...opt('--top-fix', v['top-fix'])] }],
-    next: (v) => (v.fresh ? 'read the report; fix the lines under 8, worst first' : 'judge returns at once; do not poll for it'),
   },
 ];
 

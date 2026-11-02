@@ -241,7 +241,7 @@ async function main() {
   const only = argv.includes('--only') ? argv[argv.indexOf('--only') + 1] : null;
   const all = moveNames();
   if (only && !all.includes(only)) {
-    console.error(`vawe moves: no demo named ${only}; valid: ${all.join(' ')}`);
+    console.error(`vawe-dev moves: no demo named ${only}; valid: ${all.join(' ')}`);
     process.exit(2);
   }
   const lock = readLock();
@@ -276,7 +276,7 @@ async function main() {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href) {
   main().catch((e) => {
-    console.error(`vawe moves: ${e.message}`);
+    console.error(`vawe-dev moves: ${e.message}`);
     process.exit(1);
   });
 }

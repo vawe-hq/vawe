@@ -173,7 +173,6 @@ test('bin/vawe shows the notice once per session across calls, and again for the
   assert.match(call('sheet', 'no-such.html', '--at', '1,2').stdout, /vawe: frame FAILED/);
   const file = path.join(ROOT, 'out', '_unfiled.runs.jsonl');
   const mine = fs.readFileSync(file, 'utf8').split('\n').filter((l) => l.includes(session));
-  fs.writeFileSync(file, fs.readFileSync(file, 'utf8').split('\n').filter((l) => l && !l.includes(session)).map((l) => `${l}\n`).join(''));
   assert.deepEqual(mine.map((l) => JSON.parse(l).alias), ['sheet->frame', 'storyboard->frame', 'storyboard->see']);
 });
 

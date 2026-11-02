@@ -35,9 +35,9 @@ checks it.
 ## Before you open a PR
 
 ```bash
-bin/vawe e2e                           # page tests plus a draft of every film, about 4 s
-bin/vawe test                          # the whole test suite (tests/**/*.test.mjs)
-bin/vawe check code-quality            # nothing got more tangled
+bin/vawe-dev e2e                       # page tests plus a draft of every film, about 4 s
+bin/vawe-dev test                      # the whole test suite (tests/**/*.test.mjs)
+bin/vawe-dev check code-quality            # nothing got more tangled
 ```
 
 `make install-hooks` turns on the pre-commit hook (no em dash, `node --check`, doc references) and the
@@ -46,7 +46,7 @@ prints which it chose and why, and a path it does not know runs everything).
 
 The last check is a **ratchet, not a threshold**. The repo has known complexity debt recorded in
 `quality/baselines/code-quality-baseline.json`; the gate fails only if your change makes a file worse than that
-line. Fixing something and running `bin/vawe check code-quality --write` lowers the line permanently.
+line. Fixing something and running `bin/vawe-dev check code-quality --write` lowers the line permanently.
 
 If you touch a **gate**, run it over every film before and after and diff the results. The
 only acceptable outcomes are "no film changed" or "these N changed, and here is why each was a false

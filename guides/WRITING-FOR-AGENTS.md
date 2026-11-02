@@ -24,7 +24,7 @@ nobody. Moving it above the storyboard fixed it. That is pattern 6.
    `git add .`, `git stash`" is a boundary an agent can check.
 6. **An instruction comes before the material it governs.** Truncation drops the end first.
 
-A rule over about 500 characters is too long: `bin/vawe check rule-length` ratchets the count, and
+A rule over about 500 characters is too long: `bin/vawe-dev check rule-length` ratchets the count, and
 `node quality/gates/rule-length.mjs --list` prints the worklist.
 
 ## SKILL.md contract

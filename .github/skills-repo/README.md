@@ -49,7 +49,7 @@ claude plugin install vawe@vawe-skills
 The skills run inside a vawe checkout. Get one with:
 
 ```bash
-git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe doctor
+git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe-dev doctor
 ```
 
 ## Where to change them

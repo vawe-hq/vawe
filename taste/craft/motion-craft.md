@@ -199,7 +199,7 @@ Restraint has two answers. In a UI-adjacent or quiet explainer film, motion is a
 
 Seven devices, each right in one place and wrong in another: continuous ambient (a backdrop, a held beat that would be dead; wrong when it pulls the eye off the content); entrance and exit (almost every element); emphasis (the one hero reveal, a stat, a CTA; wrong when it fires every beat); transformation (a headline shrinking into a label; wrong between two objects with no shared logic); camera (real depth, a capture pan; wrong when camera and element double-count travel); physics (a spring on something with a rigid identity; wrong on a counter); time remapping (a speed ramp inside one move; wrong with no reason, it reads as a glitch).
 
-What can be measured: cut rate has an accepted metric (average shot length, Cinemetrics). "Is this motion good" has none. Frame difference finds a dead frame; it cannot judge whether motion serves the beat. Keep the fresh judge (`bin/vawe judge`) as an eye-first step, and never let a proxy count stand in for a judgement. The Material Design 3 curves are an outside reference only: film pages use the EASE names, not a pasted bezier.
+What can be measured: cut rate has an accepted metric (average shot length, Cinemetrics). "Is this motion good" has none. Frame difference finds a dead frame; it cannot judge whether motion serves the beat. Keep the fresh judge (`bin/vawe-dev judge`) as an eye-first step, and never let a proxy count stand in for a judgement. The Material Design 3 curves are an outside reference only: film pages use the EASE names, not a pasted bezier.
 
 ## Which UI-motion standards transfer
 

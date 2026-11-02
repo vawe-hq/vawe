@@ -18,7 +18,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, '../..');
 const HOOK = join(here, '../../harness/live', 'code-quality.mjs');
 const BASELINE = path.join(ROOT, 'quality/baselines/code-quality-baseline.json');
-// joined, not written: vawe check doc-refs reads every .mjs path a file names and requires it to exist
+// joined, not written: vawe-dev check doc-refs reads every .mjs path a file names and requires it to exist
 const REL = ['harness/live/test/.zz-code-quality-probe', 'mjs'].join('.');
 const ABS = path.join(ROOT, REL);
 

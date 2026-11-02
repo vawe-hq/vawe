@@ -12,7 +12,7 @@ const BANNED = [
 ];
 
 const ONLY_PERSON = 'only the person approves a plan or a draft. Show it, end with the line "If you like it, type /vawe-approve", and stop.';
-const APPROVE_VERB = /\bvawe\s+(?:[^;&|\n]*\s)?approve\b/;
+const APPROVE_VERB = /\bvawe(?:-dev)?\s+(?:[^;&|\n]*\s)?approve\b/;
 const APPROVE_OTHER = /approve\.mjs|\.(?:plan-)?approved\b|\bwrite(?:Plan)?Approval\b/;
 const ASKS_HELP = /\s(?:--help|-h)(?:\s|$)/;
 const APPROVE_FILE = /\.(?:plan-)?approved$/;

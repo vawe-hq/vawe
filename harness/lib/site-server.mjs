@@ -1,4 +1,4 @@
-// The site server that `vawe new --from-url` and `vawe check links` need: reuse a running one, or start site/ `next dev` for a localhost base and stop it afterwards.
+// The site server that `vawe new --from-url` and `vawe-dev check links` need: reuse a running one, or start site/ `next dev` for a localhost base and stop it afterwards.
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';

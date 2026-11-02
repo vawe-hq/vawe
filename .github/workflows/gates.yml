@@ -40,7 +40,7 @@ jobs:
       - name: static gates
         run: |
           for g in no-emdash rule-length skill-reach; do
-            node bin/vawe check "$g"
+            node bin/vawe-dev check "$g"
           done
       - run: node quality/gates/doc-refs.mjs
       - name: fetch the locked faces
@@ -66,7 +66,7 @@ jobs:
       - run: npm ci
       - name: fetch the locked faces
         run: node generators/media/fonts.mjs
-      - run: node bin/vawe e2e
+      - run: node bin/vawe-dev e2e
       - name: upload e2e report
         if: always()
         uses: actions/upload-artifact@v4

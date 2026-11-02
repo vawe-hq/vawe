@@ -6,7 +6,7 @@ canvas, three.js); if natural code fails, report it as a framework bug.
 ## Setup
 
 - Node 22 or newer and ffmpeg. Run `npm install`.
-- Chrome for the renderer: `npx puppeteer browsers install chrome`. `bin/vawe doctor` checks every tool and prints the install line for each missing one.
+- Chrome for the renderer: `npx puppeteer browsers install chrome`. `bin/vawe-dev doctor` checks every tool and prints the install line for each missing one.
 - `bin/vawe --help` lists the verbs (`--help --all` every verb); `bin/vawe <verb> --help` before first use. The first run turns on `.githooks`.
 - `films/examples/colour-sting/` is a judged-PASS 5 s sting: study how it moves, then make your own direction.
 
@@ -42,7 +42,7 @@ Read `taste/build/DIGEST.md` first: the one list of taste pitfalls. Read `skills
 | 7 | motion pass | `bin/vawe frame <page> --cuts`, then one "Motion pass" row per cut |
 | 8 | critique | `bin/vawe critique <page> --fresh` (a separate critic session; `vawe-critique`) |
 | 9 | fix | `bin/vawe dev <page> --from s --to s`: only the seconds the critique named |
-| 10 | final | `bin/vawe judge <page> --fresh` (its own session), then the person's OK (`/vawe-approve`); then `bin/vawe ship <page>` and `bin/vawe wait <page>`; `ship` refuses without both |
+| 10 | final | `bin/vawe critique <page> --fresh` (its own session), then the person's OK (`/vawe-approve`); then `bin/vawe ship <page>` and `bin/vawe wait <page>`; `ship` refuses without both |
 
 ## The proof before you say done
 
@@ -52,7 +52,7 @@ Report each path. Without all four the film is not done.
 1. The draft: `out/<name>-draft.mp4`, newer than `page.html`.
 2. The storyboard: `out/<name>-storyboard.html`.
 3. The motion pass: one row per cut in `films/<name>/brief.md` "Motion pass".
-4. The critique: a `critique` line in `bin/vawe runs <name>` from another session (a separate terminal or agent), and the seconds it named fixed.
+4. The critique: a `critique` line in `bin/vawe-dev runs <name>` from another session (a separate terminal or agent), and the seconds it named fixed.
 
 Set `VAWE_AGENT=<name>` (one per agent) and `VAWE_MODEL=<model>` in your shell: every verb logs to `out/<film>.runs.jsonl`.
 
@@ -88,4 +88,4 @@ Skills, read before the stage: `html-to-video` (start here), `vawe-brief`, `vawe
 | every taste rule; scoring | `taste/README.md`; `guides/judge.md` |
 | a film over 60 s or over one session | `prompts/directors-brief-long-form.md` |
 | every script and the run log | `harness/README.md` |
-| a change to the engine: every effect composes, `bin/vawe e2e` before and after, a comment only for a fact the code cannot show | `guides/ENGINE-CHANGES.md` |
+| a change to the engine: every effect composes, `bin/vawe-dev e2e` before and after, a comment only for a fact the code cannot show | `guides/ENGINE-CHANGES.md` |

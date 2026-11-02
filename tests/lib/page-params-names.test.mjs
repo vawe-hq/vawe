@@ -59,9 +59,9 @@ test('the approval and the full draft belong to one param set', () => {
   });
 });
 
-test('the next step after a ship names the param-aware file and keeps the flags', () => {
+test('the next step after a final render is the fresh critique of the page, whatever the params', () => {
   const next = verb('ship').next({ wait: true, param: ['look=riso'] }, [PAGE]);
-  assert.match(next, /out\/my-film-look-riso\.mp4/);
+  assert.equal(next, `bin/vawe critique ${PAGE} --fresh`);
 });
 
 test('frame refuses --param for an mp4 or a folder, one frame and a sheet alike', () => {

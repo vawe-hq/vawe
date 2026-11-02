@@ -1,4 +1,4 @@
-// Pure parts of `vawe land` (harness/dev/land.mjs): conflict detection, the big-file scan and the e2e result line.
+// Pure parts of `vawe-dev land` (harness/dev/land.mjs): conflict detection, the big-file scan and the e2e result line.
 
 export const BIG_FILE_BYTES = 5 * 1024 * 1024;
 

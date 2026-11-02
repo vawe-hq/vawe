@@ -46,7 +46,7 @@ const TASTE_CARD = path.join(repoRoot, TASTE_CARD_REL);
 const RULE_IDS = fs.readdirSync(path.join(repoRoot, 'taste/rules')).filter((f) => f.endsWith('.md')).map((f) => f.slice(0, -3));
 const SIBLING_W = 320;
 
-const die = (m, code = 1) => { console.error(`vawe judge --fresh: ${m}`); process.exit(code); };
+const die = (m, code = 1) => { console.error(`vawe-dev judge --fresh: ${m}`); process.exit(code); };
 const arg = (k) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : null; };
 const ff = (args, opts = {}) => spawnSync('ffmpeg', ['-hide_banner', '-nostdin', '-y', ...args], { encoding: opts.raw ? 'buffer' : 'utf8', maxBuffer: 1 << 28 });
 
@@ -250,7 +250,7 @@ function finish(ev, raw, ms) {
 }
 
 const input = process.argv[2];
-if (!input || input.startsWith('--')) die('usage: vawe judge --fresh <page.html | film.mp4 | sheet.png> [--brief brief.md] [--stage stills|draft|final]', 2);
+if (!input || input.startsWith('--')) die('usage: vawe-dev judge --fresh <page.html | film.mp4 | sheet.png> [--brief brief.md] [--stage stills|draft|final]', 2);
 if (!fs.existsSync(input)) die(`no such file: ${input}`, 2);
 try { requireClaude(); } catch (e) { die(e.message, e.exitCode); }
 const briefArg = arg('--brief');

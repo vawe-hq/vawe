@@ -1,4 +1,4 @@
-// The pure reads behind `vawe check seo-pseo` (quality/gates/seo-pseo.mjs): they take HTML or markdown
+// The pure reads behind `vawe-dev check seo-pseo` (quality/gates/seo-pseo.mjs): they take HTML or markdown
 // text and return numbers, so tests/lib/seo-pseo.test.mjs can run them on small fixtures. No network here.
 
 const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr']);

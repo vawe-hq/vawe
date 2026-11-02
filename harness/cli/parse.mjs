@@ -79,8 +79,6 @@ export function verbHelp(verb) {
 
 export const TIERS = [
   ['core', 'the loop'],
-  ['more', 'more'],
-  ['maintainer', 'maintainers (the framework, not a film)'],
 ];
 
 /** The text of `vawe --help`: the core verbs, or with `all` every verb in its tier. Pure. */
@@ -88,7 +86,8 @@ export function topHelp(verbs, { all = false } = {}) {
   const width = Math.max(...verbs.map((v) => v.name.length)) + 2;
   const row = (v) => `  ${v.name.padEnd(width)}${v.summary}`;
   const shown = all ? TIERS : TIERS.slice(0, 1);
-  const groups = shown.flatMap(([tier, title]) => ['', `${title}:`, ...verbs.filter((v) => v.tier === tier).map(row)]);
-  const hidden = all ? [] : ['', `${verbs.filter((v) => v.tier !== 'core').length} more verbs: vawe --help --all`];
+  const groups = shown.filter(([tier]) => verbs.some((v) => v.tier === tier)).flatMap(([tier, title]) => ['', `${title}:`, ...verbs.filter((v) => v.tier === tier).map(row)]);
+  const hiddenCount = verbs.filter((v) => v.tier !== 'core').length;
+  const hidden = all || !hiddenCount ? [] : ['', `${hiddenCount} more verbs: vawe --help --all`];
   return ['vawe: one HTML page in, one film out.', '', 'usage: vawe <verb> [args]   (vawe <verb> --help for flags)', ...groups, ...hidden].join('\n');
 }

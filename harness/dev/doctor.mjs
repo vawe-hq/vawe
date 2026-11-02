@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// vawe doctor: check every outside tool a render needs and print the install line for each missing one.
+// vawe-dev doctor: check every outside tool a render needs and print the install line for each missing one.
 // Exit 1 only when a required tool is missing. --json prints [{tool, required, ok, version, fix}].
 // Advice lines for unregistered live hooks (harness/lib/hook-check.mjs) never change the exit code; --quiet leaves them out.
 // --quiet prints problems only and writes .vawe/doctor.json (postinstall uses it; a failed render reads it).

@@ -16,7 +16,7 @@ test('the screenshot advice names new --from-url, and the old advice text still 
   assert.match('bin/vawe shot <route|url|page.html> --w 1440,390 [--full] takes site', rule.legacy);
 });
 
-test('a curl status loop points at vawe check links', () => {
+test('a curl status loop points at vawe-dev check links', () => {
   assert.equal(id('for u in /blog /moves; do curl -s -o /dev/null -w "%{http_code}\\n" localhost:3100$u; done'), 'links');
 });
 

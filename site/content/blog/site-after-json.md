@@ -52,7 +52,7 @@ The gallery filters by group, look and job, and it searches by name and job. Cli
 
 ## Keep 121 clips fresh without rendering 121 clips
 
-Rendering every clip for every edit wastes time when an edit touches one video component. `bin/vawe moves` renders only stale clips. A source hash for each clip lives in `clips.lock.json`. A clip is stale when its demo, `demo.css` or an imported `core/` file changed. `--all` forces every clip.
+Rendering every clip for every edit wastes time when an edit touches one video component. `bin/vawe-dev moves` renders only stale clips. A source hash for each clip lives in `clips.lock.json`. A clip is stale when its demo, `demo.css` or an imported `core/` file changed. `--all` forces every clip.
 
 Each clip also has a 2 MiB budget (`CLIP_BUDGET_BYTES` in `harness/lib/clip-budget.mjs`). The encoder retries a clip over budget at higher CRF steps, from 16 up to 31, and logs the CRF in the lock file. The [x264 preset benchmark](/blog/encode) covers the encode choices.
 
@@ -136,7 +136,7 @@ The full snippet also sets `animation-delay` and `animation-timing-function` fro
 node prompts/moves/demo/contrast.mjs
 ```
 
-We ran it and the last line was `10 looks, 0 failing pairs`. To render only the clips that changed, run `bin/vawe moves`. Add `--only <name>` for one video component.
+We ran it and the last line was `10 looks, 0 failing pairs`. To render only the clips that changed, run `bin/vawe-dev moves`. Add `--only <name>` for one video component.
 
 A video component you copy from the gallery carries neutral tokens, so it takes the look of the page you paste it into. We have no before-and-after number for the design system. We did not score the old block catalog against the new tokens, and we never timed a full render against an incremental one. The outcome is what we can show: the catalog is gone, and ten looks make visibly different films from the same class names.
 

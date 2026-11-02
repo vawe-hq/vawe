@@ -11,7 +11,7 @@ bin/vawe dev films/examples/moth-photogram/page.html
 bin/vawe ship films/examples/moth-photogram/page.html
 ```
 
-The draft is half size, 30 fps. `ship` needs approval first (`bin/vawe approve`).
+The draft is half size, 30 fps. `ship` needs approval first (`/vawe-approve`).
 
 ## Files
 

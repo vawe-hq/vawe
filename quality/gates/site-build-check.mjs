@@ -6,7 +6,7 @@
 // WHY. vawe.dev was dead for ten days (2026-09-06 to 2026-09-16) behind three stacked breaks, and every
 // one would have shown up the moment someone ran the site's own build commands:
 //   1. `COPY assets/plinth ./assets/plinth` copied a directory a commit had untracked. Caught today by
-//      `vawe check docker-check` (quality/gates/docker-context-check.mjs), which reads COPY lines against git.
+//      `vawe-dev check docker-check` (quality/gates/docker-context-check.mjs), which reads COPY lines against git.
 //   2. `generators/media/fonts.mjs` needs `harness/media/fonts.lock.json`; a rename moved the lock and
 //      no COPY followed it. docker-check only understands COPY sources, not what a RUN step opens, so
 //      this slipped past it. The fix here is not a smarter parser, it is running the same command the
@@ -14,7 +14,7 @@
 //   3. `next build` runs `tsc`, and a page under site/app had a type error that two review passes wrote
 //      off as pre-existing. `next build` was never actually run locally, so nothing ever disagreed.
 // Nobody noticed because the OLD container kept serving: the push succeeded, the deploy died quietly
-// after. `vawe check docker-check` already catches (1) and would have caught (2) had it understood RUN
+// after. `vawe-dev check docker-check` already catches (1) and would have caught (2) had it understood RUN
 // inputs; this file closes the remaining gap by running the real commands instead of parsing them.
 //
 // WHAT RUNS, AND WHY EACH ONE MADE THE CUT:

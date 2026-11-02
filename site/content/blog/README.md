@@ -25,7 +25,7 @@ Add `featured: true` to up to three posts. `featuredOrder: 1` puts a post first.
 
 ## Share card
 
-`topic` picks the scene of the post's share card: one of `TOPICS` in `lib/blog-front-matter.mjs` (`agents`, `determinism`, `rendering`, `audio`, `motion`, `watching`, `how-to`, `site`), each a scene in `assets/brand-art/cards.js`. Run `node scripts/site/og-cards.mjs` and commit `site/public/og/` (the card and `stamp.json`); the post's `opengraph-image` serves that file, and `bin/vawe check seo-surface` fails without it.
+`topic` picks the scene of the post's share card: one of `TOPICS` in `lib/blog-front-matter.mjs` (`agents`, `determinism`, `rendering`, `audio`, `motion`, `watching`, `how-to`, `site`), each a scene in `assets/brand-art/cards.js`. Run `node scripts/site/og-cards.mjs` and commit `site/public/og/` (the card and `stamp.json`); the post's `opengraph-image` serves that file, and `bin/vawe-dev check seo-surface` fails without it.
 
 ## Agents
 

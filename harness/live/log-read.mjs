@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // PostToolUse hook for Read: logs an image the agent opened, wherever it lies, to the film's runs.jsonl (_unfiled when the path names no film),
-// so `vawe runs` can say which images were looked at. Settings: matcher "Read", command "node harness/live/log-read.mjs".
+// so `vawe-dev runs` can say which images were looked at. Settings: matcher "Read", command "node harness/live/log-read.mjs".
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

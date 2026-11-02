@@ -1,4 +1,4 @@
-// harness/dev/e2e.mjs: `vawe e2e`. The page tests plus a half-size draft render of every page film and
+// harness/dev/e2e.mjs: `vawe-dev e2e`. The page tests plus a half-size draft render of every page film and
 // fixture page, in parallel, each checked for a non-empty mp4 of the right duration. It never stops at
 // the first failure: one run reports on everything. Leaves quality/runs/e2e/<timestamp>/report.{json,md}
 // and quality/runs/e2e/latest.json; only the newest KEEP_RUNS run directories stay.

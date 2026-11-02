@@ -1,12 +1,18 @@
 #!/usr/bin/env node
 // vawe-dev: tools for working on the framework itself. `vawe-dev --help` lists the verbs; `bin/vawe` makes films.
+import fs from 'node:fs';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { closest, parseArgs, UsageError, verbHelp } from '../harness/cli/parse.mjs';
 import { DEV_VERBS } from '../harness/dev/verbs.mjs';
+import { doctorHintFromFile } from '../harness/lib/doctor-hint.mjs';
+import { defaultRefFor } from '../harness/lib/refs.mjs';
+import { appendRun } from '../harness/lib/runlog.mjs';
+import { verbEvent, UNFILED } from '../harness/lib/verb-log.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const LOGGED = ['land'];
 
 function topHelp() {
   const width = Math.max(...DEV_VERBS.map((v) => v.name.length)) + 2;
@@ -14,7 +20,30 @@ function topHelp() {
     ...DEV_VERBS.map((v) => `  ${v.name.padEnd(width)}${v.summary}`)].join('\n');
 }
 
-function main(argv) {
+function requireFiles(verb, values, positional) {
+  (verb.positional || []).forEach((p, i) => {
+    if (p.kind === 'file' && positional[i] && !fs.existsSync(positional[i])) throw new UsageError(`no such ${p.name}: ${positional[i]}`);
+  });
+  for (const f of verb.flags || []) {
+    if (f.kind === 'file' && values[f.name] && !fs.existsSync(values[f.name])) throw new UsageError(`no such file for --${f.name}: ${values[f.name]}`);
+  }
+}
+
+function runStep(step, cwd) {
+  const argv = step.node || [path.join(ROOT, step.script), ...step.args];
+  return new Promise((resolve) => {
+    const child = spawn(process.execPath, argv, { stdio: ['inherit', 'inherit', 'pipe'], cwd, env: { ...process.env, ...step.env } });
+    let stderr = '';
+    child.stderr.on('data', (d) => { process.stderr.write(d); stderr += d; });
+    child.on('close', (code) => resolve({ code: code ?? 1, stderr }));
+  });
+}
+
+function resultLine(name, code) {
+  return code === 0 ? `vawe-dev: ${name} ok` : `vawe-dev: ${name} FAILED (exit ${code}); read the lines above, fix the cause, run it again`;
+}
+
+async function main(argv) {
   const [name, ...rest] = argv;
   if (!name || name === '--help' || name === '-h') return console.log(topHelp());
   const verb = DEV_VERBS.find((v) => v.name === name);
@@ -23,13 +52,38 @@ function main(argv) {
     throw new UsageError(`unknown verb "${name}"${guess ? `; did you mean ${guess}?` : ''}; vawe-dev --help lists them`);
   }
   if (rest.includes('--help') || rest.includes('-h')) return console.log(verbHelp(verb).replace(/^vawe /m, 'vawe-dev '));
-  const { values, positional } = parseArgs(verb, rest);
-  const step = verb.build(values, positional);
-  const r = spawnSync(process.execPath, [path.join(ROOT, step.script), ...step.args], { stdio: 'inherit', cwd: process.cwd() });
-  process.exitCode = r.status ?? 1;
+  const { values, positional } = verb.raw ? { values: {}, positional: rest } : parseArgs(verb, rest);
+  requireFiles(verb, values, positional);
+  if (verb.defaultRef && !values.ref) {
+    const named = defaultRefFor(verb.defaultRef(values, positional), { root: ROOT });
+    if (named) {
+      values.ref = named.file;
+      console.log(`ref: ${named.id}, named in the brief (${named.file}); pass --ref to use another`);
+    }
+  }
+  const startMs = Date.now();
+  let code = 0;
+  let stderr = '';
+  for (const step of verb.build(values, positional)) {
+    ({ code, stderr } = await runStep(step, verb.caller ? process.cwd() : ROOT));
+    if (code !== 0) break;
+  }
+  if (code !== 0) {
+    const hint = doctorHintFromFile(ROOT, stderr);
+    if (hint) console.error(hint);
+  }
+  if (LOGGED.includes(name) && !process.env.VAWE_LOGGED) {
+    appendRun(UNFILED, verbEvent({ verb: name, args: rest, startMs, endMs: Date.now(), exitCode: code, reason: code === 0 ? null : `exit ${code}` }), { root: ROOT });
+  }
+  if (!rest.includes('--json')) {
+    const next = code === 0 && verb.next ? verb.next(values, positional) : null;
+    if (next) console.log(`\nnext: ${next}`);
+    if (!process.env.VAWE_LOGGED) console.log(resultLine(name, code));
+  }
+  process.exitCode = code;
 }
 
-try { main(process.argv.slice(2)); } catch (e) {
+try { await main(process.argv.slice(2)); } catch (e) {
   if (!(e instanceof UsageError)) throw e;
   console.error(`vawe-dev: ${e.message}`);
   process.exitCode = 2;

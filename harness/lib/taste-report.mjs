@@ -1,4 +1,4 @@
-// `vawe runs --taste`: what the run logs say about the taste rules and about variety across films.
+// `vawe-dev runs --taste`: what the run logs say about the taste rules and about variety across films.
 // Pure: it reads the records readAllRuns gives it (new and old; an old record lacks the rule and signature fields).
 import { DIALS } from '../../core/motion/signature.js';
 import { normalize, table } from './runs-report.mjs';
@@ -139,7 +139,7 @@ const pct = (x) => (x == null ? 'n/a' : `${Math.round(x * 100)}%`);
 const signed = (x) => (x == null ? 'n/a' : `${x > 0 ? '+' : ''}${Number(x.toFixed(1))}`);
 const clip = (text, n) => (text.length > n ? `${text.slice(0, n - 3)}...` : text);
 
-/** The lines of `vawe runs --taste`: at most MAX_LINES; the rule rows give way first, the JSON holds all. */
+/** The lines of `vawe-dev runs --taste`: at most MAX_LINES; the rule rows give way first, the JSON holds all. */
 export function tasteLines(r) {
   const c = r.counts;
   const head = [`taste report: ${c.films} films, ${c.drafts} drafts (${c.draftsWithRules} log rules), ${c.judges} judge runs (${c.judgesWithNotes} log notes)`];

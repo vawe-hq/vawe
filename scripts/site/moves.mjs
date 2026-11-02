@@ -284,7 +284,7 @@ function readMove(file, index) {
 }
 
 // ---- clips ------------------------------------------------------------------------------------------
-// One source per move (an untracked master), rendered by `bin/vawe moves` at 1280x720 60 fps. The move page plays the H.264
+// One source per move (an untracked master), rendered by `bin/vawe-dev moves` at 1280x720 60 fps. The move page plays the H.264
 // copy at full size; the gallery grid plays a 640 px VP9 copy over a 640 px poster.
 const CLIP_FILES = ['mp4', 'webm', 'webp', 'hd.webp'];
 
@@ -351,7 +351,7 @@ for (const m of moves) {
     const have = CLIP_FILES.every((e) => fs.existsSync(path.join(OUT_DIR, `${stem}.${e}`)));
     if (have && encodedHash.get(stem) === hash) continue;
     if (withClips && !fs.existsSync(path.join(SRC, `${stem}.mp4`))) {
-      console.warn(`~ ${stem}: no master clip here, render it with: bin/vawe moves --only ${m.name}`);
+      console.warn(`~ ${stem}: no master clip here, render it with: bin/vawe-dev moves --only ${m.name}`);
       continue;
     }
     if (!withClips) {

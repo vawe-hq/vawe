@@ -1,6 +1,6 @@
 // dead-branch.mjs: a branch that can never be taken, or two branches that do the same thing.
 //
-//   node quality/gates/dead-branch.mjs      ·   vawe check dead-branch
+//   node quality/gates/dead-branch.mjs      ·   vawe-dev check dead-branch
 //
 // `deploySuccess` shipped `i === last ? T.green : T.green`. A ternary whose arms are identical, next
 // to a condition that was always true. Between them the cascade the block exists for was unreachable,

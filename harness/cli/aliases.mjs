@@ -1,4 +1,4 @@
-// The old picture verbs. Each maps its argv to the argv of the verb that replaced it; none is in VERBS, so the verb table stays small.
+// The old picture verbs, and (DEV_ALIASES) the old maintainer verbs that moved to bin/vawe-dev. Each maps its argv to the argv of the verb that replaced it; none is in VERBS, so the verb table stays small.
 // An old verb keeps the flags it required: a call that failed before fails now, naming the frame flag, so it never runs another mode.
 import { UsageError } from './parse.mjs';
 
@@ -81,13 +81,19 @@ export const ALIASES = {
   storyboard,
 };
 
-/** The line an agent sees when it types an old verb: what the call now is. `short` leaves the arguments out, for a call that has no session to remember it. */
-export const aliasNotice = (name, argv, { short = false } = {}) => (argv[0] === name
+/** The verbs that left bin/vawe for bin/vawe-dev: `vawe land` runs `vawe-dev land` and says so once. */
+export const DEV_ALIASES = ['land', 'claim', 'e2e', 'test', 'runs', 'moves', 'doctor', 'judge', 'approve'];
+
+/** The line an agent sees when it types an old verb: what the call now is. `short` leaves the arguments out, for a call that has no session to remember it. `bin` is the binary the call now runs. */
+export const aliasNotice = (name, argv, { short = false, bin = 'vawe' } = {}) => (RETIRED[name] && argv[0] === name
   ? `vawe: \`vawe ${name}\` is retired: ${RETIRED[name]}; this call still runs`
-  : `vawe: \`vawe ${name}\` is now \`vawe ${short ? argv[0] : argv.join(' ')}\``);
+  : `vawe: \`vawe ${name}\` is now \`${bin} ${short ? argv[0] : argv.join(' ')}\``);
 
 /** The key a notice is remembered by: the old verb and the verb it became. */
-export const aliasKey = (name, argv) => `${name}->${argv[0]}`;
+export const aliasKey = (name, argv, { bin = 'vawe' } = {}) => `${name}->${bin === 'vawe' ? '' : `${bin} `}${argv[0]}`;
+
+/** Every old name that still runs: the picture verbs and the verbs that moved to vawe-dev. */
+export const OLD_NAMES = [...Object.keys(ALIASES), ...DEV_ALIASES];
 
 const NOW = { fonts: 'fonts', palette: 'palette', animatic: 'dev', studio: 'dev', shot: 'new' };
 

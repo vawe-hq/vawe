@@ -9,8 +9,8 @@ ship:     ; @bin/vawe ship $(PAGE) $(ARGS)
 critique: ; @bin/vawe critique $(PAGE) $(ARGS)
 spec:     ; @bin/vawe see $(REF) --spec $(ARGS)
 studio:   ; @bin/vawe dev $(PAGE) --studio $(ARGS)
-e2e:      ; @bin/vawe e2e
-test:     ; @bin/vawe test
+e2e:      ; @bin/vawe-dev e2e
+test:     ; @bin/vawe-dev test
 
 install-hooks:
 	git config core.hooksPath .githooks

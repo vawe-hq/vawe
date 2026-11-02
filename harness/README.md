@@ -6,7 +6,7 @@ group: engine
 
 # harness/
 
-Every script here is reached from `bin/vawe` (verbs in `cli/verbs.mjs`), a git hook, a test or the
+Every script here is reached from `bin/vawe` (verbs in `cli/verbs.mjs`), `bin/vawe-dev` (framework tools: land, claim, e2e, test, runs, moves, doctor, check, worktrees, bots; verbs in `dev/verbs.mjs`), a git hook, a test or the
 list below. A script none of those reaches is dead: delete it.
 
 | Folder | Holds |
@@ -14,14 +14,14 @@ list below. A script none of those reaches is dead: delete it.
 | `cli/` | the `vawe` verb table, argument parser and `new` starter |
 | `media/` | the renderer (`render-page.mjs`, `page-audio.mjs`), the views (`see.mjs`, `see/`, `see-views.mjs`), `still.mjs` (one full-size PNG of a page or mp4), `storyboard.mjs` (one self-contained HTML board of a page or draft: a card per world, the handoffs, a rhythm strip; its data is `lib/storyboard.mjs`, its page `lib/storyboard-html.mjs`), the reference measures (`ref-spec.mjs`, `render-spec.mjs`) |
 | `lib/` | shared helpers: the gate table (`check-gate.mjs`), the render harness, run logs, judge codes |
-| `dev/` | git hooks' helpers (`no-emdash.mjs`, `push-guard.mjs`), `e2e.mjs`, `bench.mjs`, worktree tools |
+| `dev/` | the `vawe-dev` verb table, git hooks' helpers (`no-emdash.mjs`, `push-guard.mjs`), `e2e.mjs`, `bench.mjs`, worktree tools |
 | `live/` | Claude Code hooks: `stage-say.mjs` (next command), `verb-hint.mjs` (names the verb for a hand-made screenshot, link check or contact sheet), `code-quality.mjs`, `no-emdash-live.mjs`, `no-blanket-git.mjs`, `log-read.mjs` (see Hooks below) |
 
 ## Hooks
 
 The files in `live/` are Claude Code hooks. This repo does not track a `.claude/settings.json`, so each
 user registers them. `log-read.mjs` is a PostToolUse hook: it logs every image the agent Reads under
-`out/` to the film's `out/<film>.runs.jsonl`, so `vawe runs` can say which images were looked at.
+`out/` to the film's `out/<film>.runs.jsonl`, so `vawe-dev runs` can say which images were looked at.
 Register it in your own settings with matcher `Read` and command `node harness/live/log-read.mjs` (run
 from the repo root).
 `verb-hint.mjs` is a PreToolUse hook (matcher `Bash`, command `node harness/live/verb-hint.mjs`): when a command does by hand what a verb does (a puppeteer or headless Chrome screenshot, a curl status loop, a sleep loop on a render, an ffmpeg contact sheet or frame grab) it adds one line naming the verb. It never blocks and names each verb once per 30 minutes.
@@ -29,7 +29,7 @@ from the repo root).
 ## Run log
 
 Every verb appends one line to `out/<film>.runs.jsonl`: verb, stage, seconds, exit code and render slot wait, tagged
-with `VAWE_AGENT` and `VAWE_MODEL` from the shell. `bin/vawe runs <film>` (or `--all`) reads it.
+with `VAWE_AGENT` and `VAWE_MODEL` from the shell. `bin/vawe-dev runs <film>` (or `--all`) reads it.
 
 ## The frame merge: keep or fall back, 14 days after the merge
 

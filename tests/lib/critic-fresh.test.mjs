@@ -123,7 +123,7 @@ test('critic-fresh writes the next critique file, prints the verdict, notes fres
   assert.equal(none.stderr.trim().split('\n').length, 1);
 });
 
-test('vawe runs lists a fresh critique with its verdict; AGENTS.md row 8 names --fresh', () => {
+test('vawe-dev runs lists a fresh critique with its verdict; AGENTS.md row 8 names --fresh', () => {
   const at = '2026-11-01T10:00:00.000Z';
   const lines = outcomeLines([{ cmd: 'verb', verb: 'critique', fresh: true, verdict: 'PASS', at }, { cmd: 'verb', verb: 'critique', at }]);
   assert.equal(lines.length, 1);

@@ -5,8 +5,8 @@
 // AGENT then reads judge/<name>/sheet.png against judge/<name>/rubric.md (under the scratch base) and returns a PASS/FIX verdict.
 //
 // Usage: node quality/gates/judge.mjs <page.html|mp4> [--vs <brand>] [--ref <ref.mp4>] [--no-measure]
-//        vawe judge <file> [VS=<brand>] [REF=<ref.mp4>]
-//        vawe judge <file> --verdict PASS|FIX [--at <seconds>] [--top-fix "<fix>"]   writes out/<film>.judge.json
+//        vawe-dev judge <file> [VS=<brand>] [REF=<ref.mp4>]
+//        vawe-dev judge <file> --verdict PASS|FIX [--at <seconds>] [--top-fix "<fix>"]   writes out/<film>.judge.json
 // A page film (films/<name>/page.html) is judged from its render in out/. A reference (--ref, or the page's
 // reference.json) makes the sheet frame-locked pairs: reference left, film right.
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -128,7 +128,7 @@ if (verdictArg) {
   const prep = readReceipt('judge', inp);
   const sheet = prep.exists && prep.receipt && prep.receipt.sheet;
   if (!prep.exists || prep.stale || !sheet || !fs.existsSync(sheet)) {
-    console.error(`✗ no sheet to judge${prep.exists && prep.stale ? ' for this cut (the prep is for an older edit)' : ''}. Run \`vawe judge ${inp}\` first to render the key frames, LOOK at them against the rubric, then record the verdict.`);
+    console.error(`✗ no sheet to judge${prep.exists && prep.stale ? ' for this cut (the prep is for an older edit)' : ''}. Run \`vawe-dev judge ${inp}\` first to render the key frames, LOOK at them against the rubric, then record the verdict.`);
     process.exit(1);
   }
   // The prep receipt's own render hash must still match `out/<name>.mp4` on disk RIGHT NOW: the scene
@@ -137,7 +137,7 @@ if (verdictArg) {
   // be recorded against a sheet made from a video that is no longer the one sitting in out/.
   const renderHash = renderHashOf(mp4);
   if (!renderHash || prep.receipt.renderHash !== renderHash) {
-    console.error(`✗ ${mp4} has changed since the sheet was made (its content no longer matches). Re-run \`vawe judge ${inp}\` first.`);
+    console.error(`✗ ${mp4} has changed since the sheet was made (its content no longer matches). Re-run \`vawe-dev judge ${inp}\` first.`);
     process.exit(1);
   }
   // The judge is meant for a SEPARATE agent (guides/judge.md: "the PASS is not the author's
@@ -211,12 +211,12 @@ if (verdictJsonArg) {
   const prep = readReceipt('judge', inp);
   const sheet = prep.exists && prep.receipt && prep.receipt.sheet;
   if (!prep.exists || prep.stale || !sheet || !fs.existsSync(sheet)) {
-    console.error(`✗ no sheet to judge${prep.exists && prep.stale ? ' for this cut (the prep is for an older edit)' : ''}. Run \`vawe judge ${inp} --struct\` first.`);
+    console.error(`✗ no sheet to judge${prep.exists && prep.stale ? ' for this cut (the prep is for an older edit)' : ''}. Run \`vawe-dev judge ${inp} --struct\` first.`);
     process.exit(1);
   }
   const renderHash = renderHashOf(mp4);
   if (!renderHash || prep.receipt.renderHash !== renderHash) {
-    console.error(`✗ ${mp4} has changed since the sheet was made. Re-run \`vawe judge ${inp} --struct\` first.`);
+    console.error(`✗ ${mp4} has changed since the sheet was made. Re-run \`vawe-dev judge ${inp} --struct\` first.`);
     process.exit(1);
   }
 

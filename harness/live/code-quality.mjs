@@ -102,7 +102,7 @@ process.stdin.on('end', () => {
     + 'Split it so each function does one job. A function that needs a paragraph to describe what it\n'
     + 'does is usually two functions. Keep the comments, move each one with the code it explains.\n\n'
     + 'If the shape you wrote is genuinely right and the rule is wrong here, say so in your reply and\n'
-    + 'run: vawe check code-quality WRITE=1  (that accepts the new number as the line to hold).\n\n'
+    + 'run: vawe-dev check code-quality WRITE=1  (that accepts the new number as the line to hold).\n\n'
     + 'Refused by harness/live/code-quality.mjs. Limits live in .oxlintrc.json.\n';
 
   const say = summarize('code-quality', rel, full);

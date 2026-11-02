@@ -89,7 +89,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
       { href: "/llms-full.txt", title: "/llms-full.txt", line: "The guide, the pages and the video components in one text file.", icon: "file", meta: sizes && kb(sizes.llmsFull), code: true },
       { href: "/ai-agents.md", title: "/ai-agents.md", line: "How an agent writes and renders a film, as Markdown.", icon: "markdown", meta: sizes && kb(sizes.agents), code: true },
       { href: "/moves/index.json", title: "/moves/index.json", line: "Every video component with its group, look, jobs, duration and file, to filter by script.", icon: "json", meta: publicSize("moves/index.json"), code: true },
-      { href: "/ai-agents", title: "How an agent installs vawe", line: "Clone the repo, run bin/vawe doctor, then write one HTML page.", icon: "terminal", meta: "guide" },
+      { href: "/ai-agents", title: "How an agent installs vawe", line: "Clone the repo, run bin/vawe-dev doctor, then write one HTML page.", icon: "terminal", meta: "guide" },
     ],
   },
   {

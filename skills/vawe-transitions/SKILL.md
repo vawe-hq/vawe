@@ -7,7 +7,7 @@ license: Apache-2.0
 
 # vawe-transitions: one handoff per cut
 
-Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe doctor`.
+Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe-dev doctor`.
 
 A model asked for a transition writes the same few: a crossfade, a whip pan, a slide-up, a scale-in. This skill makes the choice on purpose.
 The grammar (the twelve families, when each fits, its cost, moves to copy) is in `taste/craft/transitions.md` "The twelve handoff families": read it first,

@@ -45,12 +45,12 @@ test('isFlat: one colour and level luma only', () => {
   assert.ok(!isFlat({ hist: hist(1), grid: Float64Array.from([0.1, 0.9]) }));
 });
 
-test('doneLines: at most 3 problems and the judge command', () => {
-  const job = { id: 'x', startedAt: 0, endedAt: 5000, outputs: ['out/x.mp4'], problems: ['a', 'b', 'c', 'd'] };
+test('doneLines: at most 3 problems and the fresh critique command', () => {
+  const job = { id: 'x', page: 'films/x/page.html', startedAt: 0, endedAt: 5000, outputs: ['out/x.mp4'], problems: ['a', 'b', 'c', 'd'] };
   const lines = doneLines(job);
   assert.equal(lines[0], 'job x: done in 5s');
   assert.equal(lines.filter((l) => l.startsWith('  ')).length, 3);
-  assert.equal(lines.at(-1), 'next: bin/vawe judge out/x.mp4 --fresh');
+  assert.equal(lines.at(-1), 'next: bin/vawe critique films/x/page.html --fresh');
 });
 
 test('doneLines: the ship verdict is PASS only when the judge passes and no measured acceptance row missed', () => {

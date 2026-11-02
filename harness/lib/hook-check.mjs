@@ -1,11 +1,11 @@
-// The live hooks harness/README.md ("Hooks") asks each user to register, and the advice lines `vawe doctor` prints for the missing ones.
+// The live hooks harness/README.md ("Hooks") asks each user to register, and the advice lines `vawe-dev doctor` prints for the missing ones.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 export const LIVE_HOOKS = [
-  { file: 'log-read.mjs', event: 'PostToolUse', matcher: 'Read', why: 'logs the images you Read, so vawe runs can say what was looked at' },
+  { file: 'log-read.mjs', event: 'PostToolUse', matcher: 'Read', why: 'logs the images you Read, so vawe-dev runs can say what was looked at' },
   { file: 'verb-hint.mjs', event: 'PreToolUse', matcher: 'Bash', why: 'names the verb when a command does by hand what a verb does' },
   { file: 'no-blanket-git.mjs', event: 'PreToolUse', matcher: 'Bash|Write|Edit|NotebookEdit', why: 'refuses a blanket git command, and an agent approving its own plan or draft' },
   { file: 'stage-say.mjs', event: 'UserPromptSubmit', matcher: null, why: 'names the next command for the film you edited last' },

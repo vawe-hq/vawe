@@ -64,7 +64,6 @@ test('the stage hook says "unchanged" for a repeated next line', () => {
 
 test('a verb prints its next line once per session, then "unchanged"', () => {
   const log = path.join(ROOT, 'out', '_unfiled.runs.jsonl');
-  const before = fs.existsSync(log) ? fs.readFileSync(log) : null;
   const run = () => spawnSync(process.execPath, [path.join(ROOT, 'bin/vawe'), 'palette', '--id', 'seed-200'], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, CLAUDE_CODE_SESSION_ID: `next-once-${process.pid}`, VAWE_AGENT: '' } }).stdout;
   try {
     assert.match(run(), /\nnext: write the palette/);
@@ -72,6 +71,6 @@ test('a verb prints its next line once per session, then "unchanged"', () => {
     assert.match(again, /\nnext: unchanged, see above/);
     assert.doesNotMatch(again, /write the palette/);
   } finally {
-    if (before) fs.writeFileSync(log, before); else fs.rmSync(log, { force: true });
+    if (fs.existsSync(log)) fs.writeFileSync(log, fs.readFileSync(log, 'utf8').split('\n').filter((l) => l && !l.includes('next-once-')).map((l) => `${l}\n`).join(''));
   }
 });

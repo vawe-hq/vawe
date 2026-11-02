@@ -7,7 +7,7 @@ license: Apache-2.0
 
 # vawe-page: write the page
 
-Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe doctor`.
+Run this skill inside a vawe checkout: `AGENTS.md`, `taste/` and `bin/vawe` live there. With no checkout, get one: `git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && bin/vawe-dev doctor`.
 
 A film is one HTML page; the renderer seeks it, screenshots every frame and mixes the audio offline.
 The contract (duration meta, seek, aspect, literals) is in `AGENTS.md`. Start with
@@ -147,10 +147,10 @@ do not count, and nor does one reason copied to 3 or more waivers. The draft lis
 ## Commands
 
 `bin/vawe dev <page> [--aspect --from --to --silent]`: half size, 30 fps, with sound (a window is silent).
-`bin/vawe ship <page> [--aspect all]` needs a fresh review (`bin/vawe judge <page> --fresh`, or `bin/vawe critique <page>` in a separate terminal) and the person's OK on the plan and the draft: show the draft (`bin/vawe frame <draft>`) in plain words (map: harness/lib/plain-words.mjs) and end with "If you like it, type /vawe-approve". It runs in the background; wait with `bin/vawe wait <page>`
+`bin/vawe ship <page> [--aspect all]` needs a fresh review (`bin/vawe critique <page> --fresh`, or `bin/vawe critique <page>` in a separate terminal) and the person's OK on the plan and the draft: show the draft (`bin/vawe frame <draft>`) in plain words (map: harness/lib/plain-words.mjs) and end with "If you like it, type /vawe-approve". It runs in the background; wait with `bin/vawe wait <page>`
 (one call returns within 3.5 minutes with a progress line each minute; if it says STILL RUNNING, call it again); before it do the work it names (fill the Board and
 Motion pass rows, Read the `bin/vawe frame <page> --cuts` grids, prepare the critique notes). Fix the verdict worst first on drafts (`bin/vawe dev`, then
-`bin/vawe judge <draft mp4> --fresh`) until PASS, then ship once more. Fix what the final check and the acceptance rows name;
+`bin/vawe critique <page> --fresh`) until PASS, then ship once more. Fix what the final check and the acceptance rows name;
 read the judge once and never tune to it (its score is not a target). Poll once per call and work on the last draft between polls.
 `bin/vawe critique <page> [--ref mp4]`: the fresh look (`vawe-critique`; with `--ref`, `vawe-reference`).
 Templates: `guides/ROUTING.md`. Long films: `prompts/directors-brief-long-form.md`.
