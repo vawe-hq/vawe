@@ -188,6 +188,7 @@ paid "Company License":
       { href: "/hyperframes-alternatives", label: "HyperFrames alternatives" },
       { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },
       { href: "/vs/revideo", label: "vawe vs Revideo" },
+      { href: "/blog/claude-code-remotion-or-html", label: "Claude Code with Remotion or plain HTML" },
       { href: "/determinism", label: "Why the same page always renders the same frames" },
       { href: "/ai-agents", label: "How an agent writes and checks a film" },
       { href: "/when-determinism-matters", label: "When determinism is the reason to pick an engine" },

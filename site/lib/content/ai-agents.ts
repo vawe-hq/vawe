@@ -112,6 +112,10 @@ export const AGENT_FAQ: QA[] = [
     a: ["No. vawe runs from source on your machine and needs no account. See ", { text: "install", href: "/docs/install" }, " and ", { text: "the quickstart", href: "/docs/quickstart" }, "."],
   },
   {
+    q: "Can Claude make videos?",
+    a: ["Yes, when the video is code. Claude writes the HTML page and vawe renders it. ", { text: "Can Claude make videos?", href: "/blog/can-claude-make-videos" }, " gives the longer answer."],
+  },
+  {
     q: "Where do the agent docs live?",
     a: [{ text: "Use with an agent", href: "/docs/agents" }, " in the docs covers setup for each tool. ", { text: "HTML to MP4 with Claude Code", href: "/docs/html-to-mp4-with-claude-code" }, " walks one film through."],
   },

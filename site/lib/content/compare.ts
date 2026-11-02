@@ -175,6 +175,7 @@ export const COMPARE_REMOTION_HYPERFRAMES = {
       { href: "/vs/remotion", label: "vawe vs Remotion" },
       { href: "/vs/hyperframes", label: "vawe vs HyperFrames" },
       { href: "/vs/revideo", label: "vawe vs Revideo" },
+      { href: "/blog/claude-code-remotion-or-html", label: "Claude Code with Remotion or plain HTML" },
       { href: "/remotion-alternatives", label: "Remotion alternatives, by category" },
       { href: "/determinism", label: "How vawe keeps renders deterministic" },
     ],

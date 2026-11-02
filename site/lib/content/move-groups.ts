@@ -44,6 +44,7 @@ const PAGES: GroupPage[] = [
     ],
     more: [
       { href: "/blog/kinetic-typography-css", label: "Kinetic typography in CSS, rendered to MP4" },
+      { href: "/blog/animated-captions-html", label: "Animated captions in HTML, word by word" },
       { href: "/docs/kinetic-type", label: "The kinetic type guide" },
       { href: "/docs/text-and-fonts", label: "Text and fonts in a film" },
     ],
@@ -197,6 +198,7 @@ const PAGES: GroupPage[] = [
       "terminal-run and approval-gate show Claude Code. They suit a film about coding agents.",
     ],
     more: [
+      { href: "/blog/animated-chart-video", label: "Render a bar chart to MP4 from code" },
       { href: "/docs/product-ui", label: "Product UI in a film" },
       { href: "/docs/ui-demo", label: "The UI demo guide" },
       { href: "/launch-video", label: "Make a product launch video with code" },
