@@ -242,7 +242,7 @@ function fnv1a(s) {
 
 const escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-// The scene, ink, composition, seed and copy markup for ?route=<path>, or for ?post=<slug> with the post's title, its
+// The scene, ink, composition, seed and copy markup for ?route=<path> (with &word=<w>, one big word: a /resources tile), or for ?post=<slug> with the post's title, its
 // section's label and its topic as title, section and topic.
 export function cardFor(q) {
   const slug = q.get('post');
@@ -256,8 +256,11 @@ export function cardFor(q) {
   }
   const route = q.get('route') || '/blog', P = PAGES[route];
   if (!P) throw new Error(`no card for route "${route}": the routes are ${Object.keys(PAGES).join(', ')}`);
+  const word = q.get('word');
+  // Measured on the 1600 px tile: past 6 letters at 260 px the word runs into the scene art.
+  const px = word && Math.min(260, Math.round(1300 / word.length));
   return {
-    kind: 'page', scene: P.scene, ink: q.get('ink') || P.ink, lay: P.lay, loop: P.loop, seed: 7,
-    html: `<h1>${P.h}</h1><p class="sub">${P.sub}</p><p class="mono"><span>vawe.dev${route}</span></p>`,
+    kind: word ? 'tile' : 'page', scene: P.scene, ink: q.get('ink') || P.ink, lay: P.lay, loop: P.loop, seed: 7,
+    html: word ? `<h1 style="font-size:${px}px">${escape(word)}</h1>` : `<h1>${P.h}</h1><p class="sub">${P.sub}</p><p class="mono"><span>vawe.dev${route}</span></p>`,
   };
 }

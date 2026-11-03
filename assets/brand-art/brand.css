@@ -39,3 +39,7 @@ body[data-format="card"] .copy { left: 112px; }
 [data-ink="a"] .kicker { color: var(--paper); }
 [data-ink="b"] .kicker { color: var(--blue); }
 body[data-format="card"] h1 { text-wrap: balance; }
+
+body[data-kind="tile"] .lockup { display: none; }
+body[data-kind="tile"] .copy { left: 88px; max-width: none; }
+body[data-kind="tile"] h1 { font-size: 260px; letter-spacing: -0.04em; line-height: 0.9; }

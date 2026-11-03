@@ -1,7 +1,6 @@
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { GithubMark, Icon } from "../components/Icon";
-import { MatTile } from "../components/MatTile";
 import { pageMetadata } from "../components/seo";
 import { PageTop, Toc } from "../components/Xp";
 import { jsonLdScript, breadcrumbSchema } from "../../lib/schema";
@@ -36,12 +35,15 @@ function Row({ i }: { i: Item }) {
   );
 }
 
+function TileArt({ id }: { id: string }) {
+  return <img src={`/resources/tiles/${id}.webp`} alt="" width={960} height={600} loading="lazy" decoding="async" />;
+}
+
 function ToolCard({ i }: { i: Item }) {
-  const t = i.tile!;
   return (
-    <a className="rs-card mat-trigger" href={i.href}>
+    <a className="rs-card" href={i.href}>
       <span className="rs-art">
-        <MatTile {...t} />
+        <TileArt id={i.tile!} />
       </span>
       <span className="rs-card-body">
         <RowIcon name={i.icon} />
@@ -86,8 +88,8 @@ export default async function Resources() {
           {GROUPS.map((g) => (
             <section className={g.tile ? "rs-group has-tile" : "rs-group"} id={g.id} key={g.id}>
               {g.tile ? (
-                <div className="rs-aside mat-trigger">
-                  <MatTile {...g.tile} />
+                <div className="rs-aside">
+                  <TileArt id={g.tile} />
                 </div>
               ) : null}
               <div className="rs-main">

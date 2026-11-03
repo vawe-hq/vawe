@@ -2,7 +2,6 @@ import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { REPO_URL } from "../schema";
 import type { IconName } from "../../app/components/Icon";
-import type { MatDetail, MatTone } from "../../app/components/MatTile";
 import { EASES } from "../easing";
 import { MOVES } from "../moves";
 import { INSPIRATION, INSPIRATION_PATH } from "../inspiration";
@@ -10,7 +9,8 @@ import { allPosts } from "../blog";
 import { RIVALS } from "./vs";
 import type { Crumb, Meta } from "./types";
 
-export type Tile = { word: string; tone: MatTone; detail: MatDetail; shift?: -1 | 0 | 1; flip?: boolean };
+// A riso tile: /resources/tiles/<id>.webp, painted by assets/brand-art/card.html with &word= (see site/DESIGN.md).
+export type Tile = string;
 export type Item = { href: string; title: string; line: string; icon: IconName | "github"; meta?: string; code?: boolean; external?: boolean; tile?: Tile };
 export type Group = { id: string; title: string; lead?: string; tile?: Tile; items: Item[] };
 
@@ -51,7 +51,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
         line: `${EASES.length} easing functions: preview, compare, copy a CSS cubic-bezier or linear().`,
         icon: "curve",
         meta: `${EASES.length}${NBSP}curves`,
-        tile: { word: "Easing", tone: "mat", detail: "easing" },
+        tile: "easing",
       },
       {
         href: "/video-components",
@@ -59,7 +59,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
         line: `${MOVES.length} video components. Each has a short clip, the CSS and one markdown file to copy.`,
         icon: "play",
         meta: `${MOVES.length}${NBSP}video components`,
-        tile: { word: "Components", tone: "ochre", detail: "moves", shift: 1, flip: true },
+        tile: "moves",
       },
       {
         href: INSPIRATION_PATH,
@@ -67,7 +67,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
         line: "Motion videos made with AI, from posts on X, each with the command to use it as a reference.",
         icon: "play",
         meta: `${INSPIRATION.length}${NBSP}videos`,
-        tile: { word: "Films", tone: "cobalt", detail: "films", shift: -1 },
+        tile: "films",
       },
       {
         href: "/features",
@@ -75,7 +75,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
         line: "What the engine decides for you, in three groups: agent experience, taste and speed.",
         icon: "list",
         meta: "page",
-        tile: { word: "Features", tone: "oxblood", detail: "features", flip: true },
+        tile: "features",
       },
     ],
   },
@@ -83,7 +83,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
     id: "agents",
     title: "For agents",
     lead: "Plain files an AI agent can fetch without a browser.",
-    tile: { word: "Agents", tone: "graphite", detail: "agents", shift: -1 },
+    tile: "agents",
     items: [
       { href: "/llms.txt", title: "/llms.txt", line: "The site as a short index: install, the page contract, every page and video component.", icon: "file", meta: sizes && kb(sizes.llms), code: true },
       { href: "/llms-full.txt", title: "/llms-full.txt", line: "The guide, the pages and the video components in one text file.", icon: "file", meta: sizes && kb(sizes.llmsFull), code: true },
@@ -96,7 +96,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
     id: "skills",
     title: "Agent skills",
     lead: "Six SKILL.md files in the skills/ folder of the GitHub repo.",
-    tile: { word: "Skills", tone: "accent", detail: "skills", flip: true },
+    tile: "skills",
     items: [
       skill("html-to-video", "Start here: make a film from one HTML page when none exists yet."),
       skill("vawe-brief", "Ask for the missing facts, then write the film’s brief."),
@@ -109,7 +109,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
   {
     id: "learn",
     title: "Learn",
-    tile: { word: "Learn", tone: "cobalt", detail: "learn", shift: 1 },
+    tile: "learn",
     items: [
       { href: "/docs", title: "Docs", line: "Quickstart, the page contract, the CLI and troubleshooting.", icon: "book", meta: "docs" },
       { href: "/docs/recipes", title: "Recipes", line: "Chains of video components for common short films, with the traps at each seam.", icon: "list", meta: "recipes" },
@@ -122,7 +122,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
   {
     id: "compare",
     title: "Compare",
-    tile: { word: "Compare", tone: "oxblood", detail: "compare", shift: -1, flip: true },
+    tile: "compare",
     items: [
       { href: "/remotion-alternatives", title: "Remotion alternatives", line: "A hosted JSON API or a self-hosted engine, and what each license requires.", icon: "compare", meta: "alternatives" },
       { href: "/hyperframes-alternatives", title: "HyperFrames alternatives", line: "The closest peer: both compose from HTML and make time deterministic differently.", icon: "compare", meta: "alternatives" },
@@ -132,7 +132,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
   {
     id: "project",
     title: "Project",
-    tile: { word: "Project", tone: "mat", detail: "project", shift: 1, flip: true },
+    tile: "project",
     items: [
       { href: "/problems", title: "Hard problems", line: "Thirteen problems in agent-made video: seven solved with numbers, six open.", icon: "alert", meta: "problems" },
       { href: "/roadmap", title: "Roadmap", line: "What is in work now, next and later.", icon: "map", meta: "now, next, later" },

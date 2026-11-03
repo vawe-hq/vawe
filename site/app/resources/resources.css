@@ -24,6 +24,7 @@
   transition:background-color var(--dur-exit) var(--ease-in),box-shadow var(--dur-exit) var(--ease-in)}
 .rs-art{display:block;aspect-ratio:16/10;border-radius:var(--r-in);overflow:hidden}
 .rs-art,.rs-aside{position:relative}
+.rs-art img,.rs-aside img{display:block;width:100%;height:100%;object-fit:cover}
 .rs-art::after,.rs-aside::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px oklch(1 0 0 / .1);pointer-events:none}
 .rs-card-body{padding:var(--sp-3) var(--sp-2) var(--sp-2);grid-template-columns:32px minmax(0,1fr) auto;grid-template-areas:"ico body arw" ". meta .";row-gap:var(--sp-1)}
 
