@@ -119,3 +119,11 @@ test('the bot log download checks the token in constant time form and picks file
   const names = ['bots-2026-10-01.jsonl', 'bots-2026-10-30.jsonl', 'bots-2026-11-02.jsonl', 'other.txt'];
   assert.deepEqual(logFilesFor(names, 7, new Date('2026-11-03T10:00:00Z')), ['bots-2026-10-30.jsonl', 'bots-2026-11-02.jsonl']);
 });
+
+test('githubLines shows stars with the change since the last snapshot, views and the referrers', async () => {
+  const { githubLines } = await import('../../harness/lib/seo-report.mjs');
+  const gh = { stars: 16, views: { count: 143, uniques: 77 }, referrers: [{ referrer: 'vawe.dev', count: 55, uniques: 40 }] };
+  assert.deepEqual(githubLines(gh, { stars: 14 }), ['', 'GitHub (its last 14 days)', '  stars: 16 (+2)', '  repo views: 143 by 77 people', '  from vawe.dev: 40 people']);
+  assert.deepEqual(githubLines(gh, undefined).slice(2, 3), ['  stars: 16']);
+  assert.deepEqual(githubLines({ note: 'GitHub skipped: x' }), ['', 'GitHub (its last 14 days)', '  GitHub skipped: x']);
+});

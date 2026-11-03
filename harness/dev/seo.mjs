@@ -1,4 +1,5 @@
 // vawe-dev seo [--days n] [--no-save] | --log "<what>" --pages /a,/b: the weekly SEO report for vawe.dev.
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -85,11 +86,31 @@ try {
   fail(e.message);
 }
 
+// GitHub's traffic API covers the last 14 days only; it needs `gh` logged in with push access to the repo.
+function github() {
+  const api = (route) => {
+    const r = spawnSync('gh', ['api', `repos/vawe-hq/vawe${route}`], { encoding: 'utf8' });
+    if (r.status !== 0) throw new Error((r.stderr || r.error?.message || 'gh failed').trim().split('\n')[0]);
+    return JSON.parse(r.stdout);
+  };
+  try {
+    const views = api('/traffic/views');
+    return {
+      stars: api('').stargazers_count,
+      views: { count: views.count, uniques: views.uniques },
+      referrers: api('/traffic/popular/referrers').map((r) => ({ referrer: r.referrer, count: r.count, uniques: r.uniques })),
+    };
+  } catch (e) {
+    return { note: `GitHub skipped: ${e.message}` };
+  }
+}
+
 const log = await botEvents().catch((e) => ({ note: `bot log skipped: ${e.message}` }));
 const snapshot = {
   date: today, window,
   gsc: { pageQuery, pages, queries },
   bots: log.events ? botSummary(log.events) : null,
+  github: github(),
 };
 const prev = previousSnapshot();
 const candidates = [...new Set(pageQuery.filter((r) => r.impressions >= MIN_IMPRESSIONS).map((r) => r.page))].slice(0, 25);

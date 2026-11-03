@@ -209,6 +209,8 @@ export function renderReport({ snapshot, prev, effects = [], actions, botNote })
     out.push(...(refDiff.length ? refDiff.map((d) => `  ${d.key}: ${d.cur}${prevBots ? ` (${sign(d.delta)})` : ''}`) : ['  none']));
   }
 
+  out.push(...githubLines(snapshot.github, prev?.github));
+
   if (effects.length) {
     out.push('', 'Past changes, 28 days before and after');
     for (const e of effects) {
@@ -216,5 +218,17 @@ export function renderReport({ snapshot, prev, effects = [], actions, botNote })
       out.push(`  ${e.date} ${e.what} [${e.pages.join(', ')}]`, `    before: ${f(e.before)}`, `    after:  ${f(e.after)}`);
     }
   }
+  return out;
+}
+
+// The last step of the funnel: AI and search visits on vawe.dev, then people who reach the repo, then stars.
+export function githubLines(gh, prevGh) {
+  const out = ['', 'GitHub (its last 14 days)'];
+  if (!gh) return [...out, '  not collected'];
+  if (gh.note) return [...out, `  ${gh.note}`];
+  const was = (v) => (prevGh && !prevGh.note && v !== undefined ? ` (${sign(gh.stars - v)})` : '');
+  out.push(`  stars: ${gh.stars}${was(prevGh?.stars)}`);
+  out.push(`  repo views: ${gh.views.count} by ${gh.views.uniques} people`);
+  for (const r of gh.referrers.slice(0, 6)) out.push(`  from ${r.referrer}: ${r.uniques} people`);
   return out;
 }
