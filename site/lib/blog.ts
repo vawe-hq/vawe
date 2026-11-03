@@ -188,7 +188,7 @@ function loadPost(file: string): Post {
   if (data.featuredOrder && !/^\d+$/.test(data.featuredOrder)) fail(file, `featuredOrder must be a whole number, got "${data.featuredOrder}"`);
   const section = SECTIONS.find((s) => s.id === data.section);
   if (!section) fail(file, `section must be one of ${SECTIONS.map((s) => s.id).join(", ")}, got "${data.section}"`);
-  if (!(TOPICS as readonly string[]).includes(data.topic)) fail(file, `topic must be one of ${TOPICS.join(", ")}, got "${data.topic ?? ""}" (it picks the share card's scene)`);
+  if (!(TOPICS as readonly string[]).includes(data.topic)) fail(file, `topic must be one of ${TOPICS.join(", ")}, got "${data.topic ?? ""}" (it picks the share card's scenes)`);
   let hero: Post["hero"];
   if (data.hero) {
     if (!fs.existsSync(path.join(PUBLIC, data.hero))) fail(file, `hero ${data.hero} is not in site/public`);

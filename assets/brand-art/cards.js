@@ -199,10 +199,9 @@ PAGES['/explainer-video'] = {
   sub: 'Facts first, then one idea per scene.',
 };
 
-// Blog posts: the topic picks the scene and its usual ink; the slug's seed varies the composition within safe ranges
-// and prints about half of each topic's posts in the other ink.
-export const TOPICS = {
-  agents: { scene: 'stair', ink: 'b', vary: (R) => {
+// Blog posts: each scene's composition, varied by the post's seed within safe ranges.
+const POST_LAY = {
+  stair: (R) => {
     const n = 4 + Math.floor(R() * 3), x0 = -0.14 + 0.1 * R(), dx = 0.08 + 0.12 * R(), rise = 0.18 + 0.14 * R(), grow = 1.15 + 0.15 * R();
     const bend = 0.12 * (R() - 0.5);
     return {
@@ -210,40 +209,54 @@ export const TOPICS = {
       starUp: 0.4 + 0.3 * R(), figStep: Math.floor(R() * (n - 1)), figU: 0.3 + 0.4 * R(), figH: 0.06,
       steps: Array.from({ length: n }, (_, i) => [x0 + dx * i + bend * i * i, 0.3 - rise * i, 1.2 * grow ** i]),
     };
-  } },
-  determinism: { scene: 'strip', ink: 'a', vary: (R) => {
+ },
+  strip: (R) => {
     const gates = Array.from({ length: 2 + Math.floor(R() * 4) }, () => 2.4 + 9 * R() ** 1.2);
     return { f: 0.85 + 0.15 * R(), vy: 0.38 + 0.1 * R(), camY: 0.28 + 0.08 * R(), pageEnd: 1.4 + 0.5 * R(), pageW: 0.4 + 0.2 * R(), vx: 0.68 + 0.08 * R(), gates, figZ: 1.9 + 0.6 * R(), figH: 0.075 };
-  } },
-  rendering: { scene: 'lanes', ink: 'b', vary: (R) => {
+ },
+  lanes: (R) => {
     const towers = NEAR_TOWERS.map((t) => ({ ...t, o: [t.o[0] + 0.25 * (R() - 0.5), t.o[1] + 0.25 * (R() - 0.5)], zn: t.zn + 0.3 * R(), zf: t.zf + 1.2 * (R() - 0.3) }));
     return { f: 0.9 + 0.1 * R(), vx: 0.68 + 0.08 * R(), vy: 0.38 + 0.12 * R(), figZ: 1.4 + 0.5 * R(), road: 0.05 + 0.05 * R(), towers: towers.slice(0, 2 + Math.floor(R() * 3)) };
-  } },
-  audio: { scene: 'wave', ink: 'b', vary: (R) => ({
+ },
+  wave: (R) => ({
     f: 0.9, vx: 0.66 + 0.08 * R(), vy: 0.44 + 0.12 * R(), floorY: 0.28 + 0.12 * R(), amp: 0.62 + 0.12 * R(), target: 0.62, step: 1.035 + 0.01 * R(),
     phase: R() * 6.28, beat: 2 + 3 * R(), left: [0.5, 2.2, 0.7], right: [0.42, 0.9, 0.96], fillZ: 0.7, road: 0.05, figZ: 1.5 + 0.4 * R(), figH: 0.07,
-  }) },
-  motion: { scene: 'ease', ink: 'a', vary: (R) => ({
+  }),
+  ease: (R) => ({
     f: 0.9, vx: 0.6, vy: 0.48, floorY: 0.62, origin: [0.0, 2.2], span: [1.55, 0.9], height: 1.5, track: 0.5,
     bez: [0.15 + 0.7 * R(), -0.1 + 0.3 * R(), 0.15 + 0.7 * R(), 0.8 + 0.3 * R()], frames: 15 + Math.floor(R() * 9), figU: -0.03, figH: 0.075, starUp: 0.07,
-  }) },
-  watching: { scene: 'cinema', ink: 'a', vary: (R) => {
+  }),
+  cinema: (R) => {
     const x0 = 0.5 + 0.35 * R(), z0 = 2.9 + 0.6 * R();
     return {
       f: 0.9, vx: 0.56 + 0.08 * R(), vy: 0.46 + 0.08 * R(), floorY: 0.55, curtain: 0.12, lens: [0.12 + 0.2 * R(), 0.47, 1.3], fig: [0.1, 1.22], figH: 0.075, aisle: 0.12, rowGap: 0.12,
       seats: [0.25, 3.2], starUV: [0.35 + 0.35 * R(), 0.26 + 0.14 * R()],
       screen: { x0, z0, x1: x0 + 2.4 + 0.8 * R(), z1: z0 + 2.4 + 0.8 * R(), top: -1.3 - 0.4 * R(), bot: 0.15 },
     };
-  } },
-  'how-to': { scene: 'pages', ink: 'a', vary: (R) => {
+ },
+  pages: (R) => {
     const j = (v, k) => v + k * (R() - 0.5);
     const stacks = PAGES['/blog'].lay.stacks.map((s) => ({ ...s, r: s.r.map((v) => j(v, 0.1)), zt: j(s.zt, 0.3) }));
     return { ...PAGES['/blog'].lay, f: 0.85 + 0.1 * R(), vx: 0.72 + 0.08 * R(), vy: 0.42 + 0.16 * R(), frameW: 0.95 + 0.25 * R(), figU: 0.25 + 0.5 * R(), stacks };
-  } },
-  site: { scene: 'catalog', ink: 'b', vary: (R) => ({
+ },
+  catalog: (R) => ({
     ...PAGES['/resources'].lay, vx: 0.64 + 0.1 * R(), vy: 0.46 + 0.1 * R(), rowH: 0.24 + 0.06 * R(), rightX: 0.6 + 0.18 * R(),
     open: [Math.floor(R() * 3), 1 + Math.floor(R() * 4)], pull: 0.4 + 0.25 * R(), cards: 7 + Math.floor(R() * 6), figX: 0.1 * (R() - 0.5), figZ: 1.7 + 0.4 * R(),
-  }) },
+  }),
+  search: (R) => ({ ...SEARCH, vx: 0.62 + 0.14 * R(), vy: 0.42 + 0.16 * R(), camY: 0.34 + 0.18 * R() }),
+};
+
+// A topic's scenes all fit its posts; the slug's seed picks one, so a topic's posts do not all share one picture,
+// and prints about half of them in the other ink.
+export const TOPICS = {
+  agents: { ink: 'b', scenes: ['stair', 'pages', 'search'] },
+  determinism: { ink: 'a', scenes: ['strip', 'lanes'] },
+  rendering: { ink: 'b', scenes: ['lanes', 'strip', 'catalog'] },
+  audio: { ink: 'b', scenes: ['wave'] },
+  motion: { ink: 'a', scenes: ['ease', 'wave', 'cinema'] },
+  watching: { ink: 'a', scenes: ['cinema'] },
+  'how-to': { ink: 'a', scenes: ['pages', 'catalog', 'stair'] },
+  site: { ink: 'b', scenes: ['catalog', 'pages'] },
 };
 
 const OTHER = { a: 'b', b: 'a' };
@@ -263,8 +276,9 @@ export function cardFor(q) {
   if (slug) {
     const T = TOPICS[q.get('topic')], seed = fnv1a(slug);
     if (!T) throw new Error(`topic must be one of ${Object.keys(TOPICS).join(', ')}, got "${q.get('topic')}"`);
+    const scene = T.scenes[(seed >>> 20) % T.scenes.length];
     return {
-      kind: 'post', scene: T.scene, ink: q.get('ink') || (seed & 0x10000 ? OTHER[T.ink] : T.ink), lay: T.vary(rng(seed)), seed: seed % 9973,
+      kind: 'post', scene, ink: q.get('ink') || (seed & 0x10000 ? OTHER[T.ink] : T.ink), lay: POST_LAY[scene](rng(seed)), seed: seed % 9973,
       html: `<p class="kicker">Blog · ${escape(q.get('section'))}</p><h1>${escape(q.get('title'))}</h1><p class="mono"><span>vawe.dev/blog/${slug}</span></p>`,
     };
   }

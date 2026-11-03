@@ -8,7 +8,7 @@ export const SECTIONS = /** @type {const} */ ([
   { id: "motion-sound", label: "Motion and sound", intro: "Easing, transitions, blur, depth and audio: how we turned a good film into measured rules." },
 ]);
 
-// The `topic` a post names picks its share card's scene; each one is a key of TOPICS in assets/brand-art/cards.js.
+// The `topic` a post names picks the scenes its share card may use; each one is a key of TOPICS in assets/brand-art/cards.js.
 export const TOPICS = /** @type {const} */ (["agents", "determinism", "rendering", "audio", "motion", "watching", "how-to", "site"]);
 
 /** @param {string} raw */
