@@ -95,7 +95,7 @@ cd ../app && git merge --ff-only feature
 ```
 
 ```text
-Successfully rebased and updated refs/heads/f2.
+Successfully rebased and updated refs/heads/feature.
 Updating deefb68..9681f96
 Fast-forward
 ```
@@ -123,21 +123,21 @@ git branch -d feature
 After a squash, `git branch -d` refuses, because the original commits are not in `main`:
 
 ```text
-error: the branch 'f3' is not fully merged
-hint: If you are sure you want to delete it, run 'git branch -D f3'
+error: the branch 'feature' is not fully merged
+hint: If you are sure you want to delete it, run 'git branch -D feature'
 ```
 
 The work is in `main` as the squash commit, so `git branch -D` is safe here. Check `git log main` first.
 
-If you delete the branch before removing the worktree, git says `cannot delete branch 'f3' used by worktree`. Remove the worktree first.
+If you delete the branch before removing the worktree, git says `cannot delete branch 'feature' used by worktree`. Remove the worktree first.
 
 ## A dirty worktree will not be removed
 
 ```text
-fatal: '../app-f4' contains modified or untracked files, use --force to delete it
+fatal: '../app-feature' contains modified or untracked files, use --force to delete it
 ```
 
-Commit or move the files you want. Use `git worktree remove --force ../app-f4` only if you are sure they are scratch files. It deletes them.
+Commit or move the files you want. Use `git worktree remove --force ../app-feature` only if you are sure they are scratch files. It deletes them.
 
 ## You deleted the folder with rm
 
