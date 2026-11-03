@@ -17,3 +17,5 @@ persistent storage with destination `/data/bots`). Read it with `bin/vawe-dev bo
 Set `BOT_LOG_TOKEN` to serve the log at `GET /api/bot-log?days=n` (default 7, max 90) with
 `Authorization: Bearer <token>`; the route answers 404 when the token is unset or wrong. `bin/vawe-dev seo` reads it
 with `VAWE_BOT_LOG_TOKEN`.
+
+IndexNow: after a deploy, `node scripts/site/indexnow.mjs` sends the sitemap URLs changed since yesterday to Bing and the other IndexNow engines (`--since YYYY-MM-DD`, `--all`, `--dry-run`). The key file is `public/b46c6d7bc36449c988f4016eaeb49a66.txt`.
