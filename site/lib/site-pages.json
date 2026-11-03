@@ -64,6 +64,71 @@
       "label": "Easing"
     },
     {
+      "path": "/easing/for/title-entrance",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/panel-entrance",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/number-change",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/list-stagger",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/notification-pop",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/exit",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/short-camera-move",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/long-camera-move",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/scan-wipe",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/hold-drift",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/send-bubble",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/typing",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/easing/for/text-streaming",
+      "priority": 0.6,
+      "changeFrequency": "monthly"
+    },
+    {
       "path": "/resources",
       "priority": 0.8,
       "changeFrequency": "monthly",

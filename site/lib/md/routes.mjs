@@ -13,6 +13,7 @@ export const RENDERED = [
   "/video-components/[name]",
   "/easing",
   "/easing/[slug]",
+  "/easing/for/[job]",
   "/inspiration",
   "/",
   "/features",

@@ -7,10 +7,11 @@ import {
   EASES, EASING_DESCRIPTION, EASING_TITLE, FAMILIES, JOBS as EASE_JOBS, classicIn, copyIsBezier, copyValue, easeBySlug, importLine, pageDescription, pageTitle, roleOf, speedText, summary, waapi,
   type Ease,
 } from "../easing";
+import { jobPageBySlug, jobPages, UI_SOURCE, type JobPage } from "../easing-jobs";
 import { INSPIRATION, INSPIRATION_DESCRIPTION, INSPIRATION_PATH, INSPIRATION_TITLE, PROMPTS_PATH, titleOf } from "../inspiration";
 import { MOVES_DESCRIPTION, MOVES_TITLE, GROUPS, MOVES, JOBS as MOVE_JOBS, groupLabel, moveByName } from "../moves";
 import { moveSeoDescription, relatedMoves } from "../move-seo";
-import { SITE_URL } from "../site";
+import { SITE_URL, absoluteUrl } from "../site";
 import { absolutize, bareTitle, codeBlock, heading, item, markdownPage, table, type Link } from "./format";
 import { CONTENT_RENDERERS } from "./pages";
 import { RENDERED, matchPattern, mdUrlOf } from "./routes.mjs";
@@ -113,6 +114,8 @@ const easingIndex: Renderer = {
       ...FAMILIES.flatMap((f) => [heading(2, `Classic eases: ${f}`), classicIn(f).map(easeLine).join("\n")]),
       heading(2, "Which ease for which job"),
       table(["Job", "Ease", "Time", "Avoid"], EASE_JOBS.map((j) => [j.job, j.easeName, j.time, j.avoid])),
+      heading(2, "One page per job"),
+      jobPages().map((p) => item(p.h1, p.path, p.time)).join("\n"),
     ].join("\n\n"),
   }),
 };
@@ -164,6 +167,39 @@ const easeItem: Renderer = {
   },
 };
 
+function jobBody(p: JobPage) {
+  return [
+    p.answer,
+    table(["Measure", "Value"], [["Job", p.job], ...(p.ease ? ([["Ease", `${p.ease.name} (${absoluteUrl(`/easing/${p.ease.slug}`)})`]] as [string, string][]) : []), ["Duration", p.time]]),
+    ...(p.avoid ? [heading(2, "What to avoid"), p.avoid] : []),
+    heading(2, "CSS"),
+    codeBlock(p.css, "css"),
+    heading(2, "Web Animations"),
+    codeBlock(p.waapi, "js"),
+    ...(p.ease ? [heading(2, "CSS linear()"), codeBlock(`animation-timing-function: ${p.ease.linear};`, "css")] : []),
+    ...(p.preset.length ? [heading(2, "Measured source"), UI_SOURCE, table(["Preset", "Value", "Measured"], p.preset.map((x) => [x.label, x.value, x.measured]))] : []),
+    heading(2, p.moveHeading),
+    p.moveNames.map((n) => item(moveByName(n)?.title ?? n, `/video-components/${n}`)).join("\n"),
+    heading(2, "Other jobs"),
+    jobPages().filter((o) => o.slug !== p.slug).map((o) => item(o.job, o.path)).join("\n"),
+  ].join("\n\n");
+}
+
+const easeJob: Renderer = {
+  entries: () => jobPages().map((p) => ({ path: p.path, title: bareTitle(p.title), description: p.description, kind: "item", full: true })),
+  render: ({ job }) => {
+    const p = jobPageBySlug(job);
+    if (!p) return null;
+    return {
+      title: bareTitle(p.title),
+      description: p.description,
+      updated: dates[p.path] ?? dates["/easing"],
+      body: jobBody(p),
+      related: [{ text: "All easing functions", path: "/easing" }, ...(p.ease ? [{ text: p.ease.name, path: `/easing/${p.ease.slug}` }] : [])],
+    };
+  },
+};
+
 const inspirationIndex: Renderer = {
   entries: () => [page(INSPIRATION_PATH, INSPIRATION_TITLE, INSPIRATION_DESCRIPTION)],
   render: () => ({
@@ -196,6 +232,7 @@ const RENDERERS: Record<string, Renderer> = {
   "/video-components/[name]": moveItem,
   "/easing": easingIndex,
   "/easing/[slug]": easeItem,
+  "/easing/for/[job]": easeJob,
   "/inspiration": inspirationIndex,
   "/ai-agents": agentsPage,
   ...CONTENT_RENDERERS,

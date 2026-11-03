@@ -5,6 +5,7 @@ import { Footer } from "../components/Footer";
 import { pageMetadata } from "../components/seo";
 import { jsonLdScript, breadcrumbSchema } from "../../lib/schema";
 import { CSS, EASES, EASING_DESCRIPTION, EASING_TITLE, FAMILIES, JOBS, PRODUCT_UI, STATS, VAWE, classicIn, copyIsBezier, copyValue, itemListSchema, jobIdsOf, roleOf, speedText, type Ease } from "../../lib/easing";
+import { jobPages } from "../../lib/easing-jobs";
 import { Thumb } from "./Charts";
 import { Finder } from "./Finder";
 import { SpacingChart, ghostValues } from "./Spacing";
@@ -178,6 +179,11 @@ export default function EasingIndex() {
                 </tbody>
               </table>
             </div>
+            <h3 className="meta ez-h3" id="job-pages">One page per job</h3>
+            <p>Each page has the ease, the duration, a live demo, what to avoid, and the CSS and Web Animations to copy.</p>
+            <ul className="ez-moves">
+              {jobPages().map((p) => <li key={p.slug}><Link href={p.path} prefetch={false}>{p.job}</Link></li>)}
+            </ul>
           </section>
 
           <h2 id="all" className="ez-all">All curves</h2>

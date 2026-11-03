@@ -9,6 +9,7 @@ import { CopyCode } from "../../video-components/[name]/CopyCode";
 import { EASES, STATS, classicIn, bezierText, camelOf, copyIsBezier, copyValue, easeBySlug, importLine, pageDescription, pageTitle, roleOf, speedText, summary, techArticleSchema, waapi, type Ease } from "../../../lib/easing";
 import { MoveClips } from "../../components/MoveClips";
 import { CopyBtn } from "../CopyBtn";
+import { Code } from "../Code";
 import { Lab, type Variant } from "../Lab";
 import { Next, Toc } from "../../components/Xp";
 import "../../video-components/moves.css";
@@ -51,18 +52,6 @@ function variantsOf(e: Ease): Variant[] {
   return [...set]
     .sort((a, b) => order.indexOf(a.dir ?? "") - order.indexOf(b.dir ?? ""))
     .map((x) => ({ slug: x.slug, name: x.name, label: x.dir ? DIR_LABEL[x.dir] : x.name, y: x.y, vel: x.vel, t50: x.t50, t90: x.t90, peakSpeed: x.peakSpeed, linear: x.linear }));
-}
-
-function Code({ label, text }: { label: string; text: string }) {
-  return (
-    <figure className="mv-code">
-      <div className="mv-code-bar">
-        <span>{label}</span>
-        <button type="button" className="mv-copy" data-copy>Copy</button>
-      </div>
-      <pre><code>{text}</code></pre>
-    </figure>
-  );
 }
 
 const handleSpec = (h: { influence: number; speed: number; name: string | null }) => (h.name ? `'${h.name}'` : `{ influence: ${h.influence}, speed: ${h.speed} }`);

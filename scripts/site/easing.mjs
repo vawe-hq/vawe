@@ -11,7 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EASE, EASE_HANDLES, easeFn, UI, BANDS } from '../../core/motion/presets.js';
 import { resolveHandle, HANDLE_REGISTRY } from '../../core/motion/motion.js';
-import { curveToLinear, spring, springDuration } from '../../core/motion/springs.js';
+import { curveToLinear, spring, springDuration, springLinear } from '../../core/motion/springs.js';
 import * as curves from '../../core/motion/curves.js';
 import { FPS, sec, span, firstFrame, lateStart, EXIT, EXIT_EXAMPLE, EXIT_FALLBACK, popPeakAt, popSettleFrames, JOBS } from '../../core/motion/ease-jobs.js';
 import { VAWE_TEXT, vaweWords, FAMILY, DIRECTION, SPECIAL, CSS_TEXT } from './easing-text.mjs';
@@ -204,6 +204,22 @@ const SEND = (() => {
   for (let t = 0; t < 1; t += 0.001) over = Math.max(over, spring(t, UI.send.k, UI.send.d) - 1);
   return { k: UI.send.k, d: UI.send.d, overshoot: Math.round(over * 100), settleS: r2(springDuration(UI.send.k, UI.send.d, 0.01)) };
 })();
+const mid = ([lo, hi]) => Math.round(((lo + hi) / 2) * 1000);
+// The demo length of each /easing/for page: a number from the job's own range, in ms.
+const DEMO_MS = {
+  title: mid(BANDS.gravity),
+  panel: UI.panel.fadeMs,
+  value: UI.roll.inMs,
+  stagger: UI.row.fadeMs,
+  pop: mid(BANDS.gravity),
+  exit: EXIT_EXAMPLE.exitMs,
+  'camera-short': mid([BANDS.gravity[0], BANDS.cinematic[1]]),
+  'camera-long': Math.round(BANDS.cinematic[1] * 1000),
+  scan: mid([BANDS.gravity[0], 1]),
+  hold: Math.round(BANDS.cinematic[1] * 1000),
+  send: Math.round(springDuration(UI.send.k, UI.send.d) * 1000),
+};
+const SEND_DEMO = { ms: DEMO_MS.send, linear: springLinear(UI.send.k, UI.send.d), settleS: SEND.settleS, overshoot: SEND.overshoot };
 const FIRST_FRAME_AT = [0.2, 0.3, 0.4, 0.5, 0.8];
 const FAST_OUT_K = [0.27, 0.39];
 const REAL_FIRST_FRAME = FAST_OUT_K.map((k) => Math.round(k * 100));
@@ -291,5 +307,5 @@ for (const e of out) {
 }
 
 const jobsOut = JOBS.map(({ also, ...j }) => ({ ...j, also: (also ?? []).map((slug) => ({ slug, name: out.find((e) => e.slug === slug).name })), easeName: out.find((e) => e.slug === j.ease).name }));
-fs.writeFileSync(OUT, JSON.stringify({ stats: STATS, jobs: jobsOut, exitExample: EXIT_EXAMPLE, ui: productUi(out), popPeakAt: r4(popPeakAt), families: FAMILIES, handleNames: HANDLE_REGISTRY.names, eases: out }));
+fs.writeFileSync(OUT, JSON.stringify({ stats: STATS, jobs: jobsOut, exitExample: EXIT_EXAMPLE, ui: productUi(out), popPeakAt: r4(popPeakAt), uiRaw: UI, demoMs: DEMO_MS, sendDemo: SEND_DEMO, families: FAMILIES, handleNames: HANDLE_REGISTRY.names, eases: out }));
 console.log(`easing: ${out.length} eases, ${(fs.statSync(OUT).size / 1024).toFixed(0)} KB -> ${path.relative(root, OUT)}`);

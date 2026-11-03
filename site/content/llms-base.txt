@@ -29,6 +29,10 @@ A Vawe film is one HTML page (CSS, Web Animations, SVG, canvas or three.js). The
 
 {{DOCS}}
 
+## Easing by job
+The right easing and duration for a UI job, one page each, with a live demo, the CSS and what to avoid.
+{{EASING_JOBS}}
+
 ## Compare
 {{COMPARE}}
 
