@@ -97,6 +97,7 @@ export const LAUNCH_VIDEO = {
       { href: "/video-components", label: "Every video component, with its clip" },
       { href: "/ai-agents", label: "Let an agent write the film" },
       { href: "/features", label: "What the engine does, with proof" },
+      { href: "/blog/product-launch-video-from-url", label: "Make a launch video from a website URL" },
     ],
   } as NextBlock,
 };

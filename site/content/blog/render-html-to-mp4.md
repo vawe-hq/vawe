@@ -4,6 +4,7 @@ description: "Render an HTML page to MP4 with a 20-line Puppeteer script or with
 date: 2026-10-16
 updated: 2026-10-16
 section: how-to
+nav: "HTML to MP4"
 topic: rendering
 docs: video-from-code, html-to-mp4-with-claude-code, determinism
 featured: true

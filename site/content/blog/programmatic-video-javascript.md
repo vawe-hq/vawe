@@ -4,6 +4,7 @@ description: "Remotion, Revideo, Motion Canvas, HyperFrames, vawe and ffmpeg scr
 date: 2026-10-19
 updated: 2026-10-19
 section: how-to
+nav: "Programmatic video"
 topic: how-to
 docs: video-from-code, faq
 tags: "programmatic video, javascript, remotion, revideo, motion canvas, hyperframes"

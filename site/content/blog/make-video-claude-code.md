@@ -4,6 +4,7 @@ description: "Ask Claude Code for a film, let it write one HTML page, and render
 date: 2026-10-16
 updated: 2026-10-16
 section: how-to
+nav: "Video with Claude Code"
 topic: agents
 docs: html-to-mp4-with-claude-code, quickstart, agents
 featured: true

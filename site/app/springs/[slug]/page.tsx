@@ -163,7 +163,7 @@ export default async function SpringPage({ params }: Params) {
             title="More springs"
             primary={{ href: "/springs", label: "All spring presets" }}
             secondary={{ href: "/easing", label: "Easing functions" }}
-            related={[{ href: "/docs/motion", label: "Motion in the docs" }]}
+            related={[{ href: "/blog/easing", label: "When to overshoot, in the rules of easing" }, { href: "/docs/motion", label: "Motion in the docs" }]}
           />
           <CopyCode rootId="ez-main" />
         </article>

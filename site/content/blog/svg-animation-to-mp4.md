@@ -4,6 +4,7 @@ description: "Turn an SVG animation into an MP4 from code. vawe pauses the SVG a
 date: 2026-11-03
 updated: 2026-11-03
 section: how-to
+nav: "SVG animation to MP4"
 topic: how-to
 docs: time-and-seek, the-page, determinism
 tags: "svg animation to mp4, smil, svg to video, stroke dashoffset, headless chrome"

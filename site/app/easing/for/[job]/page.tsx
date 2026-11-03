@@ -192,7 +192,7 @@ export default async function JobPage({ params }: Params) {
             title="More easing"
             primary={{ href: "/easing", label: "All easing functions" }}
             secondary={{ href: "/video-components", label: "See the video components" }}
-            related={[{ href: "/docs/motion", label: "Motion in the docs" }]}
+            related={[{ href: "/blog/easing", label: "The rules of easing for motion video" }, { href: "/docs/motion", label: "Motion in the docs" }]}
           />
           <CopyCode rootId="ez-main" />
         </article>

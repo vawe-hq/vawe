@@ -4,6 +4,7 @@ description: "Render a three js animation to MP4 with one window.seek(t) functio
 date: 2026-10-19
 updated: 2026-10-19
 section: how-to
+nav: "Three.js to MP4"
 topic: how-to
 docs: three-and-canvas, time-and-seek
 tags: "three.js, threejs to mp4, webgl, headless chrome, vawe"

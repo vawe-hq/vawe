@@ -4,6 +4,7 @@ description: "Export a canvas animation to MP4 without MediaRecorder. Draw frame
 date: 2026-11-03
 updated: 2026-11-03
 section: how-to
+nav: "Canvas to video"
 topic: how-to
 docs: three-and-canvas, time-and-seek, page-api
 tags: "canvas animation to video, canvas to mp4, window.seek, seeded random, headless chrome"

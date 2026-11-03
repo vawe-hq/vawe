@@ -109,6 +109,7 @@ export const HYPERFRAMES_ALTERNATIVES = {
       { href: "/determinism", label: "How vawe keeps renders deterministic" },
       { href: "/ai-agents", label: "How an agent writes and checks a film" },
       { href: "/blog/page-contract", label: "How vawe renders HTML to video" },
+      { href: "/blog/programmatic-video-javascript", label: "Six JavaScript video tools compared" },
     ],
   } as NextBlock,
 };

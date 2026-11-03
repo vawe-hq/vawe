@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { DOCS_URL, REPO_URL } from "./Header";
 import sitePages from "../../lib/site-pages.json";
+import { guidePosts } from "../../lib/blog";
 
 type Route = { path: string; group?: string; label?: string };
 
@@ -42,6 +43,16 @@ function FooterNav({ active }: { active?: string }) {
           )}
         </div>
       ))}
+      <div className="foot-col">
+        <span className="foot-h">Guides</span>
+        {guidePosts().map((g) =>
+          active === g.href ? (
+            <span key={g.href} aria-current="page">{g.label}</span>
+          ) : (
+            <Link key={g.href} href={g.href}>{g.label}</Link>
+          ),
+        )}
+      </div>
       <div className="foot-col">
         <span className="foot-h">Docs</span>
         <a href={DOCS_URL}>Documentation</a>

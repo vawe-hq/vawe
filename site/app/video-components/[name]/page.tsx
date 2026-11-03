@@ -184,6 +184,8 @@ export default async function MovePage({ params }: Params) {
             related={[
               { href: "/docs", label: "How a page becomes a film, in the docs" },
               { href: "/docs/motion", label: "The motion guide" },
+              { href: "/blog/render-html-to-mp4", label: "Render a page like this to MP4" },
+              ...(move.group === "change-between-shots" ? [{ href: "/blog/transitions", label: "The 12 types of transition" }] : []),
               ...videoTypesUsing(move.name),
             ]}
           />

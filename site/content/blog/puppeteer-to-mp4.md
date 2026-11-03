@@ -4,6 +4,7 @@ description: "Capture frames with Puppeteer, pipe them into ffmpeg and get an MP
 date: 2026-10-19
 updated: 2026-10-19
 section: how-to
+nav: "Puppeteer to MP4"
 topic: rendering
 docs: video-from-code, determinism
 tags: "puppeteer, ffmpeg, screenshots to video, headless chrome, mp4"

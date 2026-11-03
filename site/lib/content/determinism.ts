@@ -117,6 +117,8 @@ assert frames differ over t`,
     related: [
       { href: "/ai-agents", label: "How an agent writes the page" },
       { href: "/features", label: "What else the engine decides" },
+      { href: "/blog/seekable-css", label: "Seek CSS animations frame by frame" },
+      { href: "/blog/page-clock", label: "Seed Math.random and freeze Date.now" },
     ],
   } as NextBlock,
 };

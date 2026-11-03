@@ -103,7 +103,7 @@ export default function SpringsIndex() {
             title="Use a spring in a film"
             primary={{ href: "/video-components", label: "See the video components" }}
             secondary={{ href: "/easing", label: "Easing functions" }}
-            related={[{ href: "/docs/motion", label: "Motion in the docs" }]}
+            related={[{ href: "/blog/easing", label: "When to overshoot, in the rules of easing" }, { href: "/docs/motion", label: "Motion in the docs" }]}
           />
         </div>
       </main>

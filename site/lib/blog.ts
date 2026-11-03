@@ -40,6 +40,7 @@ export type Post = {
   cover?: Cover;
   featured: boolean;
   featuredOrder?: number;
+  nav?: string;
   no: number;
   html: string;
   body: string;
@@ -54,6 +55,9 @@ const WORDS_PER_MINUTE = 230;
 const BANNED_HTML = /<\s*(script|iframe|svg|object|embed|style)\b/i;
 const showDrafts = process.env.NODE_ENV !== "production" || process.env.BLOG_DRAFTS === "1";
 const FEATURED_MAX = 3;
+// A footer column longer than the others breaks the row; the "Compare" column holds nine links.
+const NAV_MAX = 24;
+const GUIDES_MAX = 9;
 // The first commit time of each post (scripts/site/blog-added.mjs). It orders posts that share a date and is never shown.
 const addedAt = added as Record<string, string>;
 
@@ -186,6 +190,7 @@ function loadPost(file: string): Post {
   if (data.updated && data.updated < data.date) fail(file, `updated ${data.updated} is before date ${data.date}`);
   if (data.featured && data.featured !== "true" && data.featured !== "false") fail(file, `featured must be true or false, got "${data.featured}"`);
   if (data.featuredOrder && !/^\d+$/.test(data.featuredOrder)) fail(file, `featuredOrder must be a whole number, got "${data.featuredOrder}"`);
+  if (data.nav && data.nav.length > NAV_MAX) fail(file, `nav must be at most ${NAV_MAX} characters, got "${data.nav}"`);
   const section = SECTIONS.find((s) => s.id === data.section);
   if (!section) fail(file, `section must be one of ${SECTIONS.map((s) => s.id).join(", ")}, got "${data.section}"`);
   if (!(TOPICS as readonly string[]).includes(data.topic)) fail(file, `topic must be one of ${TOPICS.join(", ")}, got "${data.topic ?? ""}" (it picks the share card's scenes)`);
@@ -199,6 +204,7 @@ function loadPost(file: string): Post {
     heroInBody: Boolean(data.hero && body.includes(data.hero)),
     featured: data.featured === "true",
     featuredOrder: data.featuredOrder ? Number(data.featuredOrder) : undefined,
+    nav: data.nav || undefined,
     no: 0,
     cover: coverFor(slug),
     slug,
@@ -258,6 +264,13 @@ export function indexPosts(): IndexPost[] {
     ...featured.map((post, i) => ({ post, feat: i === 0 ? ("lead" as const) : ("mid" as const) })),
     ...posts.filter((p) => !featured.includes(p)).map((post) => ({ post })),
   ];
+}
+
+// The footer's "Guides" column: live posts with a `nav` label, in label order.
+export function guidePosts(): { href: string; label: string }[] {
+  const guides = allPosts().filter((p): p is Post & { nav: string } => Boolean(p.nav));
+  if (guides.length > GUIDES_MAX) throw new Error(`content/blog: ${guides.length} posts set nav, at most ${GUIDES_MAX} fit the footer`);
+  return guides.sort((a, b) => a.nav.localeCompare(b.nav)).map((p) => ({ href: `/blog/${p.slug}`, label: p.nav }));
 }
 
 export function postBySlug(slug: string) {

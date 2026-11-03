@@ -19,6 +19,10 @@ Newest `date` first. Posts that share a date sort by the time their file was fir
 
 Add `featured: true` to up to three posts. `featuredOrder: 1` puts a post first. The first featured post is the large card, the next two are medium cards, and any further featured post is a normal card. The band shows while "All" is chosen.
 
+## Footer guides
+
+Add `nav: <short label>` (at most 24 characters) to put a post in the "Guides" column of the footer on every page. At most nine posts set it; the build fails on a tenth. Give it to the how-to posts that answer a search, since a link from every page is how Google finds a post worth crawling.
+
 ## Sections
 
 `section` is one of `how-to`, `rendering`, `agents`, `motion-sound` (`SECTIONS` in `lib/blog.ts`, `[data-s]` in `blog.css`).

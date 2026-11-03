@@ -188,7 +188,7 @@ bin/vawe dev films/acme-showcase/page.html`,
       " with your product’s URL. To see what a finished film is, read the product launch guide.",
     ],
     primary: { href: REPO_URL, label: "Get vawe on GitHub" },
-    related: [launchLink, explainerLink, { href: "/video-components", label: "Every video component, with its clip" }],
+    related: [launchLink, explainerLink, { href: "/video-components", label: "Every video component, with its clip" }, { href: "/blog/product-launch-video-from-url", label: "Make a product video from a website URL" }],
   },
 };
 
@@ -314,7 +314,7 @@ bin/vawe dev films/how-it-works/page.html`,
     title: "Make your explainer.",
     lead: ["Run ", { code: "bin/vawe new" }, " with the explainer template, then write the facts list first."],
     primary: { href: REPO_URL, label: "Get vawe on GitHub" },
-    related: [launchLink, showcaseLink, { href: "/video-components", label: "Every video component, with its clip" }],
+    related: [launchLink, showcaseLink, { href: "/video-components", label: "Every video component, with its clip" }, { href: "/blog/animated-chart-video", label: "Render an animated chart to MP4" }],
   },
 };
 

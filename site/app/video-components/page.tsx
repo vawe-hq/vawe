@@ -64,6 +64,7 @@ export default function Moves() {
             related={[
               { href: "/easing", label: "Easing functions as CSS" },
               { href: "/docs/motion", label: "The motion guide" },
+              { href: "/blog/css-animation-to-video", label: "Export a CSS animation as an MP4" },
               { href: "/launch-video", label: "A launch film, built from these video components" },
               { href: "/product-showcase-video", label: "A product showcase video, built from these video components" },
               { href: "/explainer-video", label: "An explainer video, built from these video components" },

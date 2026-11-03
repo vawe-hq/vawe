@@ -4,6 +4,7 @@ description: "Pause a GSAP timeline, call tl.time(t) for each frame and render i
 date: 2026-10-19
 updated: 2026-10-19
 section: how-to
+nav: "GSAP to MP4"
 topic: how-to
 docs: time-and-seek, page-api, video-from-code
 tags: "gsap, gsap to mp4, timeline, puppeteer, vawe"

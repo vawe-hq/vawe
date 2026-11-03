@@ -235,7 +235,7 @@ export default function EasingIndex() {
             title="Use an ease in a film"
             primary={{ href: "/video-components", label: "See the video components" }}
             secondary={{ href: "/docs/motion", label: "Motion in the docs" }}
-            related={[{ href: "/springs", label: "Spring presets as CSS linear()" }]}
+            related={[{ href: "/springs", label: "Spring presets as CSS linear()" }, { href: "/blog/easing", label: "The rules of easing for motion video" }]}
           />
         </div>
       </main>
