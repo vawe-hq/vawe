@@ -155,6 +155,8 @@
 .mvd-head .kicker{font-size:var(--fs-code);line-height:var(--lh-ui);margin-top:0}
 .mvd-head .kicker a{color:var(--muted);transition:color var(--dur-hover) var(--ease-out)}
 .mvd-no{display:block;margin-bottom:var(--sp-2);font:500 var(--fs-code)/1 var(--font-mono),monospace;letter-spacing:.02em;color:var(--muted);font-variant-numeric:tabular-nums}
+.mvd-head .mvd-use{margin-top:var(--sp-3);max-width:60ch;color:var(--ink-2);font-size:var(--fs-body);line-height:var(--lh-body);text-wrap:pretty}
+.mvd-head .mvd-use::first-letter{text-transform:uppercase}
 .mvd-head .mvd-meta{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-4)}
 .mv-pill{display:inline-flex;align-items:center;gap:var(--sp-2);height:28px;padding:0 var(--sp-3);border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--ring);
   font-size:var(--fs-code);line-height:1;color:var(--ink-2)}

@@ -32,6 +32,17 @@
 .lp-display{font-size:var(--fs-mega);line-height:.88;letter-spacing:-.07em}
 .lp .lp-hero-brand{display:block;width:fit-content;margin-bottom:var(--sp-5);padding:var(--sp-1) var(--sp-3);border-radius:var(--r-pill);background:rgba(0,0,0,.6);color:var(--ink-2)}
 .lp-lede{font-size:clamp(1rem,1.5vw,1.25rem);line-height:var(--lh-body);color:var(--ink-2);max-width:46ch;text-wrap:pretty}
+.lp-hero-copy{grid-template-columns:minmax(0,1fr)}
+.lp-install{display:grid;gap:var(--sp-1);width:max-content;max-width:100%;min-width:0;justify-self:start;font:400 var(--fs-code)/var(--lh-ui) var(--font-mono),monospace;color:var(--muted)}
+.lp-install-row{display:flex;align-items:center;gap:var(--sp-2);min-width:0}
+.lp-install-next{padding-left:var(--sp-3)}
+.lp-install-cmd{min-width:0;max-width:100%;overflow-x:auto;white-space:nowrap;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);background:rgba(0,0,0,.6);border:1px solid var(--line);color:var(--ink-2)}
+.lp-install-copy{min-height:var(--hit);padding:0 var(--sp-3);background:transparent;border:0;border-radius:var(--r-ctl);color:var(--muted);font:inherit;cursor:pointer;transition:color var(--dur-hover) var(--ease-out),scale var(--dur-press) var(--ease-press)}
+.lp-install-copy:active{scale:var(--press)}
+.lp-install-copy:focus-visible{outline:var(--focus-ring);outline-offset:2px}
+@media (hover:hover) and (pointer:fine){ .lp-install-copy:hover{color:var(--ink)} }
+@media (min-width:641px){ .lp-install-cmd{flex-shrink:0} }
+@media (max-width:640px){ .lp-install-copy{min-height:44px} }
 @media (max-width:760px){
   .lp-hero{height:auto;min-height:0;padding:var(--sp-2) var(--sp-3) 0}
   .lp .lp-hero-frame{height:auto;border:0;border-radius:0;overflow:visible}

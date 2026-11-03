@@ -13,6 +13,7 @@ export const HOME = {
     lede: "Write one HTML page. vawe renders it to an mp4. You write the page, or an agent does.",
     primary: { href: REPO_URL, label: "Get started on GitHub" } as Link,
     secondary: { href: "/video-components", label: "See the video components" } as Link,
+    install: { cmd: "git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install", next: "then bin/vawe new hello" },
   },
   chapters: [
     {
