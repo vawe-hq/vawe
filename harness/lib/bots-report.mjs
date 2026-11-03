@@ -20,16 +20,19 @@ export function readEvents(target, { days, now = Date.now() } = {}) {
   const files = fs.statSync(target).isDirectory()
     ? fs.readdirSync(target).filter((f) => /^bots-.*\.jsonl$/.test(f)).sort().map((f) => path.join(target, f))
     : [target];
+  return files.flatMap((file) => parseEvents(fs.readFileSync(file, 'utf8'), { days, now }));
+}
+
+/** The events of one jsonl text, from the last `days` days when given. */
+export function parseEvents(text, { days, now = Date.now() } = {}) {
   const since = days ? now - days * 86400000 : 0;
   const events = [];
-  for (const file of files) {
-    for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
-      if (!line.trim()) continue;
-      try {
-        const e = JSON.parse(line);
-        if (Date.parse(e.t) >= since) events.push(e);
-      } catch { /* a torn last line */ }
-    }
+  for (const line of text.split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const e = JSON.parse(line);
+      if (Date.parse(e.t) >= since) events.push(e);
+    } catch { /* a torn last line */ }
   }
   return events;
 }

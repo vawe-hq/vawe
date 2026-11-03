@@ -36,6 +36,7 @@ function toHandler(req: NextRequest, mdPath: string, negotiated: boolean) {
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  if (pathname === "/api/bot-log") return NextResponse.next();
 
   const move = MOVE_FILE.exec(pathname);
   if (move) {

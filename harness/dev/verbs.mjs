@@ -48,6 +48,23 @@ export const DEV_VERBS = [
     }],
   },
   {
+    name: 'seo',
+    summary: 'the weekly SEO report for vawe.dev: Search Console plus the bot log, a dated snapshot, the change since the last one, past changes judged, and the next actions',
+    positional: [],
+    flags: [
+      { name: 'days', type: 'number', help: 'the window in days, ending 3 days ago', default: 28 },
+      { name: 'no-save', type: 'bool', help: 'dry run: print the report, write nothing' },
+      { name: 'log', type: 'string', help: 'append a change to the change log (SEO_DIR/changes.jsonl) and stop' },
+      { name: 'pages', type: 'string', help: 'with --log: the pages it touched, comma separated' },
+    ],
+    example: 'GSC_SA_JSON=key.json VAWE_BOT_LOG_TOKEN=... vawe-dev seo   |   vawe-dev seo --log "new title" --pages /easing,/moves',
+    build: (v) => [{
+      script: 'harness/dev/seo.mjs',
+      args: [...(v.days !== undefined ? ['--days', String(v.days)] : []), ...(v['no-save'] ? ['--no-save'] : []),
+        ...(v.log !== undefined ? ['--log', v.log] : []), ...(v.pages !== undefined ? ['--pages', v.pages] : [])],
+    }],
+  },
+  {
     name: 'land', summary: 'put the current branch on main: fetch, rebase onto origin/main (stops on a conflict), scan for files over 5 MB, run tests/lib and tests/hooks, push with ssh keep-alive, print the e2e line and the pushed range',
     positional: [],
     flags: [],
