@@ -29,6 +29,8 @@ const publisher = { "@type": "Organization", name: "vawe", url: SITE_URL };
 
 // ISO 8601 duration from seconds, for a clip of a few seconds: 2 -> PT2S, 2.5 -> PT2.5S.
 const isoDuration = (seconds: number) => `PT${Number(seconds.toFixed(2))}S`;
+// Google rejects a date-only uploadDate ("missing a timezone"); a bare YYYY-MM-DD becomes midnight UTC.
+const isoDateTime = (date: string) => (/^\d{4}-\d{2}-\d{2}$/.test(date) ? `${date}T00:00:00Z` : date);
 
 export function videoObjectSchema(m: Move) {
   const files = clip(m);
@@ -39,7 +41,7 @@ export function videoObjectSchema(m: Move) {
     description: moveSeoDescription(m),
     thumbnailUrl: [absolute(files.posterHd)],
     contentUrl: absolute(files.mp4),
-    uploadDate: m.clipDate ?? m.published,
+    uploadDate: isoDateTime(m.clipDate ?? m.published),
     ...(m.duration ? { duration: isoDuration(m.duration) } : {}),
     isFamilyFriendly: true,
     inLanguage: "en",
