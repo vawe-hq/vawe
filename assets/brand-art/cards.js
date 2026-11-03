@@ -51,6 +51,12 @@ export const PAGES = {
     },
     loop: (p) => ({ pull: 0.5 + 0.12 * Math.sin(2 * Math.PI * p), liftCard: 4, lift: 0.1 * Math.sin(Math.PI * p) ** 4 }),
   },
+  '/springs': {
+    scene: 'ease', ink: 'a',
+    h: 'Spring animation presets as CSS.',
+    sub: 'Stiffness, damping and settle time<br>for react-spring, Motion and SwiftUI.',
+    lay: { f: 0.9, vx: 0.6, vy: 0.48, floorY: 0.62, origin: [0.0, 2.2], span: [1.55, 0.9], height: 1.5, track: 0.5, bez: [0.34, 1.56, 0.64, 1], frames: 21, figU: -0.03, figH: 0.075, starUp: 0.07 },
+  },
   '/easing': {
     scene: 'ease', ink: 'a',
     h: 'Easing functions as CSS.',

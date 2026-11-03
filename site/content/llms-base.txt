@@ -15,6 +15,7 @@ A Vawe film is one HTML page (CSS, Web Animations, SVG, canvas or three.js). The
 - [video-components](https://vawe.dev/video-components): Proven motion video components, each a short clip and one markdown file an agent copies. Every video component file is listed under Video components below.
 - [inspiration](https://vawe.dev/inspiration): Motion videos made with Claude and other AI, from posts on X. Each one is listed under Inspiration below.
 - [resources](https://vawe.dev/resources): Every vawe resource in one list: easing curves, the video components library, the plain files for agents, the six agent skills, guides, comparisons and the project pages.
+- [springs](https://vawe.dev/springs): Spring animation presets from react-spring, Motion, SwiftUI, Compose, Material 3 and vawe as CSS linear(), each with stiffness, damping, settle time and overshoot. Every preset is listed under Spring presets below.
 - [about](https://vawe.dev/about): What vawe is, why a film is one HTML page, how it is built (Apache-2.0, public since 2026-09-16), its five rules, who makes it and how to help.
 - [determinism](https://vawe.dev/determinism): A page seeked, never played: the same page produces the same frames on every render, in any order. How Vawe makes that true and how it checks it.
 - [problems](https://vawe.dev/problems): The hard problems in agent-made motion graphics, solved and open, with the measured result for each.
@@ -35,6 +36,9 @@ The right easing and duration for a UI job, one page each, with a live demo, the
 
 ## Compare
 {{COMPARE}}
+
+## Spring presets
+{{SPRINGS}}
 
 ## Blog
 {{BLOG}}

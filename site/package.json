@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node ../scripts/site/vendor-assets.mjs && node ../scripts/site/moves.mjs && node ../scripts/site/easing.mjs && node ../scripts/site/lastmod.mjs && node ../scripts/site/blog-added.mjs",
+    "predev": "node ../scripts/site/vendor-assets.mjs && node ../scripts/site/moves.mjs && node ../scripts/site/easing.mjs && node ../scripts/site/springs.mjs && node ../scripts/site/lastmod.mjs && node ../scripts/site/blog-added.mjs",
     "dev": "next dev",
-    "prebuild": "node ../scripts/site/vendor-assets.mjs && node ../scripts/site/moves.mjs && node ../scripts/site/easing.mjs && node ../scripts/site/lastmod.mjs && node ../scripts/site/blog-added.mjs",
+    "prebuild": "node ../scripts/site/vendor-assets.mjs && node ../scripts/site/moves.mjs && node ../scripts/site/easing.mjs && node ../scripts/site/springs.mjs && node ../scripts/site/lastmod.mjs && node ../scripts/site/blog-added.mjs",
     "build": "NEXT_DIST_DIR=.next-build next build",
     "start": "NEXT_DIST_DIR=.next-build next start",
     "lint": "next lint",

@@ -129,6 +129,13 @@
       "changeFrequency": "monthly"
     },
     {
+      "path": "/springs",
+      "priority": 0.7,
+      "changeFrequency": "monthly",
+      "group": "product",
+      "label": "Springs"
+    },
+    {
       "path": "/resources",
       "priority": 0.8,
       "changeFrequency": "monthly",

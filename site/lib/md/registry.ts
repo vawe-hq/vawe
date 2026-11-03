@@ -8,6 +8,10 @@ import {
   type Ease,
 } from "../easing";
 import { jobPageBySlug, jobPages, UI_SOURCE, type JobPage } from "../easing-jobs";
+import {
+  LIBRARIES as SPRING_LIBS, SPRINGS, SPRINGS_DESCRIPTION, SPRINGS_TITLE, THRESHOLD_PERCENT, characterOf, cssText, pageDescription as springDescription, pageTitle as springTitle, springBySlug, springsIn, summary as springSummary, vaweCode, waapi as springWaapi,
+  type Spring,
+} from "../springs";
 import { INSPIRATION, INSPIRATION_DESCRIPTION, INSPIRATION_PATH, INSPIRATION_TITLE, PROMPTS_PATH, titleOf } from "../inspiration";
 import { MOVES_DESCRIPTION, MOVES_TITLE, GROUPS, MOVES, JOBS as MOVE_JOBS, groupLabel, moveByName } from "../moves";
 import { moveSeoDescription, relatedMoves } from "../move-seo";
@@ -200,6 +204,58 @@ const easeJob: Renderer = {
   },
 };
 
+const springLine = (s: Spring) => item(s.name, `/springs/${s.slug}`, `stiffness ${s.k}, damping ${s.d}, settles in ${s.settle} s, overshoot ${s.overshoot}%`);
+
+const springsIndex: Renderer = {
+  entries: () => [page("/springs", SPRINGS_TITLE, SPRINGS_DESCRIPTION)],
+  render: () => ({
+    title: SPRINGS_TITLE,
+    description: SPRINGS_DESCRIPTION,
+    updated: dates["/springs"],
+    body: [
+      `Stiffness is how hard the spring pulls, damping is the friction that drains speed, mass is how heavy the value is (1 for every preset here). The settle time is the last moment the spring is more than ${THRESHOLD_PERCENT}% away from the end value.`,
+      ...SPRING_LIBS.flatMap((l) => [heading(2, l.label), l.intro, springsIn(l.id).map(springLine).join("\n")]),
+      heading(2, "All presets"),
+      table(["Preset", "Stiffness", "Damping", "Settle (s)", "Overshoot"], SPRINGS.map((s) => [s.name, s.k, s.d, s.settle, `${s.overshoot}%`])),
+    ].join("\n\n"),
+  }),
+};
+
+function springBody(s: Spring) {
+  return [
+    springSummary(s),
+    s.note,
+    table(["Measure", "Value"], [
+      ["Stiffness", s.k], ["Damping", s.d], ["Mass", s.mass], ["Damping ratio", `${s.zeta} (${characterOf(s)})`],
+      ["Settle time", `${s.settle} s`], ["Overshoot", `${s.overshoot}%`], ["Crosses the end value", s.crossings],
+      ["50% of travel at", `${s.t50} s`], ["90% of travel at", `${s.t90} s`],
+    ]),
+    heading(2, "CSS linear()"),
+    codeBlock(cssText(s), "css"),
+    heading(2, "Web Animations"),
+    codeBlock(springWaapi(s), "js"),
+    heading(2, "In a vawe page"),
+    codeBlock(vaweCode(s), "js"),
+    heading(2, "Source of the numbers"),
+    `${s.original}. ${s.source.version}${s.source.file ? `, ${s.source.file}` : ""}${s.source.url ? ` (${s.source.url})` : ""}.${s.conversion ? ` Conversion: ${s.conversion}` : ""}`,
+  ].join("\n\n");
+}
+
+const springItem: Renderer = {
+  entries: () => SPRINGS.map((s) => ({ path: `/springs/${s.slug}`, title: bareTitle(springTitle(s)), description: springDescription(s), kind: "item", full: false })),
+  render: ({ slug }) => {
+    const s = springBySlug(slug);
+    if (!s) return null;
+    return {
+      title: springTitle(s).replace(/ \| vawe$/, ""),
+      description: springDescription(s),
+      updated: dates["/springs"],
+      body: springBody(s),
+      related: [...s.related.map((r) => ({ text: r.name, path: `/springs/${r.slug}` })), { text: "All spring presets", path: "/springs" }],
+    };
+  },
+};
+
 const inspirationIndex: Renderer = {
   entries: () => [page(INSPIRATION_PATH, INSPIRATION_TITLE, INSPIRATION_DESCRIPTION)],
   render: () => ({
@@ -233,6 +289,8 @@ const RENDERERS: Record<string, Renderer> = {
   "/easing": easingIndex,
   "/easing/[slug]": easeItem,
   "/easing/for/[job]": easeJob,
+  "/springs": springsIndex,
+  "/springs/[slug]": springItem,
   "/inspiration": inspirationIndex,
   "/ai-agents": agentsPage,
   ...CONTENT_RENDERERS,

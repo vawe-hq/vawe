@@ -38,7 +38,8 @@ export async function llmsText() {
   }).join("\n");
   const components = itemsUnder("/video-components/").map((e) => item(e.title, mdUrlOf(e.path), e.description)).join("\n");
   const easingJobs = itemsUnder("/easing/for/").map((e) => item(e.title, mdUrlOf(e.path), e.description)).join("\n");
-  const compare =itemsUnder("/vs/").map((e) => item(e.title, mdUrlOf(e.path), e.description)).join("\n");
+  const springs = itemsUnder("/springs/").map((e) => item(e.title, mdUrlOf(e.path), e.description)).join("\n");
+  const compare = itemsUnder("/vs/").map((e) => item(e.title, mdUrlOf(e.path), e.description)).join("\n");
   const docs = await docsIndex();
   const docsSection = docs.length ? ["## Docs", ...docs.map((d) => item(d.title, d.markdown, d.description))].join("\n") : "";
   const machine = [
@@ -48,7 +49,7 @@ export async function llmsText() {
     item("Sitemap", "/sitemap.xml", "every URL of the site"),
     item("AI usage policy", "/ai.txt", "what AI systems may do with this site"),
   ].join("\n");
-  const text = base.replace("{{BLOG}}", blog).replace("{{INSPIRATION}}", inspiration).replace("{{VIDEO_COMPONENTS}}", components).replace("{{EASING_JOBS}}", easingJobs).replace("{{COMPARE}}", compare).replace("{{DOCS}}\n\n", docsSection ? `${docsSection}\n\n` : "");
+  const text = base.replace("{{BLOG}}", blog).replace("{{INSPIRATION}}", inspiration).replace("{{VIDEO_COMPONENTS}}", components).replace("{{EASING_JOBS}}", easingJobs).replace("{{COMPARE}}", compare).replace("{{SPRINGS}}", springs).replace("{{DOCS}}\n\n", docsSection ? `${docsSection}\n\n` : "");
   const sync = `<!-- Keep in sync with ${absoluteUrl("/robots.txt")} and ${absoluteUrl("/ai.txt")}. -->`;
   return `${withMarkdownLinks(text).trimEnd()}\n\n${machine}\n\n${sync}\n`;
 }

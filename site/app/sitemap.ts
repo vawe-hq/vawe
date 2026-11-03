@@ -3,6 +3,7 @@ import pages from "../lib/site-pages.json";
 import lastmod from "../lib/lastmod.json";
 import { MOVES, clip, type Move } from "../lib/moves";
 import { EASES } from "../lib/easing";
+import { SPRINGS } from "../lib/springs";
 import { allPosts, latestDate } from "../lib/blog";
 import { SITE_URL } from "../lib/site";
 
@@ -46,6 +47,7 @@ function entries(): Entry[] {
     ...[...pages.routes, ...pages.docs].map((r) => ({ path: r.path, lastmod: r.path === "/blog" ? latestDate() : dates[r.path] })),
     ...MOVES.map((m) => ({ path: `/video-components/${m.name}`, lastmod: m.modified, videos: moveVideos(m) })),
     ...EASES.map((e) => ({ path: `/easing/${e.slug}`, lastmod: dates["/easing"] })),
+    ...SPRINGS.map((s) => ({ path: `/springs/${s.slug}`, lastmod: dates["/springs"] })),
     ...allPosts().map((p) => ({ path: `/blog/${p.slug}`, lastmod: p.updated })),
   ];
 }

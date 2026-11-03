@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { REPO_URL } from "../schema";
 import type { IconName } from "../../app/components/Icon";
 import { EASES } from "../easing";
+import { SPRINGS } from "../springs";
 import { MOVES } from "../moves";
 import { INSPIRATION, INSPIRATION_PATH } from "../inspiration";
 import { allPosts } from "../blog";
@@ -112,6 +113,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
     tile: "learn",
     items: [
       { href: "/docs", title: "Docs", line: "Quickstart, the page contract, the CLI and troubleshooting.", icon: "book", meta: "docs" },
+      { href: "/springs", title: "Spring presets", line: `${SPRINGS.length} spring presets from react-spring, Motion, SwiftUI and Compose as CSS linear(), with the numbers.`, icon: "curve", meta: `${SPRINGS.length}${NBSP}springs` },
       { href: "/docs/recipes", title: "Recipes", line: "Chains of video components for common short films, with the traps at each seam.", icon: "list", meta: "recipes" },
       { href: "/determinism", title: "Determinism", line: "Why the same page gives the same frames, and how a test proves it.", icon: "book", meta: "essay" },
       { href: "/when-determinism-matters", title: "When determinism matters", line: "When byte-identical output decides the engine, and when it does not.", icon: "book", meta: "essay" },

@@ -14,6 +14,8 @@ export const RENDERED = [
   "/easing",
   "/easing/[slug]",
   "/easing/for/[job]",
+  "/springs",
+  "/springs/[slug]",
   "/inspiration",
   "/",
   "/features",

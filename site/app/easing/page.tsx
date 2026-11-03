@@ -149,6 +149,7 @@ export default function EasingIndex() {
             <a href="#jobs">Pick by job</a>
             <a href="#all">All curves</a>
             <a href="#product-ui">Product UI</a>
+            <Link href="/springs">Spring presets</Link>
           </nav>
 
           <section className="ez-sec" id="jobs" aria-labelledby="h-jobs">
@@ -234,6 +235,7 @@ export default function EasingIndex() {
             title="Use an ease in a film"
             primary={{ href: "/video-components", label: "See the video components" }}
             secondary={{ href: "/docs/motion", label: "Motion in the docs" }}
+            related={[{ href: "/springs", label: "Spring presets as CSS linear()" }]}
           />
         </div>
       </main>
