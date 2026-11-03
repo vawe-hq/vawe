@@ -5,7 +5,7 @@ import { MOVES, groupLabel, type Move } from "./moves";
 import { moveSeoDescription } from "./move-seo";
 import { groupPath } from "./content/move-groups";
 import { FAQ, faqText, type FaqItem } from "./faq";
-import { breadcrumbSchema } from "./schema";
+import { ORG_REF, breadcrumbSchema } from "./schema";
 import { INSPIRATION, INSPIRATION_PATH } from "./inspiration";
 
 const SITE_URL = "https://vawe.dev";
@@ -25,7 +25,7 @@ export function faqPageSchema(items: FaqItem[]) {
 export const faqSchema = () => faqPageSchema(FAQ);
 
 const absolute = (url: string) => `${SITE_URL}${url.split("?")[0]}`;
-const publisher = { "@type": "Organization", name: "vawe", url: SITE_URL };
+const publisher = ORG_REF;
 
 // ISO 8601 duration from seconds, for a clip of a few seconds: 2 -> PT2S, 2.5 -> PT2.5S.
 const isoDuration = (seconds: number) => `PT${Number(seconds.toFixed(2))}S`;

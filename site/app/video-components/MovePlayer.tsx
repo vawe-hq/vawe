@@ -12,7 +12,7 @@ export function MovePlayer({ move, alt, duration }: { move: ClipRef & { theme: T
     <>
       <div className="mvd-stage">
         <img src={files.posterHd} alt={alt} width={1280} height={720} fetchPriority="high" decoding="async" />
-        <Clip key={files.mp4} src={files.mp4} />
+        <Clip key={files.mp4} src={files.mp4} poster={files.posterHd} />
         {move.variant ? <ThemeToggle shown={theme ?? move.theme} onChange={setTheme} className="mvd-theme" /> : null}
       </div>
       <StageBar key={files.mp4} duration={duration} />

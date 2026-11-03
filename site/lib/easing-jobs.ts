@@ -1,6 +1,7 @@
 import data from "./easing.json";
 import { smart } from "./typo.mjs";
 import { SITE_URL } from "./site";
+import { ORG_REF } from "./schema";
 import { JOBS, bezierText, easeBySlug, type Ease } from "./easing";
 import { JOBS as MOVE_JOBS, moveByName } from "./moves";
 
@@ -251,7 +252,7 @@ export const jobPages = (): JobPage[] => JOB_SLUGS.map((s) => jobPageBySlug(s)!)
 export const JOB_INDEX_TITLE = "Pick by job";
 
 export function jobArticleSchema(p: JobPage) {
-  const org = { "@type": "Organization", name: "vawe", url: SITE_URL };
+  const org = ORG_REF;
   return {
     "@context": "https://schema.org",
     "@type": "TechArticle",

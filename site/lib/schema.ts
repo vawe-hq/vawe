@@ -13,12 +13,16 @@ import { REPO_URL, SAME_AS, SITE_ALT_NAMES, SITE_DESCRIPTION as BRAND_DESCRIPTIO
 
 export { REPO_URL };
 
+const ORG_ID = `${SITE_URL}/#organization`;
+export const ORG_REF = { "@type": "Organization", "@id": ORG_ID, name: "vawe", url: SITE_URL } as const;
+
 // Apache-2.0, no paid tier: the licence and repo URL below are read off package.json rather than
 // retyped, so they cannot drift from the one the repo actually ships under.
 export function organizationSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": ORG_ID,
     name: "vawe",
     alternateName: SITE_ALT_NAMES,
     description: BRAND_DESCRIPTION,
@@ -41,7 +45,7 @@ export function websiteSchema() {
     description: BRAND_DESCRIPTION,
     url: SITE_URL,
     inLanguage: "en",
-    publisher: { "@type": "Organization", name: "vawe", url: SITE_URL },
+    publisher: ORG_REF,
   };
 }
 
@@ -96,8 +100,8 @@ export function techArticleSchema(opts: { headline: string; description: string;
     url: `${SITE_URL}${opts.path}`,
     mainEntityOfPage: `${SITE_URL}${opts.path}`,
     datePublished: opts.datePublished,
-    author: { "@type": "Organization", name: "vawe", url: SITE_URL },
-    publisher: { "@type": "Organization", name: "vawe", url: SITE_URL },
+    author: ORG_REF,
+    publisher: ORG_REF,
   };
 }
 
@@ -112,7 +116,7 @@ export function blogPostingSchema(opts: {
   keywords: string[];
   words?: number;
 }) {
-  const org = { "@type": "Organization", name: "vawe", url: SITE_URL };
+  const org = ORG_REF;
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -138,7 +142,7 @@ export function blogSchema(posts: { headline: string; path: string; datePublishe
     "@type": "Blog",
     name: "vawe blog",
     url: `${SITE_URL}/blog`,
-    publisher: { "@type": "Organization", name: "vawe", url: SITE_URL },
+    publisher: ORG_REF,
     blogPost: posts.map((p) => ({
       "@type": "BlogPosting",
       headline: p.headline,
@@ -156,9 +160,7 @@ export function aboutPageSchema(opts: { description: string; owner: { name: stri
     description: opts.description,
     url: `${SITE_URL}/about`,
     mainEntity: {
-      "@type": "Organization",
-      name: "vawe",
-      url: SITE_URL,
+      ...ORG_REF,
       sameAs: SAME_AS,
       founder: { "@type": "Person", name: opts.owner.name, url: opts.owner.url },
     },
