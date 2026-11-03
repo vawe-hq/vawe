@@ -382,6 +382,7 @@ peak-end, a post ends on "Read next" (three cards) and then the one call to acti
 Cards, "Read next" and the post head show section and reading time only. The post head adds a quiet "Updated October 2026" to its mono meta,
 and only when `updated` is later than `date` (`updatedLabel()` in `lib/blog.ts`); no post shows its publish day. The true dates stay in JSON-LD, the sitemap and RSS.
 Dates are honest: posts that share a `date` sort by the time their file was first committed (`lib/blog-added.json`, never shown); a post dated after today (UTC) is absent everywhere and its route is 404 until then (the index, posts, feed, `llms.txt` and sitemap use `revalidate = 3600`). How to schedule: `content/blog/README.md`.
+The sitemap (`app/sitemap.ts`) gives every video component with a clip a `<video:video>` entry (Next's `videos` field): title, the use line, the plain `/moves/<name>.hd.webp` thumbnail and `/moves/<name>.mp4` (no `?v=`), whole-second duration.
 
 **For agents.** `/llms.txt` is `content/llms-base.txt` with the `## Blog` list filled from the live posts (`lib/llms.ts`, `app/llms.txt/route.ts`, hourly), so a scheduled post is listed on its day. Every live post is also served as Markdown at `/blog/<slug>.md` (`app/blog-md/[slug]/route.ts`, reached by a rewrite in `next.config.mjs`) with a canonical `Link` header to the HTML page, like `/moves/<name>.md`. Removed posts redirect (308) to the kept post that holds their facts (`BLOG_MOVED` in `lib/redirects.mjs`, `.md` forms too).
 
