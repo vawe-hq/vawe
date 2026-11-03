@@ -6,7 +6,7 @@ import type { FaqItem } from "../faq";
 
 // /product-showcase-video and /explainer-video: two use-case pages beside /launch-video, built from
 // guides/ROUTING.md (rows 2 and 4), prompts/brand-launch-from-url.md, prompts/story-explainer.md and
-// prompts/moves/RECIPES.md. Each fact below has its source in the `cite` line of its section.
+// prompts/moves/RECIPES.md.
 
 export type Example = { href: string; title: string; by: string };
 
@@ -55,34 +55,34 @@ export const PRODUCT_SHOWCASE: VideoTypePage = {
   meta: {
     title: "Product showcase video: make one with code | vawe",
     description:
-      "A product showcase video shows the real product doing real things, one feature per beat. The beats, the timing, the exact vawe commands, and examples.",
+      "A product showcase video shows the real product doing real things, one feature at a time. The parts, the timing, the exact vawe commands, and examples.",
   },
   crumb: { group: "Learn", current: "Product showcase video" },
   h1: "Product showcase video, made with code.",
-  lede: "A product showcase video shows your real product doing real things, one feature at a time, in about 20 seconds. With vawe you capture the real screens from a URL, write one HTML page, and render it to an mp4. You can write the page yourself or let an AI agent write it.",
+  lede: "A product showcase video shows your real product doing real things, one feature at a time, in about 20 seconds. With vawe you capture the real screens from a URL, write one HTML page, and render it to an mp4. You can write the page yourself or ask a coding agent to write it.",
   toc: tocFor(),
   contains: {
     id: "contains",
     title: "What a showcase video contains.",
+    columns: true,
     blocks: [
       {
         p: [
-          "The repo’s feature tour is the showcase shape: one canvas, four screens of the product, and a camera that moves from one to the next. Four features read as one product and not as four slides. The beats, in order:",
+          "A good showcase is one canvas with four screens of the product and a camera that moves from one to the next. Four features then read as one product, not four slides. Here are the parts, in order:",
         ],
       },
       {
         ol: [
-          ["Screen one is a real capture on the first frame. A cursor presses one real button, and the done state stays on screen to 3.5 s."],
-          ["The camera pans right to screen two. A card builds on it and holds to 7.5 s."],
-          ["The camera pans up and to the right to screen three. Another press, and the result stays on screen to 11.5 s."],
+          ["Screen one is a real capture from the first frame. A cursor presses one real button, and the done state stays until 3.5 s."],
+          ["The camera pans right to screen two. A card builds on it and holds until 7.5 s."],
+          ["The camera pans up and right to screen three. Another press, and the result stays until 11.5 s."],
           ["The camera pans down to screen four, then 1.4 s of quiet."],
-          ["The big moment: the cursor lands on a status, the camera scales in on it, and it holds to 16.3 s."],
-          ["The world leaves up in 0.22 s. The brand name settles from 16.7 s, and the lockup holds still to 20 s."],
+          ["The big moment: the cursor lands on a status, the camera zooms in on it, and it holds until 16.3 s."],
+          ["The last screen leaves upward in 0.22 s. The brand name settles from 16.7 s, and the logo holds still until 20 s."],
         ],
       },
-      { p: ["Every screen is a capture of your real site or app, never a placeholder card. A feature you did not see on the site is a feature the film must not show."] },
+      { p: ["Every screen is a capture of your real site or app, never a placeholder card. If a feature is not on your site, the film does not show it."] },
     ],
-    cite: "prompts/moves/RECIPES.md, recipe 11 (Feature tour, 20 s) · prompts/brand-launch-from-url.md",
   },
   timing: {
     id: "timing",
@@ -90,20 +90,19 @@ export const PRODUCT_SHOWCASE: VideoTypePage = {
     blocks: [
       {
         p: [
-          "A brand or product film runs 9 to 40 seconds. Under 15 seconds, most film types are one continuous action instead. The feature tour above is 20 seconds.",
+          "A brand or product film runs 9 to 40 seconds. Under 15 seconds, most films work better as one continuous action. The example above is 20 seconds.",
         ],
       },
       {
         p: [
-          "Each read holds 1.2 seconds or more, so a viewer can read a screen before the camera leaves it. Exits are quick (0.22 s). Entrances are slower (0.6 s or more). Neighbouring cuts change axis or direction, so three slides to the left in a row do not happen.",
+          "Each screen holds 1.2 seconds or more, so a viewer can read it before the camera leaves. Exits are quick (0.22 s). Entrances are slower (0.6 s or more). Neighbouring cuts change axis or direction, so you never get three slides to the left in a row.",
         ],
       },
     ],
-    cite: "prompts/brand-launch-from-url.md, Length · guides/ROUTING.md · prompts/moves/RECIPES.md, Complete videos",
   },
   examples: {
     title: "Examples.",
-    lead: "Posts from the inspiration wall that show a product on screen. Each links to the creator’s post on X.",
+    lead: "Posts from our inspiration wall that show a product on screen. Each links to the creator’s post on X.",
     items: [
       example("2103273003555402193"),
       example("2102554209166000267"),
@@ -113,8 +112,8 @@ export const PRODUCT_SHOWCASE: VideoTypePage = {
   },
   moves: {
     title: "The video components a showcase is built from.",
-    lead: "A pan from screen to screen, a press that does its job, a zoom to one status, a card that builds. Open one for its clip, snippet and notes.",
-    clips: ["pan-stations", "cursor-click", "ui-focus-zoom", "card-assemble"],
+    lead: "A pan from screen to screen, a press that does its job, a zoom to one status, and the screens leaving as the logo arrives. Open one for its clip, code and notes.",
+    clips: ["pan-stations", "cursor-click", "ui-focus-zoom", "ui-strip-away"],
   },
   make: {
     id: "make",
@@ -127,7 +126,7 @@ export const PRODUCT_SHOWCASE: VideoTypePage = {
       },
       {
         ol: [
-          [{ code: "bin/vawe frame <page> --world all" }, " gives one key frame per beat to check before any motion."],
+          [{ code: "bin/vawe frame <page> --world all" }, " gives one still per scene, to check before any motion."],
           [{ code: "bin/vawe dev <page>" }, " renders a half-size draft with sound."],
           [{ code: "bin/vawe critique <page> --fresh" }, " asks a separate session to review the draft, then you fix the seconds it names."],
           ["You approve the plan and the full draft. Then ", { code: "bin/vawe ship <page>" }, " renders the final film."],
@@ -135,13 +134,12 @@ export const PRODUCT_SHOWCASE: VideoTypePage = {
       },
       {
         p: [
-          "For a real page worked by a cursor, add a steps file and ",
+          "To show a real page worked by a cursor, add a steps file and ",
           { code: "--tour" },
           ": vawe drives the page with real mouse events and writes one mp4 to use inside the film.",
         ],
       },
     ],
-    cite: "AGENTS.md, The loop · bin/vawe new --help · prompts/brand-launch-from-url.md, Build",
     code: {
       label: "Terminal",
       text: `bin/vawe new acme-showcase \\
@@ -155,24 +153,24 @@ bin/vawe dev films/acme-showcase/page.html`,
   faq: [
     {
       q: "How long should a product showcase video be?",
-      a: ["The repo’s feature tour is 20 seconds. A brand or product film runs 9 to 40 seconds."],
+      a: ["About 20 seconds. A brand or product film runs 9 to 40 seconds."],
     },
     {
       q: "Can I use my real product screens?",
       a: [
-        "Yes, and you should. The template allows real captures only, and ",
+        "Yes, and you should. The template uses real captures only, and ",
         { code: "bin/vawe new --from-url <url>" },
-        " saves the screenshots of your site for the film. Its own palette, fonts and favicon are read from the site, and nothing else is used.",
+        " saves screenshots of your site for the film. The palette, fonts and favicon come from the site, and nothing else is used.",
       ],
     },
     {
       q: "What if the product has no site yet?",
-      a: ["Then it is not a showcase of a real product. An invented product with nothing real to capture takes the beat-sheet template and the launch chain from the recipes, not the brand-launch template."],
+      a: ["Then there is nothing real to capture, so it is not a showcase. Use the template for invented products instead."],
     },
     {
       q: "Can an AI agent make it?",
       a: [
-        "Yes. A film is one HTML page, so any coding agent can write it, and vawe ships skills for the loop. The person approves the plan and the full draft. See ",
+        "Yes. A film is one HTML page, so any coding agent can write it, and vawe ships skills for each step. You approve the plan and the full draft. See ",
         { text: "vawe for AI agents", href: "/ai-agents" },
         ".",
       ],
@@ -187,7 +185,7 @@ bin/vawe dev films/acme-showcase/page.html`,
     lead: [
       "Run ",
       { code: "bin/vawe new" },
-      " with your product’s URL. For a first look at what a finished film is, see the product launch guide.",
+      " with your product’s URL. To see what a finished film is, read the product launch guide.",
     ],
     primary: { href: REPO_URL, label: "Get vawe on GitHub" },
     related: [launchLink, explainerLink, { href: "/video-components", label: "Every video component, with its clip" }],
@@ -208,22 +206,22 @@ export const EXPLAINER: VideoTypePage = {
   contains: {
     id: "contains",
     title: "What an explainer contains.",
+    columns: true,
     blocks: [
       {
-        p: ["Two lists come before any picture, and you check both. Then the scenes follow the list."],
+        p: ["Two lists come before any picture, and you check both. Then the scenes follow the lists."],
       },
       {
         ol: [
-          ["A facts list. Every claim the film makes, with its source. Formulas, dates, numbers and names are copied, never reworded. You check this list before anything is drawn."],
-          ["A scene list. For each scene: its time, the one sentence the viewer takes away, what builds on screen, and the transition out."],
-          ["One idea per scene, and each scene has one thing that changes. A diagram builds, a number counts, a process fills from empty to complete."],
-          ["Short captions, one line each. Type is for labels and one sentence per scene, never paragraphs."],
-          ["One palette for the whole film, and one accent for the thing being explained right now."],
+          ["A facts list. Every claim the film makes, with its source. Copy formulas, dates, numbers and names exactly. Check the list before you draw anything."],
+          ["A scene list. For each scene: its time, the one sentence the viewer takes away, what builds on screen, and how it ends."],
+          ["One idea per scene, and one thing that changes in it: a diagram builds, a number counts, or a process fills from empty to complete."],
+          ["Short captions, one line each. Text is for labels and one sentence per scene, never paragraphs."],
+          ["One palette for the whole film, and one accent for the thing you explain right now."],
         ],
       },
-      { p: ["Not allowed: a slide with bullets, a stock icon grid, a scene where nothing moves."] },
+      { p: ["Avoid a slide with bullets, a stock icon grid, and any scene where nothing moves."] },
     ],
-    cite: "prompts/story-explainer.md, facts, direction, structure",
   },
   timing: {
     id: "timing",
@@ -231,20 +229,19 @@ export const EXPLAINER: VideoTypePage = {
     blocks: [
       {
         p: [
-          "An explainer runs from 9 seconds to 3 minutes. The default is 30 seconds in 16:9, with three takeaways and one scene for each. Over 60 seconds, or over one working session, use the director’s brief instead. Under 15 seconds, a process that fills from empty to complete is one continuous action.",
+          "An explainer runs from 9 seconds to 3 minutes. The default is 30 seconds in 16:9, with three takeaways and one scene for each. For a film over 60 seconds, or one that takes more than one working session, use the long-film brief instead. Under 15 seconds, a process that fills from empty to complete is one continuous action.",
         ],
       },
       {
         p: [
-          "If there is a voice, every scene starts on a word boundary from a timings file, not on a guess. A diagram that finishes building in 300 ms was not seen, so give it time.",
+          "If there is a voice, every scene starts on a word boundary from a timings file, not on a guess. A viewer does not see a diagram that finishes building in 300 ms, so give it time.",
         ],
       },
     ],
-    cite: "prompts/story-explainer.md, Length, Questions, gotchas · guides/ROUTING.md, row 6",
   },
   examples: {
     title: "Examples.",
-    lead: "Explainers on the inspiration wall, made with AI. Each links to the creator’s post on X.",
+    lead: "Explainers from our inspiration wall. Each links to the creator’s post on X.",
     items: [
       example("2102853258582880547"),
       example("2102591147927654847"),
@@ -255,7 +252,7 @@ export const EXPLAINER: VideoTypePage = {
   },
   moves: {
     title: "The video components an explainer is built from.",
-    lead: "A chart that builds, a number that counts to its sourced value, captions that replace each other line by line, a before and after. Open one for its clip, snippet and notes.",
+    lead: "A chart that builds, a number that counts to its sourced value, captions that replace each other line by line, a before and after. Open one for its clip, code and notes.",
     clips: ["chart-build", "count-up", "caption-editorial", "before-after-wipe"],
   },
   make: {
@@ -264,19 +261,18 @@ export const EXPLAINER: VideoTypePage = {
     blocks: [
       {
         p: [
-          "Start from the explainer template. Diagrams are SVG inside the page, and their build is CSS animation, so a line can draw itself. Numbers count with a table of values over time, so the count is the same on every render.",
+          "Start from the explainer template. Diagrams are SVG inside the page, and CSS animation builds them, so a line can draw itself. Numbers count from a table of values over time, so the count is the same on every render.",
         ],
       },
       {
         ol: [
-          ["Write the facts list and stop. Then write the scene list and stop. Then write code."],
+          ["Write the facts list and stop. Then write the scene list and stop. Then write the page."],
           [{ code: "bin/vawe dev <page>" }, " renders a half-size draft with sound."],
           [{ code: "bin/vawe critique <page> --fresh" }, " asks a separate session to review the draft, then you fix the seconds it names."],
           ["You approve the full draft. Then ", { code: "bin/vawe ship <page>" }, " renders the final film."],
         ],
       },
     ],
-    cite: "prompts/story-explainer.md, build and start · AGENTS.md, The loop · bin/vawe new --help",
     code: {
       label: "Terminal",
       text: `bin/vawe new how-it-works \\
@@ -287,20 +283,20 @@ bin/vawe dev films/how-it-works/page.html`,
   faq: [
     {
       q: "How long should an explainer video be?",
-      a: ["From 9 seconds to 3 minutes. The default is 30 seconds. Over 60 seconds, the director’s brief takes over."],
+      a: ["From 9 seconds to 3 minutes. The default is 30 seconds. Over 60 seconds, use the long-film brief."],
     },
     {
       q: "Do I need a voiceover?",
-      a: ["No. The default is captions only. You can add a voice from a recorded file or a text-to-speech voice with a timings file. The model cannot hear the voice it rendered, so a person should listen once for pronunciation."],
+      a: ["No. The default is captions only. You can add a voice from a recorded file or a text-to-speech voice with a timings file. An agent cannot hear the voice it made, so listen once yourself for pronunciation."],
     },
     {
       q: "How do I keep the facts right?",
-      a: ["Write the facts list first, with a source for each claim, and check it before any drawing. A number that counts up ends on the sourced value, not a rounded one."],
+      a: ["Write the facts list first, with a source for each claim, and check it before you draw. A number that counts up ends on the sourced value, not a rounded one."],
     },
     {
       q: "Is this the same as a product launch video?",
       a: [
-        "No. An explainer teaches and sells nothing. If a real product is behind the data and the ask is to market it, the film is a launch video. See ",
+        "No. An explainer teaches and sells nothing. If you want to market a real product, make a launch video. See ",
         { text: "product launch videos", href: LAUNCH_VIDEO.path },
         ".",
       ],
@@ -308,7 +304,7 @@ bin/vawe dev films/how-it-works/page.html`,
     {
       q: "Can an AI agent make it?",
       a: [
-        "Yes. A film is one HTML page, so any coding agent can write it, and vawe ships skills for the loop. See ",
+        "Yes. A film is one HTML page, so any coding agent can write it, and vawe ships skills for each step. See ",
         { text: "vawe for AI agents", href: "/ai-agents" },
         ".",
       ],

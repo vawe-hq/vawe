@@ -32,6 +32,10 @@
 .imoves a::after{content:"";position:absolute;inset:0}
 @media (max-width:900px){ .imoves{grid-template-columns:repeat(2,minmax(0,1fr))} }
 .ifilms + .isec{margin-top:var(--sp-7)}
+/* A list of parts uses the panel width: two columns, one under 640. */
+.isec-cols .xp-list{max-width:none;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--sp-6);border-bottom:1px solid var(--line)}
+.isec-cols .xp-list li:last-child{border-bottom:0}
+@media (max-width:640px){ .isec-cols .xp-list{grid-template-columns:minmax(0,1fr)} }
 
 /* The page's own next step, and the cross-links between the content pages. */
 .iend{margin-top:var(--sp-3);padding:var(--sp-panel);background:var(--surface);border-radius:var(--r);box-shadow:var(--ring)}

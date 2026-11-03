@@ -17,7 +17,7 @@ export function RichText({ p }: { p: Para }) {
 
 export function SectionView({ s }: { s: Section }) {
   return (
-    <section className="isec" id={s.id}>
+    <section className={s.columns ? "isec isec-cols" : "isec"} id={s.id}>
       <div className="isec-text">
         <h2>{s.title}</h2>
         {s.blocks.map((b, i) =>
