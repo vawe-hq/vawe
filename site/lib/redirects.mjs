@@ -226,6 +226,9 @@ export const LEGACY_REDIRECTS = [
   // The gallery was /moves until 2026-10-19. The clip, markdown and index.json files keep that path, so :name stops at a dot.
   permanent("/moves", MOVES),
   permanent("/moves/:name([a-z0-9-]+)", "/video-components/:name"),
+  // Crawlers still fetch the share images of old /moves pages and the blog thumbs removed on 2026-11-03 (the bot log's 404s).
+  permanent("/moves/:name([a-z0-9-]+)/opengraph-image", "/video-components/:name/opengraph-image"),
+  permanent("/blog/:slug([a-z0-9-]+)/thumb.webp", "/og/blog/:slug.png"),
 ];
 
 // Any Host other than the apex gets a 301 to it: the raw server IP and stray alias hostnames were
