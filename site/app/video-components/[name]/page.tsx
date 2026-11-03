@@ -104,7 +104,7 @@ export default async function MovePage({ params }: Params) {
               <span className="mvd-no" aria-hidden="true">{two(at + 1)}</span>
               {move.title}
             </h1>
-            {move.use ? <p className="mvd-use">{move.use}</p> : null}
+            {move.use ? <p className="mvd-use">{/[.!?]$/.test(move.use) ? move.use : `${move.use}.`}</p> : null}
             <p className="mvd-meta">
               <span className="mv-pill"><GroupIcon id={move.group} size={14} />{groupLabel(move.group)}</span>
               <span className="mv-pill">{move.look}</span>
