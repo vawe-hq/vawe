@@ -29,7 +29,9 @@ export default function Moves() {
       <main className="wrap" id="content" tabIndex={-1}>
         <section className="ls ls-top mv">
           <h1>Video components.</h1>
-          <p className="mv-intro">{MOVES_INTRO}</p>
+          <p className="mv-intro">
+            {MOVES_INTRO} See them in a <Link href="/product-showcase-video">product showcase video</Link> or an <Link href="/explainer-video">explainer video</Link>.
+          </p>
           <p className="mv-links">
             <a href="/moves/index.json"><MiscSvg name="json" size={14} />index.json</a>
             <a href="/easing"><MiscSvg name="curve" size={14} />Easing</a>
@@ -63,6 +65,8 @@ export default function Moves() {
               { href: "/easing", label: "Easing functions as CSS" },
               { href: "/docs/motion", label: "The motion guide" },
               { href: "/launch-video", label: "A launch film, built from these video components" },
+              { href: "/product-showcase-video", label: "A product showcase video, built from these video components" },
+              { href: "/explainer-video", label: "An explainer video, built from these video components" },
             ]}
           />
         </section>

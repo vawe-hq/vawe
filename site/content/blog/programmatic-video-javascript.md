@@ -56,10 +56,10 @@ Read 2026-10-16 for Remotion, Revideo, Motion Canvas and HyperFrames. Sources: t
 
 ## When each tool is the better pick
 
-- Remotion: pick it if your team writes React and wants video in the same model. It also fits you if you need to render many videos in parallel on AWS Lambda. Check the license first if your company has more than 3 employees. More in [Remotion alternatives](/remotion-alternatives).
-- Revideo: pick it if you want TypeScript scenes and a render API you can host yourself, under MIT.
-- Motion Canvas: pick it for vector animation and diagrams with a live editor. Its docs describe it as a tool to make informative vector animations and sync them with voice-overs. Its default output is an image sequence, and an FFmpeg exporter makes a video. The docs call the exporter relatively new.
-- HyperFrames: pick it if you want a block catalog, a Studio editor, or cloud rendering. More in [HyperFrames alternatives](/hyperframes-alternatives).
+- Remotion: pick it if your team writes React and wants video in the same model. It also fits you if you need to render many videos in parallel on AWS Lambda. Check the license first if your company has more than 3 employees. More in [vawe vs Remotion](/vs/remotion) and [Remotion alternatives](/remotion-alternatives).
+- Revideo: pick it if you want TypeScript scenes and a render API you can host yourself, under MIT. More in [vawe vs Revideo](/vs/revideo).
+- Motion Canvas: pick it for vector animation and diagrams with a live editor. Its docs describe it as a tool to make informative vector animations and sync them with voice-overs. Its default output is an image sequence, and an FFmpeg exporter makes a video. The docs call the exporter relatively new. More in [vawe vs Motion Canvas](/vs/motion-canvas).
+- HyperFrames: pick it if you want a block catalog, a Studio editor, or cloud rendering. More in [vawe vs HyperFrames](/vs/hyperframes) and [HyperFrames alternatives](/hyperframes-alternatives).
 - vawe: pick it if you want ordinary web code to keep working. It has no new model to learn and no company-size limit in its license. Pick another tool if you need cloud rendering or a timeline editor.
 - Puppeteer and ffmpeg: pick it for a short, simple page that uses only CSS animation. It has no dependency beyond Chrome and ffmpeg.
 

@@ -70,7 +70,7 @@ We also tried to crop the gallery capture to one tile at a time. The tiles are s
 2. Use the kit palette. Do not improve it.
 3. Crawl past the homepage. The feature worth showing is often one click past the hero.
 
-The page that explains the route is [launch video](/launch-video). The kit step is in the [brand reflection guide](/docs/brand-reflection). To see what render and draft do, read [render HTML to MP4 with headless Chrome](/blog/render-html-to-mp4).
+The page that explains the route is [launch video](/launch-video). To show one feature at a time, see [product showcase videos](/product-showcase-video); for a topic with nothing to sell, see [explainer videos](/explainer-video). The kit step is in the [brand reflection guide](/docs/brand-reflection). To see what render and draft do, read [render HTML to MP4 with headless Chrome](/blog/render-html-to-mp4).
 
 ## FAQ
 

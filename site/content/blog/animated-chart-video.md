@@ -102,7 +102,7 @@ We ran both. They wrote `out/chart-year-2024-draft.mp4` and `out/chart-year-2025
 
 A chart that animates every bar the same way says "here are four numbers". A chart in a launch film should say one thing. The library move [chart build](/video-components/chart-build) draws the gridlines first and raises the bars in grey. Then the newest bar turns to the accent colour and a tag pops onto it. One bar and one number are bright. Copy that idea: change the fill of the last bar in `seek` after it has finished growing.
 
-For the number alone, see [count up](/video-components/count-up). For a whole data film with a story, the guide is [data story](/docs/data-story).
+For the number alone, see [count up](/video-components/count-up). For a whole data film with a story, the guide is [data story](/docs/data-story), and the video type is the [explainer video](/explainer-video).
 
 ## Things that go wrong
 

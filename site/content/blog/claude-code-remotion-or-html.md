@@ -96,12 +96,12 @@ Choose Remotion if:
 Choose plain HTML if:
 
 - You want one file that you can open in a browser and read.
-- You want no company-size licence question. See the licence note above for Remotion, and [Remotion alternatives](/remotion-alternatives) for the longer table.
+- You want no company-size licence question. See the licence note above for Remotion, [vawe vs Remotion](/vs/remotion), and [Remotion alternatives](/remotion-alternatives) for the longer table.
 - You want the agent to use CSS, SVG, canvas or three.js directly.
 
 Choose neither if you cut camera footage. That is an editor's job.
 
-HyperFrames is the other tool that writes HTML. Its page uses data attributes for timing, and it has a block catalog. See [HyperFrames alternatives](/hyperframes-alternatives).
+HyperFrames is the other tool that writes HTML. Its page uses data attributes for timing, and it has a block catalog. See [vawe vs HyperFrames](/vs/hyperframes) and [HyperFrames alternatives](/hyperframes-alternatives).
 
 ## Where the framework still matters
 

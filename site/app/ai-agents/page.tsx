@@ -150,6 +150,7 @@ export default function AiAgents() {
             secondary={{ href: REPO_URL, label: "The source, on GitHub" }}
             related={[
               { href: "/video-components", label: "Video components to copy, each with its clip" },
+              { href: "/features", label: "What the engine does, with proof" },
               { href: "/ai-agents.md", label: "This guide as Markdown" },
               { href: "/llms-full.txt", label: "llms-full.txt" },
             ]}

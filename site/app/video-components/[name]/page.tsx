@@ -14,6 +14,7 @@ import { moveBreadcrumbSchema, techArticleSchema, videoObjectSchema } from "../.
 import { CopyCode, CopyMarkdown } from "./CopyCode";
 import { GroupIcon, MiscSvg } from "../icons";
 import { Next, Toc } from "../../components/Xp";
+import { videoTypesUsing } from "../../../lib/content/video-types";
 import "../moves.css";
 
 type Params = { params: Promise<{ name: string }> };
@@ -183,6 +184,7 @@ export default async function MovePage({ params }: Params) {
             related={[
               { href: "/docs", label: "How a page becomes a film, in the docs" },
               { href: "/docs/motion", label: "The motion guide" },
+              ...videoTypesUsing(move.name),
             ]}
           />
         </article>

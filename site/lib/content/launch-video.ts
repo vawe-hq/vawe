@@ -96,6 +96,7 @@ export const LAUNCH_VIDEO = {
     related: [
       { href: "/video-components", label: "Every video component, with its clip" },
       { href: "/ai-agents", label: "Let an agent write the film" },
+      { href: "/features", label: "What the engine does, with proof" },
     ],
   } as NextBlock,
 };

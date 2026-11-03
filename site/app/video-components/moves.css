@@ -253,3 +253,4 @@
 .mvd-table th,.mvd-table td{text-align:left;padding:var(--sp-3) var(--sp-3) var(--sp-3) 0;border-bottom:1px solid var(--line);font-weight:400;vertical-align:top}
 .mvd-table thead th{font-family:var(--font-mono),monospace;font-size:var(--fs-label);letter-spacing:var(--track-caps);text-transform:uppercase;color:var(--muted)}
 .mvd-table tbody th{font-weight:600;white-space:nowrap}
+.mv-intro a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--accent-line);text-underline-offset:3px}

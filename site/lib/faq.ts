@@ -14,7 +14,7 @@ const factItem = (id: string): FaqItem => {
 };
 
 export const FAQ: FaqItem[] = [
-  { q: "What is vawe?", a: ["vawe is an open source framework that turns one HTML page into a video file. You, or a coding agent, write the film in HTML, CSS, Web Animations, SVG, canvas or three.js; the renderer seeks the page frame by frame in headless Chrome and encodes it with ffmpeg. The ", { text: "blog", href: "/blog" }, " covers how it is built and measured."] },
+  { q: "What is vawe?", a: ["vawe is an open source framework that turns one HTML page into a video file. You, or a coding agent, write the film in HTML, CSS, Web Animations, SVG, canvas or three.js; the renderer seeks the page frame by frame in headless Chrome and encodes it with ffmpeg. Typical films are ", { text: "product launch videos", href: "/launch-video" }, ", ", { text: "product showcase videos", href: "/product-showcase-video" }, " and ", { text: "explainer videos", href: "/explainer-video" }, ". See ", { text: "what the engine does", href: "/features" }, ". The ", { text: "blog", href: "/blog" }, " covers how it is built and measured."] },
   { q: "Is it open source?", a: ["Yes, under Apache 2.0. The engine, the studio and this site are ", { text: "on GitHub", href: REPO_URL }, "."] },
   { q: "Where does it run?", a: ["On your machine. The renderer drives Chrome and encodes with ffmpeg, and the studio previews a page live."] },
   { q: "Does it work with my agent?", a: ["Yes. A film is plain HTML, so any coding agent can write one, and vawe ships skills that teach it the loop: write, draft, critique, ship. See ", { text: "vawe for AI agents", href: "/ai-agents" }, "."] },

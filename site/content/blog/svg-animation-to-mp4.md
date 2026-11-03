@@ -95,7 +95,7 @@ Two limits come from how the web works:
 
 ## Use an existing SVG
 
-Most real files come from a design tool. Open the file, copy its `<svg>` element into the page, and add the `<animate>` tags or CSS classes. Give the SVG a `viewBox` and a width in `vw`, as ours does, so it scales with the film size. The page can then render in other ratios: add `--aspect 9:16` to a render to try it, and look at the frame first. See [aspect ratios](/blog/html-video-aspect-ratios).
+Most real files come from a design tool. Open the file, copy its `<svg>` element into the page, and add the `<animate>` tags or CSS classes. Give the SVG a `viewBox` and a width in `vw`, as ours does, so it scales with the film size. The page can then render in other ratios: add `--aspect 9:16` to a render to try it, and look at the frame first. See [aspect ratios](/blog/html-video-aspect-ratios). If your animation is a Lottie file, read [vawe vs Lottie](/vs/lottie).
 
 For a logo that draws itself, the library has a move called [mark trace](/video-components/mark-trace). For a drawn underline, see [underline draw](/video-components/underline-draw). For a GSAP timeline, see [GSAP to MP4](/blog/gsap-to-mp4).
 

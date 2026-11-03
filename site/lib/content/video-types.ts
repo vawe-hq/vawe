@@ -317,3 +317,11 @@ bin/vawe dev films/how-it-works/page.html`,
     related: [launchLink, showcaseLink, { href: "/video-components", label: "Every video component, with its clip" }],
   },
 };
+
+export function videoTypesUsing(moveName: string): Link[] {
+  return [
+    ...(PRODUCT_SHOWCASE.moves.clips.includes(moveName) ? [{ href: SHOWCASE_PATH, label: "Used in product showcase videos" }] : []),
+    ...(EXPLAINER.moves.clips.includes(moveName) ? [{ href: EXPLAINER_PATH, label: "Used in explainer videos" }] : []),
+    ...(LAUNCH_VIDEO.moves.clips.includes(moveName) ? [{ href: LAUNCH_VIDEO.path, label: "Used in product launch videos" }] : []),
+  ];
+}

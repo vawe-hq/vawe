@@ -441,11 +441,6 @@
       "changeFrequency": "monthly"
     },
     {
-      "path": "/docs/style-guide",
-      "priority": 0.3,
-      "changeFrequency": "monthly"
-    },
-    {
       "path": "/docs/templates",
       "priority": 0.8,
       "changeFrequency": "monthly"

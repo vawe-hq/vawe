@@ -22,7 +22,7 @@ There are two ways an AI can make a video. A video model generates pixels from a
 
 Claude does the second. Ask Claude for a chart and it writes the code that draws the bars. A film works the same way, with a clock added.
 
-Both ways make real MP4 files. They suit different jobs. Code suits motion graphics: titles, product screens, charts, logos, captions, launch films and explainers. A video model suits footage of a person walking down a street. This post covers the first kind.
+Both ways make real MP4 files. They suit different jobs. Code suits motion graphics: titles, [product showcase videos](/product-showcase-video), charts, logos, captions, [launch films](/launch-video) and [explainers](/explainer-video). A video model suits footage of a person walking down a street. This post covers the first kind.
 
 ## What you need
 
