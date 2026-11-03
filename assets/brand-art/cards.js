@@ -185,6 +185,20 @@ export const PAGES = {
   },
 };
 
+// The video-type pages reuse a sibling's scene with their own words; no loop, so no og:video.
+const { loop: _launchLoop, ...LAUNCH_STILL } = PAGES['/launch-video'];
+const { loop: _blogLoop, ...BLOG_STILL } = PAGES['/blog'];
+PAGES['/product-showcase-video'] = {
+  ...LAUNCH_STILL, ink: 'a',
+  h: 'A product showcase video from code.',
+  sub: 'The real product, one feature<br>per beat, about 20 seconds.',
+};
+PAGES['/explainer-video'] = {
+  ...BLOG_STILL, ink: 'b',
+  h: 'An explainer video from code.',
+  sub: 'Facts first, then one idea per scene.',
+};
+
 // Blog posts: the topic picks the scene and its usual ink; the slug's seed varies the composition within safe ranges
 // and prints about half of each topic's posts in the other ink.
 export const TOPICS = {

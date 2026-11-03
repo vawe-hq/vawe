@@ -116,6 +116,8 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
       { href: "/determinism", title: "Determinism", line: "Why the same page gives the same frames, and how a test proves it.", icon: "book", meta: "essay" },
       { href: "/when-determinism-matters", title: "When determinism matters", line: "When byte-identical output decides the engine, and when it does not.", icon: "book", meta: "essay" },
       { href: "/launch-video", title: "Launch videos", line: "A product launch film built from captured UI, one message per beat.", icon: "play", meta: "guide" },
+      { href: "/product-showcase-video", title: "Product showcase videos", line: "A feature tour of the real product: four screens, one camera, about 20 seconds.", icon: "play", meta: "guide" },
+      { href: "/explainer-video", title: "Explainer videos", line: "Facts first, then one idea per scene, 9 seconds to 3 minutes.", icon: "play", meta: "guide" },
       { href: "/blog", title: "Blog", line: "Notes on what broke, what we measured and what changed.", icon: "pen", meta: `${allPosts().length}${NBSP}posts` },
     ],
   },

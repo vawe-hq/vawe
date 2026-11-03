@@ -39,6 +39,7 @@ export default function LaunchVideo() {
           </section>
 
           <SectionView s={C.invent} />
+          <SectionView s={C.family} />
 
           <NextView n={C.next} />
         </main>

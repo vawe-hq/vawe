@@ -6,6 +6,7 @@ import { FEATURES, FEATURES_BARS, FEATURES_SESSION } from "../content/features";
 import { HOME } from "../content/home";
 import { HYPERFRAMES_ALTERNATIVES } from "../content/hyperframes-alternatives";
 import { LAUNCH_VIDEO } from "../content/launch-video";
+import { EXPLAINER, PRODUCT_SHOWCASE, type VideoTypePage } from "../content/video-types";
 import { OPEN, PROBLEMS_PAGE, SOLVED, STATUS_LABEL, type Problem } from "../content/problems";
 import { REMOTION_ALTERNATIVES } from "../content/remotion-alternatives";
 import { RESOURCES, resourceGroups } from "../content/resources";
@@ -172,8 +173,23 @@ const launchVideo = single(LAUNCH_VIDEO.path, LAUNCH_VIDEO.meta, () =>
     section(LAUNCH_VIDEO.beats),
     join([heading(2, LAUNCH_VIDEO.moves.title), LAUNCH_VIDEO.moves.lead, LAUNCH_VIDEO.moves.clips.map((name) => item(name, `/video-components/${name}`)).join("\n")]),
     section(LAUNCH_VIDEO.invent),
+    section(LAUNCH_VIDEO.family),
   ], LAUNCH_VIDEO.next),
 );
+
+const videoType = (c: VideoTypePage) =>
+  single(c.path, c.meta, () =>
+    doc(c.path, c.h1, c.meta, [
+      c.lede,
+      section(c.contains),
+      section(c.timing),
+      join([heading(2, c.examples.title), c.examples.lead, c.examples.items.map((e) => `- [${e.title}](${e.href}) by ${e.by}`).join("\n"), item(c.examples.all.label, c.examples.all.href)]),
+      join([heading(2, c.moves.title), c.moves.lead, c.moves.clips.map((name) => item(name, `/video-components/${name}`)).join("\n")]),
+      section(c.make),
+      heading(2, "Questions"),
+      qa(c.faq),
+    ], c.next),
+  );
 
 const evidence = join([
   heading(2, ALT_EVIDENCE.title),
@@ -311,6 +327,8 @@ export const CONTENT_RENDERERS: Record<string, Renderer> = {
   "/problems": problems,
   "/roadmap": roadmap,
   "/launch-video": launchVideo,
+  [PRODUCT_SHOWCASE.path]: videoType(PRODUCT_SHOWCASE),
+  [EXPLAINER.path]: videoType(EXPLAINER),
   "/remotion-alternatives": remotionAlternatives,
   "/hyperframes-alternatives": hyperframesAlternatives,
   "/vs/[slug]": vs,

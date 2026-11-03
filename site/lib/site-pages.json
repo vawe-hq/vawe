@@ -127,6 +127,20 @@
       "label": "Launch video"
     },
     {
+      "path": "/product-showcase-video",
+      "priority": 0.7,
+      "changeFrequency": "monthly",
+      "group": "topic",
+      "label": "Product showcase video"
+    },
+    {
+      "path": "/explainer-video",
+      "priority": 0.7,
+      "changeFrequency": "monthly",
+      "group": "topic",
+      "label": "Explainer video"
+    },
+    {
       "path": "/vs/remotion",
       "priority": 0.7,
       "changeFrequency": "monthly",

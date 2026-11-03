@@ -16,6 +16,7 @@ export const LAUNCH_VIDEO = {
     { href: "#beats", label: "The beats" },
     { href: "#moves", label: "The video components" },
     { href: "#invent", label: "What not to invent" },
+    { href: "#family", label: "Other video types" },
   ] as Link[],
   route: {
     id: "route",
@@ -68,6 +69,22 @@ export const LAUNCH_VIDEO = {
       },
     ],
     cite: "prompts/brand-launch-from-url.md · scripts/brand/kit.mjs",
+  } as Section,
+  family: {
+    id: "family",
+    title: "Two other videos from the same page of code.",
+    blocks: [
+      {
+        p: [
+          "A launch film announces the product. To show how the product works, one feature at a time, read ",
+          { text: "product showcase videos", href: "/product-showcase-video" },
+          ". To teach a topic and sell nothing, read ",
+          { text: "explainer videos", href: "/explainer-video" },
+          ". The routing table picks between them: a real product from a URL is a launch or a showcase, and a topic with nothing sold is an explainer.",
+        ],
+      },
+    ],
+    cite: "guides/ROUTING.md, rows 2 and 4",
   } as Section,
   next: {
     title: "Start from the launch template.",

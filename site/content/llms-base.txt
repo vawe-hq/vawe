@@ -24,6 +24,8 @@ A Vawe film is one HTML page (CSS, Web Animations, SVG, canvas or three.js). The
 - [when-determinism-matters](https://vawe.dev/when-determinism-matters): Byte-identical rendering is a real property, not a universal one. When it decides which engine to pick, and when a human editing a timeline by eye makes it beside the point.
 - [hyperframes-alternatives](https://vawe.dev/hyperframes-alternatives): HyperFrames is HeyGen's self-hosted, Apache-2.0, agent-facing rendering engine, the closest peer Vawe has. Both compose from HTML, timed and made deterministic in different ways. Read 2026-09-19.
 - [launch-video](https://vawe.dev/launch-video): How Vawe builds a product launch video: real captured UI, not invented mockups, one message per beat, from the site's own palette and type.
+- [product-showcase-video](https://vawe.dev/product-showcase-video): A product showcase video shows the real product doing real things, one feature per beat. The beats, the timing, the vawe commands to make one, and examples.
+- [explainer-video](https://vawe.dev/explainer-video): An explainer video teaches one topic with visuals that build on screen and sells nothing. The facts list, the scenes, the timing, the vawe commands to make one, and examples.
 
 {{DOCS}}
 

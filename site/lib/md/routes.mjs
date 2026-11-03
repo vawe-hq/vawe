@@ -23,6 +23,8 @@ export const RENDERED = [
   "/problems",
   "/roadmap",
   "/launch-video",
+  "/product-showcase-video",
+  "/explainer-video",
   "/remotion-alternatives",
   "/hyperframes-alternatives",
   "/vs/[slug]",
