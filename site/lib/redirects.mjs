@@ -191,7 +191,7 @@ const BLOG_MOVED = {
   "ten-looks": "site-after-json", "headless-blocks": "site-after-json", "big-deletion": "html-over-json",
   "measured-brief": "loophole-audit", waivers: "advise-refuse",
   "see-truth": "watch-a-film", "calibrate-spec": "watch-a-film", "plan-vs-reference": "watch-a-film",
-  shell: "one-binary", "stage-say": "one-binary", land: "one-binary",
+  shell: "one-binary", "stage-say": "one-binary", land: "merge-git-worktree-to-main",
   "trace-reviews": "run-logs", "cheap-wait": "run-logs",
   "one-owner": "weaker-model", "taste-digest": "read-load", "data-over-rules": "read-load",
 };
