@@ -29,7 +29,7 @@ type Raw = {
 const raw = data as unknown as Raw;
 const UI = raw.uiRaw;
 
-export const UI_SOURCE = "Measured on ChatGPT and Vercel Analytics clips at 30 fps, read off frames, plus or minus 33 ms.";
+export const UI_SOURCE = "Measured on ChatGPT and Vercel Analytics clips at 30\u00a0fps, read off frames, plus or minus 33\u00a0ms.";
 
 type Spec = {
   slug: string;
@@ -47,7 +47,7 @@ const SPECS: Spec[] = [
   { slug: "title-entrance", jobId: "title", kind: "rise", noun: "a title or text entrance", name: "Title or text entrance", rise: "4vh", ref: true, moveJobs: ["land-a-title-or-wordmark-soft"] },
   {
     slug: "panel-entrance", jobId: "panel", kind: "rise", noun: "a UI panel or card", name: "UI panel or card in", rise: UI.panel.rise, ref: true,
-    preset: [{ label: "Panel in", value: `fade ${UI.panel.fadeMs} ms, rise ${UI.panel.rise}`, measured: "A window fades in 0.10 to 0.23 s with at most 2 px of rise, no scale." }],
+    preset: [{ label: "Panel in", value: `fade ${UI.panel.fadeMs} ms, rise ${UI.panel.rise}`, measured: "A window fades in 0.10 to 0.23\u00a0s with at most 2\u00a0px of rise, no scale." }],
     moveJobs: ["show-a-real-ui-arriving"],
   },
   {
@@ -57,35 +57,35 @@ const SPECS: Spec[] = [
   },
   {
     slug: "list-stagger", jobId: "stagger", kind: "stagger", noun: "a list stagger", name: "List stagger", rise: UI.row.rise,
-    preset: [{ label: "Row in, stagger", value: `fade ${UI.row.fadeMs} ms, rise ${UI.row.rise}, ${UI.row.staggerMs} ms apart`, measured: "A row or line arrives in 0.15 to 0.3 s. Rows come 70 to 100 ms apart (7 rows in 0.5 s)." }],
+    preset: [{ label: "Row in, stagger", value: `fade ${UI.row.fadeMs} ms, rise ${UI.row.rise}, ${UI.row.staggerMs} ms apart`, measured: "A row or line arrives in 0.15 to 0.3\u00a0s. Rows come 70 to 100\u00a0ms apart (7 rows in 0.5\u00a0s)." }],
     moveJobs: ["make-many-things-read-as-one-gesture"],
   },
   { slug: "notification-pop", jobId: "pop", kind: "pop", noun: "a small pop or notification", name: "Small pop or notification", ref: true, moveJobs: ["make-some-arrivals-overshoot-21-to-41-percent-of-them"] },
   {
     slug: "exit", jobId: "exit", kind: "exit", noun: "an exit", name: "Exit", rise: UI.exit.drift, ref: true,
-    preset: [{ label: "Exit", value: `fade ${UI.exit.ms} ms, drift ${UI.exit.drift}`, measured: "The whole window fades in 0.3 to 0.4 s to the empty ground. Frame 0 is the same ground." }],
+    preset: [{ label: "Exit", value: `fade ${UI.exit.ms} ms, drift ${UI.exit.drift}`, measured: "The whole window fades in 0.3 to 0.4\u00a0s to the empty ground. Frame 0 is the same ground." }],
     moveJobs: ["run-every-beat-in-and-out"],
   },
-  { slug: "short-camera-move", jobId: "camera-short", kind: "push", noun: "a camera move under 2 s", name: "Camera move under 2 s", ref: true, moveJobs: ["lean-the-camera-toward-a-subject"] },
-  { slug: "long-camera-move", jobId: "camera-long", kind: "push", noun: "a camera move of 2 s or more", name: "Camera move of 2 s or more", ref: true, moveJobs: ["move-the-camera-over-a-whole-world-push-pull-whip"] },
+  { slug: "short-camera-move", jobId: "camera-short", kind: "push", noun: "a camera move under 2\u00a0s", name: "Camera move under 2\u00a0s", ref: true, moveJobs: ["lean-the-camera-toward-a-subject"] },
+  { slug: "long-camera-move", jobId: "camera-long", kind: "push", noun: "a camera move of 2\u00a0s or more", name: "Camera move of 2\u00a0s or more", ref: true, moveJobs: ["move-the-camera-over-a-whole-world-push-pull-whip"] },
   { slug: "scan-wipe", jobId: "scan", kind: "scan", noun: "a scan or wipe travel", name: "Scan or wipe travel", ref: true, moveJobs: [] },
   { slug: "hold-drift", jobId: "hold", kind: "push", noun: "a hold drift", name: "Hold drift", ref: true, moveJobs: ["give-a-held-frame-a-living-ground"] },
   {
     slug: "send-bubble", kind: "bubble", noun: "a sent message or small arrival", name: "Send, small arrival", ref: true,
     preset: [
-      { label: "Send", value: `spring k ${UI.send.k}, d ${UI.send.d}`, measured: "A sent bubble overshoots 11 to 14 percent (x1.11 in 0.1 s). The spring gives 12 percent." },
-      { label: "Snap", value: `overshoot ${UI.snap.overshoot.map((n) => Math.round(n * 100)).join(" to ")}%`, measured: "Overshoot is a snap on small, fast arrivals (3 to 20 px). A large panel does not overshoot." },
+      { label: "Send", value: `spring k ${UI.send.k}, d ${UI.send.d}`, measured: "A sent bubble overshoots 11 to 14 percent (x1.11 in 0.1\u00a0s). The spring gives 12 percent." },
+      { label: "Snap", value: `overshoot ${UI.snap.overshoot.map((n) => Math.round(n * 100)).join(" to ")}%`, measured: "Overshoot is a snap on small, fast arrivals (3 to 20\u00a0px). A large panel does not overshoot." },
     ],
     moveJobs: ["make-some-arrivals-overshoot-21-to-41-percent-of-them"],
   },
   {
     slug: "typing", kind: "typing", noun: "typing", name: "Typing",
-    preset: [{ label: "Typing", value: `${UI.typing.charMs} ms a character, +${UI.typing.spaceMs} ms after a space, ${UI.typing.jitter * 100}% jitter`, measured: "20 to 27 characters a second with pauses at word gaps: 38 in 1.5 s, 35 in 1.3 s, 61 in 3 s." }],
+    preset: [{ label: "Typing", value: `${UI.typing.charMs} ms a character, +${UI.typing.spaceMs} ms after a space, ${UI.typing.jitter * 100}% jitter`, measured: "20 to 27 characters a second with pauses at word gaps: 38 in 1.5\u00a0s, 35 in 1.3\u00a0s, 61 in 3\u00a0s." }],
     moveJobs: ["type-a-command-prompt-or-name"],
   },
   {
     slug: "text-streaming", kind: "stream", noun: "streamed text", name: "Stream",
-    preset: [{ label: "Stream", value: `${UI.stream.gapMs[0]} to ${UI.stream.gapMs[1]} ms a chunk of 1 to 3 words, fade ${UI.stream.fadeMs} ms, tint ${UI.stream.tintMs} ms`, measured: "15 to 25 words a second. A word fades in 0.2 to 0.3 s, tinted, and settles to ink in about 0.5 s." }],
+    preset: [{ label: "Stream", value: `${UI.stream.gapMs[0]} to ${UI.stream.gapMs[1]} ms a chunk of 1 to 3 words, fade ${UI.stream.fadeMs} ms, tint ${UI.stream.tintMs} ms`, measured: "15 to 25 words a second. A word fades in 0.2 to 0.3\u00a0s, tinted, and settles to ink in about 0.5\u00a0s." }],
     moveJobs: ["show-an-ai-product-answering"],
   },
 ];
@@ -191,7 +191,7 @@ export function jobPageBySlug(slug: string): JobPage | null {
   const ezCode = s.kind === "bubble" ? raw.sendDemo.linear : ease ? bez(ease) : "";
   const { css, waapi } = cssOf(s, ezCode, ms, s.rise ?? null);
 
-  const avoid = job ? job.avoid : s.kind === "bubble" ? "A large panel or any text block: overshoot is for small, fast arrivals of 3 to 20 px. A counter never springs." : null;
+  const avoid = job ? job.avoid : s.kind === "bubble" ? "A large panel or any text block: overshoot is for small, fast arrivals of 3 to 20\u00a0px. A counter never springs." : null;
   const time = job
     ? job.time
     : s.kind === "bubble" ? `${raw.sendDemo.settleS} s to settle, overshoot ${raw.sendDemo.overshoot}%`

@@ -123,7 +123,7 @@ export default async function JobPage({ params }: Params) {
                 <figcaption className="ez-cap">{p.ease.name}: progress against time. Dashed is linear.</figcaption>
               </figure>
             ) : null}
-            {p.kind === "bubble" ? <p className="ez-note">A spring has no cubic-bezier form, so the linear() string follows it. For an item that moves more than 20 px, see <Link href="/easing/for/notification-pop">the pop page</Link>.</p> : null}
+            {p.kind === "bubble" ? <p className="ez-note">A spring has no cubic-bezier form, so the linear() string follows it. For an item that moves more than 20&nbsp;px, see <Link href="/easing/for/notification-pop">the pop page</Link>.</p> : null}
           </section>
 
           {p.avoid ? (
