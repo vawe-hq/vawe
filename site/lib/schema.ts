@@ -9,7 +9,7 @@
 // Google no longer shows an FAQ rich result for it; it stays as entity data for answer engines.
 
 import pkg from "../../package.json";
-import { REPO_URL, SITE_ALT_NAMES, SITE_DESCRIPTION as BRAND_DESCRIPTION, SITE_URL } from "./site";
+import { REPO_URL, SAME_AS, SITE_ALT_NAMES, SITE_DESCRIPTION as BRAND_DESCRIPTION, SITE_URL } from "./site";
 
 export { REPO_URL };
 
@@ -28,7 +28,7 @@ export function organizationSchema() {
     // 512x512 PNG rendered from that same SVG rather than the vector file, whose intrinsic pixel
     // size a crawler cannot be relied on to read as anything above the viewBox.
     logo: `${SITE_URL}/assets/favicon-512.png`,
-    sameAs: [REPO_URL],
+    sameAs: SAME_AS,
   };
 }
 
@@ -69,6 +69,7 @@ export function softwareApplicationSchema() {
     downloadUrl: REPO_URL,
     isAccessibleForFree: true,
     image: `${SITE_URL}/opengraph-image`,
+    sameAs: SAME_AS,
   };
 }
 
@@ -158,7 +159,7 @@ export function aboutPageSchema(opts: { description: string; owner: { name: stri
       "@type": "Organization",
       name: "vawe",
       url: SITE_URL,
-      sameAs: [REPO_URL],
+      sameAs: SAME_AS,
       founder: { "@type": "Person", name: opts.owner.name, url: opts.owner.url },
     },
   };

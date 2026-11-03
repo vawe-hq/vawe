@@ -15,8 +15,8 @@ const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variabl
 // as a video format, so the title says so.
 const TITLE = "vawe: open-source HTML to video for AI agents";
 const BLURB =
-  "Write one HTML page (CSS, SVG, canvas, three.js) and vawe renders a deterministic video. "
-  + "Motion graphics as code for you or an AI agent: a free, Apache-2.0 Remotion alternative.";
+  "vawe renders one HTML page (CSS, SVG, canvas, three.js) into a video: "
+  + "motion graphics as code for you or an AI agent. Free, Apache-2.0, a Remotion alternative.";
 
 // The landing hero film (lib/content/home.ts); the size below is that file's. og:video wants an absolute URL.
 const HERO_VIDEO = `${SITE_URL}/examples/${HOME.hero.film}.mp4`;

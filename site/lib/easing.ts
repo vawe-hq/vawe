@@ -77,7 +77,8 @@ export function pageTitle(e: Ease) {
   if (e.kind === "vawe") return `After Effects easing in CSS: ${e.slug} (speed and influence) | vawe`;
   if (e.kind === "css") return `CSS ${e.name}: cubic-bezier and linear() easing | vawe`;
   if (e.bezier.express === "no") return `${e.name}: CSS linear() easing (no cubic-bezier fit) | vawe`;
-  return `${e.name}: CSS cubic-bezier and linear() easing | vawe`;
+  const withValue = `${e.name} in CSS: ${bezierText(e)} | vawe`;
+  return withValue.length <= 60 ? withValue : `${e.name}: CSS cubic-bezier and linear() easing | vawe`;
 }
 
 export function summary(e: Ease) {
@@ -91,9 +92,9 @@ export function pageDescription(e: Ease) {
       ? `${e.slug}: the After Effects handles (influence and speed), the CSS linear() string, and a live demo.`
       : e.bezier.express === "no"
         ? `${e.name} as CSS: the exact linear() string, why cubic-bezier cannot draw it, and a live demo.`
-        : `${e.name} as CSS: the cubic-bezier, the exact linear() string, and a live demo.`;
-  const text = `${lead} 50% at ${pct(e.t50)} of the time.`;
-  return text.length <= 154 ? text : lead;
+        : `${e.name} as CSS: ${bezierText(e)}, the exact ${e.points}-point linear() string, and a live demo to copy.`;
+  const text = `${lead} It is 50% done at ${pct(e.t50)} of the time.`;
+  return text.length <= 160 ? text : lead;
 }
 
 export function waapi(e: Ease) {

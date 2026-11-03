@@ -58,9 +58,8 @@ const SKILLS = "html-to-video, vawe-brief, vawe-page, vawe-critique, vawe-transi
 export const FEATURES = {
   path: "/features",
   meta: {
-    title: "HTML to video features: agent CLI, motion blur, lens",
-    description:
-      "vawe features, in three groups: agents write a film in plain HTML and every command names the next step, a library of video components and a fresh-session critique keep it from looking generated, and drafts render in seconds.",
+    title: "vawe features: HTML to video, agent CLI, motion blur",
+    description: `vawe features: an agent writes a film in plain HTML, every command names the next step, ${MOVES.length} video components and ${EASES.length} easing curves, and drafts render in seconds.`,
   } as Meta,
   crumb: { group: "Product", current: "Features" } as Crumb,
   h1: "Agents write it. It looks made. It renders fast.",

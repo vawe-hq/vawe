@@ -1,6 +1,6 @@
 ---
-title: "JSON video format vs HTML: a blind test"
-description: "A JSON video format lost a blind A/B test to one HTML page: 10.75 minutes against 5.9, and scores of 5 against 8. What we deleted after."
+title: "JSON vs HTML format for video: a blind test"
+description: "JSON vs HTML as a video format: a blind A/B test. The HTML page won on speed (5.9 minutes against 10.75) and on score (8 against 5). What we deleted."
 date: 2026-10-07
 updated: 2026-10-16
 section: rendering

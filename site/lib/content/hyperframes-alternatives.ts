@@ -5,9 +5,9 @@ import type { Crumb, Link, Meta, NextBlock, Table } from "./types";
 export const HYPERFRAMES_ALTERNATIVES = {
   path: "/hyperframes-alternatives",
   meta: {
-    title: "HyperFrames alternatives: vawe, Remotion, Motion Canvas, Lottie",
+    title: "HyperFrames alternatives: vawe, Remotion, Motion Canvas",
     description:
-      "Four alternatives to HyperFrames, HeyGen’s HTML-to-video framework: vawe, Remotion, Motion Canvas and Lottie, with how you author each and the job it fits.",
+      "HyperFrames alternatives: vawe, Remotion, Motion Canvas and Lottie, compared by how you author each, its licence and the job it fits, in one table.",
   } as Meta,
   crumb: { group: "Compare", current: "HyperFrames alternatives" } as Crumb,
   h1: "HyperFrames alternatives.",
