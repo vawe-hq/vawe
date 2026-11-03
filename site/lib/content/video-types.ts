@@ -59,7 +59,7 @@ export const PRODUCT_SHOWCASE: VideoTypePage = {
   },
   crumb: { group: "Learn", current: "Product showcase video" },
   h1: "Product showcase video, made with code.",
-  lede: "A product showcase video shows your real product doing real things, one feature at a time, in about 20 seconds. With vawe you capture the real screens from a URL, write one HTML page, and render it to an mp4. You can write the page yourself or ask a coding agent to write it.",
+  lede: "A product showcase video shows your real product doing real things, one feature at a time, in about 20\u00a0seconds. With vawe you capture the real screens from a URL, write one HTML page, and render it to an mp4. You can write the page yourself or ask a coding agent to write it.",
   toc: tocFor(),
   contains: {
     id: "contains",
@@ -73,12 +73,12 @@ export const PRODUCT_SHOWCASE: VideoTypePage = {
       },
       {
         ol: [
-          ["Screen one is a real capture from the first frame. A cursor presses one real button, and the done state stays until 3.5 s."],
-          ["The camera pans right to screen two. A card builds on it and holds until 7.5 s."],
-          ["The camera pans up and right to screen three. Another press, and the result stays until 11.5 s."],
-          ["The camera pans down to screen four, then 1.4 s of quiet."],
-          ["The big moment: the cursor lands on a status, the camera zooms in on it, and it holds until 16.3 s."],
-          ["The last screen leaves upward in 0.22 s. The brand name settles from 16.7 s, and the logo holds still until 20 s."],
+          ["Screen one is a real capture from the first frame. A cursor presses one real button, and the done state stays until 3.5\u00a0s."],
+          ["The camera pans right to screen two. A card builds on it and holds until 7.5\u00a0s."],
+          ["The camera pans up and right to screen three. Another press, and the result stays until 11.5\u00a0s."],
+          ["The camera pans down to screen four, then 1.4\u00a0s of quiet."],
+          ["The big moment: the cursor lands on a status, the camera zooms in on it, and it holds until 16.3\u00a0s."],
+          ["The last screen leaves upward in 0.22\u00a0s. The brand name settles from 16.7\u00a0s, and the logo holds still until 20\u00a0s."],
         ],
       },
       { p: ["Every screen is a capture of your real site or app, never a placeholder card. If a feature is not on your site, the film does not show it."] },
@@ -86,16 +86,16 @@ export const PRODUCT_SHOWCASE: VideoTypePage = {
   },
   timing: {
     id: "timing",
-    title: "Timing: 20 seconds is the norm, 9 to 40 is the range.",
+    title: "Timing: 20\u00a0seconds is the norm, 9 to 40 is the range.",
     blocks: [
       {
         p: [
-          "A brand or product film runs 9 to 40 seconds. Under 15 seconds, most films work better as one continuous action. The example above is 20 seconds.",
+          "A brand or product film runs 9 to 40\u00a0seconds. Under 15\u00a0seconds, most films work better as one continuous action. The example above is 20\u00a0seconds.",
         ],
       },
       {
         p: [
-          "Each screen holds 1.2 seconds or more, so a viewer can read it before the camera leaves. Exits are quick (0.22 s). Entrances are slower (0.6 s or more). Neighbouring cuts change axis or direction, so you never get three slides to the left in a row.",
+          "Each screen holds 1.2\u00a0seconds or more, so a viewer can read it before the camera leaves. Exits are quick (0.22\u00a0s). Entrances are slower (0.6\u00a0s or more). Neighbouring cuts change axis or direction, so you never get three slides to the left in a row.",
         ],
       },
     ],
@@ -153,7 +153,7 @@ bin/vawe dev films/acme-showcase/page.html`,
   faq: [
     {
       q: "How long should a product showcase video be?",
-      a: ["About 20 seconds. A brand or product film runs 9 to 40 seconds."],
+      a: ["About 20\u00a0seconds. A brand or product film runs 9 to 40\u00a0seconds."],
     },
     {
       q: "Can I use my real product screens?",
@@ -225,16 +225,16 @@ export const EXPLAINER: VideoTypePage = {
   },
   timing: {
     id: "timing",
-    title: "Timing: 9 seconds to 3 minutes.",
+    title: "Timing: 9\u00a0seconds to 3\u00a0minutes.",
     blocks: [
       {
         p: [
-          "An explainer runs from 9 seconds to 3 minutes. The default is 30 seconds in 16:9, with three takeaways and one scene for each. For a film over 60 seconds, or one that takes more than one working session, use the long-film brief instead. Under 15 seconds, a process that fills from empty to complete is one continuous action.",
+          "An explainer runs from 9\u00a0seconds to 3\u00a0minutes. The default is 30\u00a0seconds in 16:9, with three takeaways and one scene for each. For a film over 60\u00a0seconds, or one that takes more than one working session, use the long-film brief instead. Under 15\u00a0seconds, a process that fills from empty to complete is one continuous action.",
         ],
       },
       {
         p: [
-          "If there is a voice, every scene starts on a word boundary from a timings file, not on a guess. A viewer does not see a diagram that finishes building in 300 ms, so give it time.",
+          "If there is a voice, every scene starts on a word boundary from a timings file, not on a guess. A viewer does not see a diagram that finishes building in 300\u00a0ms, so give it time.",
         ],
       },
     ],
@@ -283,7 +283,7 @@ bin/vawe dev films/how-it-works/page.html`,
   faq: [
     {
       q: "How long should an explainer video be?",
-      a: ["From 9 seconds to 3 minutes. The default is 30 seconds. Over 60 seconds, use the long-film brief."],
+      a: ["From 9\u00a0seconds to 3\u00a0minutes. The default is 30\u00a0seconds. Over 60\u00a0seconds, use the long-film brief."],
     },
     {
       q: "Do I need a voiceover?",
