@@ -88,7 +88,7 @@ On 2026-10-01 we removed the video component `photo-parallax-2.5d`. Parallax on 
 
 We could have added an exception: "photos are allowed for particles". That is a second way to say one thing, and it leaves the next case unclear. We replaced the rule with a question: does the move depend on processing the image? Parallax depth cuts do. A card, a tile, a window or a carousel item that shows a photo whole does not. A particle form that uses the photo as a source of detail, and never shows it as footage, does not either. The moves README follows this question, and no agent prompt says "no photos".
 
-For a public example film that puts a three.js scene through the same lens, see the [moth photogram example](https://github.com/vawe-hq/vawe/tree/main/films/examples/moth-photogram). The page rules for images are in the [backgrounds and images docs](/docs/backgrounds-and-images). The video component doc is `prompts/moves/photo-particles.md`. For the looks, curves and cuts around a video component like this one, read [CSS animation library: 126 copyable video components](/blog/site-after-json).
+For a public example film that puts a three.js scene through the same lens, see the [moth photogram example](https://github.com/vawe-hq/vawe/tree/main/films/examples/moth-photogram). The page rules for images are in the [backgrounds and images docs](/docs/backgrounds-and-images). The video component doc is `prompts/moves/photo-particles.md`. For the looks, curves and cuts around a video component like this one, read [CSS animation library: 126 copyable video components](/video-components).
 
 ## FAQ
 

@@ -65,7 +65,7 @@ const CASES = [
   { path: "/playground/x", kind: "redirect", to: "/video-components" },
   { path: "/deck", kind: "redirect", to: "/docs/motion" },
   { path: "/features/old-feature", kind: "redirect", to: "/features" },
-  { path: "/blog/taste-digest", kind: "redirect", to: "/blog/read-load" },
+  { path: "/blog/taste-digest", kind: "redirect", to: "/blog/weaker-model" },
   { path: "/nope", kind: "gone" },
   { path: "/video-components/not-a-move", kind: "gone" },
   { path: "/moves", kind: "redirect", to: "/video-components" },

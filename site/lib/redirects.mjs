@@ -188,17 +188,27 @@ const REMOVED_MOVE_RULES = [
 const BLOG_MOVED = {
   "chrome-per-lane": "fast-drafts", "slots-reaper": "fast-drafts", "test-suite": "fast-drafts",
   "judge-defect": "drafts-lie", "stall-watchdog": "resumable-finals", "no-synth-bed": "audio-as-written",
-  "ten-looks": "site-after-json", "headless-blocks": "site-after-json", "big-deletion": "html-over-json",
-  "measured-brief": "loophole-audit", waivers: "advise-refuse",
+  "big-deletion": "html-over-json",
+  "measured-brief": "weaker-model", waivers: "weaker-model",
   "see-truth": "watch-a-film", "calibrate-spec": "watch-a-film", "plan-vs-reference": "watch-a-film",
   shell: "one-binary", "stage-say": "one-binary", land: "one-binary",
-  "trace-reviews": "run-logs", "cheap-wait": "run-logs",
-  "one-owner": "weaker-model", "taste-digest": "read-load", "data-over-rules": "read-load",
+  "trace-reviews": "one-binary", "cheap-wait": "one-binary",
+  "one-owner": "weaker-model", "taste-digest": "weaker-model", "data-over-rules": "weaker-model",
+  // 2026-11-04: posts written for agent builders, encoders or general Puppeteer users, folded into the post their reader needs.
+  "advise-refuse": "weaker-model", "read-load": "weaker-model", "loophole-audit": "weaker-model",
+  "new-asks": "one-binary", "run-logs": "one-binary",
+  "judge-design": "watch-a-film", "quality-bar": "watch-a-film",
+  ideate: "transitions", "skill-combos": "make-video-claude-code", encode: "fast-drafts",
 };
-const BLOG_MOVED_RULES = Object.entries(BLOG_MOVED).flatMap(([old, kept]) => [
-  permanent(`/blog/${old}`, `/blog/${kept}`),
-  permanent(`/blog/${old}.md`, `/blog/${kept}.md`),
-]);
+// Posts whose facts now live on a site page, not in a post.
+const BLOG_TO_PAGE = { "site-after-json": MOVES, "ten-looks": MOVES, "headless-blocks": MOVES };
+const BLOG_MOVED_RULES = [
+  ...Object.entries(BLOG_MOVED).flatMap(([old, kept]) => [
+    permanent(`/blog/${old}`, `/blog/${kept}`),
+    permanent(`/blog/${old}.md`, `/blog/${kept}.md`),
+  ]),
+  ...Object.entries(BLOG_TO_PAGE).flatMap(([old, to]) => [permanent(`/blog/${old}`, to), permanent(`/blog/${old}.md`, to)]),
+];
 
 export const LEGACY_REDIRECTS = [
   ...BLOG_MOVED_RULES,

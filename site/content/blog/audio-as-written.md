@@ -1,13 +1,13 @@
 ---
-title: "LUFS for video: set a loudness target in code"
+title: "LUFS for code-made video: set the loudness in the page"
 description: "Our example film measured -28.8 LUFS against a -20 target. A plain mix, a limiter and one check fixed it. Why we also ban synth beds."
 date: 2026-10-10
-updated: 2026-10-16
+updated: 2026-11-04
 section: motion-sound
 topic: audio
 docs: loudness-and-the-mix, audio
 tags: "lufs, video loudness, audio mixing, true peak, background music"
-keywords: "lufs for video, video loudness target, measure loudness ffmpeg, true peak limiter, background music for generated video"
+keywords: "lufs for video, loudness target for generated video, measure loudness ffmpeg, true peak limiter, html video audio mix"
 hero: /blog/audio-as-written/hero.webp
 heroAlt: "A loudness scale from -34 to -14 LUFS. The colour-sting film measured -28.8 LUFS against a target near -20, a gap of about 9 dB."
 ---
@@ -39,7 +39,7 @@ Integrated loudness and true peak answer different questions. Loudness is the av
 
 Audio is `<audio>` tags in the page. Each tag has `src` or `data-synth`, `data-at`, and optional `data-gain` and `data-fade-out`. The mix is the sum of the tags at the gains the author wrote. A limiter at -1 dBTP only lowers peaks. It never raises a level. Normalising is opt in, through a `loudness` meta in LUFS.
 
-We had a mixer that chose the level for the author. It had master targets and separate branches for films with a bed and films with only cues. A film with short cues and no bed could end up nearly silent. Another path could push a quiet film up toward a loud target. The author never saw the decision, and a tool that changes the result without a word is a tool you cannot debug. We deleted the mixer. With a plain sum, the number on the tag is the number in the film. The same thinking shapes our [AI agent guardrails](/blog/advise-refuse), which advise far more than they refuse.
+We had a mixer that chose the level for the author. It had master targets and separate branches for films with a bed and films with only cues. A film with short cues and no bed could end up nearly silent. Another path could push a quiet film up toward a loud target. The author never saw the decision, and a tool that changes the result without a word is a tool you cannot debug. We deleted the mixer. With a plain sum, the number on the tag is the number in the film. The same thinking shapes our [AI agent guardrails](/blog/weaker-model), which advise far more than they refuse.
 
 ## Give each sound a default gain
 
@@ -57,7 +57,7 @@ Cues stay within 4 dB of each other, and a test asserts it. A draft also warns, 
 
 A music bed is a sound that runs under the whole film. We used to synthesize one, and we removed it.
 
-The first reason is a check we had. Our "no dead air" check looks for silence that runs too long. A bed fills the whole timeline, so the check could never fail on a film that had one. An agent told to make a check pass adds the easiest thing that does it. Motion has the same trick. A slow camera drift turned a live-hold check green on 18 of 36 films (see [reward hacking in AI agents](/blog/loophole-audit)). A bed, a camera drift and a full-frame gradient are one kind of trick: a global move that turns a global check green.
+The first reason is a check we had. Our "no dead air" check looks for silence that runs too long. A bed fills the whole timeline, so the check could never fail on a film that had one. An agent told to make a check pass adds the easiest thing that does it. Motion has the same trick. A slow camera drift turned a live-hold check green on 18 of 36 films (see [reward hacking in AI agents](/blog/weaker-model)). A bed, a camera drift and a full-frame gradient are one kind of trick: a global move that turns a global check green.
 
 The second reason is taste. A constant synthetic tone does not follow the picture. Cuts and actions pass over it and it stays the same. Next to a recorded effect, it sounds machine-made.
 

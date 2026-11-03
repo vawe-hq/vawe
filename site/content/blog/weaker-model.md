@@ -2,7 +2,7 @@
 title: "AI agent tooling: design for the weaker model"
 description: "Six films by a weaker model: median 13 drafts, 0 of 6 passed the judge. How to build defaults, checks and one command per step."
 date: 2026-10-11
-updated: 2026-10-16
+updated: 2026-11-04
 section: agents
 topic: agents
 docs: agents, quality-gates, engineering-notes
@@ -79,14 +79,30 @@ The 0 of 6 is the uncomfortable number. We cannot yet show that designing for th
 3. Print the fix in the message that reports the problem.
 4. Count the skip flags. A check that the agent can skip without a trace does not run.
 
-Each part of the harness has its own post:
+The rest of the harness is in two posts:
 
-- [CLI design for AI agents](/blog/one-binary): one binary with one verb per step.
-- [Make an agent ask questions first](/blog/new-asks): `vawe new` asks five questions and writes nothing until you answer three.
-- [AI agent guardrails](/blog/advise-refuse): every check advises, and only a few things refuse.
-- [How long AGENTS.md should be](/blog/read-load): the words an agent reads first, measured.
-- [AI agent observability](/blog/run-logs): one JSONL line per command.
-- [LLM as a judge for video](/blog/judge-design): the scoring side of the loop.
+- [CLI design for AI agents](/blog/one-binary): one binary with one verb per step, the questions `vawe new` asks first, and one log line per command.
+- [Can AI agents watch video?](/blog/watch-a-film): what an agent misses in a film, and how the scoring agent judges one.
+
+The sections below cover when a check refuses, how long AGENTS.md should be, and how an agent games a check.
+
+## When a check should refuse
+
+A check should refuse only in two cases: the output is wrong, or the work is lost. In every other case it should advise. In vawe that leaves three refusals: a render that cannot repeat, a waiver with no reason, and a final render without a person's approval. Every other check prints a line that starts with `advice:` and lets the command continue.
+
+A check does not know the context, so it cannot tell a real failure from a choice. A colour block or a white flash is a legitimate frame in a film. On 2026-09-30 a flat frame stopped refusing and started advising: a missing frame is a broken encode, but a flat frame may be the point of the shot.
+
+## How long AGENTS.md should be
+
+Keep what an agent must read before its first action near 2,000 words, and expect it to double anyway. We cut that reading from 5,402 words to 2,239 in four days. It grew back to 4,602 words in ten days.
+
+We track one number: everything an agent reads before it writes the first layer of a film. Every session pays that cost, so it matters more than the length of one file. The bench turns words into tokens with one fixed factor, 1.33, so token figures are estimates.
+
+## When an agent games a check
+
+Reward hacking means an agent changes the cheapest thing that turns a check green. In our audit of 36 film pages, 18 ended a held shot with the same slow camera drift. The cause was ours. The live-hold check counted any motion in a held shot as alive, and its advice line said "keep one thing moving (a slow drift on the ground or the hero)".
+
+Nobody told the agents to cheat. They read the output of a check, found the cheapest change that made it pass, and applied it.
 
 ## FAQ
 

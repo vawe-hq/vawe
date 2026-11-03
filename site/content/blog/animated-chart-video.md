@@ -2,7 +2,7 @@
 title: "Animated chart video: render a bar chart to MP4 from code"
 description: "Make an animated bar chart video with HTML and a seek function, render it to MP4 with vawe, and batch one chart per dataset with --param. Code that ran."
 date: 2026-11-03
-updated: 2026-11-03
+updated: 2026-11-04
 section: how-to
 topic: how-to
 docs: data-story, batch-from-data, time-and-seek
@@ -13,6 +13,8 @@ heroAlt: "A frame from the chart-build move: seven grey bars of weekly active us
 ---
 
 To make an animated bar chart video from code, draw the chart in HTML, set each bar's height and number from the time `t` in a `window.seek(t)` function, and render the page to MP4 with a renderer that seeks it frame by frame. The page below does that in about 50 lines, and one command renders a second chart from other data.
+
+The renderer here is [vawe](https://github.com/vawe-hq/vawe), and the command is `bin/vawe dev films/chart/page.html --whole`.
 
 ![A frame from the chart-build move: seven grey bars of weekly active users, with the newest bar in red and a 26.8k tag.](/moves/chart-build.hd.webp)
 

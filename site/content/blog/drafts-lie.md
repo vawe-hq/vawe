@@ -2,7 +2,7 @@
 title: "Puppeteer deviceScaleFactor: lay out big, capture small"
 description: "Use deviceScaleFactor for a half-size draft that keeps the final layout. Frame diff fell from 10.07 to 0.86. Plus the 800x600 viewport bug."
 date: 2026-10-10
-updated: 2026-10-16
+updated: 2026-11-04
 section: rendering
 topic: rendering
 docs: draft, render-flags
@@ -15,6 +15,8 @@ heroAlt: "Before: the same translateX(600px) box lands at 62.5 percent of a 960 
 `deviceScaleFactor` is the option of Puppeteer's `page.setViewport` that sets how many screenshot pixels the browser paints per CSS pixel. A 1920x1080 viewport with a factor of 0.5 gives a 960x540 screenshot of a page that still lays out at 1920x1080. That is the right way to make a small preview: keep the layout, shrink the capture.
 
 We learned it the hard way. Our half-size video drafts shrank the viewport instead, and the draft showed an agent a different layout from the final. This post covers why, what the factor fixed, and the one case, WebGL, where we stopped trusting it. It ends with a second viewport bug: Puppeteer's default 800x600 size.
+
+We use it in [vawe](https://github.com/vawe-hq/vawe) to render half-size video drafts that keep the final layout.
 
 <figure>
 
@@ -150,7 +152,7 @@ A defect that the scoring agent reports is real until full-size frames at those 
 
 A shared browser needs an owner for each tab. The same preview server gave two more bugs. A final's own page sat idle in the daemon. The daemon quit after 5 idle minutes, and the audio step failed with "Attempted to use detached Frame". A stray tab could also keep an idle daemon alive. The daemon now exits after 10 idle minutes.
 
-The rule: never call `browser.pages()` on a browser that other processes share. Other causes of wrong frames are on the [determinism checklist](/blog/determinism). [LLM as a judge for video](/blog/judge-design) describes the scoring agent.
+The rule: never call `browser.pages()` on a browser that other processes share. Other causes of wrong frames are on the [determinism checklist](/blog/determinism). [LLM as a judge for video](/blog/watch-a-film) describes the scoring agent.
 
 ## FAQ
 

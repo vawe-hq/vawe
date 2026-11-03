@@ -2,7 +2,7 @@
 title: "Can AI agents watch video? What they miss, measured"
 description: "Our agent read 5 reference frames, then made 0.20 s flashes where the reference ran 0.07 to 0.10 s. Ground-truth fixtures and six tools fixed it."
 date: 2026-10-11
-updated: 2026-10-16
+updated: 2026-11-04
 section: agents
 topic: watching
 docs: references, critique
@@ -14,7 +14,7 @@ heroAlt: "Bar chart. The reference film's three flashes lasted 0.10, 0.07 and 0.
 
 Can an AI agent watch a video? Only as well as its tools let it measure one. We asked an agent to make an 8 s film in the style of a reference clip. It read 5 of the reference's key frames and 2 of its 16 cut strips, and described them in words. Its flashes ran 0.20 s each. The reference's ran 0.10, 0.07 and 0.10 s.
 
-Our scoring agent gave the result 62, then 61, then 62. The owner of the reference said the concept was right and the look was wrong. Both verdicts were honest, because the scoring agent never saw the reference either. This post follows that session through its trace. Then it lists the tools and tests we built so an agent can compare two films in numbers. It is part of our series on [judging generated video](/blog/judge-design).
+Our scoring agent gave the result 62, then 61, then 62. The owner of the reference said the concept was right and the look was wrong. Both verdicts were honest, because the scoring agent never saw the reference either. This post follows that session through its trace. Then it lists the tools and tests we built so an agent can compare two films in numbers. It is part of our series on judging generated video.
 
 ## What the agent saw and what it missed
 
@@ -106,7 +106,17 @@ Word start passes by 0.3 ms, at 99% of its budget, so a small code change can ti
 
 In later sessions, agents used `look --vs` and `zoom --vs` 10 times and `see --vs` 3 times. The default reference worked. Before, nobody reused the reference after stage 2. That counts use. It does not measure quality.
 
-We have no score after the change. We did not rerun that film, and we will not invent a number. The flash, luma and read-count figures come from one trace of one session, so read them as an example and not as a rate. The next test is whether films made with these tools pass more often, against the ranges in [our motion graphics benchmark](/blog/quality-bar). The [critique docs](/docs/critique) show the tools in the loop. The code is in the [vawe repo](https://github.com/vawe-hq/vawe).
+We have no score after the change. We did not rerun that film, and we will not invent a number. The flash, luma and read-count figures come from one trace of one session, so read them as an example and not as a rate. The next test is whether films made with these tools pass more often, against the ranges in our motion graphics benchmark. The [critique docs](/docs/critique) show the tools in the loop. The code is in the [vawe repo](https://github.com/vawe-hq/vawe).
+
+## How the scoring agent judges a film
+
+In vawe an LLM judge scores a rendered film on eight axes. Fairness is the hard part: our first version gave a deliberately silent film 0 on sound, so that film could never pass. The judge now starts from reject. It answers side-by-side questions against reference films and turns the answers into score caps. It keeps a ledger of its own advice, and it skips any axis that a film declares out.
+
+`judge --fresh`, added on 30 September, is a fresh read-only agent. It reads a deterministic contact sheet, six change-peak frames and a loudness line, takes about 30 seconds and writes one JSON object.
+
+## The bar from reference films
+
+We measured 167 cuts in 17 reference films that we consider excellent. The median film moves the viewer's eye by less than a fifth of the frame height at a cut (0.185 frame heights). About three in ten of its arrivals overshoot their mark. Our own early drafts fell outside the reference range on all four checks we wrote from these numbers. `vawe refs` indexes the reference films and picks them by film type and length.
 
 ## FAQ
 

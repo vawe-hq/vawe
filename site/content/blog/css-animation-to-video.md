@@ -2,7 +2,7 @@
 title: "CSS animation to video: export an MP4 or WebM"
 description: "Turn a CSS keyframe or Web Animation into an MP4 or WebM. Pause, seek, capture and encode. Covers SVG and canvas too."
 date: 2026-10-19
-updated: 2026-10-19
+updated: 2026-11-04
 section: how-to
 nav: "CSS animation to video"
 topic: how-to
@@ -12,6 +12,8 @@ keywords: "export css animation as video, css animation to mp4, svg animation to
 ---
 
 To export a CSS animation as a video, pause the animation, set its time, take a screenshot and repeat for every frame. Then encode the screenshots with ffmpeg. The script below does this for CSS keyframes, Web Animations, SVG animation and canvas, and writes an MP4 or a WebM.
+
+To skip the script, [vawe](https://github.com/vawe-hq/vawe) runs the same seek loop in one command, `bin/vawe dev films/<name>/page.html`. It also replaces the page clock, so `Date.now()`, timers and `Math.random()` follow the frame time. [HTML to MP4](/blog/render-html-to-mp4) shows both ways side by side.
 
 ## The idea in one paragraph
 

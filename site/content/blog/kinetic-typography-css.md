@@ -2,7 +2,7 @@
 title: "CSS text animation: 5 kinetic typography effects"
 description: "Five kinetic text effects in plain CSS, each with code and a 2 s clip: stagger, wave, scale punch, mask reveal and tracking."
 date: 2026-10-19
-updated: 2026-10-19
+updated: 2026-11-04
 section: how-to
 topic: motion
 docs: kinetic-type, text-and-fonts
@@ -11,6 +11,8 @@ keywords: "kinetic typography css, kinetic typography javascript, text animation
 ---
 
 CSS text animation needs no library, and kinetic typography is the same thing: text that moves with the beat. Split the text into one `<span>` for each letter, set a delay with a custom property, and let `@keyframes` do the rest. This post gives five effects as plain HTML and CSS: stagger, wave, scale punch, mask reveal and tracking. Each one has a clip we rendered from the code shown.
+
+Each effect is also a clip with its code in the [video components library](/video-components), and [vawe](https://github.com/vawe-hq/vawe) renders a page with these effects to MP4 in one command, `bin/vawe dev films/<name>/page.html`.
 
 Every example uses the same setup. A dark page, white bold text, centred. The setup is the first block. Each section after it shows only the lines that make the effect.
 

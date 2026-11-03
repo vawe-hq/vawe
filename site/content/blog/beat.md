@@ -1,13 +1,13 @@
 ---
-title: "Cut video to beat: sync cuts to music with code"
+title: "Cut video to the beat in code: a cut table for HTML video"
 description: "Read a music track as a beat grid, check that each cut lands within one frame of a hit, and move it. 8 of 19 calls failed first."
 date: 2026-10-11
-updated: 2026-10-16
+updated: 2026-11-04
 section: motion-sound
 topic: audio
 docs: cut-to-the-beat, audio
 tags: "cut to the beat, beat detection, audio onsets, beat grid, agents"
-keywords: "cut video to the beat, beat sync video editing, beat detection python, audio onset detection, edit video to music"
+keywords: "cut video to the beat, beat sync video code, sync animation to music, beat grid video, html video music sync"
 hero: /blog/beat/hero.webp
 heroAlt: "Before the fix, vawe sound failed 8 of 19 calls on short cues with the message no output. The cause was a one-second minimum. After the fix, one agent used the verb 21 times."
 ---

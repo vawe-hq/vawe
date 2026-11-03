@@ -2,7 +2,7 @@
 title: "CLI design for AI agents: one binary, one verb per step"
 description: "CLI design for AI agents: one binary with 24 verbs, one-line usage errors, a result line that survives a pipe and a hook that names the next step."
 date: 2026-10-10
-updated: 2026-11-02
+updated: 2026-11-04
 section: agents
 topic: agents
 docs: cli, quality-gates, engineering-notes
@@ -55,7 +55,7 @@ An unknown verb lists the valid verbs. It also says when the checkout is stale. 
 
 ## A result line that survives a pipe
 
-A review of agent transcripts found 134 of 140 `vawe` calls piped into `tail`, `head` or `grep`. A pipe hides the exit code. The tool's error flag showed 2 failures in that review. The real count was at least 8. So the last line of every verb says ok or FAILED, with the reason and the seconds, and `tail -1` still shows it. Later reviews counted fewer pipes: 9 of 32 calls across three sessions of one film, and 12 of 87 across eight sessions of another. The later prompts also told the agent not to pipe, so the footer cannot take all the credit. The run log records the same fields; see [AI agent observability with one JSONL line per command](/blog/run-logs).
+A review of agent transcripts found 134 of 140 `vawe` calls piped into `tail`, `head` or `grep`. A pipe hides the exit code. The tool's error flag showed 2 failures in that review. The real count was at least 8. So the last line of every verb says ok or FAILED, with the reason and the seconds, and `tail -1` still shows it. Later reviews counted fewer pipes: 9 of 32 calls across three sessions of one film, and 12 of 87 across eight sessions of another. The later prompts also told the agent not to pipe, so the footer cannot take all the credit. The run log records the same fields; see AI agent observability with one JSONL line per command.
 
 ![One failed call: a usage error, a FAILED footer with the reason and the seconds, and the exit code.](/blog/one-binary/diagram.webp "The footer survives a pipe.")
 
@@ -72,7 +72,7 @@ The guard now covers only the four git commands that destroy local changes. The 
 - A quality hook compares an edit only with the `HEAD` of its own worktree, so a tangle the edit did not add never blocks it.
 - The `vawe-page` skill gives the macOS `sed -i ''` form, and the Shell section of AGENTS.md lists what fails in this shell.
 
-A warning in a doc did less than a change in the environment. Each line in the Shell section costs every agent a read, so the section stays short. [How long AGENTS.md should be](/blog/read-load) tracks that cost.
+A warning in a doc did less than a change in the environment. Each line in the Shell section costs every agent a read, so the section stays short. [How long AGENTS.md should be](/blog/weaker-model) tracks that cost.
 
 ## A next-step line after every verb
 
@@ -92,7 +92,19 @@ The fix: `dev` now asks the same state function as the hook (`nextStep`). It che
 
 The Makefile went from 156 lines to 19, and the interface from several calling shapes to one. The bench ratchet counts the `vawe` commands between a new brief and the first draft render. The count was 2 on 2026-10-01, 5 on 2026-10-07 and 6 on 2026-10-13. It rose because we added real stages, such as reference study and a Board. There is no clean after-count for the 443 of 5,520 figure.
 
-The full verb list with flags is in the [CLI reference](/docs/cli). The reasoning behind the whole harness is in [why we build the agent harness for the weaker model](/blog/weaker-model). For the guard rule in general, read [AI agent guardrails](/blog/advise-refuse).
+The full verb list with flags is in the [CLI reference](/docs/cli). The reasoning behind the whole harness is in [why we build the agent harness for the weaker model](/blog/weaker-model). For the guard rule in general, read [AI agent guardrails](/blog/weaker-model).
+
+## Ask before you build
+
+Put the clarifying questions in the first command of the task. Since 2026-10-01, `vawe new` prints the open questions with a reason and an example for each, writes no files, and exits 0. The agent answers in a file or asks its human, runs the command again, and only then gets a starter.
+
+Before that date `vawe new` filled every open detail with a default. The agent then built a whole film around a subject, message and look it had guessed. Order the questions by how much the answer changes the result. Ours puts the subject first.
+
+## Log one line per command
+
+Make the entry point log every call. Then you can answer three questions without asking the agent: where did the time go, what failed and why, and did each draft fix what the last one flagged. In vawe the log is one JSONL line per command in `out/<film>.runs.jsonl`, and a report command reads it.
+
+Do not ask the agent for durations. On 2026-10-04 an agent logged a 6.2-minute task as a table that summed to about 18 minutes. It had run `date` once and guessed the rest. A language model sees time only in tool output.
 
 ## FAQ
 

@@ -1,15 +1,15 @@
 ---
-title: "JSON vs HTML format for video: a blind test"
+title: "Video as JSON or HTML? A blind test with AI agents"
 description: "JSON vs HTML as a video format: a blind A/B test. The HTML page won on speed (5.9 minutes against 10.75) and on score (8 against 5). What we deleted."
 date: 2026-10-07
-updated: 2026-10-16
+updated: 2026-11-04
 section: rendering
 topic: determinism
 docs: the-page, video-from-code
 featured: true
 featuredOrder: 1
 tags: "json video format, html to video, agents, web animations, architecture"
-keywords: "json video format, html vs json for video, agent-native motion graphics, web animations api, html video format"
+keywords: "json video format, html video format, ai agent video format, agent-native motion graphics, web animations api"
 hero: /blog/html-over-json/hero.webp
 heroAlt: "Bar chart. The JSON arm took 10.75 minutes and scored 5 and 4.5 from two judges. The HTML arm took 5.9 minutes and scored 8 and 7.5."
 ---
@@ -86,7 +86,7 @@ Three choices decided how it went:
 - We did not freeze a copy. Our first move vendored a copy of the engine into `site/public` (50,586 lines added) so the site kept building. The copy removed no pull on agents, and we deleted it about 20 hours later, in the 127,750-line removal above. A frozen copy is still code.
 - We dropped the guards in the same hour. A hook that checks a deleted format fails every other change. We removed the JSON gates from our local hooks (107 lines).
 
-The end-to-end test suite mostly tested the old format. Once the format was gone, `make e2e` fell from about 175 s to 4.3 s. A week later we also removed the small leftovers: the scene registries, the three.js layer builder and the theme colour markers. A registry with one stale entry reads like a live feature. We have no agent success number that isolates the deletion, because other changes landed the same week, so we do not claim one. Keeping what the agent reads short is its own work, covered in [how long AGENTS.md should be](/blog/read-load).
+The end-to-end test suite mostly tested the old format. Once the format was gone, `make e2e` fell from about 175 s to 4.3 s. A week later we also removed the small leftovers: the scene registries, the three.js layer builder and the theme colour markers. A registry with one stale entry reads like a live feature. We have no agent success number that isolates the deletion, because other changes landed the same week, so we do not claim one. Keeping what the agent reads short is its own work, covered in [how long AGENTS.md should be](/blog/weaker-model).
 
 If you came for an alternative to a React-based video tool, see [Remotion alternatives](/remotion-alternatives) and [HyperFrames alternatives](/hyperframes-alternatives). The page format is in the [docs](/docs/the-page).
 

@@ -1,13 +1,13 @@
 ---
-title: "Puppeteer screenshot slow? Speed up headless Chrome"
+title: "Render video with Puppeteer faster: capture from 140 s to 47 s"
 description: "JPEG quality 92, GPU compositing, one Chrome per lane (140 s to 47 s) and a reaper for orphan processes. What helped and what we undid."
 date: 2026-10-10
-updated: 2026-10-16
+updated: 2026-11-04
 section: rendering
 topic: rendering
 docs: draft, render-flags
 tags: "headless chrome, puppeteer, screenshots, jpeg, gpu compositing, performance"
-keywords: "puppeteer screenshot speed, speed up puppeteer screenshots, headless chrome parallel screenshots, too many chrome processes, puppeteer concurrency"
+keywords: "puppeteer video render speed, speed up puppeteer screenshots for video, headless chrome parallel render, puppeteer screenshot slow, x264 preset fast vs medium"
 hero: /blog/fast-drafts/hero.webp
 heroAlt: "Table comparing the draft path and the final path: JPEG against lossless PNG, GPU against software compositing, slices sized to the work against fixed 60-frame slices, x264 ultrafast against preset fast."
 ---
@@ -111,6 +111,12 @@ Capture is not the only cost. `harness/lib/draft-tiers.mjs` puts each draft chec
 ## A number we dropped
 
 Our notes quoted a "40 ms frame". It came from a bench stamp of 9,077 ms for 228 frames (39.8 ms a frame) on a JSON sample film. The stamp in the repo today is 1,881 ms for 15 frames (125.4 ms a frame) on a canvas page. It includes process and browser start. The two do not compare, so we give no like-for-like speed-up for page drafts.
+
+## Encode with x264 preset fast, not faster
+
+x264 preset fast encoded our master 25% faster than preset medium. It made a 15% larger file and landed 49 dB PSNR away from it. Preset faster was about twice as quick again, and we rejected it because it banded: a 54 px flat run on a dark ramp.
+
+A pixel format change in the middle of a sequence makes ffmpeg rebuild its filter graph and drop frames with no error. Keep one pixel format through the whole encode.
 
 ## FAQ
 

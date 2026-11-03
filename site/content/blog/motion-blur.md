@@ -107,7 +107,7 @@ On our machine this made 15 frames from 216 subframes and 216 screenshots, with 
 
 Frames can vanish. The renderer encodes the blended frames as segments, and each segment restarts its timestamps. A one-frame segment carries no duration, so the next segment overlaps it. With `-r` set to the frame rate, ffmpeg rate-converted the stream and dropped the overlapped frames: 7 to 24 frames in 6 seconds. Films came out short and drifted away from their audio, which is how we noticed.
 
-The fix re-stamps the timestamps after the concat with `setpts=N/fps/TB` and uses `-fps_mode passthrough`, so ffmpeg never rate-converts. A pixel-format change in the middle of a sequence caused a similar loss. It is in the [x264 preset benchmark](/blog/encode). Count your frames after you encode.
+The fix re-stamps the timestamps after the concat with `setpts=N/fps/TB` and uses `-fps_mode passthrough`, so ffmpeg never rate-converts. A pixel-format change in the middle of a sequence caused a similar loss. It is in the [x264 preset benchmark](/blog/fast-drafts). Count your frames after you encode.
 
 ## Limits
 

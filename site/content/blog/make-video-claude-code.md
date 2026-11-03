@@ -2,7 +2,7 @@
 title: "Claude Code video generation: make an MP4 from HTML"
 description: "Ask Claude Code for a film, let it write one HTML page, and render it. The prompt, the five questions it asks, and what it gets wrong."
 date: 2026-10-16
-updated: 2026-10-16
+updated: 2026-11-04
 section: how-to
 nav: "Video with Claude Code"
 topic: agents
@@ -47,7 +47,7 @@ The agent runs `bin/vawe new <name> --request "<your sentence>"`. We ran that co
 4. Assets (optional). Which real captures, logo or photos exist?
 5. Ending (optional). How does the film end: the brand, a call to action, a URL?
 
-Each question prints a reason and an example. The agent writes the answers to a file and runs the command again with `--answers <file>`. For an unattended run, add `--defaults` and the tool guesses. We explain why we built this gate in [make an AI agent ask questions before it acts](/blog/new-asks).
+Each question prints a reason and an example. The agent writes the answers to a file and runs the command again with `--answers <file>`. For an unattended run, add `--defaults` and the tool guesses. We explain why we built this gate in [make an AI agent ask questions before it acts](/blog/one-binary).
 
 ## From brief to MP4
 
@@ -67,12 +67,18 @@ We ran a weaker model and a stronger model on the same loop. These are the fault
 | What happened | Number | Post |
 | --- | --- | --- |
 | Six films from the weaker model: drafts per film, median | 13 drafts; 0 of 6 passed the review | [AI agent harness: design for the weaker model](/blog/weaker-model) |
-| Films that hid a missing hold behind a slow camera drift | 18 of 36 | [Reward hacking in AI agents](/blog/loophole-audit) |
+| Films that hid a missing hold behind a slow camera drift | 18 of 36 | [Reward hacking in AI agents](/blog/weaker-model) |
 | Flash length in the agent film against the reference | 0.20 s against 0.07 to 0.10 s | [Can AI agents watch video?](/blog/watch-a-film) |
 
 Three habits follow from this table. First, put the rule in the tool and print the fix in the same line. Second, check the result with a number, because an agent that reads five frames cannot judge timing. Third, never let the session that wrote the page also approve it.
 
 If you only want the short answer, [can Claude make videos](/blog/can-claude-make-videos) gives it in one page.
+
+## Which design skills to give the agent
+
+One UI skill is not enough for a film frame. Eleven public UI skills, tested one at a time, all gave the same result: a decent but cluttered web hero, with a nav, a pill, a call-to-action button and wide section padding. A film frame needs none of these.
+
+We then tested six combos of skills on two kinds of film frame, and one reviewer judged the frames blind. Only one combo, Warm editorial, won on both kinds. A combo is proven only for the kind of frame it won.
 
 ## FAQ
 

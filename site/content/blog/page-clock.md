@@ -1,13 +1,13 @@
 ---
-title: "Seed Math.random and freeze Date.now in JavaScript"
+title: "Freeze Date.now and seed Math.random to render video frames"
 description: "A 75-line virtual clock makes Date.now, timers, requestAnimationFrame and Math.random follow the seek time. What it replaces and why."
 date: 2026-10-08
-updated: 2026-10-16
+updated: 2026-11-04
 section: rendering
 topic: determinism
 docs: time-and-seek, determinism, page-api
 tags: "virtual clock, math.random seed, deterministic rendering, headless chrome, javascript"
-keywords: "mock date.now puppeteer, math random seed javascript, virtual clock javascript, fake requestanimationframe, deterministic video rendering"
+keywords: "deterministic video rendering, math random seed javascript, virtual clock javascript, fake requestanimationframe, mock date.now puppeteer"
 hero: /blog/page-clock/hero.webp
 heroAlt: "A seek time t enters a virtual clock that sets Date, performance.now, requestAnimationFrame, timers and Math.random, and one identical frame comes out."
 ---
@@ -102,7 +102,7 @@ We have no before-and-after number for the clock. We have a test, `tests/media/r
 
 One fixture is a `window.seek(t)` canvas page. The other reads `Date.now`, `performance.now` and `Math.random`. The test checks three things: the two renders match, there are five frames, and the frames are not all the same. The last check proves that the page moved with the seek time.
 
-Determinism is also the one thing in vawe that can refuse a render. Everything else advises, as [AI agent guardrails: when a check should refuse](/blog/advise-refuse) explains. The user-facing rules are in the [determinism docs](/docs/determinism).
+Determinism is also the one thing in vawe that can refuse a render. Everything else advises, as [AI agent guardrails: when a check should refuse](/blog/weaker-model) explains. The user-facing rules are in the [determinism docs](/docs/determinism).
 
 ## Source files
 

@@ -2,7 +2,7 @@
 title: "Puppeteer video: screenshots to MP4 with ffmpeg"
 description: "Capture frames with Puppeteer, pipe them into ffmpeg and get an MP4. The frame loop, the pixel format flag and the traps."
 date: 2026-10-19
-updated: 2026-10-19
+updated: 2026-11-04
 section: how-to
 nav: "Puppeteer to MP4"
 topic: rendering
@@ -12,6 +12,8 @@ keywords: "puppeteer screenshots to mp4, puppeteer record animation to mp4, head
 ---
 
 To turn Puppeteer screenshots into an MP4, take one screenshot for each frame and give the frames to ffmpeg. You can write the frames to PNG files or pipe them into ffmpeg directly. This post shows both, and the two flags that most often fail: the pixel format and the even frame size.
+
+This is the do-it-yourself path. [vawe](https://github.com/vawe-hq/vawe) wraps the same loop in one command, `bin/vawe dev films/<name>/page.html`, and also replaces the page clock, so `Date.now()`, timers and `Math.random()` follow the frame time. [HTML to MP4](/blog/render-html-to-mp4) shows both ways side by side.
 
 ## The frame loop
 

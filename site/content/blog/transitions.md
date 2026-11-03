@@ -2,7 +2,7 @@
 title: "Motion graphics transitions: 12 types, 10 mistakes"
 description: "Name what carries the eye over each cut. 12 handoff families and the 10 tells of a slideshow, with clips and a check you can run."
 date: 2026-10-11
-updated: 2026-10-16
+updated: 2026-11-04
 section: motion-sound
 topic: motion
 docs: transitions, moves
@@ -56,7 +56,7 @@ Two limits apply. No family on two adjacent cuts. No family more than twice in a
 
 ## 4. Choose the less typical of four ideas
 
-The skill `vawe-transitions` gives each cut a procedure. Draw four ideas from three families. Pick one that is not the most typical. Write a log row. That is the idea method applied to a cut, described in [verbalized sampling for AI agents](/blog/ideate).
+The skill `vawe-transitions` gives each cut a procedure. Draw four ideas from three families. Pick one that is not the most typical. Write a log row. That is the idea method applied to a cut, described in verbalized sampling for AI agents.
 
 ## 5. Put the handoff in the plan, then check the film against it
 
@@ -121,7 +121,11 @@ We folded the older seam rules into three: `seam-timing`, `hard-cut-default` and
 | Slideshow score | ten tells, score out of 10 | `harness/lib/slideshow.mjs` |
 | Flash cap | at most 3 per second | exposure flash helper |
 
-See the clips on their video component pages: [swipe-continues](/video-components/swipe-continues), [word-portal](/video-components/word-portal) and [exposure-flash](/video-components/exposure-flash). For the looks that dress these cuts, read [CSS animation library: 126 copyable video components](/blog/site-after-json).
+See the clips on their video component pages: [swipe-continues](/video-components/swipe-continues), [word-portal](/video-components/word-portal) and [exposure-flash](/video-components/exposure-flash). For the looks that dress these cuts, read [CSS animation library: 126 copyable video components](/video-components).
+
+## Why the typical idea comes first
+
+A model with no guidance writes the most typical idea first. For a beat that says "the AI is thinking", that idea is a spinner. Rule 4 uses verbalized sampling: ask for several ideas, each with a stated probability that a model would give it. The typical answer then shows up as the typical answer, and you can choose around it. The method ships today. The test that would show whether it helps is only planned, and we have no result.
 
 ## FAQ
 

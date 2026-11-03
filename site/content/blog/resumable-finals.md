@@ -1,13 +1,13 @@
 ---
-title: "Resume a failed Puppeteer render and catch hangs"
+title: "Resume a failed video render in Puppeteer and catch hangs"
 description: "A render died at 97% and left 3.7 GB of frames. Slice markers, retries and a 60 s watchdog that names the stuck step."
 date: 2026-10-10
-updated: 2026-10-16
+updated: 2026-11-04
 section: rendering
 topic: rendering
 docs: ship, troubleshooting, render-flags
 tags: "resumable rendering, puppeteer hangs, watchdog, headless chrome, retries"
-keywords: "resume failed render, puppeteer hangs, puppeteer timeout, render checkpoint, document.fonts.ready hang"
+keywords: "resume failed video render, puppeteer hangs, puppeteer timeout, render checkpoint, document.fonts.ready hang"
 hero: /blog/resumable-finals/hero.webp
 heroAlt: "Eight capture slices: six have finish markers, one is marked lost after four attempts, one has not run. A resume skips the six and runs the last two."
 ---

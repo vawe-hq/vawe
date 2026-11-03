@@ -2,7 +2,7 @@
 title: "Video as code: what it is and how to start"
 description: "Video as code means a film is a text file that a program renders. Three approaches, one tiny example each, and when not to use it."
 date: 2026-10-19
-updated: 2026-10-19
+updated: 2026-11-04
 section: how-to
 topic: how-to
 docs: video-from-code, quickstart
@@ -11,6 +11,8 @@ keywords: "video as code, video editing as code, declarative video, programmatic
 ---
 
 Video as code means a film is a text file, and a program turns the file into a video. You change the text, run the program, and get a new video. There is no timeline to drag.
+
+The third approach is the one we build: in [vawe](https://github.com/vawe-hq/vawe) the text file is one HTML page, and `bin/vawe dev films/<name>/page.html` renders it to MP4.
 
 The same file gives the same video. You can keep it in version control and review a change as a diff. You can also render many variants from one source. This post shows three approaches and one small example for each.
 

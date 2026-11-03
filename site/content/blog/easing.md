@@ -2,7 +2,7 @@
 title: "The rules of easing for motion video"
 description: "Twelve rules of easing for motion video, each with a reason, a number and the code: land entrances, launch exits, overshoot only for mass, speed bands."
 date: 2026-10-07
-updated: 2026-10-19
+updated: 2026-11-04
 section: motion-sound
 topic: motion
 docs: motion, recipes
@@ -13,6 +13,8 @@ heroAlt: "Large number 45 with the caption easing pages, 10 named curves, one vo
 ---
 
 An easing is the rule for how fast a move goes at each moment: where it starts fast, where it slows, where it stops. A straight line (linear) is the same speed all the way, and it reads as a machine. Every rule below is a choice of curve and time for one kind of move. Each has a reason, a number from our code or our measurements, a short example and the case where you break it. The curves are named in `core/motion/presets.js` as `EASE`, and each has its own page at [/easing](/easing).
+
+Every curve below also has its own page at [/easing](/easing), with a live demo and the CSS to copy. The ten vawe curves ship as `EASE` in `core/motion/presets.js` of [vawe](https://github.com/vawe-hq/vawe).
 
 ## What the rules look like together
 
@@ -94,7 +96,7 @@ window.seek = (t) => {
 };
 ```
 
-Break the rule for a playful brand, which wants more. Break it the other way for a copy of a real surface that does not overshoot, such as a terminal. The method for the 22 films is in [motion graphics benchmark: 167 cuts measured](/blog/quality-bar).
+Break the rule for a playful brand, which wants more. Break it the other way for a copy of a real surface that does not overshoot, such as a terminal. The method for the 22 films is in [motion graphics benchmark: 167 cuts measured](/blog/watch-a-film).
 
 <figure>
 <video src="/blog/easing/overshoot.mp4" poster="/blog/easing/overshoot.webp" muted loop playsinline autoplay width="640" height="360"></video>
@@ -328,7 +330,7 @@ Here `k` is the stiffness and `d` is the damping. A higher `d` removes the bounc
 
 ## The 45 easing pages
 
-A script reads the motion library and writes one JSON file per curve. Each holds the curve, its velocity, the `linear()` string, a cubic-bezier fit and the After Effects handle values. The site renders 45 pages from it: the ten vawe curves, 30 classic ones (ten families, each in, out and in-out) and the 5 CSS keywords including `linear`. The looks that dress a clip are in [CSS animation library: 126 copyable video components](/blog/site-after-json).
+A script reads the motion library and writes one JSON file per curve. Each holds the curve, its velocity, the `linear()` string, a cubic-bezier fit and the After Effects handle values. The site renders 45 pages from it: the ten vawe curves, 30 classic ones (ten families, each in, out and in-out) and the 5 CSS keywords including `linear`. The looks that dress a clip are in [CSS animation library: 126 copyable video components](/video-components).
 
 | File | What it holds |
 | --- | --- |
