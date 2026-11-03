@@ -11,11 +11,11 @@
     "postinstall": "node harness/dev/doctor.mjs --quiet || exit 0"
   },
   "devDependencies": {
-    "acorn": "^8.18.0",
+    "acorn": "^8.19.0",
     "fontkit": "^2.0.4",
-    "oxlint": "^1.80.0",
+    "oxlint": "^1.90.0",
     "puppeteer": "^25.16.0",
-    "three": "^0.185.1",
+    "three": "^0.187.0",
     "wawoff2": "^2.0.1"
   },
   "//puppeteer-note": "Puppeteer drives Chrome for every page render and check (harness/media/render-page.mjs). Its postinstall downloads a full Chrome; CI jobs that open no browser set PUPPETEER_SKIP_DOWNLOAD=1.",
