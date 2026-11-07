@@ -92,3 +92,20 @@ test('a render refuses a missing clip and a trim at or past the end, and clamps 
     assert.match(past.stderr, /data-trim-end 9 is past the end of the file/);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('a page whose only sound is a <video> clip gets that sound in the render, starting at data-at', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'page-video-sound-'));
+  try {
+    sh('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc2=s=64x36:r=30:d=2', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=2',
+      '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', path.join(dir, 'talk.mp4')]);
+    fs.writeFileSync(path.join(dir, 'page.html'), `<!doctype html><html><head><meta charset="utf-8"><meta name="duration" content="3"></head>
+<body style="margin:0;background:#000"><video src="talk.mp4" data-at="1" style="width:100vw;height:100vh"></video></body></html>`);
+    const out = path.join(dir, 'out.mp4');
+    const r = spawnSync('node', [RENDER, path.join(dir, 'page.html'), out, '--fps', '5', '--w', '160', '--h', '90'], { encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(sh('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_type', '-of', 'csv=p=0', out]), /audio/);
+    const silence = spawnSync('ffmpeg', ['-hide_banner', '-i', out, '-af', 'silencedetect=noise=-40dB:d=0.2', '-f', 'null', '-'], { encoding: 'utf8' }).stderr;
+    const end = Number(silence.match(/silence_end: ([\d.]+)/)?.[1]);
+    assert.ok(Math.abs(end - 1) < 0.05, `the clip sound starts at ${end} s, wanted 1 s`);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});

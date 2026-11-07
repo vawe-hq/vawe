@@ -683,9 +683,9 @@ async function fontProblems(page, pagePath) {
 }
 
 // Reads the page's <audio> specs once, before the capture: the tab that read them can be gone by the time the mux needs them
-// (a 49 min final failed with "detached Frame" at 19198/19200). Returns { read: null } for a page with no <audio>.
+// (a 49 min final failed with "detached Frame" at 19198/19200). Returns { read: null } for a page with no <audio> or <video>.
 async function readAudio(page, pagePath, duration) {
-  if (!(await page.evaluate(() => document.querySelector('audio') !== null))) return { read: null, problems: [] };
+  if (!(await page.evaluate(() => document.querySelector('audio, video') !== null))) return { read: null, problems: [] };
   const { readPageAudio } = await import('./page-audio.mjs');
   try { return { read: await readPageAudio(page, { pagePath, duration }), problems: [] }; } catch (e) { return { read: null, problems: String(e.message).split('\n') }; }
 }
