@@ -13,13 +13,13 @@ test('worldIds keeps page order', () => {
 
 test('a span runs from the first to the last visible sample, widened by half a step', () => {
   const spans = worldSpans(samples, { step: 1, dur: 5 });
-  assert.deepEqual(spans[0], { id: 'a', signature: '["#111111",[],[]]', start: 0, end: 3, ground: '#111111', readNeed: 0 });
-  assert.deepEqual(spans[1], { id: 'b', signature: '["#eeeeee",[],[]]', start: 2, end: 5, ground: '#eeeeee', readNeed: 0 });
+  assert.deepEqual(spans[0], { id: 'a', signature: '["#111111",[],[]]', start: 0, end: 3, playing: false, ground: '#111111', readNeed: 0 });
+  assert.deepEqual(spans[1], { id: 'b', signature: '["#eeeeee",[],[]]', start: 2, end: 5, playing: false, ground: '#eeeeee', readNeed: 0 });
 });
 
 test('a span stays inside the film and a world never shown has null times', () => {
   const spans = worldSpans([at(0.2, 'b'), at(0.7, 'b')], { step: 1, dur: 0.9 });
-  assert.deepEqual(spans[1], { id: 'b', signature: '["#eeeeee",[],[]]', start: 0, end: 0.9, ground: '#eeeeee', readNeed: 0 });
+  assert.deepEqual(spans[1], { id: 'b', signature: '["#eeeeee",[],[]]', start: 0, end: 0.9, playing: false, ground: '#eeeeee', readNeed: 0 });
   assert.deepEqual(spans[2], { id: 'c', start: null, end: null, ground: null, readNeed: 0 });
 });
 

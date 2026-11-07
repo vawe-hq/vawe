@@ -90,7 +90,7 @@ import { beatAdvice } from '../lib/sound-read.mjs';
 import { draftTasteLines, firedRules, firedLines, TASTE_RULES } from '../lib/taste-steps.mjs';
 import { parseSignature } from '../../core/motion/signature.js';
 import { unchosenAdvice, signatureLine } from '../lib/signature.mjs';
-import { adviceFor } from '../lib/plan-parts.mjs';
+import { adviceFor, firedFor } from '../lib/plan-parts.mjs';
 import { cameraOnlySpans, cameraSpans } from '../lib/camera-moves.mjs';
 import { typingSpans } from '../lib/typing-spans.mjs';
 import { boardVerify } from '../lib/board-verify.mjs';
@@ -1136,7 +1136,7 @@ async function draftReport(mp4, pagePath, { probe, level, motion, advice: blanks
   const inRows = new Set(whole ? [...problems, sound, peak, ...textCollisionLines(probe.samples, probe.motionText), ...contrastLines(probe.contrast)] : []);
   const loose = advice.filter((l) => !inRows.has(l) && !NOTE_LINES.test(l)).map((l) => `advice: ${l}`);
   const hard = [...problems, sound, peak].filter(Boolean);
-  const fired = firedRules([...motionFindings(pagePath, motion), ...layoutFindings(pagePath, probe), ...barFindings(pagePath, motion, probe)], hard, table?.rows ?? []);
+  const fired = firedFor(readBrief(pagePath), firedRules([...motionFindings(pagePath, motion), ...layoutFindings(pagePath, probe), ...barFindings(pagePath, motion, probe)], hard, table?.rows ?? []));
   const chosen = chosenSignature(pagePath);
   const measured = measureMotion(motionRecords(motion));
   const taste = draftTasteLines(hard);

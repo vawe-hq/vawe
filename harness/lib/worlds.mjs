@@ -15,6 +15,10 @@ export const READ_MARGIN_S = 0.8;
 const WORDLESS_EVERY = 4;
 
 const round = (n) => +n.toFixed(3);
+
+// A clip shows a new source frame when the source it plays through the world (rate x seconds, at most its trim range) is at least one frame of the 30 fps draft; an unknown range counts as playing.
+const FRAME_S = 1 / 30;
+const clipPlays = (c, seconds) => c.range == null || Math.min(c.rate * seconds, c.range) >= FRAME_S;
 const wordCount = (text) => text.split(/\s+/).filter(Boolean).length;
 
 /** Seconds to read the texts one world shows (rows read together: harness/lib/read-hold.mjs rowsNeed), 0 for none. Pure. */
@@ -45,11 +49,14 @@ export function worldSpans(samples, { step, dur }) {
     const mid = seen[Math.floor((seen.length - 1) / 2)];
     const texts = [...new Set(seen.flatMap((x) => x.worlds.find((w) => w.id === id).texts ?? []))];
     const ground = mid.worlds.find((w) => w.id === id).ground ?? null;
+    const start = seen[0].t - step / 2, end = seen.at(-1).t + step / 2;
+    const playing = (mid.worlds.find((w) => w.id === id).clips ?? []).some((c) => clipPlays(c, end - start));
     return {
       id,
       signature: contentSignature(ground, texts, mid.worlds.find((w) => w.id === id).shape ?? []),
       start: round(Math.max(0, seen[0].t - step / 2)),
       end: round(Math.min(dur, seen.at(-1).t + step / 2)),
+      playing,
       ground,
       readNeed: readNeed(texts),
     };
@@ -90,11 +97,11 @@ export function mergeSameContent(spans) {
   return out;
 }
 
-/** The world-held problems of measured spans: one { len, text } per world visible longer than `max` seconds, outside a declared hold. Worlds with the same content count as one. */
+/** The world-held problems of measured spans: one { len, text } per world visible longer than `max` seconds, outside a declared hold; a world playing a video clip is not held still. Worlds with the same content count as one. */
 export function heldWorlds(spans, max = TURN_SECONDS_MAX, authoring = {}) {
   const held = insideHold(authoring, 'world-held');
   return mergeSameContent(spans)
-    .filter((s) => s.start != null && s.end - s.start > worldLimit(s, max) + SPAN_SLACK_S && !held({ a: s.start, b: s.end }))
+    .filter((s) => s.start != null && !s.playing && s.end - s.start > worldLimit(s, max) + SPAN_SLACK_S && !held({ a: s.start, b: s.end }))
     .map((s) => ({ len: s.end - s.start, text: `world held ${s.id} ${s.start}-${s.end} s (${round(s.end - s.start)} s, limit ${round(worldLimit(s, max))} s${s.readNeed + READ_MARGIN_S > max ? ': its text needs that long' : ''}${s.id.includes('+') ? `; ${s.id.split('+').join(' and ')} show the same ground, words and things, so they are one world: cut the world where the content changes` : ''}); ${waiverHint(`world-held@${s.start}-${s.end}`)}` }));
 }
 

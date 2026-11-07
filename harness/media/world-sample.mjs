@@ -22,7 +22,7 @@ export function elementShows(el, minOpacity) {
   return getComputedStyle(el).visibility !== 'hidden' && opacity > minOpacity && inside;
 }
 
-// Runs inside the page: [{ id, visible, ground, texts, shape }] for every [data-world] element. visible: elementShows. ground: the first
+// Runs inside the page: [{ id, visible, ground, texts, shape, clips }] for every [data-world] element. visible: elementShows. ground: the first
 // non-transparent background of the element, its ancestors, then a descendant covering over GROUND_MIN_SHARE of the frame, as #rrggbb, or null.
 function worldsSample(minOpacity, minShare) {
   const hex = (css) => {
@@ -58,9 +58,14 @@ function worldsSample(minOpacity, minShare) {
     const image = getComputedStyle(n).backgroundImage;
     return `${n.tagName.toLowerCase()}.${cls}|${bgOf(n) || ''}|${image === 'none' ? '' : image.slice(0, 160)}|${n.currentSrc ? hash(n.currentSrc) : ''}|${q(r.x, innerWidth)},${q(r.y, innerHeight)},${q(r.width, innerWidth)},${q(r.height, innerHeight)}`;
   }).sort();
+  const clipsOf = (world) => [...world.querySelectorAll('video')].filter((v) => elementShows(v, minOpacity)).map((v) => {
+    const attr = (name, fallback) => (Number.isNaN(parseFloat(v.getAttribute(name))) ? fallback : parseFloat(v.getAttribute(name)));
+    const end = attr('data-trim-end', v.duration);
+    return { rate: attr('data-rate', 1), range: Number.isFinite(end) ? Math.max(0, end - attr('data-trim', 0)) : null };
+  });
   return [...document.querySelectorAll('[data-world]')].map((el) => {
     const visible = elementShows(el, minOpacity);
-    return { id: el.dataset.world, visible, ground: groundOf(el), texts: visible ? textsOf(el) : [], shape: visible ? shapeOf(el) : [] };
+    return { id: el.dataset.world, visible, ground: groundOf(el), texts: visible ? textsOf(el) : [], shape: visible ? shapeOf(el) : [], clips: visible ? clipsOf(el) : [] };
   });
 }
 

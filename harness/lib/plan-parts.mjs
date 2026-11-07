@@ -29,3 +29,8 @@ export function emptyPlanParts(brief) {
     { title: 'Board', skill: 'board', empty: boardFilled(brief) === false },
   ].filter((e) => e.empty);
 }
+
+const DESIGN_RULES = ['spectacle-weak'];
+
+/** The fired taste rules ({ id, ... }) that apply to this film: all of them for a design film, without the design-only rules for an edit. */
+export const firedFor = (brief, fired) => (isEditFilm(brief) ? fired.filter((f) => !DESIGN_RULES.includes(f.id)) : fired);
