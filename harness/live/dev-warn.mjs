@@ -10,10 +10,11 @@ import { planFindings, planLines } from '../lib/plan-findings.mjs';
 import { attractorProblems } from '../lib/directions.mjs';
 import { pageAuthoring } from '../lib/motion-stamp.mjs';
 import { ideasFilled } from '../lib/ideas.mjs';
+import { isEditFilm } from '../lib/plan-parts.mjs';
 import { statedLength } from '../media/page-duration.mjs';
 import { readRuns, looksSince, isBoardRun, readHookSeen } from '../lib/runlog.mjs';
 import { isClipDemo } from '../lib/clip-demo.mjs';
-import { nextStep, isTestPage, filmDirOf } from './stage-say.mjs';
+import { nextStep, isTestPage, filmDirOf, SAY } from './stage-say.mjs';
 import { planStatusLines } from './plan-status.mjs';
 import { readPlan } from '../media/plan-read.mjs';
 
@@ -34,7 +35,7 @@ export function readPlanState(pagePath, root = ROOT, opened = null) {
   const frames = mtime(path.join(root, 'out', `${name}-frames.png`));
   const found = opened?.findings ?? (brief === null ? [] : planFindings({ brief: readBrief(abs), duration: Number(statedLength(html)), probe: null, worlds: worldIds(html), authoring: pageAuthoring(abs) }));
   const covered = ideasFilled(brief ?? '') === false ? 'ideas-missing' : null;
-  const findings = [...(brief === null ? [] : attractorProblems(brief)), ...planLines(found.filter((f) => f.code !== covered), root)];
+  const findings = [...(brief === null || isEditFilm(brief) ? [] : attractorProblems(brief)), ...planLines(found.filter((f) => f.code !== covered), root)];
   const step = nextStep(abs, root);
   const draft = mtime(path.join(root, 'out', `${name}-draft.mp4`));
   const looked = draft ? { ...looksSince(name, draft, root), hook: readHookSeen(root, undefined, draft) } : null;
@@ -45,7 +46,7 @@ export function readPlanState(pagePath, root = ROOT, opened = null) {
     frames: !frames ? 'none' : frames < mtime(abs) ? 'stale' : 'ok',
     storyboardRan: readRuns(name, root).some((r) => isBoardRun(r) && r.exitCode === 0),
     digest: read(path.join(root, 'taste', 'build', 'DIGEST.md')) ?? '',
-    next: step.stage === 'draft' ? `bin/vawe frame ${rel} --board` : step.next,
+    next: step.stage === 'draft' ? (isEditFilm(brief) ? SAY.motion(name, rel) : `bin/vawe frame ${rel} --board`) : step.next,
   };
 }
 

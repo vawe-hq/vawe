@@ -9,6 +9,7 @@ import { tailMoving } from './tail-motion.mjs';
 import { ideaFindings, IDEATE_ASK } from './ideas.mjs';
 import { briefLengthLine } from './board.mjs';
 import { isWaived } from './waivers.mjs';
+import { isEditFilm } from './plan-parts.mjs';
 
 const IDEATE_DOC = 'guides/IDEATE.md';
 const s1 = (n) => n.toFixed(1);
@@ -32,7 +33,7 @@ function tailFindings(probe) {
 function briefFindings(brief, duration, worlds) {
   if (!brief) return [];
   const stale = briefLengthLine(brief, duration);
-  const found = ideaFindings(brief, worlds).map((f) => ({ ...f, text: f.text.replace(` (${IDEATE_DOC})`, '') }));
+  const found = isEditFilm(brief) ? [] : ideaFindings(brief, worlds).map((f) => ({ ...f, text: f.text.replace(` (${IDEATE_DOC})`, '') }));
   const gaps = found.filter((f) => f.code === 'ideas-missing' && f.at);
   const others = found.filter((f) => !gaps.includes(f));
   const ideas = [

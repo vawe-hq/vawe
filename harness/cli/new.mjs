@@ -22,6 +22,7 @@ import { DIALS } from '../../core/motion/signature.js';
 import { starterBeats } from '../lib/worlds.mjs';
 import { fontsLine } from '../lib/asset-lists.mjs';
 import { SEEDS, pickSeed, seedLine } from '../lib/palette-seeds.mjs';
+import { EDIT_TEMPLATE } from '../lib/plan-parts.mjs';
 
 const STARTER_TEMPLATE = `<!doctype html>
 <html data-aspect="{{aspect}}">
@@ -255,7 +256,6 @@ export const STARTER = starterPage({});
 
 const EDIT_TITLE_S = 1.5;
 const EDIT_CLIP_S = 3;
-const EDIT_TEMPLATE = 'prompts/edit-from-clips.md';
 
 /** `new --footage`: copies the person's clips into films/<name>/footage/ and writes footage.md (harness/media/footage.mjs); returns { clips, log }. */
 export async function gatherFootage(root, name, inputs) {
@@ -576,6 +576,9 @@ export function newFilmLines(name, { page, route, title, guesses = [], asked, re
     lines.push(`template: ${route.template} (${route.type}: ${route.why})`);
     if (route.recipe) lines.push(recipeLine(route.recipe));
     lines.push(`another film type: delete films/${name}, then bin/vawe new ${name} --from prompts/<template>.md (rows in ${ROUTING}) or --request "<the ask>" --length <s>`);
+  }
+  if (route?.type === 'edit') {
+    return [...lines, '', 'rules for authors: taste/build/DIGEST.md', '', `next: ${SAY.cut(name)}; then ${SAY.dev(name, page)}. The stages after it are in AGENTS.md, The loop; bin/vawe names the next one after each step.`];
   }
   const advice = [
     `directions: films/${name}/directions.html holds one starter still per family (type, object, graphic); fill the three slots in brief.md, then pick one`,

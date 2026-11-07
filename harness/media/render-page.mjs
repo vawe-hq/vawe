@@ -90,6 +90,7 @@ import { beatAdvice } from '../lib/sound-read.mjs';
 import { draftTasteLines, firedRules, firedLines, TASTE_RULES } from '../lib/taste-steps.mjs';
 import { parseSignature } from '../../core/motion/signature.js';
 import { unchosenAdvice, signatureLine } from '../lib/signature.mjs';
+import { adviceFor } from '../lib/plan-parts.mjs';
 import { cameraOnlySpans, cameraSpans } from '../lib/camera-moves.mjs';
 import { typingSpans } from '../lib/typing-spans.mjs';
 import { boardVerify } from '../lib/board-verify.mjs';
@@ -1091,10 +1092,10 @@ export function pageAdvice(pagePath, { probe, motion }) {
   return {
     text: textProblems(probe.samples, { ...probe, rules: rulesWith(readDecls(pagePath), RULES) }),
     brief: authoring._clip || isWaived(authoring, 'no-brief') ? null : briefLine(brief),
-    lines: [...probeAdvice(pagePath, { probe, motion }), ...directions, ...recipeEchoLines(brief),
+    lines: adviceFor(brief, [...probeAdvice(pagePath, { probe, motion }), ...directions, ...recipeEchoLines(brief),
       ...boardChecks(brief, spectacleOf(fs.readFileSync(pagePath, 'utf8'))), ...(isWaived(authoring, 'transitions') || boardFilled(brief ?? '') !== true ? [] : handoffAdvice(moveRows(brief)).flatMap((l) => [l, waiverHint('transitions')])), ...ideasAdvice(brief, authoring), ...moveDocLines(brief),
       ...beatLines(pagePath, probe.worlds, authoring),
-      ...(authoring._clip || isWaived(authoring, 'signature-unchosen') ? [] : unchosenAdvice(chosenSignature(pagePath)))],
+      ...(authoring._clip || isWaived(authoring, 'signature-unchosen') ? [] : unchosenAdvice(chosenSignature(pagePath)))]),
   };
 }
 

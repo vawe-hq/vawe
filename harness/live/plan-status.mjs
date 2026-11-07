@@ -1,7 +1,7 @@
 // What `vawe dev` says before it renders (the plan status) and after it (the top advice): short, ranked, capped. Pure: the page's
 // state in, lines out; dev-warn.mjs and dev-end.mjs read the files. Each stage names the one skill file that covers it.
-import { boardFilled, motionFilled } from '../lib/board.mjs';
-import { ideasFilled } from '../lib/ideas.mjs';
+import { motionFilled } from '../lib/board.mjs';
+import { emptyPlanParts, isEditFilm, adviceFor } from '../lib/plan-parts.mjs';
 import { NOTE_LINES } from '../lib/draft-check.mjs';
 import { takenFromCount, missingRungs } from './stage-say.mjs';
 
@@ -18,6 +18,7 @@ export const SKILLS = {
   study: 'skills/vawe-reference/SKILL.md',
   design: 'skills/vawe-page/SKILL.md',
   motion: 'skills/vawe-page/SKILL.md',
+  cut: 'prompts/edit-from-clips.md',
 };
 
 const BAN_IDS = { tells: 'no-tells', slideshow: 'thread' };
@@ -49,11 +50,7 @@ export function banLines(digest) {
 
 /** The brief sections still empty, in the order they are written: [{ title, skill }]. The Motion pass comes after the first draft, so `early` leaves it out. */
 function emptySections(brief, early) {
-  return [
-    { title: 'Ideas', skill: 'ideas', empty: ideasFilled(brief) === false },
-    { title: 'Board', skill: 'board', empty: boardFilled(brief) === false },
-    { title: 'Motion pass', skill: 'motion', empty: !early && motionFilled(brief) === false },
-  ].filter((e) => e.empty);
+  return [...emptyPlanParts(brief), ...(!early && motionFilled(brief) === false ? [{ title: 'Motion pass', skill: 'motion' }] : [])];
 }
 
 /** What is empty or stale for a page, most costly first: [{ what, fix }]. `early` is true until a draft exists. */
@@ -62,12 +59,13 @@ export function openItems({ rel, brief, design, early, frames, storyboardRan, lo
   const items = [];
   const empty = emptySections(brief, early);
   if (empty.length) items.push({ what: `brief.md sections empty: ${empty.map((e) => e.title).join(', ')}`, fix: SKILLS[empty[0].skill] });
-  if (early && !storyboardRan) items.push({ what: 'no storyboard run', fix: `bin/vawe frame ${rel} --board` });
-  const taken = takenFromCount(brief);
+  const designed = !isEditFilm(brief);
+  if (early && designed && !storyboardRan) items.push({ what: 'no storyboard run', fix: `bin/vawe frame ${rel} --board` });
+  const taken = designed ? takenFromCount(brief) : null;
   if (early && taken !== null && taken < 4) items.push({ what: `the reference study names ${taken} of 4 frames`, fix: SKILLS.study });
   const rungs = early && taken !== null ? missingRungs(design ?? '') : [];
   if (rungs.length) items.push({ what: `DESIGN.md has no line for ${rungs.join(', ')}`, fix: SKILLS.design });
-  if (early && frames !== 'ok') items.push({ what: frames === 'stale' ? 'the frames are older than the page' : 'no frames run', fix: `bin/vawe frame ${rel} --world all` });
+  if (early && designed && frames !== 'ok') items.push({ what: frames === 'stale' ? 'the frames are older than the page' : 'no frames run', fix: `bin/vawe frame ${rel} --world all` });
   if (looked?.printed.length && !looked.hook) items.push({ what: 'the log-read hook is not registered, so the strips you Read are not counted', fix: 'harness/README.md "Hooks"' });
   else if (looked?.unread.length) items.push({ what: `read ${looked.printed.length - looked.unread.length} of ${looked.printed.length} strips of the last draft`, fix: `Read ${looked.unread[0]}` });
   return items;
@@ -116,8 +114,9 @@ function pageLines(page, rel) {
  * no finding exists. `findings` are plan finding lines (planLines) and attractor lines; `page` the draft advice the opened page shows
  * (plan-read.mjs), ranked first; `digest` is taste/build/DIGEST.md; `next` is nextStep's command.
  */
-export function planStatusLines({ name, rel, brief, design, early, frames, storyboardRan, looked = null, findings = [], page = [], digest = '', next }) {
+export function planStatusLines({ name, rel, brief, design, early, frames, storyboardRan, looked = null, findings = [], page: pageAdvice = [], digest = '', next }) {
   const items = openItems({ rel, brief, design, early, frames, storyboardRan, looked });
+  const page = adviceFor(brief, pageAdvice);
   const score = page.map((l) => SCORE.exec(l)?.[1]).find(Boolean);
   const tells = page.filter((l) => !SCORE.test(l));
   if (!items.length && !findings.length && !tells.length) return [];

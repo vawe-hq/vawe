@@ -12,6 +12,7 @@
 <style>
   @font-face { font-family: "Hanken Grotesk"; src: url("assets/HankenGrotesk.woff2") format("woff2"); font-weight: 100 900; }
   :root { --ground: #ecebe6; --ink: #15171c; --beat-1: 0s; --beat-2: 1.5s; --beat-3: 3.63s; --beat-4: 5.76s; --beat-5: 7.89s; }
+  :root { --band: calc(var(--vh) * 0.2); }
   html, body { margin: 0; height: 100%; background: var(--ground); overflow: hidden; }
   .world { position: absolute; inset: 0; isolation: isolate; box-sizing: border-box; font-family: "Hanken Grotesk", sans-serif; }
   .world:nth-child(odd) { background: var(--ground); color: var(--ink); --paper: var(--ground);
@@ -27,9 +28,9 @@
   h1 { margin: 0; font-size: calc(var(--vh) * 0.14); font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
   .line { margin: 0; font-size: calc(var(--vh) * 0.09); letter-spacing: -0.03em; }
   [data-aspect="9:16"] h1 { font-size: calc(var(--vw) * 0.13); }
-  video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
-  .lower { position: absolute; left: calc(var(--vw) * 0.07); bottom: calc(var(--vh) * 0.08); margin: 0; padding: calc(var(--vh) * 0.015) calc(var(--vh) * 0.03);
-           font-size: calc(var(--vh) * 0.065); font-weight: 600; letter-spacing: -0.02em; background: var(--ground); color: var(--ink); }
+  video { position: absolute; left: 0; top: 0; width: 100%; height: calc(100% - var(--band)); object-fit: contain; }
+  .lower { position: absolute; left: calc(var(--vw) * 0.07); right: calc(var(--vw) * 0.07); bottom: calc(var(--vh) * 0.055); height: calc(var(--band) - var(--vh) * 0.055); margin: 0; display: flex; align-items: center;
+           font-size: calc(var(--vh) * 0.065); font-weight: 600; letter-spacing: -0.02em; }
 </style>
 <script type="module">
 import { enter, leave, EASE } from '../../../core/motion/presets.js';
