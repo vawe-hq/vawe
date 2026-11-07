@@ -7,8 +7,8 @@ const LEVEL_WINDOW_S = 0.05;
 const CURVE_WINDOW_S = 0.4;
 const CURVE_STEP_S = 0.1;
 
-/** Seconds of a source between data-trim and data-trim-end (or its end). */
-export const playableOf = (spec, seconds) => Math.max(0.01, Math.min(seconds, spec.trimEnd ?? Infinity) - spec.trim);
+/** Seconds a source sounds in the film: between data-trim and data-trim-end (or its end), divided by data-rate. */
+export const playableOf = (spec, seconds) => Math.max(0.01, (Math.min(seconds, spec.trimEnd ?? Infinity) - spec.trim) / (spec.rate ?? 1));
 
 const round1 = (n) => Math.round(n * 10) / 10;
 const toDb = (linear) => (linear > 1e-6 ? Math.max(SILENT_DB, 20 * Math.log10(linear)) : SILENT_DB);
@@ -42,7 +42,7 @@ export function activeAt(tracks, t, duration) {
     const length = bed ? duration - spec.at : Math.min(playable, duration - spec.at);
     const into = t - spec.at;
     if (into < 0 || into >= length) return [];
-    return [{ index, voice: voiceOf(spec), role: spec.role, into, length, offset: spec.trim + (bed ? into % playable : into) }];
+    return [{ index, voice: voiceOf(spec), role: spec.role, into, length, offset: spec.trim + (bed ? into % playable : into * (spec.rate ?? 1)) }];
   });
 }
 

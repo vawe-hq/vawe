@@ -10,6 +10,9 @@
 //   <audio src="hit.wav" data-trim="0.2" data-trim-end="0.9"></audio>   (play seconds 0.2 to 0.9 of the file; a 8 ms fade
 //                                                        at each cut avoids a click)
 //   <audio src="vo.wav" data-role="vo"></audio>          (ducks music -18 dB while it plays)
+//   <video src="footage/a.mp4" data-at="2" data-trim="5.2" data-trim-end="8.4" data-rate="1" data-gain="-6" muted></video>
+//                                                        (a clip's own sound: film second 2 on, source 5.2 to 8.4 s at
+//                                                        data-rate speed, pitch kept; `muted` or no audio stream adds none)
 //   <meta name="loudness" content="-14">   (wins over the default below)
 // The mix is as written: the sum of the cues at their gains, nothing raised or lowered. Only a -1 dBTP
 // safety limiter runs, and it never raises a level. <meta name="loudness"> opts in to normalising to it.
@@ -55,6 +58,21 @@ function probeSeconds(file) {
   return d;
 }
 
+function hasAudioStream(file) {
+  const r = spawnSync('ffprobe', ['-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=codec_type', '-of', 'csv=p=0', file], { encoding: 'utf8' });
+  return r.stdout.trim().length > 0;
+}
+
+// atempo runs 0.5 to 100 per filter; 0.25 to 4 is two stages at most and stays clean.
+const RATE_RANGE = [0.25, 4];
+
+function tempoFilters(rate) {
+  if (rate === 1) return [];
+  if (rate < 0.5) return ['atempo=0.5', `atempo=${f(rate / 0.5)}`];
+  if (rate > 2) return ['atempo=2', `atempo=${f(rate / 2)}`];
+  return [`atempo=${f(rate)}`];
+}
+
 function toFilePath(rawSrc, pageUrl, pagePath) {
   if (pagePath) return path.resolve(path.dirname(pagePath), decodeURI(rawSrc.split(/[?#]/)[0]));
   const u = new URL(rawSrc, pageUrl);
@@ -67,7 +85,8 @@ function toFilePath(rawSrc, pageUrl, pagePath) {
  * duration: the film's seconds, by default the page's own, harness/media/page-duration.mjs)
  * `page` is a puppeteer Page on a loaded film. `pagePath` (the page's file) makes src resolution exact;
  * without it a src resolves against the repo root that the preview server serves.
- * spec: { src | synth, at, gain (dB), fadeIn, fadeOut, trim, trimEnd, duck (dB or null), role }
+ * spec: { src | synth, at, gain (dB), fadeIn, fadeOut, trim, trimEnd, duck (dB or null), role, rate (<video> clips only) }
+ * A <video> with sound is a spec with role "clip" after the <audio> specs; a muted or silent one, or one with data-rate outside 0.25 to 4, adds none.
  */
 export async function readPageAudio(page, { pagePath, spans, duration } = {}) {
   duration ??= pagePath ? await resolveDuration(pagePath) : NaN;
@@ -79,26 +98,47 @@ export async function readPageAudio(page, { pagePath, spans, duration } = {}) {
       at: num(el, 'at', 0), gain: num(el, 'gain', null), fadeIn: num(el, 'fadeIn', 0), fadeOut: num(el, 'fadeOut', 0),
       trim: num(el, 'trim', 0), trimEnd: num(el, 'trimEnd', null), duck: num(el, 'duck', null), role: el.dataset.role || (el.loop ? 'music' : null),
     }));
+    const clips = [...document.querySelectorAll('video')].map((el) => ({
+      tag: 'video', muted: el.hasAttribute('muted'), src: el.getAttribute('src') || el.querySelector('source')?.getAttribute('src') || null,
+      at: num(el, 'at', 0), gain: num(el, 'gain', null), fadeIn: num(el, 'fadeIn', 0), fadeOut: num(el, 'fadeOut', 0),
+      trim: num(el, 'trim', 0), trimEnd: num(el, 'trimEnd', null), duck: num(el, 'duck', null), role: el.dataset.role || 'clip', rate: num(el, 'rate', 1),
+    }));
+    tracks.push(...clips);
     const meta = parseFloat(document.querySelector('meta[name="loudness"]')?.content);
     return { tracks, loudness: Number.isFinite(meta) ? meta : null, url: location.href };
   });
   const problems = [];
-  const specs = raw.tracks.map(({ src, ...t }) => {
+  const specs = raw.tracks.flatMap(({ src, tag, muted, ...t }) => {
+    if (tag === 'video') return clipSpec({ src, muted, ...t }, raw.url, pagePath, problems);
     const where = `<audio> at ${t.at} s`;
     if (t.synth) {
       if (BANNED_SYNTH.has(t.synth)) problems.push(`${where}: ${BANNED_MESSAGE}`);
       else if (!CUES[t.synth]) problems.push(`${where}: data-synth="${t.synth}" is not a voice. Voices: ${Object.keys(CUES).join(' ')}`);
-      return { ...t, gain: t.gain ?? DEFAULT_GAIN_DB[t.synth] ?? 0, gainSet: t.gain !== null, defaultGain: DEFAULT_GAIN_DB[t.synth] ?? 0 };
+      return [{ ...t, gain: t.gain ?? DEFAULT_GAIN_DB[t.synth] ?? 0, gainSet: t.gain !== null, defaultGain: DEFAULT_GAIN_DB[t.synth] ?? 0 }];
     }
-    if (!src) { problems.push(`${where}: an <audio> element needs src or data-synth`); return t; }
+    if (!src) { problems.push(`${where}: an <audio> element needs src or data-synth`); return [t]; }
     const file = toFilePath(src, raw.url, pagePath);
     if (!fs.existsSync(file)) problems.push(`${where}: src="${src}" resolved to ${file}, which does not exist`);
-    return { ...t, src: file, gain: t.gain ?? 0, gainSet: t.gain !== null, defaultGain: 0 };
+    return [{ ...t, src: file, gain: t.gain ?? 0, gainSet: t.gain !== null, defaultGain: 0 }];
   });
   problems.push(...await startOnWorlds(page, specs, duration, spans));
   if (problems.length) throw new Error(problems.join('\n'), { cause: { problems } });
   for (const s of specs) s.role ||= 'sfx';
   return { specs, loudness: raw.loudness, duration };
+}
+
+// One <video> to [] (muted, silent, unusable rate) or [spec]. Same spec shape as an <audio> src.
+function clipSpec({ src, muted, ...t }, pageUrl, pagePath, problems) {
+  const where = `<video> at ${t.at} s`;
+  if (muted || !src) return [];
+  const file = toFilePath(src, pageUrl, pagePath);
+  if (!fs.existsSync(file)) { problems.push(`${where}: src="${src}" resolved to ${file}, which does not exist`); return []; }
+  if (!hasAudioStream(file)) return [];
+  if (!(t.rate >= RATE_RANGE[0] && t.rate <= RATE_RANGE[1])) {
+    console.warn(`page-audio: ${where}: data-rate="${t.rate}" is outside ${RATE_RANGE[0]} to ${RATE_RANGE[1]}, so the clip is muted in the mix`);
+    return [];
+  }
+  return [{ ...t, src: file, trimEnd: t.trimEnd ?? probeSeconds(file), gain: t.gain ?? 0, gainSet: t.gain !== null, defaultGain: 0 }];
 }
 
 /** Moves each data-on="world:<id>" spec to the second world <id> first shows, plus its data-at. Returns the problems. Pure but for the `at` it sets. */
@@ -178,6 +218,7 @@ function trackChain({ spec, seconds }, i, duration, windows) {
   const playable = playableOf(spec, seconds);
   const len = isMusic && playable < room ? room : Math.min(room, playable);
   const c = [`atrim=start=${f(spec.trim)}`, 'asetpts=PTS-STARTPTS', `aresample=${RATE}`, 'aformat=channel_layouts=stereo'];
+  if (spec.rate) c.push(`atrim=end=${f(playable * spec.rate)}`, 'asetpts=PTS-STARTPTS', ...tempoFilters(spec.rate), 'asetpts=PTS-STARTPTS');
   if (isMusic) c.push('aloop=loop=-1:size=2147483647', 'asetpts=N/SR/TB');
   c.push(`atrim=end=${f(len)}`, 'asetpts=PTS-STARTPTS', `volume=${f(spec.gain)}dB`);
   const cutIn = !isMusic && spec.trim > 0 ? CUT_FADE : 0;

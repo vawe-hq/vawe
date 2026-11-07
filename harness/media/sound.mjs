@@ -79,7 +79,7 @@ async function main(argv) {
       return;
     }
     file = bed.src; offset = bed.at - (bed.trim || 0);
-    cues = read.specs.filter((s) => s.role !== 'music').map((s) => ({ at: s.at, voice: s.synth || path.basename(s.src ?? '?'), gain: s.gain, world: read.spans.find((w) => w.start != null && s.at >= w.start && s.at < w.end)?.id ?? null })).sort((a, b) => a.at - b.at);
+    cues = read.specs.filter((s) => s.role !== 'music' && s.role !== 'clip').map((s) => ({ at: s.at, voice: s.synth || path.basename(s.src ?? '?'), gain: s.gain, world: read.spans.find((w) => w.start != null && s.at >= w.start && s.at < w.end)?.id ?? null })).sort((a, b) => a.at - b.at);
   }
   let sound;
   try { sound = readSound(file, { cache: !o.noCache }); } catch (e) { die(e.message); }
