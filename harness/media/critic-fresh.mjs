@@ -9,7 +9,7 @@ import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runFreshSession, requireClaude } from '../lib/fresh-session.mjs';
-import { criticTemplate, criticPrompt, verdictLine, critiqueFiles } from '../lib/critic-prompt.mjs';
+import { criticTemplate, criticPrompt, verdictLine, critiqueFiles, writeCritique } from '../lib/critic-prompt.mjs';
 import { filmKey, freshImages, pngsSince } from '../lib/critique-summary.mjs';
 import { fullDraftPath } from '../lib/approval.mjs';
 import { writeDraftSheet, draftSheetPath } from './draft-sheet.mjs';
@@ -57,8 +57,7 @@ let text;
 try { ({ text } = runFreshSession({ prompt: criticPrompt(template, inputs), dirs, cwd: repoRoot, timeoutS: Number(process.env.VAWE_CRITIC_TIMEOUT || 900), timeoutVar: 'VAWE_CRITIC_TIMEOUT', model: arg('--model'), name: 'critic' })); } catch (e) { die(e.message, e.exitCode ?? 1); }
 const verdict = verdictLine(text);
 
-fs.mkdirSync(path.dirname(files.next), { recursive: true });
-fs.writeFileSync(files.next, `${text.trim()}\n`);
-if (!verdict) die(`the critic reply did not end with a REJECT or PASS line; it is saved as ${path.relative('.', files.next)}: ${text.slice(-300)}`);
+const written = writeCritique(path.resolve('out'), film, `${text.trim()}\n`);
+if (!verdict) die(`the critic reply did not end with a REJECT or PASS line; it is saved as ${path.relative('.', written)}: ${text.slice(-300)}`);
 noteVerb({ fresh: true, verdict: verdict.split(/\b/)[0] });
-console.log(`critique: ${path.relative('.', files.next)}\n${verdict}`);
+console.log(`critique: ${path.relative('.', written)}\n${verdict}`);

@@ -111,8 +111,10 @@ export function reapOrphanBrowsers(dir = CHROME_DIR, psText = spawnSync('ps', ['
   if (!fs.existsSync(dir)) return reaped;
   for (const name of fs.readdirSync(dir)) {
     const file = path.join(dir, name);
-    const owner = Number(fs.readFileSync(file, 'utf8'));
-    if (pidAlive(owner)) continue;
+    if (!/^\d+$/.test(name)) continue;
+    let owner;
+    try { owner = Number(fs.readFileSync(file, 'utf8')); } catch { continue; }
+    if (!owner || pidAlive(owner)) continue;
     const command = spawnSync('ps', ['-p', name, '-o', 'command='], { encoding: 'utf8' }).stdout;
     if (/puppeteer_dev_chrome_profile/.test(command)) { killGroup(Number(name)); reaped++; }
     fs.rmSync(file, { force: true });
@@ -125,7 +127,8 @@ function registerBrowser(browser, dir = CHROME_DIR) {
   if (!pid) return () => {};
   fs.mkdirSync(dir, { recursive: true });
   const file = path.join(dir, String(pid));
-  fs.writeFileSync(file, String(process.pid));
+  fs.writeFileSync(`${file}.tmp`, String(process.pid));
+  fs.renameSync(`${file}.tmp`, file);
   return () => fs.rmSync(file, { force: true });
 }
 

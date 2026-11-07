@@ -31,7 +31,8 @@ export function runningVerbs(film, root = '.', now = Date.now()) {
   for (const name of fs.readdirSync(dir).filter((n) => n.startsWith(markerPrefix(film)) && n.endsWith('.json'))) {
     try {
       const m = JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8'));
-      if (pidAlive(m.pid) && now - Date.parse(m.start) < MARKER_MAX_AGE_MS) rows.push(m);
+      if (!pidAlive(m.pid)) fs.rmSync(path.join(dir, name), { force: true });
+      else if (now - Date.parse(m.start) < MARKER_MAX_AGE_MS) rows.push(m);
     } catch { /* a marker being written or removed */ }
   }
   return rows;

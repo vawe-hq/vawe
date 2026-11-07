@@ -24,6 +24,15 @@ export function critiqueFiles(outDir, film) {
   return { next: at(top + 1), previous: top ? at(top) : null };
 }
 
+/** Writes `text` to the first critique file that does not exist yet and returns its path: a run that started earlier may have taken the number `critiqueFiles` gave. */
+export function writeCritique(outDir, film, text) {
+  fs.mkdirSync(outDir, { recursive: true });
+  for (;;) {
+    const file = critiqueFiles(outDir, film).next;
+    try { fs.writeFileSync(file, text, { flag: 'wx' }); return file; } catch (e) { if (e.code !== 'EEXIST') throw e; }
+  }
+}
+
 /** The whole prompt: the skill's critic prompt, then the inputs and how to answer. `inputs` is { page, mp4, ref, brief, previous, images } (a missing one is "none"). */
 export function criticPrompt(template, { page, mp4, ref, brief, previous, images }) {
   const none = (v) => v || 'none';

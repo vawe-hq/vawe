@@ -144,8 +144,9 @@ export async function recordClips(entries, lockFile = LOCK) {
   const guard = `${lockFile}.d`;
   const giveUp = Date.now() + LOCK_WAIT_MS;
   for (;;) {
-    try { fs.mkdirSync(guard); break; } catch (e) {
+    try { fs.mkdirSync(guard); fs.writeFileSync(path.join(guard, 'pid'), String(process.pid)); break; } catch (e) {
       if (e.code !== 'EEXIST') throw e;
+      if (guardHolderDead(guard)) { fs.rmSync(guard, { recursive: true, force: true }); continue; }
       if (Date.now() > giveUp) throw new Error(`${guard} has been held for ${LOCK_WAIT_MS / 1000} s; remove it if no render is running`);
       await new Promise((r) => setTimeout(r, 50));
     }
@@ -156,8 +157,16 @@ export async function recordClips(entries, lockFile = LOCK) {
     fs.writeFileSync(tmp, `${JSON.stringify(Object.fromEntries(Object.entries(merged).sort()), null, 2)}\n`);
     fs.renameSync(tmp, lockFile);
   } finally {
-    fs.rmdirSync(guard);
+    fs.rmSync(guard, { recursive: true, force: true });
   }
+}
+
+function guardHolderDead(guard) {
+  try {
+    const pid = Number(fs.readFileSync(path.join(guard, 'pid'), 'utf8'));
+    process.kill(pid, 0);
+    return false;
+  } catch (e) { return e.code === 'ESRCH'; }
 }
 
 /** Why the clip must be rendered again, or '' when its sources match the recorded hash. The masters are not tracked, so a lock entry makes a clip current without a local file. */

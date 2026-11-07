@@ -28,9 +28,15 @@ export function slotsInUse(dir = slotDir()) {
     const file = path.join(dir, name);
     const slot = readSlot(file);
     if (slot && pidAlive(slot.pid)) live.push({ ...slot, file });
-    else if (slot) fs.rmSync(file, { force: true });
+    else if (slot) reapSlot(file, slot);
   }
   return live;
+}
+
+/** Removes the slot file only while it still holds the dead render `seen`: another render may have taken the path since it was read. */
+export function reapSlot(file, seen) {
+  const now = readSlot(file);
+  if (now && now.pid === seen.pid && now.start === seen.start) fs.rmSync(file, { force: true });
 }
 
 const ageS = (start, now) => Math.max(0, Math.round((now - Date.parse(start)) / 1000)) || 0;
