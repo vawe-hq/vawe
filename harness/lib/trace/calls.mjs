@@ -67,7 +67,7 @@ export function commandVerbs(cmd) {
 
 /** The raw tools a command uses: every verb-hint rule that matches, the hand-rolled edit tools always, and the raw extras when the command calls no vawe verb. Pure. */
 export function rawTools(cmd, hasVerb) {
-  const ids = RULES.filter((r) => r.test.test(cmd)).map((r) => `hint:${r.id}`);
+  const ids = RULES.filter((r) => !r.plain && r.test.test(cmd)).map((r) => `hint:${r.id}`);
   if (!hasVerb) ids.push(...Object.entries(RAW_TOOLS).filter(([, re]) => re.test(re.raw ? cmd : bare(cmd))).map(([id]) => id));
   ids.push(...Object.entries(HAND_TOOLS).filter(([, test]) => test(cmd)).map(([id]) => id));
   return ids;

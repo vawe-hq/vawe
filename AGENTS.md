@@ -33,7 +33,7 @@ The smallest film:
 - Do the stages in order and follow each verb's `next:` line: `frame --world` before `dev`, the Board before the draft.
 - The person approves the plan, then the full draft: show it, end with "If you like it, type /vawe-approve" and stop. Never run `approve`.
 - The critique and the judge run in a session that did not write the page. Never judge your own page or record its PASS.
-- Never `sleep`, and never pipe `bin/vawe` into `tail`, `head` or `grep`: the pipe hides the exit code.
+- No `sleep` and no pipe on `bin/vawe` (it hides the exit code): `harness/live/verb-hint.mjs` says so when you do.
 
 ## The loop  `[live: harness/live/stage-say.mjs]`
 
@@ -67,11 +67,10 @@ Set `VAWE_AGENT=<name>` (one per agent) and `VAWE_MODEL=<model>` in your shell: 
 
 - The shell is zsh: quote every glob and `?`, `grep --include='*.mjs'`, `curl 'x?a=b'` (unquoted: `no matches found`).
 - In a worktree a call with a heredoc, a `for` loop, a variable or `$(...)` is refused as "too complex to verify": one verb per call with literal arguments, the Write tool for any file, and plain `git` (no `git -C`).
-- Wait for a render or critique with `bin/vawe wait <page>`, alone (about 3.5 minutes; on STILL RUNNING call it again).
+- `bin/vawe wait <page>`, alone, waits for a render or critique (on STILL RUNNING call it again).
 - A call over 120 s moves to the background and keeps its render slot: run `dev` alone, start a long render in the background yourself, and keep working.
 - One file per `cat` or `head`: a hook rewrites `cat a b` and it breaks.
-- Edit with a tool that fails when the old text is missing, never a silent replace.
-- macOS has no `timeout`, and `sed -i` needs `''`. Read a page over about 25k tokens with offset and limit.
+- macOS has no `timeout`. Read a page over about 25k tokens with offset and limit.
 
 ## Where to look
 
