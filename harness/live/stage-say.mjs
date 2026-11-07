@@ -5,12 +5,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { verbRanSince } from '../lib/verb-log.mjs';
 import { isClipDemo } from '../lib/clip-demo.mjs';
 import { movesTaken, boardFilled, motionFilled, boardChecks, spectacleOf, moveRows, briefLengthLine } from '../lib/board.mjs';
 import { handoffAdvice } from '../lib/handoffs.mjs';
 import { ideasFilled, IDEATE_ASK } from '../lib/ideas.mjs';
-import { ASK_LINE, shipProblem, planState, planProblem } from '../lib/approval.mjs';
+import { ASK_LINE, shipProblem, planProblem } from '../lib/approval.mjs';
+import { loopState, filmDirOf } from '../lib/loop-state.mjs';
 import { statedLength } from '../media/page-duration.mjs';
 import { staleCheckoutLine, mainCheckoutLine } from '../lib/stale-checkout.mjs';
 import { readRuns, appendRun, looksSince, readHookSeen } from '../lib/runlog.mjs';
@@ -27,11 +27,7 @@ const mtime = (p) => { try { return fs.statSync(p).mtimeMs; } catch { return 0; 
 // A test page in a film's own folder (films/<name>/variations/<id>/page.html) is not a film.
 export const FILM_PAGE = /^films\/(examples\/)?[^/]+\/(page\.html|ch\/[^/]+\.html)$/;
 
-/** The folder of the film a page belongs to: a long-form chapter page (films/<name>/ch/<nn>-x.html) belongs to the film above ch/. */
-export const filmDirOf = (page) => {
-  const dir = path.dirname(path.resolve(page));
-  return path.basename(dir) === 'ch' ? path.dirname(dir) : dir;
-};
+export { filmDirOf };
 
 /** True for a page inside films/ that is not a film's own page.html: a direction, variation or kit page, which has no brief of its own. */
 export const isTestPage = (page, root = process.cwd()) => {
@@ -102,12 +98,6 @@ export const SAY = {
   ship: (name, rel) => `bin/vawe ship ${rel}, then bin/vawe wait ${rel} (one call waits up to 3.5 minutes, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`,
 };
 
-/** The records of out/<name>.runs.jsonl under `root`, oldest first; [] when the log is missing. */
-function runsOf(root, name) {
-  return read(path.join(root, 'out', `${name}.runs.jsonl`)).split('\n').filter(Boolean)
-    .map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
-}
-
 /** True when `out/strip/<name>` or `out/strip/<name>-*` changed after `sinceMs`: an agent's own --out folders count. */
 function stripsSince(root, name, sinceMs) {
   const dir = path.join(root, 'out', 'strip');
@@ -133,10 +123,9 @@ export function nextStep(page, root = process.cwd()) {
   }
   const dir = filmDirOf(page);
   const t = mtime(page);
-  const draft = mtime(path.join(root, 'out', `${name}-draft.mp4`));
-  const final = mtime(path.join(root, 'out', `${name}.mp4`));
+  const state = loopState(page, root);
+  const { draft, final } = state;
   const framed = mtime(path.join(root, 'out', `${name}-frames.png`)) > t;
-  const stripped = stripsSince(root, name, draft);
   const brief = read(path.join(dir, 'brief.md'));
   const design = path.join(dir, 'DESIGN.md');
   const { edit, plan, taken, moves } = designPlan(brief);
@@ -177,28 +166,44 @@ export function nextStep(page, root = process.cwd()) {
   if (boardAdvice.length) {
     return { name, stage: 'board', next: `check "Board" in films/${name}/brief.md (advice; a plan you keep on purpose needs no change), then ${SAY.dev(name, rel)}`, why: boardAdvice.map((l) => l.replace(/^board: /, '')).join('; ') };
   }
-  if (!draft && !final && plan && boardFilled(plan) && process.env.VAWE_UNATTENDED !== '1' && planState(page, { root }) !== 'fresh') {
-    return { name, stage: 'plan', next: SAY.plan(page, rel), why: `the person has not given an OK on the plan (${planState(page, { root }) === 'stale' ? 'the Directions or the Board changed after the last OK' : 'no OK yet'}); the draft does not wait for it, only the final render does` };
+  if (!draft && !final && plan && boardFilled(plan) && process.env.VAWE_UNATTENDED !== '1' && state.approval.plan !== 'fresh') {
+    return { name, stage: 'plan', next: SAY.plan(page, rel), why: `the person has not given an OK on the plan (${state.approval.plan === 'stale' ? 'the Directions or the Board changed after the last OK' : 'no OK yet'}); the draft does not wait for it, only the final render does` };
   }
-  if (draft && final < t && plan && (ideasFilled(plan) === false || boardFilled(plan) === false)) {
+  return afterDraft({ page, root, name, rel, state, brief, plan });
+}
+
+/** The step once a draft or a final exists: the plan it was made from, the motion pass, the critique, the approvals, the ship. */
+function afterDraft({ page, root, name, rel, state, brief, plan }) {
+  const { draft, final } = state;
+  const draftOld = !draft?.current;
+  const finalOld = !final?.current;
+  const draftMs = draft ? mtime(draft.path) : 0;
+  const stripped = stripsSince(root, name, draftMs);
+  if (draft && finalOld && plan && (ideasFilled(plan) === false || boardFilled(plan) === false)) {
     return ideasFilled(brief) === false
       ? { name, stage: 'ideas', next: SAY.ideas(name, rel), why: 'the draft was made without a plan: the Ideas ledger is empty; fill it, then the board, before the next draft' }
       : { name, stage: 'board', next: SAY.board(name, rel), why: 'the draft was made without a plan: the Board is empty; fill it before the next draft' };
   }
-  if (draft < t && final < t) return { name, stage: 'draft', next: SAY.dev(name, rel), why: 'the page changed after its last draft' };
-  if (final < t && !stripped) return { name, stage: 'motion', next: SAY.motion(name, rel), why: 'a draft exists; the motion pass comes before the critique (dev: overshoot-share, live-hold and seam-variety clean or waived with a reason)' };
-  const looks = final < t ? looksSince(name, draft, root) : { printed: [], unread: [] };
-  if (looks.unread.length && readHookSeen(root, undefined, draft)) {
+  if (draftOld && finalOld) return { name, stage: 'draft', next: SAY.dev(name, rel), why: 'the page changed after its last draft' };
+  if (finalOld && !stripped) return { name, stage: 'motion', next: SAY.motion(name, rel), why: 'a draft exists; the motion pass comes before the critique (dev: overshoot-share, live-hold and seam-variety clean or waived with a reason)' };
+  const looks = finalOld ? looksSince(name, draftMs, root) : { printed: [], unread: [] };
+  if (looks.unread.length && readHookSeen(root, undefined, draftMs)) {
     const n = looks.printed.length;
     return { name, stage: 'motion', next: `Read the ${n} cut strips of this draft (${n - looks.unread.length} of ${n} read): ${looks.unread[0]}`, why: 'the strips are rendered; the motion pass starts with looking at them' };
   }
-  if (final < t && motionFilled(brief) === false) return { name, stage: 'motion', next: SAY.motionRows(name), why: 'the cuts are stripped; the Motion pass section is empty' };
-  if (final < t && !verbRanSince(runsOf(root, name), 'critique', draft)) {
+  if (finalOld && motionFilled(brief) === false) return { name, stage: 'motion', next: SAY.motionRows(name), why: 'the cuts are stripped; the Motion pass section is empty' };
+  return afterMotion({ page, root, name, rel, state });
+}
+
+/** The step once the motion pass is done: the critique of this page, the person's OKs, the final render, then the judge. */
+function afterMotion({ page, root, name, rel, state }) {
+  const finalOld = !state.final?.current;
+  if (finalOld && !state.critique) {
     return { name, stage: 'critique', next: SAY.critique(name, rel), why: `the motion pass is done; critique the draft in a fresh session, fix the named seconds, then bin/vawe ship; ${CRITIQUE_ASK}` };
   }
-  const waiting = final < t ? shipProblem(page, { root }) : null;
+  const waiting = finalOld ? shipProblem(page, { root }) : null;
   if (waiting) return { name, stage: 'approve', next: waiting, why: 'the critique ran on this draft; the final render needs the person\'s OK on the plan and on the draft' };
-  if (final < t) return { name, stage: 'ship', next: SAY.ship(name, rel), why: 'the critique ran on this draft; fix the seconds it named, then render the final' };
+  if (finalOld) return { name, stage: 'ship', next: SAY.ship(name, rel), why: 'the critique ran on this draft; fix the seconds it named, then render the final' };
   return { name, stage: 'judge', next: SAY.critique(name, rel), why: 'the final is rendered; a fresh session judges it' };
 }
 

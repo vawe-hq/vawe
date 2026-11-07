@@ -7,6 +7,7 @@ import { approveEvent } from './run-events.mjs';
 import { paramsFilm } from './page-params.mjs';
 import { sectionOf } from './board.mjs';
 import { parseDirections } from './directions.mjs';
+import { renderState } from './render-meta.mjs';
 
 const TEXT_FILE = /\.(html|css|m?js|svg)$/i;
 const FILE_TOKEN = /[\w@./-]+\.[a-z0-9]{2,5}\b/gi;
@@ -45,6 +46,9 @@ export function pageDigest(pagePath) {
   return h.digest('hex');
 }
 
+/** The last edit of the page or a file it names, in ms: the mtime rule for a render that has no sidecar. */
+export const editedMs = (pagePath) => Math.max(...referencedFiles(pagePath).map((f) => fs.statSync(f).mtimeMs));
+
 export function readApproval(film, root = '.') {
   try { return JSON.parse(fs.readFileSync(approvalPath(film, root), 'utf8')); } catch { return null; }
 }
@@ -79,6 +83,13 @@ const draftChange = (approval, pagePath, root) => {
   return fs.existsSync(fullDraftPath(pagePath, root)) ? null : 'the draft file is gone';
 };
 
+/** 'none' when the person has not approved the draft, 'stale' when the page changed or the draft file is gone since, else 'fresh'. */
+export function draftState(pagePath, { root = '.' } = {}) {
+  const approval = readApproval(pagePath, root);
+  if (!approval) return 'none';
+  return draftChange(approval, pagePath, root) ? 'stale' : 'fresh';
+}
+
 /** The reason a final render may not start, or null when it may. VAWE_UNATTENDED=1 (hill-climb, CI, the A/B test) needs no approval. */
 export function shipProblem(pagePath, { root = '.', env = process.env } = {}) {
   if (env.VAWE_UNATTENDED === '1') return null;
@@ -86,10 +97,9 @@ export function shipProblem(pagePath, { root = '.', env = process.env } = {}) {
   const plan = planState(pagePath, { root });
   if (plan === 'none') return `waiting for the person's OK on the plan of ${film}: ${SHOW_PLAN}`;
   if (plan === 'stale') return `the plan of ${film} changed after the person's OK: ${SHOW_PLAN}`;
-  const approval = readApproval(pagePath, root);
-  if (!approval) return `waiting for the person's OK on the draft of ${film}: ${SHOW_OWNER}`;
-  const change = draftChange(approval, pagePath, root);
-  return change ? `${change} after the person's OK on the draft: ${SHOW_OWNER}` : null;
+  const draft = draftState(pagePath, { root });
+  if (draft === 'none') return `waiting for the person's OK on the draft of ${film}: ${SHOW_OWNER}`;
+  return draft === 'stale' ? `${draftChange(readApproval(pagePath, root), pagePath, root)} after the person's OK on the draft: ${SHOW_OWNER}` : null;
 }
 
 /** The reason the plan cannot be approved, or null: it needs a Directions section (with a picked line) or a Board. */
@@ -104,8 +114,7 @@ export function planProblem(pagePath) {
 export function approveProblem(pagePath, { root = '.' } = {}) {
   const draft = fullDraftPath(pagePath, root);
   if (!fs.existsSync(draft)) return `no full draft: run bin/vawe dev ${pagePath} without --from and --to first`;
-  const edited = Math.max(...referencedFiles(pagePath).map((f) => fs.statSync(f).mtimeMs));
-  return fs.statSync(draft).mtimeMs >= edited ? null : `the draft is older than the page: run bin/vawe dev ${pagePath} first`;
+  return renderState(draft, pageDigest(pagePath), () => editedMs(pagePath)).current ? null : `the draft is older than the page: run bin/vawe dev ${pagePath} first`;
 }
 
 /** Writes the approval for the page as it is now and returns the record. */

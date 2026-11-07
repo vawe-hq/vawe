@@ -14,6 +14,7 @@ import { isEditFilm } from '../lib/plan-parts.mjs';
 import { statedLength } from '../media/page-duration.mjs';
 import { readRuns, looksSince, isBoardRun, readHookSeen } from '../lib/runlog.mjs';
 import { isClipDemo } from '../lib/clip-demo.mjs';
+import { loopState } from '../lib/loop-state.mjs';
 import { nextStep, isTestPage, filmDirOf, SAY } from './stage-say.mjs';
 import { planStatusLines } from './plan-status.mjs';
 import { readPlan } from '../media/plan-read.mjs';
@@ -37,12 +38,13 @@ export function readPlanState(pagePath, root = ROOT, opened = null) {
   const covered = ideasFilled(brief ?? '') === false ? 'ideas-missing' : null;
   const findings = [...(brief === null || isEditFilm(brief) ? [] : attractorProblems(brief)), ...planLines(found.filter((f) => f.code !== covered), root)];
   const step = nextStep(abs, root);
+  const state = loopState(abs, root);
   const draft = mtime(path.join(root, 'out', `${name}-draft.mp4`));
   const looked = draft ? { ...looksSince(name, draft, root), hook: readHookSeen(root, undefined, draft) } : null;
   return {
     name, rel, brief, findings, looked, page: opened?.advice ?? [],
     design: read(path.join(filmDir, 'DESIGN.md')),
-    early: !mtime(path.join(root, 'out', `${name}-draft.mp4`)) && !mtime(path.join(root, 'out', `${name}.mp4`)),
+    early: !state.draft && !state.final,
     frames: !frames ? 'none' : frames < mtime(abs) ? 'stale' : 'ok',
     storyboardRan: readRuns(name, root).some((r) => isBoardRun(r) && r.exitCode === 0),
     digest: read(path.join(root, 'taste', 'build', 'DIGEST.md')) ?? '',

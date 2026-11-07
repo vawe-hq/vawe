@@ -82,7 +82,9 @@ import { boardChecks, boardFilled, spectacleOf, lockedSpectacle, moveRows } from
 import { handoffAdvice } from '../lib/handoffs.mjs';
 import { ideasAdvice } from '../lib/ideas.mjs';
 import { slideshowTells, slideshowLines } from '../lib/slideshow.mjs';
-import { worldRows } from '../lib/timeline.mjs';
+import { worldRows, voiceOf } from '../lib/timeline.mjs';
+import { pageDigest } from '../lib/approval.mjs';
+import { writeRenderMeta } from '../lib/render-meta.mjs';
 import { moveDocLines } from '../lib/move-docs.mjs';
 import { referenceFor, motionStampFresh, pageAuthoring } from '../lib/motion-stamp.mjs';
 import { isWaived, waiverAdvice, waiverHint, waiverProblems } from '../lib/waivers.mjs';
@@ -833,6 +835,8 @@ export async function renderPage(pagePath, outPath, opts = {}) {
   const frame = length.auto ? { ...canvas, duration: length.seconds } : canvas;
   const wantAudio = opts.audio ?? (from === 0 && durArg == null);
   if (opts.audio && from > 0) throw new RenderError('--audio needs a render from 0: the mix has no offset', EXIT.USAGE);
+  const digest = pageDigest(pagePath);
+  let clips = [];
   const phases = createPhaseTimer();
   const startS = process.uptime();
   const slot = await phases.time('slot', () => takeRenderSlot({ kind: process.env.VAWE_RENDER_KIND || (final ? 'final' : 'draft'), who: filmKeyOf(pagePath) }));
@@ -844,6 +848,7 @@ export async function renderPage(pagePath, outPath, opts = {}) {
     const audioRead = await phases.time('load', async () => {
       await gotoLoaded(page, url, pagePath);
       const videos = await readPageVideos(page, pagePath);
+      clips = videos.clips;
       if (videos.warnings.length) console.error(adviceBlock(videos.warnings).join('\n'));
       if (videos.problems.length) throw new InvariantError(videos.problems.map((p) => `${pagePath}: ${p}`));
       try { await settle(page); } catch (e) {
@@ -948,6 +953,12 @@ export async function renderPage(pagePath, outPath, opts = {}) {
       await place(tmpWeb, webPath);
     }
     if (!process.env.LOCAL_KEEP) fs.rmSync(tmpDir, { recursive: true, force: true });
+    const cues = (audioRead.read?.specs ?? []).map((s) => ({ voice: voiceOf(s), role: s.role, at: s.at, gain: s.gain }));
+    writeRenderMeta(outPath, {
+      pageDigest: digest, renderKey: key, final, fps, width: frame.outWidth, height: frame.outHeight, duration: length.seconds, from, to: +(from + dur).toFixed(4),
+      worlds: probe?.worlds ? worldRows(probe.worlds).map(({ id, start, end }) => ({ id, start, end })) : [],
+      clips, audio: { mixed: Boolean(mixed), loudness: audioRead.read?.loudness ?? null, cues }, createdAt: new Date().toISOString(),
+    });
     const level = opts.checks && !mixed && from === 0 && durArg == null ? await opts.checks.run('sound', () => mixLevel(audioRead.read, dur)) : null;
     const profile = costLines({ kArr, reused, fps, from, prepassMs, captureMs, encodeMs });
     return { ...result, probe, level, motion, profile, web: webPath };
