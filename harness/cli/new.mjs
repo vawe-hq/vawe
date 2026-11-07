@@ -33,71 +33,43 @@ const STARTER_TEMPLATE = `<!doctype html>
 <meta name="message" content="one thing to remember">
 <meta name="signature" content="{{signature}}">
 <title>{{title}}</title>
-<!-- signature: choose the six dials in the tag above (ranges: brief.md, ## Signature).
-  enter, leave, stagger and layer take band, ease and stagger from it; bin/vawe dev names each dial still unchosen
-  budget (taste/build/DIGEST.md); change any line on purpose:
-  colours: --ground and --ink are grey placeholders until the palette dial is chosen; one accent on one thing, if any
-  typefaces: 1, {{family}} (assets/{{font}}), a stand-in; bundle the face the direction needs
-  signature move: one, named here, used once
-  thread: the one object, type line, colour or rhythm that carries through (rule thread)
-  sound cues: small effects at default gains, a real recorded one first, at most one soft swell (rule sound-cues)
-  world turns: a new element, cut or ground every 1 to 2 s (rule world-turns) -->
 <style>
-  @font-face { font-family: "{{family}}"; src: url("assets/{{font}}") format("woff2"); font-weight: 100 900; }
-  :root { --ground: {{ground}} /* unchosen: palette dial */; --ink: {{ink}} /* unchosen: palette dial */; {{beats}} }
-  html, body { margin: 0; height: 100%; background: var(--ground); overflow: hidden; }
-  .world { position: absolute; inset: 0; isolation: isolate; box-sizing: border-box; display: grid; align-content: end; gap: calc(var(--vh) * 0.03);
+  @font-face { font-family: "{{family}}"; src: url("assets/{{font}}") format("woff2"); }
+  :root { --ground: {{ground}}; --ink: {{ink}}; {{beats}} }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  .world { position: absolute; inset: 0; isolation: isolate; display: grid; align-content: end; gap: calc(var(--vh) * 0.03);
            padding: 0 calc(var(--vw) * 0.07) calc(var(--vh) * 0.12); font-family: "{{family}}", sans-serif; }
 {{groundCss}}
-  h1 { margin: 0; font-size: calc(var(--vh) * 0.14); font-weight: 700; line-height: 1; }
-  .line { margin: 0; font-size: calc(var(--vh) * 0.09); }
-  .facts { margin: 0; padding: 0; list-style: none; font-size: calc(var(--vh) * 0.09); font-weight: 600; line-height: 1.15; }
-  h1, .line, .facts { letter-spacing: -0.03em; }
+  h1, .line, .facts { margin: 0; padding: 0; list-style: none; letter-spacing: -0.03em; font-size: calc(var(--vh) * 0.09); }
+  h1 { font-size: calc(var(--vh) * 0.14); line-height: 1; }
   [data-aspect="9:16"] h1 { font-size: calc(var(--vw) * 0.13); }
-  .thread { position: absolute; left: 0; top: 0; width: calc(var(--vh) * 0.07); height: calc(var(--vh) * 0.07); border-radius: 18%;
-            background: color-mix(in srgb, var(--ground), white 60%); }
+  .thread { position: absolute; left: 0; top: 0; width: calc(var(--vh) * 0.07); aspect-ratio: 1; border-radius: 18%; background: color-mix(in srgb, var(--ground), white 60%); }
 </style>
 <script type="module">
-// core/motion/README.md: enter, leave, stagger and layer carry the house motion; change the options, keep the calls
-import { enter, keys, layer, leave, stagger, EASE } from '../../core/motion/presets.js';
-const root = document.documentElement;
-const beat = (n) => parseFloat(getComputedStyle(root).getPropertyValue('--beat-' + n));
+import { enter, keys, leave, stagger, EASE } from '../../core/motion/presets.js';
+const beat = (n) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--beat-' + n));
 const end = window.vawe?.duration ?? parseFloat(document.querySelector('meta[name="duration"]').content);
-const $ = (s) => document.querySelector(s);
 const worlds = [...document.querySelectorAll('[data-world]')];
-// each ground blob drifts by [x, y] fractions of the frame while its world shows; a world with no words also blooms them
-const DRIFT = [[-0.2, 0.1], [0.18, -0.2], [0.14, -0.16]];
-const blobs = (world, from, to, keyframes, easing) => world.querySelectorAll('.ground i').forEach((blob, k) => blob.animate(keyframes(k), { delay: from * 1000, duration: (to - from) * 1000, easing, fill: 'both' }));
-const drift = (world, from, to) => blobs(world, from, to, (k) => [{ translate: '0 0' }, { translate: 'calc(var(--vw) * ' + DRIFT[k][0] + ') calc(var(--vh) * ' + DRIFT[k][1] + ')' }], EASE.glide);
-const bloom = (world, from, to) => blobs(world, from, to, () => [{ scale: 0.7 }, { scale: 1.25 }], EASE.land);
-const cutTo = (el, visibility, at, fill) => el.animate([{ visibility: visibility === 'visible' ? 'hidden' : 'visible' }, { visibility }], { delay: at * 1000, duration: 1, fill });
+const show = (el, visibility, at, fill) => el.animate([{ visibility: visibility === 'visible' ? 'hidden' : 'visible' }, { visibility }], { delay: at * 1000, duration: 1, fill });
+const move = (els, from, to, keyframes, easing = EASE.glide) => els.forEach((el, k) => el.animate(keyframes(k), { delay: from * 1000, duration: (to - from) * 1000, easing, fill: 'both' }));
 worlds.forEach((world, i) => {
   const last = i + 1 === worlds.length;
-  const stop = last ? end : beat(i + 2);
-  if (i === 0) {
-    cutTo(world, 'hidden', stop, 'forwards');
-    drift(world, 0, stop);
-    layer($('h1'), $('.line'), { at: beat(1), blur: 14, from: '0 0.4em', secondary: { blur: 8 } });
-    leave($('.line'), { end: stop - 0.06 });
-    leave($('h1'), { end: stop });
-    return;
-  }
-  // the cut frame already carries the first fact moving: a blank frame there fails the draft check
-  const cut = beat(i + 1) - 0.03;
-  cutTo(world, 'visible', cut, 'both');
-  if (!last) cutTo(world, 'hidden', stop, 'forwards');
-  drift(world, cut, stop);
-  const facts = world.querySelector('.facts');
-  if (!facts) return bloom(world, cut, stop);
-  stagger(facts.querySelectorAll('li'), { at: cut, blur: 10, ...(i % 2 ? { from: '0.6em 0' } : { from: '0 0.6em', ease: 'pop' }) });
-  facts.animate([{ translate: '0 0' }, { translate: '0 -0.4em' }], { delay: cut * 1000, duration: (stop - cut) * 1000, easing: EASE.glide, fill: 'both' });
+  const from = i ? beat(i + 1) - 0.03 : 0;
+  const to = last ? end : beat(i + 2);
+  if (i) show(world, 'visible', from, 'both');
+  if (!last) show(world, 'hidden', to, 'forwards');
+  const blobs = world.querySelectorAll('.ground i');
+  move(blobs, from, to, (k) => [{ translate: '0 0' }, { translate: 'calc(var(--vw) * ' + (0.2 - k * 0.1) + ') calc(var(--vh) * -0.15)' }]);
+  if (!world.querySelector('.facts, h1')) move(blobs, from, to, () => [{ scale: 0.7 }, { scale: 1.25 }], EASE.land);
+  move(world.querySelectorAll('h1, .line, .facts'), from, to, () => [{ translate: '0 0' }, { translate: '0 -0.4em' }]);
+  const text = world.querySelectorAll('h1, .line, li');
+  stagger(text, { at: from, blur: 10, ...(i % 2 ? { from: '0.6em 0' } : { from: '0 0.5em', ...(i && { ease: 'pop' }) }) });
+  if (!i) text.forEach((el) => leave(el, { end: to }));
 });
-// the thread (rule thread): one object carried across every cut, from its place in one world to its place in the next; make it the film's own
-const PLACE = [[0.78, 0.2], [0.62, 0.32], [0.86, 0.48], [0.7, 0.14]];
-const place = (k) => 'calc(var(--vw) * ' + PLACE[k % PLACE.length][0] + ') calc(var(--vh) * ' + PLACE[k % PLACE.length][1] + ')';
-const carry = worlds.slice(1).flatMap((world, k) => [[beat(k + 2) - 0.23, place(k), 'fling'], [beat(k + 2) + 0.27, place(k + 1), 'hang']]);
-enter($('.thread'), { at: 0.3, from: '0 0', scale: 0.4, ease: 'pop' });
-keys($('.thread'), 'translate', [[0, place(0)], ...carry, [end, place(worlds.length - 1)]]);
+const place = (k) => 'calc(var(--vw) * ' + (0.8 - (k % 3) * 0.1) + ') calc(var(--vh) * ' + (0.2 + (k % 2) * 0.15) + ')';
+const carry = worlds.slice(1).flatMap((_, k) => [[beat(k + 2) - 0.23, place(k), 'fling'], [beat(k + 2) + 0.27, place(k + 1), 'hang']]);
+enter(document.querySelector('.thread'), { at: 0.3, from: '0 0', scale: 0.4, ease: 'pop' });
+keys(document.querySelector('.thread'), 'translate', [[0, place(0)], ...carry, [end, place(worlds.length - 1)]]);
 </script>
 </head>
 <body>
