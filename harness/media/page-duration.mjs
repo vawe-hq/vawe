@@ -9,7 +9,11 @@ import { pageDigest } from '../lib/approval.mjs';
 // A draft renders at 30 fps and a final at 60: a length on the 1/30 s grid is a whole number of frames in both.
 const GRID_FPS = 30;
 
-export class DurationError extends Error {}
+const ADD_NUMBER = 'add <meta name="duration" content="N"> (N in seconds)';
+
+export class DurationError extends Error {
+  fix = ADD_NUMBER;
+}
 
 /** The page's own length text: a number of seconds, 'auto', or null when the page has none. Pure. */
 export function statedLength(html) {
@@ -44,10 +48,10 @@ export async function lengthOfOpenPage(page, pagePath) {
   const read = await page.evaluate(readPageEnd);
   if (stated === null) return { seconds: read.endS, auto: false };
   if (read.late) {
-    throw new DurationError(`${pagePath}: auto needs every animation to exist at load; state a number in <meta name="duration" content="seconds">`);
+    throw new DurationError(`${pagePath}: auto needs every animation to exist at load; state a number: ${ADD_NUMBER}`);
   }
   if (!(read.endS > 0)) {
-    throw new DurationError(`${pagePath}: duration is auto but no animation ends (a page driven by window.seek alone has no end to find): state a number in <meta name="duration" content="seconds">`);
+    throw new DurationError(`${pagePath}: duration is auto but no animation ends (a page driven by window.seek alone has no end to find): state a number: ${ADD_NUMBER}`);
   }
   return { ...autoLength(read), auto: true, ignoredInfinite: read.infinite };
 }

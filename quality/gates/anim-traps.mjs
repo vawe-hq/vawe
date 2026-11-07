@@ -20,6 +20,9 @@
 //      their ACTIVE windows genuinely overlap (both playing at once), so the later-registered one wins
 //      the WHOLE overlap regardless of either side's fill. A per-letter or per-word animation added
 //      after a timing-sheet row on the same property silently freezes or erases that row.
+//   8. SOURCE: a `* 0.11px` unit calc on --vw/--vh, a module-level `await` of something the renderer
+//      does not wait for, and (films only) an absolute or local-server path in src/href/url().
+//   9. AN AUTO LENGTH THAT CANNOT BE MEASURED (a page driven by window.seek alone): add the number.
 //
 // It also prints the motion lint (harness/lib/motion-lint.mjs), advice lines with no exit code.
 //
@@ -36,7 +39,7 @@ import { gateFindings } from '../../harness/lib/findings.mjs';
 import { pageAuthoring } from '../../harness/lib/motion-stamp.mjs';
 import { isWaived } from '../../harness/lib/waivers.mjs';
 import { runMotionCollector, motionLint, unwaived, lintLines } from '../../harness/lib/motion-lint.mjs';
-import { resolveDuration } from '../../harness/media/page-duration.mjs';
+import { resolveDuration, DurationError } from '../../harness/media/page-duration.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const argv = process.argv.slice(2);
@@ -148,7 +151,43 @@ function unevenSegmentEasing(add) {
 // mistake (a WebGL canvas that never redraws). Source-level, not DOM-level: these read the page's own
 // <script> text rather than booting it, since the thing being checked (did the author reach for a
 // live clock or an unseeded RNG) is a fact about the CODE, not about one frame's rendered DOM.
-function pageTraps(src, add) {
+const ABSOLUTE_PATH = /^(?:\/|file:|~\/|[A-Za-z]:[\\/]|https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]))/;
+const AWAITED_BY_RENDERER = /fetch\s*\(|document\.fonts\.(?:ready|load)|\.decode\s*\(\s*\)/;
+
+function moduleScripts(src) {
+  return [...src.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].filter((m) => /\btype\s*=\s*["']module["']/i.test(m[1])).map((m) => m[2]);
+}
+
+// Each `await` at brace, paren and bracket depth 0 of a script body, with the rest of its statement.
+function topLevelAwaits(code) {
+  const text = code.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, ' ').replace(/(["'`])(?:\\.|(?!\1)[^\\\n])*\1/g, '""');
+  const found = [];
+  let depth = 0;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if ('{(['.includes(c)) depth++;
+    else if ('})]'.includes(c)) depth--;
+    else if (depth === 0 && text.startsWith('await', i) && !/[\w$.]/.test(text[i - 1] || ' ') && /[\s(]/.test(text[i + 5] || ' '))
+      found.push(text.slice(i, i + 80).split(/[;\n]/)[0]);
+  }
+  return found;
+}
+
+// Rules the page source breaks: a path that is not relative, a unit calc, an await the renderer does not wait for.
+function sourceTraps(src, add, isFilm) {
+  for (const m of isFilm ? src.matchAll(/\b(src|href|poster)\s*=\s*["']\s*([^"']+)["']|url\(\s*["']?([^"')]+)/gi) : []) {
+    const ref = (m[2] || m[3] || '').trim();
+    if (ABSOLUTE_PATH.test(ref) && !ref.startsWith('//')) add(`${m[1] ? `${m[1]}="${ref}"` : `url(${ref})`} is an absolute or local-server path`, m[1] || 'url()', 'use a path relative to the page (assets/name.png) and keep the file in films/<name>/assets/: an absolute path breaks on any other machine');
+  }
+  if (/\bcalc\([^)]*\bvar\(--v[wh]\)\s*\*\s*-?[\d.]+px|\b[\d.]+px\s*\*\s*var\(--v[wh]\)/.test(src))
+    add('a calc() multiplies --vw/--vh by a number with px', 'style', '--vw and --vh already hold a unit (1920px): write calc(var(--vh) * 0.11), never * 0.11px');
+  for (const code of moduleScripts(src))
+    for (const line of topLevelAwaits(code).filter((l) => !AWAITED_BY_RENDERER.test(l)))
+      add(`module-level "${line.trim()}"`, 'script', 'the renderer waits only for an image decode, a fetch and document.fonts.ready, so frame 0 paints before your vawe.onFrame exists: await only those, or register the hook first and await inside it');
+}
+
+export function pageTraps(src, add, { film = false } = {}) {
+  sourceTraps(src, add, film);
   const has = (re) => re.test(src);
   if (has(/requestAnimationFrame\s*\(/))
     add('page uses requestAnimationFrame', 'script', 'drive motion from vawe.onFrame((t) => {...}) instead: the render clock seeks CSS/WAAPI/SMIL and calls every onFrame hook with film time t; a live rAF loop never runs under headless capture and makes the frame depend on wall-clock timing');
@@ -216,7 +255,12 @@ async function checkPage(absFile) {
   const { page, url, close } = await openPreview(absFile, { width: 1920, height: 1080 });
   try {
     await page.goto(url, { waitUntil: 'load' });
-    const seconds = await resolveDuration(absFile);
+    const unmeasured = [];
+    const seconds = await resolveDuration(absFile).catch((e) => {
+      if (!(e instanceof DurationError)) throw e;
+      unmeasured.push(e);
+      return 0;
+    });
     const durMs = seconds > 0 ? seconds * 1000 : await page.evaluate(() => {
       return document.getAnimations().reduce((m, a) => {
         const t = a.effect.getComputedTiming();
@@ -225,7 +269,8 @@ async function checkPage(absFile) {
     });
     const motion = await runMotionCollector(page);
     const findings = await runTrapChecker(page, durMs);
-    pageTraps(fs.readFileSync(absFile, 'utf8'), (what, where, fix) => findings.push({ what, where, fix }));
+    for (const e of unmeasured) findings.push({ what: 'the auto length cannot be measured', where: '<meta name="duration">', fix: e.fix });
+    pageTraps(fs.readFileSync(absFile, 'utf8'), (what, where, fix) => findings.push({ what, where, fix }), { film: /^films\//.test(relFile) });
     const authoring = pageAuthoring(absFile);
     const waived = isWaived(authoring, 'anim-traps');
     return { file: relFile, findings, waived, motion: lintLines(unwaived(motionLint(motion), authoring)) };

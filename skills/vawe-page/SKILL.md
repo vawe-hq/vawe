@@ -97,7 +97,7 @@ asks for overshoot. Full reference: `core/motion/README.md`.
 
 ## Contract details
 
-- `<meta name="duration" content="auto">` is the last animation's end plus a hold (1.2 s or the last world's read time). `bin/vawe dev <page> --lock-length` writes the number in. A page script reads `window.vawe.duration`: 0 while the length is measured, the found length in the render (so an animation sized to it does not set the end), the stated number only in a plain browser. A `window.seek`-only page must state a number.
+- `<meta name="duration" content="auto">` is the last animation's end plus a hold (1.2 s or the last world's read time). `bin/vawe dev <page> --lock-length` writes the number in. A page script reads `window.vawe.duration`: 0 while the length is measured, the found length in the render (so an animation sized to it does not set the end), the stated number only in a plain browser.
 - `--aspect W:H` on a render verb (any whole ratio; `frame` also takes `--size WxH`) replaces the aspect meta and joins the output name.
 - One page, several looks: `bin/vawe dev|frame|ship <page> --param look=riso` (repeatable) loads `page.html?look=riso`; read it with `new URLSearchParams(location.search)`. It joins the render key and the default output name (`-look-riso`).
 - `data-synth="bed"` is refused (`taste/craft/sound.md`).
@@ -124,25 +124,14 @@ do not count, and nor does one reason copied to 3 or more waivers. The draft lis
 
 ## Page-code mistakes a first draft makes
 
-1. A live clock. `Date.now()` or a running `requestAnimationFrame` loop instead of t. The frame is a
-   function of the seek; anything else renders differently on every run.
-2. State carried between frames (`x += dx`). Frame 400 must not need frame 399.
-3. `Math.random()` for a still element, so it boils. Use `rng(seed)` and seed per element.
-4. A network font. Bundle the face in `films/<name>/assets/` and `@font-face` it; the renderer
-   waits for `document.fonts.ready`, not for the network.
-5. `var()` inside the `animation` shorthand: Chromium drops the whole declaration silently. Write
-   the longhands. `bin/vawe check anim-traps <page>` finds this and six more.
-6. No end keyframe. A `@keyframes` rule with no `100%` slides back after it ends.
-7. Opacity or filter on a `preserve-3d` element flattens it. Fade the wrapper.
-8. A layout in fixed pixels for 16:9. Use `--vw`/`--vh`, container units and `[data-aspect]`
-   selectors, then draft `--aspect 9:16` once before the final.
-9. `fill: both` (or `backwards`) on an animation with a delay shows its first keyframe from frame 0;
-   use `forwards` unless it should sit there before it starts.
-10. `--vw` and `--vh` hold a unit (`1920px`): write `calc(var(--vh) * 0.11)`, never `* 0.11px`. A capture
-    scaled below 0.6 loses its type: crop instead.
-11. A module-level `await` of something else than an image decode, a `fetch` or `document.fonts.ready`
-    (a promise you made, a dynamic `import()`): the renderer waits only for those three, so frame 0 is
-    painted before your `vawe.onFrame` exists. Await the three, or register the hook first and await inside it.
+`bin/vawe check anim-traps <page>` names, with the fix: a live clock (`Date.now()`, `requestAnimationFrame`), unseeded `Math.random()` (use `rng(seed)`), `var()` in the `animation` shorthand, a missing end keyframe, `* 0.11px` on `--vw`/`--vh`, a module-level `await` the renderer does not wait for, an absolute path in a film, and an auto length that cannot be measured. It cannot see these:
+
+1. State carried between frames (`x += dx`). Frame 400 must not need frame 399.
+2. A network font. Bundle the face in `films/<name>/assets/` and `@font-face` it; the renderer waits for `document.fonts.ready`, not for the network.
+3. Opacity or filter on a `preserve-3d` element flattens it. Fade the wrapper.
+4. A layout in fixed pixels for 16:9. Use `--vw`/`--vh`, container units and `[data-aspect]` selectors, then draft `--aspect 9:16` once before the final.
+5. `fill: both` (or `backwards`) on an animation with a delay shows its first keyframe from frame 0; use `forwards` unless it should sit there before it starts.
+6. A capture scaled below 0.6 loses its type: crop instead.
 
 ## Where to look
 
