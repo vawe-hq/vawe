@@ -352,7 +352,7 @@ export function subframesForTravel(px, cap) {
 
 // The pixel estimate cannot measure travel: mean luma difference bands [still below, fast from]. It cannot
 // tell a frame that needs 32 subframes from one that needs 16, so its fast band stops at 16 (a measured 5 s
-// three.js film: 4,017 subframes at 16, 7,805 at 32).
+// three.js film: 4,017 subframes at 16, 7,805 at 32). A cap of 8 halves the shots but measured 43.5 dB PSNR against 16 on colour-sting (owner kept 16, 2026-11-07).
 const PIXEL_BANDS = [0.15, 1.5];
 function bucketize(speeds, blur, [still, fast]) {
   const mid = Math.min(blur, 4), top = Math.min(blur, 16);
