@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { writeApproval, writePlanApproval } from '../../harness/lib/approval.mjs';
+import { pageDigest, writeApproval, writePlanApproval } from '../../harness/lib/approval.mjs';
 import { appendRun, readRuns } from '../../harness/lib/runlog.mjs';
 import { FILM_PAGE, isTestPage, SAY, tasteOnce, sessionOf, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
 
@@ -183,7 +183,7 @@ test('after a draft the next step follows what is done: strips under any out/str
   assert.equal(nextStep(page, root).next, SAY.motionRows('f'));
   fs.writeFileSync(brief, '## Board\n\nplan\n\n## Motion pass\n\n| cut | what read flat | fixed |\n|---|---|---|\n| s1 | too slow | shortened |\n');
   assert.equal(nextStep(page, root).stage, 'critique');
-  fs.writeFileSync(out('f.runs.jsonl'), `${JSON.stringify({ cmd: 'verb', verb: 'critique', exitCode: 0, at: new Date(now).toISOString(), start: new Date(now).toISOString() })}\n`);
+  fs.writeFileSync(out('f.runs.jsonl'), `${JSON.stringify({ cmd: 'verb', verb: 'critique', exitCode: 0, pageHash: pageDigest(page), at: new Date(now).toISOString(), start: new Date(now).toISOString() })}\n`);
   const asked = nextStep(page, root);
   assert.equal(asked.stage, 'approve');
   assert.match(asked.next, /^waiting for the person's OK on the plan of f: /);

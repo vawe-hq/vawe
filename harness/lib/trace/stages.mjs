@@ -1,6 +1,9 @@
-export const STAGES = ['new', 'study', 'design', 'page', 'frames', 'ideas', 'storyboard', 'board', 'dev', 'motion', 'critique', 'judge', 'fix', 'approve', 'ship'];
+import { LOOP_STAGES } from '../loop-state.mjs';
 
-const OPTIONAL = new Set(['judge', 'fix', 'approve', 'ship']);
+const TRACED = LOOP_STAGES.filter((s) => s.trace);
+export const STAGES = TRACED.map((s) => s.trace);
+
+const OPTIONAL = new Set(TRACED.filter((s) => s.optional).map((s) => s.trace));
 const STUDY_VERBS = new Set(['refs', 'see', 'sheet', 'compare', 'look', 'looks', 'spec', 'strip', 'onion', 'velocity']);
 const MOTION_VERBS = new Set(['onion', 'velocity']);
 

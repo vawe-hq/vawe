@@ -37,7 +37,7 @@ export async function readPageVideos(page, pagePath) {
     return [...document.querySelectorAll('video')].map((el, i) => ({
       label: `<video> #${i + 1}`,
       src: el.getAttribute('src') || el.querySelector('source')?.getAttribute('src') || '',
-      trim: num(el, 'data-trim', 0), trimEnd: num(el, 'data-trim-end', null), rate: num(el, 'data-rate', 1),
+      at: num(el, 'data-at', 0), trim: num(el, 'data-trim', 0), trimEnd: num(el, 'data-trim-end', null), rate: num(el, 'data-rate', 1),
     }));
   });
   const clips = raw.map((c) => {
@@ -45,5 +45,5 @@ export async function readPageVideos(page, pagePath) {
     const exists = Boolean(file) && fs.existsSync(file);
     return { ...c, file, exists, duration: exists ? fileSeconds(file) : NaN };
   });
-  return videoFindings(clips);
+  return { ...videoFindings(clips), clips: clips.map(({ src, at, trim, trimEnd, rate }) => ({ src, at, trim, trimEnd, rate })) };
 }
