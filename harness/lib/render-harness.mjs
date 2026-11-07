@@ -52,6 +52,17 @@ export function localRequest(req, port) {
   return origin === undefined || hosts.some((h) => origin === `http://${h}`);
 }
 
+// One `bytes=a-b`, `bytes=a-` or `bytes=-n` range. Null serves the whole file (no header, or a form we do not answer: a multi-range
+// request gets a full 200, which RFC 9110 allows); 'unsatisfiable' is a 416.
+export function parseRange(header, size) {
+  const m = /^bytes=(\d*)-(\d*)$/.exec(header ?? '');
+  if (!m || (m[1] === '' && m[2] === '')) return null;
+  let start, end;
+  if (m[1] === '') { const n = Number(m[2]); if (n === 0) return 'unsatisfiable'; start = Math.max(0, size - n); end = size - 1; }
+  else { start = Number(m[1]); end = m[2] === '' ? size - 1 : Math.min(Number(m[2]), size - 1); }
+  return start >= size || start > end ? 'unsatisfiable' : { start, end };
+}
+
 export async function serveRepo({ root = REPO_ROOT, port = 0, route = null, mounts = [] } = {}) {
   const server = http.createServer((req, res) => {
     if (!localRequest(req, server.address().port)) { res.writeHead(403); return res.end(); }
@@ -60,8 +71,13 @@ export async function serveRepo({ root = REPO_ROOT, port = 0, route = null, moun
     try { rel = decodeURIComponent(req.url.split('?')[0]).replace(/^\/+/, ''); } catch { res.writeHead(400); return res.end(); }
     const p = servedFile(root, mounts, rel);
     if (!p) { res.writeHead(404); return res.end(); }
-    res.writeHead(200, { 'Content-Type': MIME[path.extname(p)] || 'application/octet-stream' });
-    fs.createReadStream(p).pipe(res);
+    const headers = { 'Content-Type': MIME[path.extname(p)] || 'application/octet-stream', 'Accept-Ranges': 'bytes' };
+    const size = fs.statSync(p).size;
+    const range = parseRange(req.headers.range, size);
+    if (range === 'unsatisfiable') { res.writeHead(416, { ...headers, 'Content-Range': `bytes */${size}` }); return res.end(); }
+    if (!range) { res.writeHead(200, { ...headers, 'Content-Length': size }); return fs.createReadStream(p).pipe(res); }
+    res.writeHead(206, { ...headers, 'Content-Range': `bytes ${range.start}-${range.end}/${size}`, 'Content-Length': range.end - range.start + 1 });
+    fs.createReadStream(p, range).pipe(res);
   });
   await new Promise((resolve, reject) => {
     server.once('error', reject);
