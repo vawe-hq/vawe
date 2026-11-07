@@ -6,6 +6,7 @@
 // Writes out/<name>.judge.json with the fix ledger (harness/lib/judge-ledger.mjs), or out/<name>.stills.json for stills.
 // Env: VAWE_TASTE_CARD (overrides the taste card the judge reads, default taste/build/CARD.md), VAWE_JUDGE_TIMEOUT (seconds, default 240).
 import fs from 'node:fs';
+import { writeFileAtomic } from '../lib/atomic-write.mjs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { runFreshSession, requireClaude } from '../lib/fresh-session.mjs';
@@ -283,6 +284,6 @@ const led = stage === 'stills' ? null : mergeLedger(prevItems, raw, result.fixes
 if (led) Object.assign(result, { fixes: led.fixes, items: led.items, ledger: ledgerLines(led) });
 appendRun(ev.name, judgeEvent({ pageHash, stage, verdict: result.verdict, scores: result.scores, anchor: result.anchor, bar: result.bar ? barEvent(result.bar) : null, ledger: led?.counts, seconds: result.ms / 1000, findings: stage === 'stills' ? null : findingsEvent(result) }));
 fs.mkdirSync(path.dirname(file), { recursive: true });
-fs.writeFileSync(file, JSON.stringify(result, null, 1));
+writeFileAtomic(file, JSON.stringify(result, null, 1));
 console.log(reportLines(result, path.relative(process.cwd(), file)).join('\n'));
 process.exit(0);

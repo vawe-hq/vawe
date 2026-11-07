@@ -142,8 +142,10 @@ if (videoAbs.startsWith(dir + path.sep)) {
 `
     + `  Move the clip out (refs/_clips/ is a good home) or study it under a different NAME.`);
 }
-fs.rmSync(dir, { recursive: true, force: true });
-fs.mkdirSync(dir, { recursive: true });
+const pagesFile = path.join(dir, 'pages.md');
+if (!argv.includes('--force') && fs.existsSync(pagesFile) && !fs.readFileSync(pagesFile, 'utf8').includes('<fill')) {
+  die(`refs/${NAME}/pages.md is filled in, and this study clears refs/${NAME}/ first. Add --force to replace it, or study under a different NAME.`);
+}
 
 const LUMA = frameSeries(VIDEO, 'scale=160:90,signalstats');
 const DELTA = motionDeltaSeries(VIDEO);
@@ -329,6 +331,8 @@ const measureShot = (s) => {
   };
 };
 
+fs.rmSync(dir, { recursive: true, force: true });
+fs.mkdirSync(dir, { recursive: true });
 const { peak, near, cuts } = detectCuts(VIDEO, dir, THRESHOLD, MIN_SHOT);
 const cutsDetected = cuts.length > 0;
 const seams = detectSeams(EDGE, SEAM_THRESHOLD, duration).map(measureSeam);

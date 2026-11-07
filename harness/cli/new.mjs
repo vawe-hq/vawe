@@ -541,7 +541,6 @@ export function newFilm(name, { from, fromUrl, siteWhere, root, length, aspect, 
   const face = starterFace(name);
   copyFace(root, dir, face);
   const given = Object.fromEntries(Object.entries({ length: pageLength, aspect, title }).filter(([, v]) => v !== undefined));
-  fs.writeFileSync(path.join(dir, 'page.html'), starterPage({ ...given, face, type }));
   fs.writeFileSync(path.join(dir, 'directions.html'), directionsPage(given));
   const answers = {};
   if (request !== undefined) answers.request = request;
@@ -552,5 +551,6 @@ export function newFilm(name, { from, fromUrl, siteWhere, root, length, aspect, 
   const measured = measuredSections({ name, request, title, length: pageLength, beats: type && typeBeats(type, pageLength), face, reference: sections.some((s) => s.name === 'swap'), details, answered });
   const variety = varietyFor(recentFromDisk(root, name), namesBrandKit([request, title, ...Object.values(details)].join(' ')));
   fs.writeFileSync(path.join(dir, 'brief.md'), briefText(name, path.relative(root, template), questions, sections, answers, measured, route?.recipe, variety));
+  fs.writeFileSync(path.join(dir, 'page.html'), starterPage({ ...given, face, type }));
   return { variety, page: `films/${name}/page.html`, route, title, ranges: dialRanges(), guesses: measured.guesses, defaulted: defaults ? open.map((d) => d.key) : [], template: path.relative(root, template), length: pageLength, answered: [...answered] };
 }

@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { reapSlot } from '../../harness/lib/render-slots.mjs';
 import { recordClips } from '../../harness/media/render-moves.mjs';
 import { reapOrphanBrowsers } from '../../harness/lib/render-harness.mjs';
@@ -68,4 +68,49 @@ test('writeCritique never overwrites a critique another run wrote first', () => 
   assert.equal(writeCritique(out, 'f', 'third'), path.join(out, 'f.critique-3.md'));
   assert.equal(fs.readFileSync(path.join(out, 'f.critique-1.md'), 'utf8'), 'first');
   assert.equal(fs.readFileSync(path.join(out, 'f.critique-2.md'), 'utf8'), 'second');
+});
+
+test('writeFileAtomic replaces the file and leaves no temp file', async () => {
+  const { writeFileAtomic } = await import('../../harness/lib/atomic-write.mjs');
+  const dir = tmp('atomic');
+  const file = path.join(dir, 'x.json');
+  writeFileAtomic(file, 'one');
+  writeFileAtomic(file, 'two');
+  assert.equal(fs.readFileSync(file, 'utf8'), 'two');
+  assert.deepEqual(fs.readdirSync(dir), ['x.json']);
+});
+
+test('newFilm writes page.html last, so a failed scaffold can be retried', async () => {
+  const { newFilm } = await import('../../harness/cli/new.mjs');
+  const ROOT = path.resolve(import.meta.dirname, '../..');
+  const root = tmp('new');
+  for (const dir of ['prompts', 'guides', 'assets/fonts']) {
+    fs.mkdirSync(path.dirname(path.join(root, dir)), { recursive: true });
+    fs.symlinkSync(path.join(ROOT, dir), path.join(root, dir));
+  }
+  const written = [];
+  const real = fs.writeFileSync;
+  fs.writeFileSync = (f, ...a) => { written.push(path.basename(String(f))); return real(f, ...a); };
+  const log = console.log;
+  console.log = () => {};
+  try { newFilm('zz', { root, defaults: true }); } finally { fs.writeFileSync = real; console.log = log; }
+  assert.equal(written.at(-1), 'page.html');
+  assert.ok(written.includes('brief.md'));
+});
+
+test('study refuses to clear a filled pages.md unless --force', () => {
+  const ROOT = path.resolve(import.meta.dirname, '../..');
+  const name = `zz-state-${process.pid}`;
+  const refs = path.join(ROOT, 'refs', name);
+  const clip = path.join(tmp('study'), 'clip.mp4');
+  const made = spawnSync('ffmpeg', ['-v', 'error', '-f', 'lavfi', '-i', 'testsrc=size=160x90:rate=10:duration=1', '-pix_fmt', 'yuv420p', clip]);
+  assert.equal(made.status, 0);
+  fs.mkdirSync(refs, { recursive: true });
+  fs.writeFileSync(path.join(refs, 'pages.md'), 'filled in by hand');
+  try {
+    const run = spawnSync(process.execPath, ['harness/media/study.mjs', clip, name], { cwd: ROOT, encoding: 'utf8' });
+    assert.notEqual(run.status, 0);
+    assert.match(run.stderr + run.stdout, /--force/);
+    assert.equal(fs.readFileSync(path.join(refs, 'pages.md'), 'utf8'), 'filled in by hand');
+  } finally { fs.rmSync(refs, { recursive: true, force: true }); }
 });
