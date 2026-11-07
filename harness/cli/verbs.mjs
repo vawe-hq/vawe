@@ -92,6 +92,9 @@ function newSteps(v, [name]) {
   const siteFlag = SITE_FLAGS.find((f) => v[f] !== undefined);
   if (siteFlag && !v['from-url']) throw new UsageError(`--${siteFlag} needs --from-url`);
   if (v.ref && v['from-url']) throw new UsageError('--ref recreates an mp4 and --from-url captures a website: run one');
+  const other = v.footage && ['from', 'from-url', 'ref'].find((f) => v[f] !== undefined);
+  if (other) throw new UsageError(`--footage starts an edit film from the person's clips and --${other} picks another film type: run one`);
+  if (v.footage && !name) throw new UsageError('--footage needs a <name>: vawe new <name> --footage <folder|clip>...');
   const site = v['from-url'] ? siteStep(v, name) : null;
   if (!name && !site) throw new UsageError('missing <name>; usage: vawe new <name> [flags], or vawe new --from-url <route|url|page.html>');
   if (v.ref) return [{ script: 'harness/dev/recreation-new.mjs', args: [], env: { TYPE: 'recreation', NAME: name, REF: v.ref, ...(v.score ? { SCORE: '1' } : {}) } }];
@@ -110,6 +113,7 @@ export const VERBS = [
       { name: 'detail', type: 'string', repeat: true, help: 'one answer as key=value, repeatable; same keys as --answers' },
       { name: 'defaults', type: 'bool', help: 'unattended run: guess every open detail, marked (guess: change me), instead of printing the questions' },
       { name: 'questions-json', type: 'bool', help: 'print the open details as AskUserQuestion calls (JSON, at most 4 questions each) and write nothing' },
+      { name: 'footage', type: 'string', repeat: true, help: 'the person\'s clips (a folder or an mp4, repeatable): they are copied to films/<name>/footage/, logged to footage.md, and the film starts from prompts/edit-from-clips.md with a Cut list and a starter page of one world per clip' },
       { name: 'ref', type: 'path', help: 'recreate this reference mp4: writes films/recreations/<name> with SPEC.md', kind: 'file' },
       { name: 'length', type: 'number', help: 'film length in seconds: written to brief.md and the page duration meta' },
       { name: 'aspect', type: 'string', help: 'a W:H ratio of whole numbers (16:9 9:16 1:1 4:5 4:3 are the common ones): written to brief.md and the page aspect meta' },
@@ -124,7 +128,7 @@ export const VERBS = [
       { name: 'scale', type: 'number', default: 1, help: 'with --tour: the device scale factor (3 gives a 3840 by 2160 mp4 of a 1280 wide page, sharp enough for a macro close-up)' },
       { name: 'out', type: 'path', help: 'with --from-url: the folder for the PNGs, named <route>-<width>.png, or with --tour the mp4 file; overrides the places named above' },
     ],
-    example: 'vawe new my-launch --from prompts/story-explainer.md   |   vawe new acme-launch --request "a launch film for acme" --from-url https://acme.com --full   |   vawe new --from-url /,/blog --full   |   vawe new acme-tour --from-url https://acme.com/app --tour tour.json --w 1600',
+    example: 'vawe new my-launch --from prompts/story-explainer.md   |   vawe new acme-launch --request "a launch film for acme" --from-url https://acme.com --full   |   vawe new --from-url /,/blog --full   |   vawe new acme-tour --from-url https://acme.com/app --tour tour.json --w 1600   |   vawe new trip-edit --footage ~/Movies/trip --request "a 20 s edit of my trip"',
     build: newSteps,
     next: (v) => (v['from-url'] ? (v.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html); vawe frame <film mp4> reads it' : 'Read each PNG at full size; the 390 one shows the phone layout; vawe check links crawls every link of the site') : null),
   },

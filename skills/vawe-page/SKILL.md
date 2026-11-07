@@ -113,6 +113,14 @@ asks for overshoot. Full reference: `core/motion/README.md`.
 - `--vw`/`--vh` (px lengths), `<html data-aspect>` and `window.vawe` are set before your scripts run.
 - Text checks skip `aria-hidden="true"` and `data-chrome` text only when it is texture by measure: cap height under 2% of the frame, the same words 3 or more times, or `data-texture="why"` (12 characters or more). Any other hidden text is checked as copy. A `data-chrome` texture keeps the 2.5% cap floor and no read hold (`taste/rules/readable-text-size.md`).
 
+## Video clips
+
+A person's clip is `<video src="footage/<slug>.mp4" data-at="2" data-trim="5.2" data-trim-end="8.4" data-rate="1" data-gain="-6" data-fade-in="0.2" data-fade-out="0.3" muted data-role="vo"></video>` inside its `data-world` beat.
+- Film time t shows source second s = trim + (t - at) * rate, clamped to [trim, trim-end]: before `data-at` the first frame, after the end the last. The engine seeks it every frame.
+- Its sound joins the mix unless `muted`; `data-role="vo"` ducks music. Names copy `<audio>`.
+- The footage verbs (`footage add` writes the proxies in `films/<film>/footage/`, `footage log` writes `footage.md`: length, shots, loudness, contact sheet, transcript with word times). Read it before the cut list. `bin/vawe new <name> --footage <folder>` runs both and starts the page.
+- Mistakes: playing the video live (`play()`, `autoplay`, a timer); seeking `currentTime` yourself; hiding a clip by removing it from the DOM (hide its world or set opacity).
+
 ## Waivers
 
 A rule broken for cause is declared in the page with its reason, nowhere else. Checks advise; only determinism, banned items

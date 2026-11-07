@@ -23,6 +23,7 @@ const INVENTED_WORDS = /\b(invented|fictional|fictitious|imaginary|made[- ]up|fa
 
 const WORDS = [
   ['reference rebuild', /\b(recreat\w*|rebuild|remake|reference)\b/],
+  ['edit', /\b(my clips?|my footage|raw footage|edit (?:my|these|the) (?:clips?|videos?|recordings?))\b/],
   ['sting', /\b(sting|bumper|ident|logo reveal|intro|outro|title card|lower third|motion graphic|stat hit|teaser)\b/],
   ['long form', /\b(long form|long-form|chapters?|documentary)\b/],
   ['music video', /\b(music video|song|drop|beat synced|beat-synced)\b/],
@@ -159,6 +160,7 @@ export function routingTable(markdown) {
 function typeFor(text, length) {
   if (WORDS[0][1].test(text)) return { type: WORDS[0][0], why: 'the request names a reference' };
   const named = WORDS.slice(1).find(([, re]) => re.test(text))?.[0];
+  if (named === 'edit') return { type: 'edit', why: 'the request names the person\'s clips' };
   const fits = named in STARTERS && named !== 'sting' && length >= starterMin(named);
   if (length !== undefined && length <= STING_MAX_S && !fits) return { type: 'sting', why: `${length} s is ${STING_MAX_S} s or less` };
   if (length !== undefined && length > LONG_MIN_S) return { type: 'long form', why: `${length} s is over ${LONG_MIN_S} s` };

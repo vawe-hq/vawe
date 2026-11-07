@@ -253,6 +253,65 @@ export function starterPage({ length = DEFAULT_LENGTH, aspect = '16:9', title = 
 
 export const STARTER = starterPage({});
 
+const EDIT_TITLE_S = 1.5;
+const EDIT_CLIP_S = 3;
+const EDIT_TEMPLATE = 'prompts/edit-from-clips.md';
+
+/** `new --footage`: copies the person's clips into films/<name>/footage/ and writes footage.md (harness/media/footage.mjs); returns { clips, log }. */
+export async function gatherFootage(root, name, inputs) {
+  const dir = path.join(root, 'films', name);
+  if (fs.existsSync(path.join(dir, 'page.html'))) throw new UsageError(`${path.relative(root, dir)}/page.html already exists`);
+  const missing = inputs.filter((i) => !fs.existsSync(i));
+  if (missing.length) throw new UsageError(`--footage: no such clip or folder: ${missing.join(', ')}`);
+  let media;
+  try {
+    media = await import('../media/footage.mjs');
+  } catch (error) {
+    if (error.code !== 'ERR_MODULE_NOT_FOUND' || !error.message.includes('media/footage.mjs')) throw error;
+    throw new UsageError('--footage needs harness/media/footage.mjs (the footage verbs), which this checkout does not have: update vawe, or start the film without --footage');
+  }
+  const clips = await media.addFootage(dir, inputs.map((i) => path.resolve(i)));
+  if (!clips.length) throw new UsageError(`--footage: no video clips in ${inputs.join(', ')}`);
+  const { path: log } = await media.logFootage(dir);
+  return { clips, log: path.relative(root, log) };
+}
+
+/** The edit film's worlds: s1 the title card, then one world per clip, each as long as the clip or its share of `length`: { beats, clips: [{ slug, seconds, hasAudio, id, start, end }], length }. */
+export function editPlan(clips, length) {
+  const share = length === undefined ? EDIT_CLIP_S : (length - EDIT_TITLE_S) / clips.length;
+  let start = EDIT_TITLE_S;
+  const placed = clips.map((clip, k) => {
+    const span = +Math.min(clip.seconds, share).toFixed(2);
+    const placedClip = { ...clip, id: `s${k + 2}`, start: +start.toFixed(2), end: +(start + span).toFixed(2) };
+    start += span;
+    return placedClip;
+  });
+  const beats = [{ id: 's1', start: 0, end: EDIT_TITLE_S, wordless: false }, ...placed.map(({ id, start: from, end }) => ({ id, start: from, end, wordless: false }))];
+  return { beats, clips: placed, length: length ?? +start.toFixed(2) };
+}
+
+function editWorlds(plan, title) {
+  const clip = (c, k) => `<section class="world" data-world="${c.id}" data-cut="${k === 1 ? 'fade' : 'hard'}">
+  ${GROUND}
+  <video src="footage/${c.slug}.mp4" data-at="${c.start}" data-trim="0" data-trim-end="${+(c.end - c.start).toFixed(2)}" data-rate="1"${c.hasAudio ? '' : ' muted'}></video>${k === 0 ? '\n  <p class="lower">what this clip shows</p>' : ''}
+</section>`;
+  return [`<main class="world title" data-world="s1">
+  ${GROUND}
+  <h1>${title}</h1>
+  <p class="line">${STARTER_LINE}</p>
+</main>`, ...plan.clips.map(clip)].join('\n');
+}
+
+/** The starter page of an edit film from its plan (editPlan). */
+export function editStarterPage({ plan, aspect = '16:9', title = 'Say the one thing', face = starterFace() }) {
+  const safe = title.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  return fill(readStarterFile('edit.html'), {
+    length: plan.length, aspect, title: safe, font: face.font, family: face.family, ground: PLACEHOLDER.ground, ink: PLACEHOLDER.ink,
+    signature: DIALS.map((d) => `${d}=`).join('; '), beats: beatVars(plan.beats), groundCss: readStarterFile('ground.css').trimEnd(),
+    worlds: editWorlds(plan, safe), spectacle: plan.clips.at(-1)?.start ?? 0,
+  });
+}
+
 export const UNANSWERED = '[unanswered: default taken]';
 
 const QUESTION = /^\*\*(.+?)\*\*:\s+(.+?)\s+Default:\s+(.+?)\s+Why:\s+(.+)$/;
@@ -374,6 +433,16 @@ Gain: leave the column empty to take the voice's default (\`bin/vawe sound\` lis
 |---|---|---|---|
 | [s] | [voice] | | [a cut or the spectacle] |`;
 
+const cutListText = (name, plan) => `## Cut list
+
+Phase 5, the plan for the person's clips: films/${name}/footage.md has each clip's length, shots, loudness and transcript. One row per world: \`in\` and \`out\` are source seconds, \`rate\` is speed. Cut on an action or a word end; hold a clip 1.2 s or more.
+
+| world | clip | in | out | rate | why |
+|---|---|---|---|---|---|
+${plan.clips.map((c) => `| ${c.id} | ${c.slug} | 0 | ${+(c.end - c.start).toFixed(2)} | 1 | [why this clip, why here] |`).join('\n')}
+
+message: [the one thing the cut makes the viewer remember]`;
+
 const motionText = () => `## Motion pass
 
 Phase 7, after the first draft. Done when \`bin/vawe dev\` shows overshoot-share, live-hold, constant-camera and seam-variety clean or waived with a reason, and you have Read \`bin/vawe frame films/<name>/page.html --cuts\` for every cut. For the spectacle second also run \`bin/vawe frame <page> --moment <s> --onion\` and \`--velocity\`. Check each cut against taste/craft/motion-craft.md and the principles in core/motion/README.md; one row per cut, ok, fix or n/a per principle. \`bin/vawe ship\` warns while this table holds a placeholder.
@@ -382,17 +451,17 @@ Phase 7, after the first draft. Done when \`bin/vawe dev\` shows overshoot-share
 |---|---|---|---|---|---|---|---|---|---|---|
 | [s1 to s2] | [ok] | [ok] | [ok] | [ok] | [ok] | [ok] | [ok] | [ok] | [the strip showed] | [the change, or the reason it stays] |`;
 
-const SKELETON = [['task', 'Task'], ['taken'], ['directions'], ['signature'], ['look', 'Look'], ['system'], ['states'], ['ideas'], ['board'], ['motion'], ['swap', 'Keep and swap'], ['spec', 'Spec'], ['acceptance', 'Acceptance'], ['gates', 'Gates'], ['pitfalls', 'Pitfalls'], ['deliver', 'Deliver']];
+const SKELETON = [['task', 'Task'], ['taken'], ['cut'], ['directions'], ['signature'], ['look', 'Look'], ['system'], ['states'], ['ideas'], ['board'], ['motion'], ['swap', 'Keep and swap'], ['spec', 'Spec'], ['acceptance', 'Acceptance'], ['gates', 'Gates'], ['pitfalls', 'Pitfalls'], ['deliver', 'Deliver']];
 
 const heading = (text) => `${text[0].toUpperCase()}${text.slice(1)}`;
 
-function briefText(name, templateRel, questions, sections, answers, measured, recipe = null, variety = {}) {
+function briefText(name, templateRel, questions, sections, answers, measured, recipe = null, variety = {}, edit = null) {
   const lines = inputLines(questions, answers);
   const inputs = questions.length || lines.length
     ? lines.join('\n')
     : '- the template has no question bank: write the promise, the moments and the platform';
   const own = Object.fromEntries(sections.map((s) => [s.name, s.body.replaceAll('<name>', name)]));
-  const fixed = { taken: takenFromText(), directions: directionsText(name), signature: signatureSection(undefined, variety), system: systemText(name, designStarter(name)), states: statesText(), ideas: ideasText(), board: boardText(), motion: motionText() };
+  const fixed = { taken: takenFromText(), ...(edit && { cut: cutListText(name, edit) }), directions: directionsText(name), signature: signatureSection(undefined, variety), system: systemText(name, designStarter(name)), states: statesText(), ideas: ideasText(), board: boardText(), motion: motionText() };
   const skeleton = SKELETON.filter(([key]) => fixed[key] || measured.sections[key]).map(([key, title]) => (
     fixed[key] ?? `## ${title}\n\n${own[key] ? `${own[key]}\n\n` : ''}${measured.sections[key]}`));
   const rest = sections.filter((s) => !SKELETON.some(([key]) => key === s.name))
@@ -474,7 +543,8 @@ export function askLines(name, request, from, open, fromUrl) {
   return lines;
 }
 
-function chooseTemplate(root, { from, fromUrl, request, name, title, length }) {
+function chooseTemplate(root, { from, fromUrl, footage, request, name, title, length }) {
+  if (footage) return { template: path.join(root, EDIT_TEMPLATE), route: { template: EDIT_TEMPLATE, type: 'edit', why: "--footage names the person's clips", known: true }, length };
   if (from) return { template: path.resolve(from), route: null, length: path.basename(from) === 'beat-sheet.md' ? beatSheetLength({ request, name, title, length }) : undefined };
   const route = pickTemplate({ request, name, title, length }, readRouting(root));
   const recipe = pickRecipe({ request, name, title, length }, readRecipes(root));
@@ -516,11 +586,22 @@ export function newFilmLines(name, { page, route, title, guesses = [], asked, re
     ...adviceBlock(advice, '(advice only)'), '', ...LATER_DOCS, '', `next: ${SAY.study(name)}; then ${SAY.moves()}. The stages after it are in AGENTS.md, The loop; bin/vawe names the next one after each step.`];
 }
 
+const withFootage = (footage, name, details) => (footage ? { show: "the person's own clips, cut as the Cut list says", assets: `${footage.length} clips in films/${name}/footage/ (films/${name}/footage.md)`, ...details } : details);
+
+/** The page length, the shots and the starter page text of a film: an edit film from its clips, any other from its film type. */
+function pageOf({ edit, route, length, questions, aspect, title, face }) {
+  if (edit) return { pageLength: edit.length, beats: edit.beats, html: editStarterPage({ plan: edit, aspect, title, face }) };
+  const pageLength = length ?? templateLength(questions);
+  const type = starterType(route, pageLength);
+  const given = Object.fromEntries(Object.entries({ length: pageLength, aspect, title }).filter(([, v]) => v !== undefined));
+  return { pageLength, beats: type && typeBeats(type, pageLength), html: starterPage({ ...given, face, type }) };
+}
+
 /**
  * Writes the film folder; returns { page, route, template, length, answered } (route is null when --from chose the template).
  * When a required detail is unanswered and `defaults` is off it writes nothing and returns { asked }.
  */
-export function newFilm(name, { from, fromUrl, siteWhere, root, length, aspect, title, request, details = {}, defaults = false }) {
+export function newFilm(name, { from, fromUrl, siteWhere, footage, root, length, aspect, title, request, details = {}, defaults = false }) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) throw new UsageError(`film name "${name}" must be lowercase letters, digits and dashes`);
   const dir = path.join(root, 'films', name);
   if (fs.existsSync(path.join(dir, 'page.html'))) throw new UsageError(`${path.relative(root, dir)}/page.html already exists`);
@@ -529,17 +610,18 @@ export function newFilm(name, { from, fromUrl, siteWhere, root, length, aspect, 
   aspect ??= format.aspect;
   readAnswers({ length, aspect, title });
   details = withSite(fromUrl, siteWhere, details);
+  details = withFootage(footage, name, details);
   const answered = answeredDetails({ request, given: details, length, aspect });
   const open = unansweredDetails(answered);
   if (!defaults && open.some((d) => d.required)) return { asked: open, request, from, fromUrl };
-  const { template, route, length: routedLength } = chooseTemplate(root, { from, fromUrl, request: fromUrl ? `${request ?? ''} website` : request, name, title, length });
+  const { template, route, length: routedLength } = chooseTemplate(root, { from, fromUrl, footage, request: fromUrl ? `${request ?? ''} website` : request, name, title, length });
   const markdown = fs.readFileSync(template, 'utf8');
   const questions = parseQuestions(markdown);
   length ??= routedLength;
-  const pageLength = length ?? templateLength(questions);
-  const type = starterType(route, pageLength);
   const face = starterFace(name);
   copyFace(root, dir, face);
+  const edit = footage ? editPlan(footage, length) : null;
+  const { pageLength, beats, html } = pageOf({ edit, route, length, questions, aspect, title, face });
   const given = Object.fromEntries(Object.entries({ length: pageLength, aspect, title }).filter(([, v]) => v !== undefined));
   fs.writeFileSync(path.join(dir, 'directions.html'), directionsPage(given));
   const answers = {};
@@ -548,9 +630,9 @@ export function newFilm(name, { from, fromUrl, siteWhere, root, length, aspect, 
   if (aspect !== undefined) answers.aspect = aspect;
   if (title !== undefined) answers.title = title;
   const sections = parseSections(markdown);
-  const measured = measuredSections({ name, request, title, length: pageLength, beats: type && typeBeats(type, pageLength), face, reference: sections.some((s) => s.name === 'swap'), details, answered });
+  const measured = measuredSections({ name, request, title, length: pageLength, beats, face, reference: sections.some((s) => s.name === 'swap'), details, answered });
   const variety = varietyFor(recentFromDisk(root, name), namesBrandKit([request, title, ...Object.values(details)].join(' ')));
-  fs.writeFileSync(path.join(dir, 'brief.md'), briefText(name, path.relative(root, template), questions, sections, answers, measured, route?.recipe, variety));
-  fs.writeFileSync(path.join(dir, 'page.html'), starterPage({ ...given, face, type }));
+  fs.writeFileSync(path.join(dir, 'brief.md'), briefText(name, path.relative(root, template), questions, sections, answers, measured, route?.recipe, variety, edit));
+  fs.writeFileSync(path.join(dir, 'page.html'), html);
   return { variety, page: `films/${name}/page.html`, route, title, ranges: dialRanges(), guesses: measured.guesses, defaulted: defaults ? open.map((d) => d.key) : [], template: path.relative(root, template), length: pageLength, answered: [...answered] };
 }

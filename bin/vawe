@@ -9,7 +9,7 @@ import { isUrl } from '../harness/lib/url.mjs';
 import { closest, parseArgs, topHelp, UsageError, verbHelp } from '../harness/cli/parse.mjs';
 import { ALIASES, DEV_ALIASES, aliasNotice, aliasKey } from '../harness/cli/aliases.mjs';
 import { VERBS, ALIAS_TARGETS, siteStep, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
-import { newFilm, newFilmLines, readDetails, questionsJson } from '../harness/cli/new.mjs';
+import { newFilm, newFilmLines, readDetails, questionsJson, gatherFootage } from '../harness/cli/new.mjs';
 import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
 import { pageDigest } from '../harness/lib/approval.mjs';
@@ -87,7 +87,9 @@ async function startFilm(values, name, call) {
     const ignored = ['request', 'from', 'length', 'aspect', 'title', 'answers', 'detail', 'defaults'].filter((f) => values[f] !== undefined);
     if (ignored.length) console.log(`films/${name} exists: only the capture runs; ${ignored.map((f) => `--${f}`).join(', ')} ignored`);
   } else {
-    const made = newFilm(name, { from: values.from, fromUrl: values['from-url'], siteWhere: site?.where, root: ROOT, length: values.length, aspect: values.aspect, title: values.title, request: values.request, details: readDetails(values), defaults: values.defaults });
+    const footage = values.footage ? await gatherFootage(ROOT, name, values.footage) : null;
+    if (footage) console.log(`footage: ${footage.clips.length} clips in films/${name}/footage/, log in ${footage.log}; Read the log and its contact sheets before the Cut list`);
+    const made = newFilm(name, { from: values.from, fromUrl: values['from-url'], siteWhere: site?.where, footage: footage?.clips, root: ROOT, length: values.length, aspect: values.aspect, title: values.title, request: values.request, details: readDetails(values), defaults: values.defaults });
     if (!made.asked) {
       appendRun(name, newEvent({ template: made.template, length: made.length, answered: made.answered, guessed: made.guesses, ranges: made.ranges }), { root: ROOT });
     }

@@ -6,7 +6,7 @@ about how to run a film or change the engine, not about how a film should look.
 
 | Guide | Load it when you are... | Answers |
 |---|---|---|
-| [ROUTING.md](ROUTING.md) | "let's make a video", before opening any file | the film-type table (nine types, first matching row wins), the `prompts/` template and skill each one takes, and how to resolve common ambiguities |
+| [ROUTING.md](ROUTING.md) | "let's make a video", before opening any file | the film-type table (ten types, first matching row wins), the `prompts/` template and skill each one takes, and how to resolve common ambiguities |
 | [IDEATE.md](IDEATE.md) | you make any creative decision: the concept, a beat, a cut, the hero moment, a sound | the one method: the plain meaning, four ideas from four devices, a typicality number, a pick that is not the most typical, and the `## Ideas` ledger the checks read |
 | [PITCH.md](PITCH.md) | the brief is unformed, "make a video about X" with no locked angle yet | diverge before you converge: five concepts sampled wide, an anti-median probability gate, a silhouette check, the three-line pitch format, and what got rejected late |
 | [REFERENCE-STUDY.md](REFERENCE-STUDY.md) | a real video looks better than ours and you want to learn and copy why, or you recreate a reference or reflect a site | how to sample a reference, the premium habits, the recreation loop, reflecting a site, the honest 1:1 ceiling |

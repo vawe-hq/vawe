@@ -84,6 +84,7 @@ Skills, read before the stage: `html-to-video` (start here), `vawe-brief`, `vawe
 | springs, eases, motion principles | `core/motion/README.md`, `taste/craft/motion-craft.md` |
 | page code, contract details, waivers | `skills/vawe-page/SKILL.md` |
 | the look verbs (`see`, `frame`, `shot`) | `skills/vawe-critique/SKILL.md` |
+| edit a person's clips | `bin/vawe new <name> --footage <folder>`, `guides/ROUTING.md` (edit), `skills/vawe-page/SKILL.md` Video clips |
 | a reference: study, style or recreate | `guides/REFERENCE-STUDY.md`, `skills/vawe-reference/SKILL.md` |
 | every taste rule; scoring | `taste/README.md`; `guides/judge.md` |
 | a film over 60 s or over one session | `prompts/directors-brief-long-form.md` |

@@ -1,0 +1,97 @@
+<!doctype html>
+<html data-aspect="16:9">
+<head>
+<meta charset="utf-8">
+<meta name="duration" content="10">
+<meta name="aspect" content="16:9">
+<meta name="message" content="four moves, cut from our own clips">
+<meta name="spectacle" content="3.63">
+<meta name="signature" content="band=; ease=; stagger=; seam=; palette=; thread=">
+<title>Edit reel</title>
+<!-- an edit reel: s1 is the title card, s2 to s5 each hold one clip from footage/ (copied plain from site/public/moves; vawe footage add makes proxies). s3 crossfades in, the other cuts are hard. -->
+<style>
+  @font-face { font-family: "Hanken Grotesk"; src: url("assets/HankenGrotesk.woff2") format("woff2"); font-weight: 100 900; }
+  :root { --ground: #ecebe6; --ink: #15171c; --beat-1: 0s; --beat-2: 1.5s; --beat-3: 3.63s; --beat-4: 5.76s; --beat-5: 7.89s; }
+  html, body { margin: 0; height: 100%; background: var(--ground); overflow: hidden; }
+  .world { position: absolute; inset: 0; isolation: isolate; box-sizing: border-box; font-family: "Hanken Grotesk", sans-serif; }
+  .world:nth-child(odd) { background: var(--ground); color: var(--ink); --paper: var(--ground);
+    --glow-1: color-mix(in srgb, var(--ground), white 45%); --glow-2: color-mix(in srgb, var(--ground), white 25%); --glow-3: color-mix(in srgb, var(--ground), var(--ink) 22%); }
+  .world:nth-child(even) { background: var(--ink); color: var(--ground); --paper: var(--ink);
+    --glow-1: color-mix(in srgb, var(--ink), var(--ground) 70%); --glow-2: color-mix(in srgb, var(--ink), var(--ground) 45%); --glow-3: color-mix(in srgb, var(--ink), black 40%); }
+  .ground { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+  .ground i { position: absolute; width: calc(var(--vh) * 0.95); height: calc(var(--vh) * 0.95); border-radius: 50%; }
+  .ground i:nth-child(1) { right: -5%; top: -30%; background: radial-gradient(closest-side, var(--glow-1), transparent); }
+  .ground i:nth-child(2) { right: 15%; bottom: -35%; background: radial-gradient(closest-side, var(--glow-2), transparent); }
+  .ground i:nth-child(3) { left: 38%; top: 20%; background: radial-gradient(closest-side, var(--glow-3), transparent); }
+  .title { position: absolute; inset: 0; display: grid; align-content: end; gap: calc(var(--vh) * 0.03); padding: 0 calc(var(--vw) * 0.07) calc(var(--vh) * 0.12); }
+  h1 { margin: 0; font-size: calc(var(--vh) * 0.14); font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
+  .line { margin: 0; font-size: calc(var(--vh) * 0.09); letter-spacing: -0.03em; }
+  [data-aspect="9:16"] h1 { font-size: calc(var(--vw) * 0.13); }
+  video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .lower { position: absolute; left: calc(var(--vw) * 0.07); bottom: calc(var(--vh) * 0.08); margin: 0; padding: calc(var(--vh) * 0.015) calc(var(--vh) * 0.03);
+           font-size: calc(var(--vh) * 0.065); font-weight: 600; letter-spacing: -0.02em; background: var(--ground); color: var(--ink); }
+</style>
+<script type="module">
+import { enter, leave, EASE } from '../../../core/motion/presets.js';
+await document.fonts.load('700 1em "Hanken Grotesk"');
+const root = document.documentElement;
+const end = window.vawe?.duration ?? parseFloat(document.querySelector('meta[name="duration"]').content);
+const beat = (n) => {
+  const start = parseFloat(getComputedStyle(root).getPropertyValue('--beat-' + n));
+  return Number.isNaN(start) ? end : start;
+};
+const $ = (s) => document.querySelector(s);
+const worlds = [...document.querySelectorAll('[data-world]')];
+const FADE = 0.4;
+const show = (el, visibility, at, fill) => el.animate([{ visibility: visibility === 'visible' ? 'hidden' : 'visible' }, { visibility }], { delay: at * 1000, duration: 1, fill });
+const DRIFT = [[-0.2, 0.1], [0.18, -0.2], [0.14, -0.16]];
+const drift = (world, from, to) => world.querySelectorAll('.ground i').forEach((blob, k) => blob.animate([{ translate: '0 0' }, { translate: 'calc(var(--vw) * ' + DRIFT[k][0] + ') calc(var(--vh) * ' + DRIFT[k][1] + ')' }], { delay: from * 1000, duration: (to - from) * 1000, easing: EASE.glide, fill: 'both' }));
+worlds.forEach((world, i) => {
+  const from = beat(i + 1), stop = i + 1 === worlds.length ? end : beat(i + 2);
+  const fade = world.dataset.cut === 'fade';
+  if (i) show(world, 'visible', fade ? from - FADE : from, 'both');
+  if (fade) world.animate([{ opacity: 0 }, { opacity: 1 }], { delay: (from - FADE) * 1000, duration: FADE * 1000, easing: 'linear', fill: 'both' });
+  if (i + 1 < worlds.length) show(world, 'hidden', stop, 'forwards');
+  drift(world, from, stop);
+});
+const card = $('.title');
+enter(card.querySelector('h1'), { at: 0.1, blur: 12, from: '0 0.4em' });
+enter(card.querySelector('.line'), { at: 0.3, blur: 8, from: '0 0.4em' });
+leave(card.querySelector('.line'), { end: beat(2) - 0.06 });
+leave(card.querySelector('h1'), { end: beat(2) });
+worlds.forEach((world, i) => {
+  const lower = world.querySelector('.lower');
+  if (!lower) return;
+  enter(lower, { at: beat(i + 1) + 0.4, from: '-0.6em 0' });
+  leave(lower, { end: beat(i + 2) - 0.06 });
+});
+</script>
+</head>
+<body>
+<main class="world title" data-world="s1">
+  <div class="ground" aria-hidden="true"><i></i><i></i><i></i></div>
+  <h1>Four moves</h1>
+  <p class="line">cut from our own clips</p>
+</main>
+<section class="world" data-world="s2" data-cut="hard">
+  <div class="ground" aria-hidden="true"><i></i><i></i><i></i></div>
+  <video src="footage/ai-stream-response.mp4" data-at="1.5" data-trim="0" data-trim-end="2.13" data-rate="1" muted></video>
+  <p class="lower">a reply streams in</p>
+</section>
+<section class="world" data-world="s3" data-cut="fade">
+  <div class="ground" aria-hidden="true"><i></i><i></i><i></i></div>
+  <video src="footage/approval-gate.mp4" data-at="3.63" data-trim="0" data-trim-end="2.13" data-rate="1" muted></video>
+  <p class="lower">a person approves</p>
+</section>
+<section class="world" data-world="s4" data-cut="hard">
+  <div class="ground" aria-hidden="true"><i></i><i></i><i></i></div>
+  <video src="footage/agent-progress.mp4" data-at="5.76" data-trim="0" data-trim-end="2.13" data-rate="1" muted></video>
+  <p class="lower">progress, step by step</p>
+</section>
+<section class="world" data-world="s5" data-cut="hard">
+  <div class="ground" aria-hidden="true"><i></i><i></i><i></i></div>
+  <video src="footage/anchor-cycle.mp4" data-at="7.89" data-trim="0" data-trim-end="2.13" data-rate="1" muted></video>
+  <p class="lower">anchors cycle</p>
+</section>
+</body>
+</html>
