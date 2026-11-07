@@ -7,6 +7,7 @@ import readline from 'node:readline';
 import { gateFindings, emitJson } from '../lib/findings.mjs';
 import { STARTER } from '../cli/new.mjs';
 import { VERBS } from '../cli/verbs.mjs';
+import { topHelp, verbHelp } from '../cli/parse.mjs';
 import { realLoopBudget, loopFinding, loopTable, loopStamp } from '../lib/read-budget.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -41,12 +42,9 @@ function readLoad() {
   return { words, tokens: Math.round(words * 1.33), detail };
 }
 
-function runHelp(verb) {
-  const args = verb ? [verb, '--help'] : ['--help'];
-  return execFileSync(path.join(ROOT, 'bin/vawe'), args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, VAWE_AGENT: process.env.VAWE_AGENT || 'bench' } });
-}
+const helpText = (verb) => (verb ? verbHelp(VERBS.find((v) => v.name === verb)) : topHelp(VERBS));
 
-const loopBudget = () => realLoopBudget(ROOT, runHelp);
+const loopBudget = () => realLoopBudget(ROOT, helpText);
 
 function fastPathCommands() {
   const text = fs.readFileSync(path.join(ROOT, 'AGENTS.md'), 'utf8');

@@ -1,5 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { VERBS } from '../../harness/cli/verbs.mjs';
+import { topHelp, verbHelp } from '../../harness/cli/parse.mjs';
 import { parseLoop, loopBudget, loopFinding, loopStamp } from '../../harness/lib/read-budget.mjs';
 
 const AGENTS = [
@@ -11,6 +16,7 @@ const AGENTS = [
   '',
 ].join('\n');
 
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const words = (n) => Array(n).fill('w').join(' ');
 const files = { 'skills/vawe-brief/SKILL.md': words(10), 'guides/STUDY.md': words(20) };
 const deps = {
@@ -32,6 +38,12 @@ test('loopBudget counts per stage, each item once in the whole loop, and skips f
   assert.equal(b.tokens, Math.round(b.words * 1.33));
   assert.equal(b.firstStage['bin/vawe new --help'], 1);
   assert.ok(!('guides/MISSING.md' in b.files));
+});
+
+test('the in-process help text equals the spawned bin/vawe help for the top level and two verbs', () => {
+  const run = (...args) => execFileSync(path.join(ROOT, 'bin/vawe'), args, { cwd: ROOT, encoding: 'utf8', env: { ...process.env, VAWE_AGENT: 'help-budget' } });
+  assert.equal(run('--help').trim(), topHelp(VERBS).trim());
+  for (const name of ['dev', 'refs']) assert.equal(run(name, '--help').trim(), verbHelp(VERBS.find((v) => v.name === name)).trim());
 });
 
 test('loopFinding holds at 5% over the stamp and names the stage and the biggest growth past it', () => {
