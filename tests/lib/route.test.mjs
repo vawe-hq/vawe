@@ -78,13 +78,13 @@ test('the starter has no house default: grey placeholders, no accent, no band or
   assert.match(page, /<meta name="signature" content="band=; ease=; stagger=; seam=; palette=; thread=">/);
 });
 
-test('the starter ground is three drifting blobs per world, derived from --ground and --ink, with a spring on some arrivals', () => {
+test('the starter ground is three drifting blobs per world, derived from --ground and --ink, with a spring on arrivals', () => {
   const page = starterPage({ length: 12, face: starterFace('zz-demo') });
   assert.equal([...page.matchAll(/<div class="ground" aria-hidden="true"><i><\/i><i><\/i><i><\/i><\/div>/g)].length, 6);
   assert.match(page, /radial-gradient\(closest-side, var\(--glow-1\)/);
   assert.doesNotMatch(page, /--glow-\d: #/);
   assert.match(page, /ease: 'pop'/);
-  assert.match(page, /blur: 14/);
+  assert.match(page, /blur: 10/);
   assert.equal([...page.matchAll(/<ul class="facts">/g)].length, 4);
 });
 
