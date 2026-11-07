@@ -316,3 +316,6 @@ scripts/discovery/runs/*
 # written by `vawe frame --world all` next to each page
 films/*/frames.html
 films/*/*/frames.html
+
+# a film's footage proxies and word times are the person's own media: never committed
+films/*/footage/
