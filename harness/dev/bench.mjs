@@ -7,6 +7,7 @@ import readline from 'node:readline';
 import { gateFindings, emitJson } from '../lib/findings.mjs';
 import { STARTER } from '../cli/new.mjs';
 import { VERBS } from '../cli/verbs.mjs';
+import { realLoopBudget, loopFinding, loopTable, loopStamp } from '../lib/read-budget.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const RATCHET = path.join(ROOT, 'quality/baselines/bench-ratchet.json');
@@ -39,6 +40,13 @@ function readLoad() {
 
   return { words, tokens: Math.round(words * 1.33), detail };
 }
+
+function runHelp(verb) {
+  const args = verb ? [verb, '--help'] : ['--help'];
+  return execFileSync(path.join(ROOT, 'bin/vawe'), args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, VAWE_AGENT: process.env.VAWE_AGENT || 'bench' } });
+}
+
+const loopBudget = () => realLoopBudget(ROOT, runHelp);
 
 function fastPathCommands() {
   const text = fs.readFileSync(path.join(ROOT, 'AGENTS.md'), 'utf8');
@@ -208,10 +216,12 @@ function reportFast(stamp) {
 
   console.log(`\n── bench · fast (deterministic, warns when a count grows)\n`);
   console.log(`  read-load   ${rl.words} word(s) / ~${rl.tokens} token(s)  (CLAUDE.md + AGENTS.md + the taste digest + vawe-page + the vawe new starter)`);
+  const loop = loopBudget();
+  console.log(`  read-budget first stage ~${loop.stages[0].tokens} token(s), whole loop ${loop.words} word(s) / ~${loop.tokens} token(s) (estimate: words x 1.33; node harness/dev/bench.mjs loop for the table)`);
   console.log(`  fast-path   ${fp.commands} command(s) brief -> first draft render (${fp.commandList.join(', ')}), ${fp.makefileTargets} verb(s)`);
 
   if (stamp) {
-    saveRatchet({ readLoad: { words: rl.words, tokens: rl.tokens }, fastPath: { commands: fp.commands, makefileTargets: fp.makefileTargets } });
+    saveRatchet({ readLoad: { words: rl.words, tokens: rl.tokens }, wholeLoop: loopStamp(loop), fastPath: { commands: fp.commands, makefileTargets: fp.makefileTargets } });
     console.log(`\n  stamped: read-load ${rl.words}w, fast-path ${fp.commands} command(s) / ${fp.makefileTargets} target(s)\n`);
     return { failed: false, rl, fp };
   }
@@ -226,6 +236,11 @@ function reportFast(stamp) {
   } else {
     console.log('  (no read-load ratchet stamped yet: node harness/dev/bench.mjs fast --stamp)');
   }
+
+  const loopWarning = loopFinding(loop, prior?.wholeLoop);
+  if (loopWarning) f.warn('bench-read-budget-grew', loopWarning, { at: 'quality/baselines/bench-ratchet.json' });
+  else if (prior?.wholeLoop) console.log(`  ✓ whole-loop read budget holds under the ratchet (~${prior.wholeLoop.tokens} token(s) + 5%)`);
+  else console.log('  (no whole-loop ratchet stamped yet: node harness/dev/bench.mjs loop --stamp)');
 
   if (prior?.fastPath && (fp.commands > prior.fastPath.commands || fp.makefileTargets > prior.fastPath.makefileTargets)) {
     f.warn('bench-fast-path-grew', `fast-path grew: ${fp.commands} command(s) (was ${prior.fastPath.commands}), `
@@ -269,6 +284,11 @@ async function main() {
     if (json) emitJson({ readLoad: rl, fastPath: fp, failed, findings: f.records });
     else f.emit();
     if (failed) process.exit(1);
+  } else if (cmd === 'loop') {
+    const b = loopBudget();
+    if (stamp) saveRatchet({ wholeLoop: loopStamp(b) });
+    if (json) emitJson(b);
+    else console.log(`\n── bench · read budget per stage (estimate: words x 1.33)\n\n${loopTable(b)}\n${stamp ? '\n  stamped: whole loop\n' : ''}`);
   } else if (cmd === 'render') {
     const r = reportRender(stamp);
     if (json) emitJson(r);
@@ -296,7 +316,7 @@ async function main() {
       console.log(`  cache hit rate: ${result.cacheHitRatePct}%\n`);
     }
   } else {
-    console.error(`bench: unknown command "${cmd}" (fast | render | all | session <path>)`);
+    console.error(`bench: unknown command "${cmd}" (fast | loop | render | all | session <path>)`);
     process.exit(1);
   }
 }

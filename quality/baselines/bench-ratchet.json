@@ -11,5 +11,25 @@
   "msMedian": 1881,
   "msPerFrame": 125.4,
   "frames": 15
+ },
+ "wholeLoop": {
+  "tokens": 12982,
+  "words": 9761,
+  "files": {
+   "bin/vawe --help": 229,
+   "bin/vawe new --help": 507,
+   "skills/vawe-brief/SKILL.md": 842,
+   "bin/vawe refs --help": 177,
+   "guides/REFERENCE-STUDY.md": 1359,
+   "prompts/skill-combos.md": 1111,
+   "skills/vawe-page/SKILL.md": 2335,
+   "bin/vawe frame --help": 244,
+   "skills/vawe-transitions/SKILL.md": 761,
+   "bin/vawe dev --help": 432,
+   "bin/vawe critique --help": 166,
+   "skills/vawe-critique/SKILL.md": 1349,
+   "bin/vawe ship --help": 186,
+   "bin/vawe wait --help": 63
+  }
  }
 }
