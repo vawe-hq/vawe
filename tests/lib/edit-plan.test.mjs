@@ -8,6 +8,9 @@ import { nextStep, SAY } from '../../harness/live/stage-say.mjs';
 import { planStatusLines } from '../../harness/live/plan-status.mjs';
 import { newFilmLines } from '../../harness/cli/new.mjs';
 import { planFindings } from '../../harness/lib/plan-findings.mjs';
+import { writeRenderMeta } from '../../harness/lib/render-meta.mjs';
+import { pageDigest } from '../../harness/lib/approval.mjs';
+import { findingsFor } from '../../harness/lib/plan-parts.mjs';
 
 const CUT = (why) => `## Cut list\n\n| world | clip | in | out | rate | why |\n|---|---|---|---|---|---|\n| s2 | a | 0 | 3 | 1 | ${why} |\n| s3 | b | 0 | 2 | 1 | ${why} |\n\nmessage: m\n\n`;
 const IDEAS_EMPTY = '## Ideas\n\n| at | meaning | i1 | i2 | i3 | i4 | chosen | why |\n|---|---|---|---|---|---|---|---|\n| [s1] | [m] | [a] | [b] | [c] | [d] | [n] | [because] |\n\n';
@@ -75,6 +78,23 @@ test('nextStep sends an edit film to the footage log and the Cut list, then to d
   const after = nextStep(done.page, done.root);
   assert.equal(after.stage, 'draft');
   assert.equal(after.next, SAY.dev('f', 'films/f/page.html'));
+});
+
+test('after a current draft, the motion step of an edit film checks the cut points, not a spectacle second', () => {
+  const f = film(edit('the opening'));
+  const draft = path.join(f.root, 'out', 'f-draft.mp4');
+  fs.writeFileSync(draft, 'mp4');
+  writeRenderMeta(draft, { pageDigest: pageDigest(f.page) });
+  const step = nextStep(f.page, f.root);
+  assert.equal(step.stage, 'motion');
+  assert.equal(step.next, SAY.cutCheck('f', 'films/f/page.html'));
+  assert.doesNotMatch(step.next, /spectacle/);
+});
+
+test('the spectacle-weak finding is dropped for an edit film at its source, and kept for a design film', () => {
+  const findings = [{ code: 'spectacle-weak' }, { code: 'safe-margin' }];
+  assert.deepEqual(findingsFor(edit('x'), findings).map((f) => f.code), ['safe-margin']);
+  assert.deepEqual(findingsFor(design, findings).map((f) => f.code), ['spectacle-weak', 'safe-margin']);
 });
 
 test('nextStep still starts a design film at the reference study', () => {

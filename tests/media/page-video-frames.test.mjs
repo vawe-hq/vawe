@@ -78,9 +78,11 @@ test('a render refuses a missing clip and a trim at or past the end, and clamps 
       fs.writeFileSync(path.join(dir, 'page.html'), html);
       return spawnSync('node', [RENDER, path.join(dir, 'page.html'), path.join(dir, 'out.mp4'), '--fps', '5', '--w', '160', '--h', '90', '--silent'], { encoding: 'utf8' });
     };
+    fs.writeFileSync(path.join(dir, 'out.meta.json'), '{"pageDigest":"an older page"}');
     const missing = run(page({ at: 0, trim: 0, rate: 1 }).replace('clip.mp4', 'nope.mp4'));
     assert.notEqual(missing.status, 0);
     assert.match(missing.stderr, /<video src="nope\.mp4">.*does not exist/);
+    assert.equal(fs.existsSync(path.join(dir, 'out.meta.json')), false, 'a render that starts removes the sidecar of the render it replaces');
     const badTrim = run(page({ at: 0, trim: 5, rate: 1, extra: 'data-trim-end="2"' }));
     assert.notEqual(badTrim.status, 0);
     assert.match(badTrim.stderr, /data-trim 5 is not before the end 2 \(data-trim-end\)/);

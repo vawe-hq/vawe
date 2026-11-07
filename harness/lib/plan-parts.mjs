@@ -34,3 +34,6 @@ const DESIGN_RULES = ['spectacle-weak'];
 
 /** The fired taste rules ({ id, ... }) that apply to this film: all of them for a design film, without the design-only rules for an edit. */
 export const firedFor = (brief, fired) => (isEditFilm(brief) ? fired.filter((f) => !DESIGN_RULES.includes(f.id)) : fired);
+
+/** The lint findings ({ code, ... }) that apply to this film, by the same rule list as firedFor. */
+export const findingsFor = (brief, findings) => (isEditFilm(brief) ? findings.filter((f) => !DESIGN_RULES.includes(f.code)) : findings);

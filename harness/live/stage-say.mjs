@@ -92,6 +92,7 @@ export const SAY = {
   cut: (name) => `Read films/${name}/footage.md and its contact sheets, then fill the "why" cell of each row in "Cut list" in films/${name}/brief.md (in and out seconds, rate, and the message line); ask: which action or word ends each clip, and what does the cut keep?`,
   dev: (name, rel) => `bin/vawe dev ${rel}`,
   motion: (name, rel) => `bin/vawe frame ${rel} --cuts and Read every cut at full size; for the spectacle second also bin/vawe frame ${rel} --moment <s> --onion and bin/vawe frame ${rel} --moment <s> --velocity; check each cut against taste/craft/motion-craft.md and the principles in core/motion/README.md: anticipation on the hero, follow-through and overlap, eased spacing, arcs on travelling elements, secondary action, exits faster than entrances, holds alive through element motion, camera still unless the spectacle; fix what reads flat`,
+  cutCheck: (name, rel) => `bin/vawe frame ${rel} --cuts and Read every cut at full size; check that each cut lands on an action or a word end (films/${name}/footage/<clip>.words.json has the word times) and each clip holds 1.2 s or more; move the in and out points in the Cut list and the page`,
   motionRows: (name) => `write one row per cut in "Motion pass" in films/${name}/brief.md: each principle checked, what read flat, what you fixed`,
   critique: (name, rel) => `bin/vawe critique ${rel} --fresh`,
   plan: (page, rel) => `${planProblem(page) ?? `show the plan to the person: the directions board (bin/vawe frame ${rel} --directions) and the Board`}, then go on with ${SAY.dev('', rel)} and ${ASK_LINE}`,
@@ -185,7 +186,7 @@ function afterDraft({ page, root, name, rel, state, brief, plan }) {
       : { name, stage: 'board', next: SAY.board(name, rel), why: 'the draft was made without a plan: the Board is empty; fill it before the next draft' };
   }
   if (draftOld && finalOld) return { name, stage: 'draft', next: SAY.dev(name, rel), why: 'the page changed after its last draft' };
-  if (finalOld && !stripped) return { name, stage: 'motion', next: SAY.motion(name, rel), why: 'a draft exists; the motion pass comes before the critique (dev: overshoot-share, live-hold and seam-variety clean or waived with a reason)' };
+  if (finalOld && !stripped) return { name, stage: 'motion', next: (isEditFilm(brief) ? SAY.cutCheck : SAY.motion)(name, rel), why: 'a draft exists; the motion pass comes before the critique (dev: overshoot-share, live-hold and seam-variety clean or waived with a reason)' };
   const looks = finalOld ? looksSince(name, draftMs, root) : { printed: [], unread: [] };
   if (looks.unread.length && readHookSeen(root, undefined, draftMs)) {
     const n = looks.printed.length;

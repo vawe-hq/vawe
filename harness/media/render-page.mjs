@@ -84,7 +84,7 @@ import { ideasAdvice } from '../lib/ideas.mjs';
 import { slideshowTells, slideshowLines } from '../lib/slideshow.mjs';
 import { worldRows, voiceOf } from '../lib/timeline.mjs';
 import { pageDigest } from '../lib/approval.mjs';
-import { writeRenderMeta } from '../lib/render-meta.mjs';
+import { writeRenderMeta, metaPath } from '../lib/render-meta.mjs';
 import { moveDocLines } from '../lib/move-docs.mjs';
 import { referenceFor, motionStampFresh, pageAuthoring } from '../lib/motion-stamp.mjs';
 import { isWaived, waiverAdvice, waiverHint, waiverProblems } from '../lib/waivers.mjs';
@@ -92,7 +92,7 @@ import { beatAdvice } from '../lib/sound-read.mjs';
 import { draftTasteLines, firedRules, firedLines, TASTE_RULES } from '../lib/taste-steps.mjs';
 import { parseSignature } from '../../core/motion/signature.js';
 import { unchosenAdvice, signatureLine } from '../lib/signature.mjs';
-import { adviceFor, firedFor } from '../lib/plan-parts.mjs';
+import { adviceFor, firedFor, findingsFor } from '../lib/plan-parts.mjs';
 import { cameraOnlySpans, cameraSpans } from '../lib/camera-moves.mjs';
 import { typingSpans } from '../lib/typing-spans.mjs';
 import { boardVerify } from '../lib/board-verify.mjs';
@@ -842,6 +842,7 @@ export async function renderPage(pagePath, outPath, opts = {}) {
   const slot = await phases.time('slot', () => takeRenderSlot({ kind: process.env.VAWE_RENDER_KIND || (final ? 'final' : 'draft'), who: filmKeyOf(pagePath) }));
   noteVerb({ slotWaitS: phases.seconds('slot') });
   removeStaleFrames(path.dirname(path.resolve(outPath)));
+  fs.rmSync(metaPath(outPath), { force: true });
   const { page, url, close, chrome } = await phases.time('chrome', () => openPage(pagePath, frame, { final }));
   const scriptErrors = watchPageErrors(page);
   try {
@@ -1029,7 +1030,7 @@ function motionFindings(pagePath, motion) {
 
 const layoutFindings = (pagePath, probe) => unwaived(probeLayoutLint(probe, namedText(readPageMeta(pagePath, 'message'), readBrief(pagePath))), pageAuthoring(pagePath));
 
-const barFindings = (pagePath, motion, probe) => unwaived(barLint({ records: motionRecords(motion), boxes: probe.speed, text: probe.whole ? { samples: probe.samples, ctx: probe } : null, spectacle: lockedSpectacle(readBrief(pagePath), spectacleOf(fs.readFileSync(pagePath, 'utf8'))), film: { dur: probe.length, worlds: probe.worlds }, camera: readDecls(pagePath).camera }), pageAuthoring(pagePath));
+const barFindings = (pagePath, motion, probe) => findingsFor(readBrief(pagePath), unwaived(barLint({ records: motionRecords(motion), boxes: probe.speed, text: probe.whole ? { samples: probe.samples, ctx: probe } : null, spectacle: lockedSpectacle(readBrief(pagePath), spectacleOf(fs.readFileSync(pagePath, 'utf8'))), film: { dur: probe.length, worlds: probe.worlds }, camera: readDecls(pagePath).camera }), pageAuthoring(pagePath)));
 
 const barAdvice = (pagePath, motion, probe) => barFindings(pagePath, motion, probe).flatMap((f) => [...lintLines([f]), waiverHint(f.code)]);
 
