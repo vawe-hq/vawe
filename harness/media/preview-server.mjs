@@ -51,27 +51,47 @@ function holdAlive(final) {
   return () => clearInterval(timer);
 }
 
+/**
+ * { status, state } of the daemon for this checkout and mode.
+ * up: a state file with an endpoint and a live pid. stale: the same file with a dead pid (a SIGKILLed daemon leaves it).
+ * starting: no state file yet, but a live process holds the lock. absent: none of these.
+ */
+export function daemonStatus(final) {
+  const state = readState(final);
+  if (state?.wsEndpoint) return { status: pidAlive(state.pid) ? 'up' : 'stale', state };
+  return { status: lockHolderAlive(final) ? 'starting' : 'absent', state: null };
+}
+
+function lockHolderAlive(final) {
+  try { return pidAlive(Number(fs.readFileSync(`${stateFile(final)}.lock`, 'utf8'))); } catch { return false; }
+}
+
 function waitForState(final, timeoutMs) {
   return new Promise((resolve) => {
     const start = Date.now();
     (function tick() {
-      const s = readState(final);
-      if (s && s.wsEndpoint) return resolve(s);
+      const { status, state } = daemonStatus(final);
+      if (status === 'up') return resolve(state);
       if (Date.now() - start > timeoutMs) return resolve(null);
       setTimeout(tick, 100);
     })();
   });
 }
 
+function spawnDaemon(final) {
+  const log = openBrowserLog(final);
+  try { spawn(process.execPath, [SELF, '--daemon', ...(final ? [] : ['--draft'])], { detached: true, stdio: ['ignore', log, log] }).unref(); }
+  finally { fs.closeSync(log); }
+}
+
 async function connectShared(final) {
-  let state = readState(final);
-  const started = !state || !pidAlive(state.pid);
+  let { status, state } = daemonStatus(final);
+  const started = status === 'absent' || status === 'stale';
+  if (status === 'stale') fs.rmSync(stateFile(final), { force: true });
   if (started) {
-    try {
-      const log = openBrowserLog(final);
-      try { spawn(process.execPath, [SELF, '--daemon', ...(final ? [] : ['--draft'])], { detached: true, stdio: ['ignore', log, log] }).unref(); }
-      finally { fs.closeSync(log); }
-    } catch { return null; }
+    try { spawnDaemon(final); } catch { return null; }
+  }
+  if (status !== 'up') {
     state = await waitForState(final, 5000);
     if (!state) return null;
   }
@@ -233,7 +253,8 @@ async function daemonMain(final) {
     clearInterval(idleTimer);
     try { await browser.close(); } catch { /* already gone */ }
     closeServer();
-    if (readState(final)?.pid === process.pid) fs.rmSync(stateFile(final), { force: true });
+    const { status, state } = daemonStatus(final);
+    if (status === 'up' && state.pid === process.pid) fs.rmSync(stateFile(final), { force: true });
     try { if (Number(fs.readFileSync(lock, 'utf8')) === process.pid) fs.rmSync(lock, { force: true }); } catch { /* the lock is gone already */ }
     process.exit(0);
   };

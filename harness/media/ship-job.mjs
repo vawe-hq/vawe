@@ -28,6 +28,7 @@ import { appendRun, filmKeyOf } from '../lib/runlog.mjs';
 import { waitForFilm, WAIT_CAP_DEFAULT_MS, stillRunningLine, waitExitCode } from '../lib/render-wait.mjs';
 import { shipEvent } from '../lib/run-events.mjs';
 import { finalAcceptance, lastPageFacts } from './acceptance-run.mjs';
+import { transition, isTerminal, runnerLost } from '../lib/job-state.mjs';
 
 // An agent tool call stalls at its 10 minute watchdog; 3.5 minutes leaves a wide margin.
 const WAIT_CAP_MS = Number(process.env.VAWE_SHIP_WAIT_MS) || WAIT_CAP_DEFAULT_MS;
@@ -39,7 +40,11 @@ const JUDGE = path.join(path.dirname(SELF), 'judge-fresh.mjs');
 const jobsDir = () => { fs.mkdirSync(SHIP_JOBS_DIR, { recursive: true }); return path.resolve(SHIP_JOBS_DIR); };
 const stateFile = (id) => path.join(jobsDir(), `${id}.json`);
 const readJob = (id) => JSON.parse(fs.readFileSync(stateFile(id), 'utf8'));
-const writeJob = (job) => fs.writeFileSync(stateFile(job.id), JSON.stringify(job));
+const writeJob = (job) => {
+  const tmp = `${stateFile(job.id)}.${process.pid}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(job));
+  fs.renameSync(tmp, stateFile(job.id));
+};
 
 const die = (msg) => { console.error(`ship: ${msg}`); process.exit(2); };
 const pidAlive = (pid) => { try { process.kill(pid, 0); return true; } catch { return false; } };
@@ -55,7 +60,8 @@ function cancelRunning(page) {
   for (const old of allJobs()) {
     if (!['starting', 'running'].includes(old.status) || !sameRender(old, page, jobFilm(page))) continue;
     if (old.pid && pidAlive(old.pid)) process.kill(-old.pid, 'SIGTERM');
-    writeJob({ ...old, status: 'cancelled', endedAt: Date.now() });
+    const cancelled = transition(old, 'cancelled', { endedAt: Date.now() });
+    if (cancelled) writeJob(cancelled);
     console.log(`cancelled the running job ${old.id} for the same render`);
   }
 }
@@ -68,7 +74,10 @@ function startJob(page, renderArgs) {
   const id = `${name}-${Date.now().toString(36)}`;
   const log = path.resolve(jobLogPath(id));
   writeJob({ id, page, film: name, query, args: renderArgs, log, status: 'starting', startedAt: Date.now(), judge: process.env.VAWE_SHIP_JUDGE !== '0' });
-  spawn(process.execPath, [SELF, 'run', id], { detached: true, stdio: 'ignore' }).unref();
+  const runner = spawn(process.execPath, [SELF, 'run', id], { detached: true, stdio: 'ignore' });
+  runner.unref();
+  const fresh = readJob(id);
+  if (fresh.status === 'starting') writeJob({ ...fresh, pid: runner.pid });
   console.log(`job ${id} started: final render of ${page} in the background`);
   console.log(`log: ${log}`);
   console.log(`status: bin/vawe wait ${page}`);
@@ -77,15 +86,19 @@ function startJob(page, renderArgs) {
 
 function runJob(id) {
   const job = readJob(id);
+  const running = transition(job, 'running', { pid: process.pid });
+  if (!running) return;
+  writeJob(running);
   const fd = fs.openSync(job.log, 'a');
   const child = spawn(process.execPath, [RENDER, job.page, ...job.args, '--final', '--progress', '--job'], { stdio: ['ignore', 'pipe', 'pipe'] });
-  writeJob({ ...job, status: 'running', pid: process.pid });
   let started = false;
   let verdictLater = null;
   const masterReady = () => {
     const checked = { ...readJob(id), renderMs: Date.now() - job.startedAt, ...finalCheck(outputsOf(logText(job)), pageAuthoring(job.page)) };
     if (!checked.outputs.length) return;
-    writeJob({ ...checked, status: 'judging' });
+    const judging = transition(checked, 'judging');
+    if (!judging) return;
+    writeJob(judging);
     verdictLater = new Promise((resolve) => (checked.judge ? judgeFinal(checked, resolve) : resolve(null)));
   };
   const relay = (chunk) => {
@@ -101,8 +114,10 @@ function runJob(id) {
   child.on('close', async (code) => {
     if (code !== 0) {
       const failure = { ...finalFailure(logText(job), `exit ${code}`), page: job.page };
+      const failed = transition(readJob(id), 'failed', { exit: code, endedAt: Date.now(), failure });
+      if (!failed) return;
       appendRun(job.page, shipEvent({ verdict: 'failed', renderS: (Date.now() - job.startedAt) / 1000, failure }));
-      return writeJob({ ...readJob(id), status: 'failed', exit: code, endedAt: Date.now(), failure });
+      return writeJob(failed);
     }
     if (!verdictLater) return finishJob(id, { ...readJob(id), renderMs: Date.now() - job.startedAt, ...finalCheck([], null) });
     const verdict = await verdictLater;
@@ -112,7 +127,8 @@ function runJob(id) {
 
 async function finishJob(id, job) {
   const acceptance = job.outputs.length ? await finalAcceptance(job).then((a) => ({ acceptance: a }), (e) => ({ acceptanceError: e.message })) : {};
-  const done = { ...job, ...acceptance, status: 'done', endedAt: Date.now() };
+  const done = transition(readJob(id), 'done', { ...job, ...acceptance, status: 'done', endedAt: Date.now() });
+  if (!done) return;
   appendRun(job.page, shipEvent({ verdict: shipVerdict(done), renderS: job.renderMs / 1000, acceptance: done.acceptance?.counts }));
   writeJob(done);
 }
@@ -206,8 +222,8 @@ function statusOf(id) {
   if (!fs.existsSync(stateFile(target))) die(`no such job: ${target}`);
   const job = readJob(target);
   const text = logText(job);
-  if (['done', 'failed', 'cancelled'].includes(job.status)) return finalLines(job, text);
-  if (job.status === 'running' && !pidAlive(job.pid)) return [failedLine(job, text, 'the render process died without a result'), `job ${job.id}: the render process died without a result`, `log: ${job.log}`];
+  if (isTerminal(job.status)) return finalLines(job, text);
+  if (runnerLost(job, pidAlive)) return [failedLine(job, text, 'the render process died without a result'), `job ${job.id}: the render process died without a result`, `log: ${job.log}`];
   if (job.status === 'judging') return renderedLines(job);
   return [progressLine(job, text), waitNextLine(job, text), `log: ${job.log}`];
 }
@@ -218,7 +234,7 @@ const renderedLines = (job) => [
   `next: bin/vawe wait ${job.page} (1 more call: the judge and the acceptance rows end within about 70 s)`,
 ];
 
-const isOver = (id) => ['done', 'failed', 'cancelled'].includes(readJob(id).status) || (readJob(id).status === 'running' && !pidAlive(readJob(id).pid));
+const isOver = (id) => { const job = readJob(id); return isTerminal(job.status) || runnerLost(job, pidAlive); };
 
 async function waitThenStatus(id) {
   const target = resolveTarget(id);
