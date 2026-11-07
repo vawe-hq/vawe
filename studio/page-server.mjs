@@ -18,7 +18,7 @@ import { installPageFrame, installPageReady, awaitReady } from '../core/engine/p
 import { ASPECTS, aspectDims } from '../core/layout/aspects.js';
 import { EASE_VARS } from '../core/motion/presets.js';
 import { parsePage } from './page-source.mjs';
-import { saveEdits } from './save-edits.mjs';
+import { createEditor } from './save-edits.mjs';
 import { chatRoutes } from './chat.mjs';
 
 const pageArg = process.env.PAGE || process.argv[2];
@@ -30,7 +30,7 @@ const PORT = Number(process.env.PORT) || 8799;
 const UI = path.join(REPO_ROOT, 'studio/ui');
 const ASSETS = new Set(['page-studio.html', 'studio.css', 'page-studio.css', 'page-studio.js', 'page-model.js', 'page-edit.js', 'page-eases.js', 'dom.js', 'page-ease-menu.js']);
 
-const undoStack = [];
+const editor = createEditor(pageFile);
 const send = (res, code, type, body) => { res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store' }); res.end(body); };
 const sendJson = (res, code, body) => send(res, code, 'application/json', JSON.stringify(body));
 const readBody = (req, cb) => {
@@ -44,7 +44,7 @@ const pageModel = async () => {
   const model = parsePage(fs.readFileSync(pageFile, 'utf8'));
   const length = await resolveLength(pageFile);
   if (length.auto) model.meta.duration = String(length.seconds);
-  return { path: pageRel, rev: revOf(), undo: undoStack.length, aspect: model.meta.aspect || '16:9', aspects: ASPECTS, model };
+  return { path: pageRel, rev: revOf(), undo: editor.depth(), aspect: model.meta.aspect || '16:9', aspects: ASPECTS, model };
 };
 
 // The page itself, with the clock and frame facts installed before its first script, as render-page.mjs does.
@@ -114,15 +114,13 @@ const routes = (req, res) => {
     readBody(req, async (body, err) => {
       if (!body || !Array.isArray(body.edits)) return sendJson(res, 400, { ok: false, error: err ? String(err.message) : 'no edits' });
       try {
-        sendJson(res, 200, { ok: true, ...await saveEdits(pageFile, body.edits, undoStack, pageModel) });
+        sendJson(res, 200, { ok: true, ...await editor.save(body.edits, pageModel) });
       } catch (e) { sendJson(res, 409, { ok: false, error: String(e.message) }); }
     });
     return true;
   }
   if (req.method === 'POST' && url === '/api/undo') {
-    if (!undoStack.length) { sendJson(res, 200, { ok: false, error: 'nothing to undo' }); return true; }
-    fs.writeFileSync(pageFile, undoStack.pop());
-    pageModel().then((m) => sendJson(res, 200, { ok: true, ...m }), (e) => sendJson(res, 500, { ok: false, error: String(e.message) }));
+    editor.undo().then(pageModel).then((m) => sendJson(res, 200, { ok: true, ...m }), (e) => sendJson(res, 200, { ok: false, error: String(e.message) }));
     return true;
   }
   if (url === '/api/job') {

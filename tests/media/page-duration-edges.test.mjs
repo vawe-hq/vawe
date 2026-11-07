@@ -8,7 +8,7 @@ import path from 'node:path';
 import { resolveLength } from '../../harness/media/page-duration.mjs';
 import { renderPage, RenderError, openPage, gotoLoaded, settle, resolveFrame } from '../../harness/media/render-page.mjs';
 import { lengthNote } from '../../harness/live/dev-warn.mjs';
-import { saveEdits } from '../../studio/save-edits.mjs';
+import { createEditor } from '../../studio/save-edits.mjs';
 import { starterPage, starterFace } from '../../harness/cli/new.mjs';
 
 const html = (body, head = '') => `<!doctype html><html><head><meta charset="utf-8"><meta name="duration" content="auto">${head}</head>
@@ -86,13 +86,13 @@ test('a studio edit the check rejects leaves the file and the undo stack as they
   await inDir({ 'page.html': '<meta name="duration" content="5"><div style="color: red"></div>' }, async (file) => {
     const before = fs.readFileSync(file, 'utf8');
     const at = before.indexOf('red');
-    const undo = [];
+    const editor = createEditor(file);
     const edit = [{ start: at, end: at + 3, expect: 'red', text: 'blue' }];
-    await assert.rejects(saveEdits(file, edit, undo, async () => { throw new Error('no length'); }), /no length/);
+    await assert.rejects(editor.save(edit, async () => { throw new Error('no length'); }), /no length/);
     assert.equal(fs.readFileSync(file, 'utf8'), before);
-    assert.deepEqual(undo, []);
-    await saveEdits(file, edit, undo, async () => 'ok');
+    assert.equal(editor.depth(), 0);
+    await editor.save(edit, async () => 'ok');
     assert.match(fs.readFileSync(file, 'utf8'), /blue/);
-    assert.equal(undo.length, 1);
+    assert.equal(editor.depth(), 1);
   });
 });
