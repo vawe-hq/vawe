@@ -15,6 +15,7 @@ import { statedLength } from '../media/page-duration.mjs';
 import { staleCheckoutLine, mainCheckoutLine } from '../lib/stale-checkout.mjs';
 import { readRuns, appendRun, looksSince, readHookSeen } from '../lib/runlog.mjs';
 import { tasteLines } from '../lib/taste-steps.mjs';
+import { isEditFilm, emptyPlanParts } from '../lib/plan-parts.mjs';
 import { nextSeen, resetShown, sinceReset, NEXT_UNCHANGED } from '../lib/next-once.mjs';
 
 export { boardFilled };
@@ -92,6 +93,7 @@ export const SAY = {
   frames: (name, rel) => `bin/vawe frame ${rel} --world all`,
   ideas: (name, rel) => `fill "Ideas" in films/${name}/brief.md (guides/IDEATE.md): ${IDEATE_ASK}; then bin/vawe frame ${rel} --board lists what the taste docs say about the plan`,
   board: (name, rel) => `bin/vawe frame ${rel} --board lists what the taste docs say about the plan (stagger gaps, read holds, the last second); then fill "Board" in films/${name}/brief.md: rhythm, spectacle, a move per cut and its handoff (load skills/vawe-transitions/SKILL.md: the cut's row in the Ideas ledger (guides/IDEATE.md), the less typical pick, the ledger; families: taste/craft/transitions.md; feeling: taste/craft/selection.md), sound (effects on actions, a real recording first, no bed: taste/craft/sound.md); ask: what carries the eye across each cut, what is the rhythm, where is the one big moment, what sound sits on each action?`,
+  cut: (name) => `Read films/${name}/footage.md and its contact sheets, then fill the "why" cell of each row in "Cut list" in films/${name}/brief.md (in and out seconds, rate, and the message line); ask: which action or word ends each clip, and what does the cut keep?`,
   dev: (name, rel) => `bin/vawe dev ${rel}`,
   motion: (name, rel) => `bin/vawe frame ${rel} --cuts and Read every cut at full size; for the spectacle second also bin/vawe frame ${rel} --moment <s> --onion and bin/vawe frame ${rel} --moment <s> --velocity; check each cut against taste/craft/motion-craft.md and the principles in core/motion/README.md: anticipation on the hero, follow-through and overlap, eased spacing, arcs on travelling elements, secondary action, exits faster than entrances, holds alive through element motion, camera still unless the spectacle; fix what reads flat`,
   motionRows: (name) => `write one row per cut in "Motion pass" in films/${name}/brief.md: each principle checked, what read flat, what you fixed`,
@@ -112,6 +114,13 @@ function stripsSince(root, name, sinceMs) {
   try { return fs.readdirSync(dir).some((f) => (f === name || f.startsWith(`${name}-`)) && mtime(path.join(dir, f)) > sinceMs); } catch { return false; }
 }
 
+/** The part of a brief the design stages read: `plan` is null for an edit film, whose plan is its Cut list. */
+function designPlan(brief) {
+  const edit = isEditFilm(brief);
+  const plan = edit ? null : brief;
+  return { edit, plan, taken: plan ? takenFromCount(plan) : null, moves: plan ? movesTakenCount(plan) : null };
+}
+
 export function nextStep(page, root = process.cwd()) {
   if (isClipDemo(page)) {
     const clip = path.basename(page, '.html');
@@ -130,8 +139,7 @@ export function nextStep(page, root = process.cwd()) {
   const stripped = stripsSince(root, name, draft);
   const brief = read(path.join(dir, 'brief.md'));
   const design = path.join(dir, 'DESIGN.md');
-  const taken = takenFromCount(brief);
-  const moves = movesTakenCount(brief);
+  const { edit, plan, taken, moves } = designPlan(brief);
   const early = !draft && !final && !framed;
   if (early && !brief) {
     return { name, stage: 'brief', next: `create films/${name}/brief.md: the ask, the message, the spectacle second, "Taken from", "Board" (bin/vawe new <other-name> writes the template to copy); ${BRIEF_ASK}`, why: `films/${name} has no brief.md` };
@@ -152,26 +160,27 @@ export function nextStep(page, root = process.cwd()) {
   if (early && taken !== null && t <= mtime(design)) {
     return { name, stage: 'states', next: SAY.states(name, rel), why: 'DESIGN.md is newer than the page; the states come before the frames and the motion' };
   }
-  if (early && hasWorlds(page)) return { name, stage: 'states', next: SAY.frames(name, rel), why: 'the frames come before the motion' };
+  if (edit && !draft && !final && emptyPlanParts(brief).length) return { name, stage: 'cut', next: SAY.cut(name), why: 'the Cut list is the plan of an edit film: fill it from the footage log' };
+  if (early && !edit && hasWorlds(page)) return { name, stage: 'states', next: SAY.frames(name, rel), why: 'the frames come before the motion' };
   const stated = statedLength(read(page));
-  const stale = !draft && !final && brief && typeof stated === 'number' ? briefLengthLine(brief, stated) : null;
+  const stale = !draft && !final && plan && typeof stated === 'number' ? briefLengthLine(brief, stated) : null;
   if (stale) {
     return { name, stage: 'board', next: `bring Length, Board and Spec in films/${name}/brief.md to the page, then bin/vawe frame ${rel} --board`, why: `${stale}; a plan for another film length is stale` };
   }
-  if (!draft && !final && brief && ideasFilled(brief) !== true) {
+  if (!draft && !final && plan && ideasFilled(plan) !== true) {
     return { name, stage: 'ideas', next: SAY.ideas(name, rel), why: 'the Ideas ledger is empty; the ideas come before the board, so each cut carries a chosen idea' };
   }
-  if (!draft && !final && boardFilled(brief) === false) {
+  if (!draft && !final && plan && boardFilled(plan) === false) {
     return { name, stage: 'board', next: SAY.board(name, rel), why: 'the board is a plan for time and comes after the states, before the motion' };
   }
-  const boardAdvice = !draft && !final && boardFilled(brief) ? [...boardChecks(brief, spectacleOf(read(page))), ...handoffAdvice(moveRows(brief))] : [];
+  const boardAdvice = !draft && !final && plan && boardFilled(plan) ? [...boardChecks(brief, spectacleOf(read(page))), ...handoffAdvice(moveRows(brief))] : [];
   if (boardAdvice.length) {
     return { name, stage: 'board', next: `check "Board" in films/${name}/brief.md (advice; a plan you keep on purpose needs no change), then ${SAY.dev(name, rel)}`, why: boardAdvice.map((l) => l.replace(/^board: /, '')).join('; ') };
   }
-  if (!draft && !final && boardFilled(brief) && process.env.VAWE_UNATTENDED !== '1' && planState(page, { root }) !== 'fresh') {
+  if (!draft && !final && plan && boardFilled(plan) && process.env.VAWE_UNATTENDED !== '1' && planState(page, { root }) !== 'fresh') {
     return { name, stage: 'plan', next: SAY.plan(page, rel), why: `the person has not given an OK on the plan (${planState(page, { root }) === 'stale' ? 'the Directions or the Board changed after the last OK' : 'no OK yet'}); the draft does not wait for it, only the final render does` };
   }
-  if (draft && final < t && (ideasFilled(brief) === false || boardFilled(brief) === false)) {
+  if (draft && final < t && plan && (ideasFilled(plan) === false || boardFilled(plan) === false)) {
     return ideasFilled(brief) === false
       ? { name, stage: 'ideas', next: SAY.ideas(name, rel), why: 'the draft was made without a plan: the Ideas ledger is empty; fill it, then the board, before the next draft' }
       : { name, stage: 'board', next: SAY.board(name, rel), why: 'the draft was made without a plan: the Board is empty; fill it before the next draft' };
