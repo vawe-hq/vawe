@@ -56,3 +56,34 @@ test('a verb is named once in the window and again after it', () => {
   assert.equal(recentlyNamed({ shot: 1000 }, 'shot', 1000 + 31 * 60 * 1000), false);
   assert.equal(recentlyNamed({}, 'shot', 5), false);
 });
+
+test('a bin/vawe call piped into tail, head or grep points at running it alone', () => {
+  for (const cmd of ['bin/vawe dev films/a/page.html | tail -5', './bin/vawe frame out/a.mp4 --at 1 | head', 'bin/vawe check gates 2>&1 | grep FAIL']) assert.equal(id(cmd), 'pipe', cmd);
+});
+
+test('a piped command that is not a bin/vawe call gets no pipe advice', () => {
+  for (const cmd of ['git log --oneline | head -5', 'bin/vawe frame out/a.mp4 --at 1', 'echo "bin/vawe dev | tail"', 'bin/vawe dev films/a/page.html; git log | head']) assert.equal(id(cmd), null, cmd);
+});
+
+test('sed -i and perl -pi point at the Edit tool', () => {
+  for (const cmd of ["sed -i '' 's/a/b/' harness/x.mjs", 'sed -i.bak s/a/b/ f', 'sed -E -i s/a/b/ f', "perl -pi -e 's/a/b/' f", 'perl -i.bak -pe s/a/b/ f']) assert.equal(id(cmd), 'edit', cmd);
+  assert.match(hintFor('sed -i s/a/b/ f').say, /Edit tool/);
+});
+
+test('sed and perl that do not edit in place get no edit advice', () => {
+  for (const cmd of ["sed -n '1,5p' harness/x.mjs", "echo a | sed 's/a/b/'", 'perl -ne "print if /x/" f', 'echo "sed -i s/a/b/ f"', 'grep -i foo f']) assert.equal(id(cmd), null, cmd);
+});
+
+test('an ffmpeg proxy for footage points at vawe footage add', () => {
+  for (const cmd of ['ffmpeg -i in.mov -g 1 -c:v libx264 films/a/footage/in.mp4', 'ffmpeg -i in.mov -intra out.mp4']) assert.equal(id(cmd), 'proxy', cmd);
+});
+
+test('an ffmpeg call no verb covers gets no advice', () => {
+  for (const cmd of ['ffmpeg -i a.mp4 -c copy b.mp4', 'ffmpeg -i a.mp4 -vn -ar 48000 a.wav', 'ffmpeg -i a.mp4 -g 30 b.mp4']) assert.equal(id(cmd), null, cmd);
+});
+
+test('a sleep with a variable length points at vawe wait', () => {
+  assert.equal(id('sleep $DELAY'), 'wait');
+  assert.equal(id('echo sleep $DELAY'), null);
+  assert.equal(id('sleep'), null);
+});

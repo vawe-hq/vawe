@@ -1,6 +1,6 @@
 // One log entry and one last output line per `bin/vawe` call. Pure: bin/vawe owns the process and the clock.
 import fs from 'node:fs';
-import { filmKeyOf, namedAgent, agentId } from './runlog.mjs';
+import { filmKeyOf, namedAgent, agentId, modelId } from './runlog.mjs';
 import { EXIT, EXIT_CAUSE, BROWSER_LOST } from './exit-codes.mjs';
 
 export const UNFILED = '_unfiled';
@@ -47,6 +47,15 @@ export function causeOf(reason, code) {
   if (code === EXIT.BROWSER && hit && hit[1] !== 'killed') return hit[1];
   if (EXIT_CAUSE[code]) return EXIT_CAUSE[code];
   return hit ? hit[1] : String(reason ?? 'unknown').replace(/^exit \d+: /, '').replace(/\d+(\.\d+)?/g, '#').slice(0, 50);
+}
+
+const TAGGED_VERBS = new Set(['dev', 'critique', 'ship']);
+
+/** The stderr line for a dev, critique or ship call that names no agent or no model (the run log needs both to tell agents apart), else null. Pure. */
+export function untaggedLine(verb, env = process.env) {
+  if (!TAGGED_VERBS.has(verb)) return null;
+  const unset = [!namedAgent(agentId(env)) && 'VAWE_AGENT', !modelId(env) && 'VAWE_MODEL'].filter(Boolean);
+  return unset.length ? `vawe: ${unset.join(' and ')} not set, so the run log cannot tell this call from another agent's; export VAWE_AGENT=<name> VAWE_MODEL=<model>` : null;
 }
 
 const tenths = (s) => Math.round(s * 10) / 10;

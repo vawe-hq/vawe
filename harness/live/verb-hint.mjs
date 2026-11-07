@@ -4,7 +4,7 @@
 // Settings: matcher "Bash", command "node harness/live/verb-hint.mjs" (run from the repo root).
 import fs from 'node:fs';
 import { scratch } from '../lib/scratch.mjs';
-import { POLL } from '../lib/shell-match.mjs';
+import { POLL, VAWE_PIPED, INPLACE_EDIT } from '../lib/shell-match.mjs';
 
 const HINT_EVERY_MS = 30 * 60 * 1000;
 
@@ -13,6 +13,9 @@ export const RULES = [
   { id: 'shot', legacy: /bin\/vawe shot <route\|url\|page\.html> --w 1440,390/, test: /puppeteer|--screenshot=|playwright/, say: 'bin/vawe new --from-url <route|url|page.html> --w 1440,390 [--full] takes site and page screenshots at several widths (lazy images loaded, the dev server started and stopped for you, page errors and sideways overflow reported); bin/vawe new <name> --from-url <url> also starts a film from the site; do not write a screenshot script; to read the box, opacity and transform of an element at a second, bin/vawe see <page> --probe --sel <css> --at s' },
   { id: 'links', legacy: /for one page, bin\/vawe shot <route>/, test: /curl\b[^\n]*(%\{http_code\}|-w\b|-I\b)/, say: 'bin/vawe-dev check links [--base https://vawe.dev] crawls the site and lists broken links, redirects and dead #anchors with the page that links to each; for one page, bin/vawe new --from-url <route>' },
   { id: 'wait', test: POLL, say: 'bin/vawe wait <page|film> (for example bin/vawe wait films/my-launch/page.html, or bin/vawe wait my-launch) waits for a running draft, clip or final render and prints its result line; it returns after about 3.5 minutes with a STILL RUNNING line and a progress line a minute, so call it again; do not poll a render with sleep or ps' },
+  { id: 'pipe', plain: true, test: VAWE_PIPED, say: 'a pipe into tail, head or grep hides the exit code of bin/vawe; run it alone and read its last line, vawe: <verb> ok|FAILED (<reason>); for flags, bin/vawe <verb> --help' },
+  { id: 'edit', plain: true, test: INPLACE_EDIT, say: 'sed -i and perl -pi change a file silently when the old text is missing (and macOS sed -i needs an empty suffix); the Edit tool fails when the old text is missing' },
+  { id: 'proxy', test: /ffmpeg\b[^\n]*(?:\bfootage\/|\s-g\s+1\b|\s-intra\b)/, say: 'bin/vawe footage add <film> <clips> makes seekable proxies in films/<film>/footage/, and bin/vawe footage log writes footage.md (shots, contact sheet, transcript)' },
   { id: 'sheet', legacy: /bin\/vawe sheet <page\|mp4> --at s,s,s makes a labelled sheet/, test: /ffmpeg\b[^\n]*(tile=|xstack|hstack|vstack|select='?not\(mod)/, say: 'bin/vawe frame <page|mp4> --at s,s,s makes a labelled sheet of seconds; bin/vawe frame <page|mp4> --moment s shows one moment; bin/vawe frame <page|mp4> --vs <ref.mp4> puts a reference beside your frames' },
   { id: 'still', legacy: /bin\/vawe still <page\|mp4> --at s writes one exact/, test: /ffmpeg\b[^\n]*-ss\s+[\d.$]+[^\n]*(-frames:v|-vframes)\s+1/, say: 'bin/vawe frame <page|mp4> --at s writes one exact full-size frame (a page renders at its final size)' },
 ];
@@ -36,7 +39,7 @@ function main() {
       const stamps = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : {};
       if (recentlyNamed(stamps, hint.id, Date.now())) return;
       fs.writeFileSync(file, JSON.stringify({ ...stamps, [hint.id]: Date.now() }));
-      process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext: `vawe has a verb for this: ${hint.say}. The command runs anyway.` } }));
+      process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext: `${hint.plain ? 'Note' : 'vawe has a verb for this'}: ${hint.say}. The command runs anyway.` } }));
     } catch { /* a hook never fails the tool call */ }
   });
 }

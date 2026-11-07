@@ -9,8 +9,14 @@ export const bare = (cmd) => withoutHeredocs(cmd).replace(/"(?:[^"\\]|\\.)*"|'[^
 /** A regex for `name` at command position: after a separator, `do`, `then`, `else` or `!`, past env assignments and a path. */
 export const atCommand = (name, after = '\\s') => new RegExp(`(?:^|[\\n;&|(\`]\\s*(?:!\\s*)?|\\$\\(|\\b(?:do|then|else)\\s+)(?:[A-Z_]+=\\S+\\s+)*(?:\\S*/)?${name}${after}`);
 
-export const SLEEP = atCommand('sleep', '\\s+\\d');
+export const SLEEP = atCommand('sleep', '\\s+[\\d$]');
 export const PS_POLL = atCommand('(?:ps\\s+(?:aux|-[a-zA-Z]+)|pgrep)', '\\b');
+
+/** A `bin/vawe` call whose output goes into tail, head or grep: the pipe hides the exit code. */
+export const VAWE_PIPED = { test: (cmd) => atCommand('vawe(?:-dev)?', '\\s(?:2>&1|[^\\n|;&])*\\|\\s*(?:tail|head|grep|egrep)\\b').test(bare(cmd)) };
+
+/** An in-place edit with sed or perl. */
+export const INPLACE_EDIT = { test: (cmd) => [atCommand('sed', '\\s+(?:-[A-Za-z]+\\s+)*(?:-i|--in-place)'), atCommand('perl', '\\s+(?:-\\S+\\s+)*-[a-zA-Z]*i')].some((re) => re.test(bare(cmd))) };
 
 const LOOP = /\b(?:until|while)\b/;
 const JOB_NAME = /\b(?:vawe|chrome|ffmpeg|render|draft|films?)\b/i;

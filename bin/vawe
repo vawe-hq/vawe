@@ -14,7 +14,7 @@ import { newFilm, newFilmLines, readDetails, questionsJson, gatherFootage } from
 import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
 import { pageDigest } from '../harness/lib/approval.mjs';
-import { verbEvent, footerLine, filmOfCall, imagesIn, reasonOf, readNotes, causeOf, refusalOf, UNFILED } from '../harness/lib/verb-log.mjs';
+import { verbEvent, footerLine, untaggedLine, filmOfCall, imagesIn, reasonOf, readNotes, causeOf, refusalOf, UNFILED } from '../harness/lib/verb-log.mjs';
 import { defaultRefFor } from '../harness/lib/refs.mjs';
 import { nextStep, recentPage } from '../harness/live/stage-say.mjs';
 import { verbStage } from '../harness/lib/trace/stages.mjs';
@@ -212,6 +212,8 @@ async function main(args) {
     record(verb, rest, { ...bareCall(), help: true, positional: rest.filter((a) => !a.startsWith('-')) }, 0, null, Date.now(), alias);
     return console.log(verbHelp(verb));
   }
+  const untagged = untaggedLine(verb.name);
+  if (untagged) console.error(untagged);
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-verb-'));
   const call = { ...bareCall(), notes: path.join(dir, 'notes.jsonl') };
   let code = 0;

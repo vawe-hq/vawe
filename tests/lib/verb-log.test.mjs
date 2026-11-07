@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { filmOfCall, imagesIn, reasonOf, causeOf, verbEvent, footerLine, verbRanSince, noteVerb, readNotes, UNFILED } from '../../harness/lib/verb-log.mjs';
+import { filmOfCall, imagesIn, reasonOf, causeOf, verbEvent, footerLine, untaggedLine, verbRanSince, noteVerb, readNotes, UNFILED } from '../../harness/lib/verb-log.mjs';
 import { refCard, flashShots } from '../../harness/lib/ref-card.mjs';
 
 test('filmOfCall names the film from the page or mp4, a new film from its name, else _unfiled', () => {
@@ -92,4 +92,15 @@ test('a detached job writing a note after the verb removed its notes dir does no
   fs.rmSync(dir, { recursive: true, force: true });
   const code = await new Promise((r) => child.on('exit', r));
   assert.equal(code, 0);
+});
+
+test('dev, critique and ship warn when VAWE_AGENT or VAWE_MODEL is unset, and not when both are set', () => {
+  for (const verb of ['dev', 'critique', 'ship']) assert.match(untaggedLine(verb, {}), /VAWE_AGENT and VAWE_MODEL not set/);
+  assert.match(untaggedLine('dev', { VAWE_MODEL: 'sonnet' }), /^vawe: VAWE_AGENT not set/);
+  assert.match(untaggedLine('dev', { VAWE_AGENT: 'a' }), /^vawe: VAWE_MODEL not set/);
+  assert.equal(untaggedLine('dev', { VAWE_AGENT: 'a', VAWE_MODEL: 'm' }), null);
+});
+
+test('a verb that is not dev, critique or ship never warns about the agent tag', () => {
+  for (const verb of ['frame', 'see', 'wait', 'new']) assert.equal(untaggedLine(verb, {}), null);
 });
