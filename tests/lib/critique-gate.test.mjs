@@ -104,9 +104,9 @@ const runGate = (unattended) => {
   return r;
 };
 
-test('the ship gate script prints every refusal with its command and exits 1', () => {
+test('the ship gate script prints every refusal with its command and exits 6', () => {
   const r = runGate('');
-  assert.equal(r.status, 1);
+  assert.equal(r.status, 6);
   const lines = r.stderr.trim().split('\n');
   assert.equal(lines.length, 2);
   assert.match(lines[0], /^vawe: ship refused: no fresh review of the current page.*bin\/vawe critique films\/examples\/colour-sting\/page\.html$/);

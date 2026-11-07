@@ -6,6 +6,7 @@ import os from 'node:os';
 import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { isUrl } from '../harness/lib/url.mjs';
+import { EXIT, ExitError } from '../harness/lib/exit-codes.mjs';
 import { closest, parseArgs, topHelp, UsageError, verbHelp } from '../harness/cli/parse.mjs';
 import { ALIASES, DEV_ALIASES, aliasNotice, aliasKey } from '../harness/cli/aliases.mjs';
 import { VERBS, ALIAS_TARGETS, siteStep, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
@@ -30,10 +31,10 @@ const MAX_SCAN = 4_000_000;
 
 function requireFiles(verb, values, positional) {
   (verb.positional || []).forEach((p, i) => {
-    if (p.kind === 'file' && !(p.remote && isUrl(positional[i])) && positional[i] && !fs.existsSync(positional[i])) throw new UsageError(`no such ${p.name}: ${positional[i]}`);
+    if (p.kind === 'file' && !(p.remote && isUrl(positional[i])) && positional[i] && !fs.existsSync(positional[i])) throw new ExitError(EXIT.IO, `no such ${p.name}: ${positional[i]}`);
   });
   for (const f of verb.flags || []) {
-    if (f.kind === 'file' && values[f.name] && !fs.existsSync(values[f.name])) throw new UsageError(`no such file for --${f.name}: ${values[f.name]}`);
+    if (f.kind === 'file' && values[f.name] && !fs.existsSync(values[f.name])) throw new ExitError(EXIT.IO, `no such file for --${f.name}: ${values[f.name]}`);
   }
   verb.exists?.(values, positional);
 }
@@ -170,7 +171,7 @@ async function runDevAlias(name, rest) {
   const { code, signal } = await runStep({ node: [path.join(ROOT, 'bin', 'vawe-dev'), name, ...rest], env: { VAWE_LOGGED: '1' } }, call);
   const endMs = Date.now();
   const reason = code === 0 ? null : reasonOf({ code, signal, stderr: call.stderr });
-  call.usage = code === 2;
+  call.usage = code === EXIT.USAGE;
   record({ name }, rest, call, code, reason, endMs, name);
   if (!quietFooter(rest)) console.log(footerLine({ verb: name, code, reason, seconds: (endMs - call.startMs) / 1000 }));
   process.exitCode = code;
@@ -188,9 +189,9 @@ async function main(args) {
     } catch (e) {
       if (!(e instanceof UsageError)) throw e;
       console.error(`vawe: ${e.message}`);
-      console.log(footerLine({ verb: alias, code: 2, reason: e.message, seconds: 0 }));
-      record({ name: alias }, rest, { ...bareCall(), usage: true }, 2, e.message, Date.now(), alias);
-      process.exitCode = 2;
+      console.log(footerLine({ verb: alias, code: EXIT.USAGE, reason: e.message, seconds: 0 }));
+      record({ name: alias }, rest, { ...bareCall(), usage: true }, EXIT.USAGE, e.message, Date.now(), alias);
+      process.exitCode = EXIT.USAGE;
       return;
     }
     announceAlias(alias, [name, ...rest]);
@@ -202,9 +203,9 @@ async function main(args) {
     const stale = staleNote(commitsBehind((args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })));
     const message = `unknown verb ${name}; valid: ${VERBS.map((v) => v.name).join(' ')}${guess ? `; did you mean ${guess}?` : ''}${stale ? `; ${stale}` : ''}`;
     console.error(`vawe: ${message}`);
-    console.log(footerLine({ verb: name, code: 2, reason: `unknown verb ${name}`, seconds: 0 }));
-    record({ name }, rest, { ...bareCall(), usage: true }, 2, `unknown verb ${name}`, Date.now());
-    process.exitCode = 2;
+    console.log(footerLine({ verb: name, code: EXIT.USAGE, reason: `unknown verb ${name}`, seconds: 0 }));
+    record({ name }, rest, { ...bareCall(), usage: true }, EXIT.USAGE, `unknown verb ${name}`, Date.now());
+    process.exitCode = EXIT.USAGE;
     return;
   }
   if (rest.includes('--help') || rest.includes('-h')) {
@@ -220,16 +221,17 @@ async function main(args) {
     if (code !== 0) reason = reasonOf({ code, signal: call.signal, stderr: call.stderr });
     const fix = code !== 0 && verb.fix ? verb.fix(reason, call.positional) : null;
     if (fix) console.error(`fix: ${fix}`);
-    if (code !== 0 && causeOf(reason) === 'browser lost') {
+    if (code !== 0 && causeOf(reason, code) === 'browser lost') {
       const { browserLog } = await import('../harness/media/preview-server.mjs');
       for (const log of [browserLog(true), browserLog(false)].filter((f) => fs.existsSync(f))) console.error(`Chrome log (why the browser was lost): ${log}`);
     }
   } catch (e) {
+    const known = e instanceof ExitError;
     call.usage = e instanceof UsageError;
-    code = e instanceof UsageError ? 2 : 1;
-    reason = e instanceof UsageError ? e.message : `exit 1: ${e.message}`;
-    console.error(e instanceof UsageError ? `vawe: ${e.message}` : e.stack);
-    const hint = e instanceof UsageError ? null : doctorHintFromFile(ROOT, String(e.stack));
+    code = known ? e.exitCode : EXIT.ERROR;
+    reason = known ? e.message : `exit 1: ${e.message}`;
+    console.error(known ? `vawe: ${e.message}` : e.stack);
+    const hint = known ? null : doctorHintFromFile(ROOT, String(e.stack));
     if (hint) console.error(hint);
   }
   const endMs = Date.now();

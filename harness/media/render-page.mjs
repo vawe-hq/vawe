@@ -100,6 +100,7 @@ import { measureDraftShape, overshootLine, rangeLines } from '../lib/draft-range
 import { groundHueLines, GROUND_HUE } from '../lib/ground-hue.mjs';
 import { namedRef, refsDir, refGround } from '../lib/refs.mjs';
 import { adviceBlock, errorLine } from '../lib/advice.mjs';
+import { EXIT, ExitError, exitCodeOf, fail } from '../lib/exit-codes.mjs';
 import { edgeTravelDeltas } from '../lib/edge-travel.mjs';
 import { textCollisionLines } from '../lib/text-collision.mjs';
 import { contrastLines, unwaivedContrast } from '../lib/text-contrast.mjs';
@@ -163,7 +164,7 @@ async function captureShot(page, shot, stats = null) {
   return bytes;
 }
 
-const die = (msg, code = 1) => { console.error(errorLine(msg)); process.exit(code); };
+const die = (msg, code = EXIT.ERROR) => fail(code, errorLine(msg));
 
 // Page meta the renderer needs before the page loads (its canvas, its authoring rate), read from the
 // file so the viewport is right before any page script runs.
@@ -483,8 +484,8 @@ async function runShards(pagePath, frame, frames, workers, work, run) {
         const stall = e instanceof StallError;
         if (!stall && !LOST_PAGE.test(String(e && e.message))) throw e;
         if (attempt === SLICE_ATTEMPTS) {
-          if (stall) throw new InvariantError([`${e.message}, ${SLICE_ATTEMPTS} times on slice ${range(slice)}`]);
-          throw new InvariantError([`slice ${slice[0]}-${slice[1]} (${range(slice)}) lost its page ${SLICE_ATTEMPTS} times: another process closed the shared browser, or the page crashed (${e.message})`]);
+          if (stall) throw new InvariantError([`${e.message}, ${SLICE_ATTEMPTS} times on slice ${range(slice)}`], EXIT.BROWSER);
+          throw new InvariantError([`slice ${slice[0]}-${slice[1]} (${range(slice)}) lost its page ${SLICE_ATTEMPTS} times: another process closed the shared browser, or the page crashed (${e.message})`], EXIT.BROWSER);
         }
         console.error(`${stall ? e.message : `slice ${range(slice)} lost its page (${e.message})`}; retrying slice ${range(slice)} on a fresh page (attempt ${attempt + 1} of ${SLICE_ATTEMPTS})`);
         restarted.push(range(slice));
@@ -662,12 +663,14 @@ export function costLines({ kArr, reused, fps, from, prepassMs, captureMs, encod
 }
 
 // Render invariants. Each check returns one line per problem; renderPage throws them together as an
-// InvariantError and the CLI prints `error: <line>` for each and exits 2. An intended exception is declared
+// InvariantError and the CLI prints `error: <line>` for each and exits 3 (4 when the browser was lost). An intended exception is declared
 // on the page: <meta name="blank" content="0-0.4, 4.8-5"> (or data-blank on <html>) for empty frames.
-export class RenderError extends Error {}
+export class RenderError extends ExitError {
+  constructor(message, exitCode = EXIT.CONTRACT) { super(exitCode, message); }
+}
 
-export class InvariantError extends Error {
-  constructor(problems) { super(problems.join('\n')); this.problems = problems; }
+export class InvariantError extends ExitError {
+  constructor(problems, exitCode = EXIT.CONTRACT) { super(exitCode, problems.join('\n')); this.problems = problems; }
 }
 
 const BLANK_RANGE_MAX = 6;
@@ -798,7 +801,7 @@ export function resolveFrame(pagePath, { aspect, w, h, final = false } = {}) {
 // (harness/media/page-audio.mjs). Returns false when the page has no <audio> and none was demanded.
 async function muxPageAudio(read, pagePath, { video, out, duration, explicit, fault }) {
   if (!read) {
-    if (explicit) throw new RenderError(`${pagePath}: --audio given but the page has no <audio> element`);
+    if (explicit) throw new RenderError(`${pagePath}: --audio given but the page has no <audio> element`, EXIT.USAGE);
     return false;
   }
   let audio;
@@ -823,12 +826,12 @@ async function muxPageAudio(read, pagePath, { video, out, duration, explicit, fa
  */
 export async function renderPage(pagePath, outPath, opts = {}) {
   const { fps = 30, blur = 1, durArg = null, from = 0, progress = false, final = false } = opts;
-  if (!fs.existsSync(pagePath)) throw new RenderError(`no such file: ${pagePath}`);
+  if (!fs.existsSync(pagePath)) throw new RenderError(`no such file: ${pagePath}`, EXIT.IO);
   const canvas = resolveFrame(pagePath, opts);
   const length = await resolveLength(pagePath, canvas).catch((e) => { throw e instanceof DurationError ? new RenderError(e.message) : e; });
   const frame = length.auto ? { ...canvas, duration: length.seconds } : canvas;
   const wantAudio = opts.audio ?? (from === 0 && durArg == null);
-  if (opts.audio && from > 0) throw new RenderError('--audio needs a render from 0: the mix has no offset');
+  if (opts.audio && from > 0) throw new RenderError('--audio needs a render from 0: the mix has no offset', EXIT.USAGE);
   const phases = createPhaseTimer();
   const startS = process.uptime();
   const slot = await phases.time('slot', () => takeRenderSlot({ kind: process.env.VAWE_RENDER_KIND || (final ? 'final' : 'draft'), who: filmKeyOf(pagePath) }));
@@ -902,10 +905,10 @@ export async function renderPage(pagePath, outPath, opts = {}) {
     if (res.status !== 0 || res.error) {
       fs.rmSync(tmpOut, { force: true });
       throw new RenderError(`ffmpeg encode failed (${res.error ? res.error.message : `exit ${res.status}`}):\n`
-        + `${(res.stderr || '').trim().split('\n').slice(-15).join('\n')}`);
+        + `${(res.stderr || '').trim().split('\n').slice(-15).join('\n')}`, EXIT.IO);
     }
     if (!fs.existsSync(tmpOut) || fs.statSync(tmpOut).size === 0) {
-      throw new RenderError(`ffmpeg reported success but wrote no bytes to ${tmpOut}; stderr:\n${(res.stderr || '').trim()}`);
+      throw new RenderError(`ffmpeg reported success but wrote no bytes to ${tmpOut}; stderr:\n${(res.stderr || '').trim()}`, EXIT.IO);
     }
     const late = await phases.time('verify', async () => {
       const stats = probeStats(tmpOut);
@@ -939,7 +942,7 @@ export async function renderPage(pagePath, outPath, opts = {}) {
       if (webRes.status !== 0 || webRes.error) {
         fs.rmSync(tmpWeb, { force: true });
         throw new RenderError(`ffmpeg web copy failed, the master ${outPath} is complete (${webRes.error ? webRes.error.message : `exit ${webRes.status}`}):\n`
-          + `${(webRes.stderr || '').trim().split('\n').slice(-15).join('\n')}`);
+          + `${(webRes.stderr || '').trim().split('\n').slice(-15).join('\n')}`, EXIT.IO);
       }
       await place(tmpWeb, webPath);
     }
@@ -985,7 +988,7 @@ export function assertFinalReady(pagePath) {
   if (isWaived(pageAuthoring(pagePath), code)) return;
   throw new RenderError(`${pagePath}: FINAL render refused, no passing required-motion-match for this page's current `
     + `content. Run: vawe critique ${pagePath} --ref ${ref}\n`
-    + `Waivable only in the page: ${waiverHint(code)}`);
+    + `Waivable only in the page: ${waiverHint(code)}`, EXIT.REFUSED);
 }
 
 // A final writes two files: the master (x264, dithered) and next to it a small web copy (AV1 10-bit).
@@ -1211,9 +1214,9 @@ async function main() {
   const [pagePath, outArg] = positional;
   if (!pagePath) {
     die('usage: node harness/media/render-page.mjs <page.html> [out.mp4] [--aspect W:H|all] [--fps N] '
-      + '[--from s] [--dur s | --to s] [--blur N] [--w px] [--h px] [--workers N] [--final] [--silent] [--small] [--profile] [--fast | --full] [--taste] [--next cmd]', 2);
+      + '[--from s] [--dur s | --to s] [--blur N] [--w px] [--h px] [--workers N] [--final] [--silent] [--small] [--profile] [--fast | --full] [--taste] [--next cmd]', EXIT.USAGE);
   }
-  if (!fs.existsSync(pagePath)) die(`no such file: ${pagePath}`);
+  if (!fs.existsSync(pagePath)) die(`no such file: ${pagePath}`, EXIT.IO);
   ensurePageFonts(pagePath);
   const drift = briefProblems(pagePath);
   if (drift.length) console.error(adviceBlock(drift.map((p) => `${p}; the render uses the page: update the brief's length and aspect lines to match`)).join('\n'));
@@ -1230,7 +1233,7 @@ async function main() {
   const aspectFlag = flag('--aspect', null);
   const all = aspectFlag === 'all';
   const aspects = all ? Object.keys(ASPECTS) : [aspectFlag || aspectOverride() || readPageMeta(pagePath, 'aspect') || '16:9'];
-  if (all && outArg) die('--aspect all writes one file per aspect: leave out the output path', 2);
+  if (all && outArg) die('--aspect all writes one file per aspect: leave out the output path', EXIT.USAGE);
   for (const aspect of aspects) {
     const opts = {
       aspect, final,
@@ -1255,12 +1258,12 @@ async function main() {
       if (!final) logDevFailure(String((e.problems || [e.message])[0]).split('\n')[0]);
       if (e instanceof RenderError) {
         if (final) reportFailedFinal(pagePath, e, argv.includes('--job'));
-        die(e.message);
+        die(e.message, e.exitCode);
       }
       if (!(e instanceof InvariantError) && !final) throw e;
       for (const p of e.problems || [e.stack || String(e)]) console.error(errorLine(p));
       if (final) reportFailedFinal(pagePath, e, argv.includes('--job'));
-      process.exit(2);
+      process.exit(e.exitCode ?? exitCodeOf(e));
     });
     if (!final) console.log([...lengthLines(r.length, pagePath), masterLine(r)].join('\n'));
     if (argv.includes('--lock-length')) console.log(lockPageLength(pagePath, r.length));
@@ -1274,4 +1277,4 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => die(e instanceof RenderError ? e.message : e.stack || String(e)));
+if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => die(e instanceof RenderError ? e.message : e.stack || String(e), exitCodeOf(e)));

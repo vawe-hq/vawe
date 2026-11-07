@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UsageError } from './parse.mjs';
+import { EXIT, ExitError } from '../lib/exit-codes.mjs';
 import { opt, needsPage, pageName } from './helpers.mjs';
 import { isUrl } from '../lib/url.mjs';
 import { compareProblem, CUTS } from '../media/compare-frames.mjs';
@@ -137,8 +138,8 @@ function requireFiles(v0, [input]) {
   const v = withVs(v0);
   const mode = modeOf(v);
   const found = ['cuts', 'moment', 'crop'].includes(mode) || (mode === 'still' && isUrl(input)) || fs.existsSync(input);
-  if (!found) throw new UsageError(`no such ${mode === 'sheet' ? 'page, mp4 or folder' : mode === 'still' ? 'page or mp4' : 'page'}: ${input}`);
-  if (mode === 'sheet' && v.vs && !fs.existsSync(v.vs)) throw new UsageError(`no such file for --vs: ${v.vs}`);
+  if (!found) throw new ExitError(EXIT.IO, `no such ${mode === 'sheet' ? 'page, mp4 or folder' : mode === 'still' ? 'page or mp4' : 'page'}: ${input}`);
+  if (mode === 'sheet' && v.vs && !fs.existsSync(v.vs)) throw new ExitError(EXIT.IO, `no such file for --vs: ${v.vs}`);
 }
 
 function stepsOf(v0, [input]) {

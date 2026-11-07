@@ -110,7 +110,7 @@ function failedLines(events) {
   const failures = events.filter((e) => (e.cmd === 'verb' && e.exitCode) || (e.cmd === 'ship' && e.verdict === 'failed'));
   if (!failures.length) return ['what failed: nothing'];
   const causes = new Map();
-  for (const e of failures) causes.set(causeOf(e.error), [...(causes.get(causeOf(e.error)) ?? []), e]);
+  for (const e of failures) causes.set(causeOf(e.error, e.exitCode), [...(causes.get(causeOf(e.error, e.exitCode)) ?? []), e]);
   const groups = [...causes].sort((a, b) => b[1].length - a[1].length).slice(0, 5);
   const last = failures.at(-1);
   return [`what failed: ${failures.length} of ${events.filter((e) => e.cmd === 'verb').length} verb calls`,

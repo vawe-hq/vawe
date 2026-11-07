@@ -27,6 +27,7 @@ import { doneLines, shipVerdict, SHIP_JOBS_DIR, jobLogPath, finalFailure, failed
 import { appendRun, filmKeyOf } from '../lib/runlog.mjs';
 import { waitForFilm, WAIT_CAP_DEFAULT_MS, stillRunningLine, waitExitCode } from '../lib/render-wait.mjs';
 import { shipEvent } from '../lib/run-events.mjs';
+import { EXIT, fail } from '../lib/exit-codes.mjs';
 import { finalAcceptance, lastPageFacts } from './acceptance-run.mjs';
 import { transition, isTerminal, runnerLost } from '../lib/job-state.mjs';
 
@@ -46,7 +47,7 @@ const writeJob = (job) => {
   fs.renameSync(tmp, stateFile(job.id));
 };
 
-const die = (msg) => { console.error(`ship: ${msg}`); process.exit(2); };
+const die = (msg, code = EXIT.USAGE) => fail(code, `ship: ${msg}`);
 const pidAlive = (pid) => { try { process.kill(pid, 0); return true; } catch { return false; } };
 const clock = (ms) => `${Math.round(ms / 1000)}s`;
 
@@ -67,7 +68,7 @@ function cancelRunning(page) {
 }
 
 function startJob(page, renderArgs) {
-  if (!fs.existsSync(page)) die(`no such page: ${page}`);
+  if (!fs.existsSync(page)) die(`no such page: ${page}`, EXIT.IO);
   const query = pageQuery().slice(1);
   cancelRunning(page);
   const name = jobFilm(page);
@@ -218,8 +219,8 @@ const resolveTarget = (arg) => (arg && fs.existsSync(arg) && arg.endsWith('.html
 
 function statusOf(id) {
   const target = resolveTarget(id);
-  if (!target) die('no ship job yet: start one with vawe ship <page>');
-  if (!fs.existsSync(stateFile(target))) die(`no such job: ${target}`);
+  if (!target) die('no ship job yet: start one with vawe ship <page>', EXIT.IO);
+  if (!fs.existsSync(stateFile(target))) die(`no such job: ${target}`, EXIT.IO);
   const job = readJob(target);
   const text = logText(job);
   if (isTerminal(job.status)) return finalLines(job, text);

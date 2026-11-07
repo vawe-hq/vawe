@@ -1,6 +1,7 @@
 // One log entry and one last output line per `bin/vawe` call. Pure: bin/vawe owns the process and the clock.
 import fs from 'node:fs';
 import { filmKeyOf, namedAgent, agentId } from './runlog.mjs';
+import { EXIT, EXIT_CAUSE, BROWSER_LOST } from './exit-codes.mjs';
 
 export const UNFILED = '_unfiled';
 const IMAGE = /(?:^|[\s(`"'=])((?:~\/|\/|\.\/|[\w.-]+\/)[^\s`"')|]*\.(?:png|jpe?g|webp))(?=$|[\s)`"'|,;:])/gi;
@@ -35,14 +36,16 @@ export function reasonOf({ code, signal, stderr = '' }) {
 
 const CAUSES = [
   [/render slot|Navigation timeout/i, 'render slot or navigation timeout'],
-  [/detached Frame|Target closed|shared browser|lost its page|Protocol error \([^)]*\): (Target|Session|Connection) closed|protocolTimeout/i, 'browser lost'],
+  [BROWSER_LOST, 'browser lost'],
   [/killed by|exit 137/i, 'killed'],
   [/no such|missing|usage|unknown verb|not a valid|needs --/i, 'bad arguments'],
 ];
 
-/** A short key that groups failures of one cause. */
-export function causeOf(reason) {
+/** A short key that groups failures of one cause: the exit code names it, the reason text only for a call that exited 1 or was logged before the codes. */
+export function causeOf(reason, code) {
   const hit = CAUSES.find(([re]) => re.test(reason ?? ''));
+  if (code === EXIT.BROWSER && hit && hit[1] !== 'killed') return hit[1];
+  if (EXIT_CAUSE[code]) return EXIT_CAUSE[code];
   return hit ? hit[1] : String(reason ?? 'unknown').replace(/^exit \d+: /, '').replace(/\d+(\.\d+)?/g, '#').slice(0, 50);
 }
 

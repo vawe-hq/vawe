@@ -182,9 +182,9 @@ test('an unattended run needs no approval', () => {
   assert.equal('unattended' in verbEvent({ ...base, env: {} }), false);
 });
 
-test('bin/vawe ship refuses with exit 1 and no render when nothing is approved', () => {
+test('bin/vawe ship refuses with exit 6 and no render when nothing is approved', () => {
   const r = spawnSync('node', ['harness/live/ship-approval.mjs', 'films/examples/colour-sting/page.html'], { cwd: REPO, encoding: 'utf8', env: { ...process.env, VAWE_UNATTENDED: '' } });
-  assert.equal(r.status, 1);
+  assert.equal(r.status, 6);
   assert.match(r.stderr, /ship refused: waiting for the person's OK on the plan of colour-sting/);
 });
 

@@ -1,7 +1,11 @@
 // Argument parsing and help text for bin/vawe. A verb declares its flags once; this file parses,
 // validates and prints them, so a typo always ends in one line naming the valid flags.
 
-export class UsageError extends Error {}
+import { EXIT, EXIT_HELP, ExitError } from '../lib/exit-codes.mjs';
+
+export class UsageError extends ExitError {
+  constructor(message) { super(EXIT.USAGE, message); }
+}
 
 export function closest(word, options) {
   const dist = (a, b) => {
@@ -89,5 +93,5 @@ export function topHelp(verbs, { all = false } = {}) {
   const groups = shown.filter(([tier]) => verbs.some((v) => v.tier === tier)).flatMap(([tier, title]) => ['', `${title}:`, ...verbs.filter((v) => v.tier === tier).map(row)]);
   const hiddenCount = verbs.filter((v) => v.tier !== 'core').length;
   const hidden = all || !hiddenCount ? [] : ['', `${hiddenCount} more verbs: vawe --help --all`];
-  return ['vawe: one HTML page in, one film out.', '', 'usage: vawe <verb> [args]   (vawe <verb> --help for flags)', ...groups, ...hidden].join('\n');
+  return ['vawe: one HTML page in, one film out.', '', 'usage: vawe <verb> [args]   (vawe <verb> --help for flags)', ...groups, ...hidden, '', EXIT_HELP].join('\n');
 }

@@ -61,7 +61,7 @@ Set `VAWE_AGENT=<name>` (one per agent) and `VAWE_MODEL=<model>` in your shell: 
 - The shell is zsh: quote every glob and `?`, `grep --include='*.mjs'`, `curl 'x?a=b'` (unquoted: `no matches found`).
 - In a worktree a call with a heredoc, a `for` loop, a variable or `$(...)` is refused as "too complex to verify": one verb per call with literal arguments, the Write tool for any file, and plain `git` (no `git -C`).
 - Never `sleep`: wait with `bin/vawe wait <page>` for any render or critique (returns within about 3.5 minutes; on STILL RUNNING call it again; run it alone).
-- Every verb ends with `vawe: <verb> ok|FAILED (<reason>) in <s>s`: read that line, not a filtered tail.
+- Every verb ends with `vawe: <verb> ok|FAILED (<reason>) in <s>s`: read that line, not a filtered tail. The exit code names the cause: 2 bad flag or argument, 3 the page breaks the contract, 4 browser or render slot, 5 file or IO, 6 refused by a gate, 1 anything else (`harness/lib/exit-codes.mjs`).
 - One file per `cat` or `head`: a hook rewrites `cat a b` and it breaks.
 - A call over 120 s moves to the background and keeps its render slot: run `dev` alone, start a long render in the background yourself, and keep working.
 - Edit with a tool that fails when the old text is missing, never a silent replace.
