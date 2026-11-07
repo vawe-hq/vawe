@@ -22,7 +22,7 @@
 <script type="application/json" id="authoring">{"allow": ["text-unreadable-hold", "text-moves-before-hold", "static-window@3.0-5.5"], "_why": {"text-unreadable-hold": "two words held 2.7 s on a 6 s clip: a read of 2 words, and the check asks 5.4 s", "text-moves-before-hold": "the line leaves at 5.5 s, so it holds 2.7 s after landing, short of the 5.4 s the check asks", "static-window@3.0-5.5": "from 3.0 s the title holds still while read; only the footage's walker moves"}}</script>
 </head>
 <body>
-<video muted playsinline></video>
+<video src="/prompts/moves/demo/assets/mask-rise/walker.source.mp4" data-trim="0.4" muted playsinline></video>
 <canvas width="1920" height="1080"></canvas>
 <main class="scene">
   <h1 class="hero">
@@ -37,26 +37,15 @@ const root = document.documentElement.style;
 root.setProperty('--land', EASE.land);
 root.setProperty('--pop', EASE.pop);
 
-const FOOTAGE_START = 0.4;
 const video = document.querySelector('video');
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
-// a blob URL is fully seekable: the preview server does not answer range requests, and a streamed file clamps every seek to the start
-video.src = URL.createObjectURL(await (await fetch('/prompts/moves/demo/assets/mask-rise/walker.source.mp4')).blob());
-await new Promise((done) => (video.readyState >= 1 ? done() : video.addEventListener('loadedmetadata', done, { once: true })));
 
-// the footage is mirrored so she walks left to right
-function paint() {
+// the footage is mirrored so she walks left to right; the engine has already seeked the video
+window.vawe.onFrame(() => {
   ctx.setTransform(-1, 0, 0, 1, canvas.width, 0);
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-}
-window.seek = async (t) => {
-  const at = FOOTAGE_START + t;
-  if (Math.abs(video.currentTime - at) > 0.001) {
-    await new Promise((done) => { video.addEventListener('seeked', done, { once: true }); video.currentTime = at; });
-  }
-  paint();
-};
+});
 
 canvas.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, easing: 'linear', fill: 'both' });
 leave(document.querySelector('.scene'), 6000);

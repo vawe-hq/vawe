@@ -3,7 +3,7 @@
 // via toString(), so neither may reference anything outside its own body); the studio imports them and
 // calls seekTo(t, iframe.contentWindow), so a scrub and a render can never disagree about what time t means.
 
-// Seek film time `t` (seconds): set the virtual clock, call window.seek(t) when the page paints as a
+// Seek film time `t` (seconds): set the virtual clock, seek every <video> clip, call window.seek(t) when the page paints as a
 // function of time, seek every CSS/WAAPI/SMIL animation, then call every vawe.onFrame hook (awaited, so a
 // hook that decodes a texture or builds three.js geometry settles before a screenshot, when it returns a Promise).
 // With `layout` set, window.__layoutSeek is true while the hooks run: a pixel-only draw (core/surfaces/lens.js) skips itself, since a probe that reads boxes and text never sees pixels.
@@ -12,9 +12,32 @@ export async function seekTo(t, win = window, layout = false) {
   try {
     // A GSAP timeline has a then() that never settles, so only a native Promise is awaited; any other return value is ignored.
     const settle = async (result) => { if (Object.prototype.toString.call(result) === '[object Promise]') await result; };
+    // A <video> clip shows source second trim + (t - at) * rate, held at trim before data-at and at trim-end after it. It is never
+    // played: paused and driven by currentTime. `eps` stops a time exactly on a frame boundary rounding down to the frame before.
+    const seekVideos = async (timeoutMs = 10000) => {
+      const eps = 0.0005;
+      const setReal = win.__pageClock ? win.__pageClock.real.setTimeout : win.setTimeout.bind(win);
+      const clearReal = win.__pageClock ? win.__pageClock.real.clearTimeout : win.clearTimeout.bind(win);
+      const num = (v, name, fallback) => (v.hasAttribute(name) ? Number(v.getAttribute(name)) : fallback);
+      await Promise.all([...win.document.querySelectorAll('video')].map(async (v) => {
+        v.pause();
+        const trim = num(v, 'data-trim', 0);
+        const end = Math.min(num(v, 'data-trim-end', v.duration), v.duration);
+        const s = Math.min(Math.max(trim + (t - num(v, 'data-at', 0)) * num(v, 'data-rate', 1), trim) + eps, Math.max(trim, end - eps));
+        const land = () => new Promise((resolve, reject) => {
+          const timer = setReal(() => reject(new Error(`video seek to ${s.toFixed(3)} s did not finish in ${timeoutMs} ms: ${v.currentSrc || v.src}`)), timeoutMs);
+          v.addEventListener('seeked', () => { clearReal(timer); resolve(); }, { once: true });
+          v.currentTime = s;
+        });
+        // The first frame of a fresh page can come back blank; the renderer takes it again, so the first two seeks are never skipped.
+        v.__vaweSeeks = (v.__vaweSeeks || 0) + 1;
+        if (v.__vaweSeeks <= 2 || Math.abs(v.currentTime - s) > 0.0001 || v.seeking) await land();
+      }));
+    };
     if (win.__pageReady) await win.__pageReady();
     if (win.__pageFonts) await win.__pageFonts();
     if (win.__pageClock) win.__pageClock.set(t);
+    await seekVideos();
     if (typeof win.seek === 'function') await settle(win.seek(t));
     if (win.__pageFonts) await win.__pageFonts();
     const seen = win.__seekAnimations || (win.__seekAnimations = new Set());
@@ -103,8 +126,36 @@ export function installPageReady() {
 // pays for it once. Rejects naming what is pending after `timeoutMs`. Injected via toString(), so it references nothing outside its body.
 export async function awaitReady(timeoutMs = 10000) {
   if (window.__pageReadyDone) return;
-  const pending = window.__pagePending || (() => []);
+  const tracked = window.__pagePending || (() => []);
   const setReal = window.__pageClock ? window.__pageClock.real.setTimeout : setTimeout.bind(window);
+  const clearReal = window.__pageClock ? window.__pageClock.real.clearTimeout : clearTimeout.bind(window);
+  // A <video> is ready at HAVE_CURRENT_DATA, and warm once it has played a frame: a paused video seeked before that is, in 4 of 14
+  // fresh pages measured, never shown in the screenshot. A clip with preload="metadata" or "none" stops short of the first, so each is told to load.
+  const loaded = new WeakSet();
+  const warm = new WeakMap();
+  const warmUp = (v) => {
+    v.muted = true;
+    const frame = new Promise((resolve) => {
+      const guard = setReal(resolve, 2000);
+      v.requestVideoFrameCallback(() => { clearReal(guard); resolve(); });
+    });
+    return v.play().then(() => frame).catch(() => {}).finally(() => v.pause());
+  };
+  const pending = () => {
+    const waiting = tracked();
+    for (const v of window.document?.querySelectorAll('video') ?? []) {
+      if (v.error) throw new Error(`video failed to load: ${v.currentSrc || v.src} (${v.error.message || `media error ${v.error.code}`})`);
+      if (!(v.src || v.querySelector('source'))) continue;
+      if (v.readyState < 2) {
+        if (!loaded.has(v)) { loaded.add(v); v.preload = 'auto'; v.load(); }
+        waiting.push(`video ${v.currentSrc || v.src}`);
+      } else if (warm.get(v) !== 'done') {
+        if (!warm.has(v)) warm.set(v, 'running'), warmUp(v).then(() => warm.set(v, 'done'));
+        waiting.push(`video ${v.currentSrc || v.src} (first frame)`);
+      }
+    }
+    return waiting;
+  };
   const tick = (ms) => new Promise((resolve) => setReal(resolve, ms));
   const deadline = Date.now() + timeoutMs;
   for (;;) {

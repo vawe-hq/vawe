@@ -107,6 +107,7 @@ import { peakLine } from '../lib/peak-limit.mjs';
 import { balanceLines } from '../lib/cue-balance.mjs';
 import { bedLine } from '../lib/bed-motion.mjs';
 import { watchPageErrors, pageErrorLines } from '../lib/page-errors.mjs';
+import { readPageVideos } from './page-video.mjs';
 import { watchLoad, loadStallLines } from '../lib/load-stall.mjs';
 import { canvasCoversFrame, CANVAS_SHARE, DOM_PICTURE_CHECKS, canvasFilmNote } from '../lib/canvas-film.mjs';
 import { takeRenderSlot, slotsInUse } from '../lib/render-slots.mjs';
@@ -838,9 +839,12 @@ export async function renderPage(pagePath, outPath, opts = {}) {
   try {
     const audioRead = await phases.time('load', async () => {
       await gotoLoaded(page, url, pagePath);
+      const videos = await readPageVideos(page, pagePath);
+      if (videos.warnings.length) console.error(adviceBlock(videos.warnings).join('\n'));
+      if (videos.problems.length) throw new InvariantError(videos.problems.map((p) => `${pagePath}: ${p}`));
       try { await settle(page); } catch (e) {
         const msg = String(e.message).replace(/^.*?Error: /, '');
-        if (/^(font (still loading|failed)|page not ready)/.test(msg)) throw new InvariantError([msg]);
+        if (/^(font (still loading|failed)|page not ready|video failed)/.test(msg)) throw new InvariantError([msg]);
         throw e;
       }
       const read = await readAudio(page, pagePath, length.seconds);
