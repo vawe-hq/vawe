@@ -3,7 +3,11 @@
 // why when a new fix reverses an old one. Every item carries the rule id it traces to (taste/rules), and a
 // failing note of a rule that has an open item stays that item. A target is a rule id, else its "what". Each fix names what it changes, its value now and the value it
 // wants, so the next judge starts from numbers, and a target the judges move back and forth over three
-// rounds prints a stop line. Pure: harness/media/judge-fresh.mjs reads and writes the file.
+// rounds prints a stop line. mergeLedger is pure; commitLedger reads, merges and writes the file under a lock, so judge runs that overlap keep each other's items.
+
+import fs from 'node:fs';
+import { withFileLock } from './file-lock.mjs';
+import { writeFileAtomic } from './atomic-write.mjs';
 
 export const MARKS = ['fixed', 'partly', 'still', 'stale'];
 const CLOSED = ['fixed', 'stale'];
@@ -95,6 +99,23 @@ export function mergeLedger(prev, raw, fixes, notes = []) {
   }
   counts.new = fresh.length;
   return { items: [...carried, ...fresh], fixes: shown, counts, reversals: fresh.filter((i) => i.reverses) };
+}
+
+function readJson(file) {
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
+}
+
+/**
+ * Merges this run into the ledger file as one step: the read, the merge and the write hold the lock, so a run that
+ * finished meanwhile is read, not overwritten. Sets items, fixes and ledger on `result`, writes it, returns the merge.
+ */
+export async function commitLedger(file, raw, result) {
+  return withFileLock(`${file}.lock`, () => {
+    const led = mergeLedger(previousItems(readJson(file)), raw, result.fixes, result.notes);
+    Object.assign(result, { fixes: led.fixes, items: led.items, ledger: ledgerLines(led) });
+    writeFileAtomic(file, JSON.stringify(result, null, 1));
+    return led;
+  });
 }
 
 /** One stop line per target the judges moved back and forth over three or more rounds. */
