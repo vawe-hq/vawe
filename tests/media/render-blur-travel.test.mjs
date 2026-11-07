@@ -1,7 +1,16 @@
 // A fast move needs enough subframes that neighbours sit a few px apart, or it renders as ghost copies.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { subframesForTravel, SHUTTER } from '../../harness/media/render-page.mjs';
+import { subframesForTravel, SHUTTER, subframeRulesKey, prepassCacheFile } from '../../harness/media/render-page.mjs';
+
+test('the cached subframe counts are keyed by the rules that made them, so a change to a band is not served old counts', () => {
+  const rules = subframeRulesKey();
+  assert.equal(subframeRulesKey(), rules);
+  assert.ok(prepassCacheFile('abc').endsWith(`abc-${rules}.json`));
+  const bucket = (s, top) => (s < 0.15 ? 1 : top);
+  assert.notEqual(subframeRulesKey([(s) => bucket(s, 16)]), subframeRulesKey([(s) => bucket(s, 8)]));
+  assert.notEqual(subframeRulesKey(['{"PIXEL_BANDS":[0.15,1.5]}']), subframeRulesKey(['{"PIXEL_BANDS":[0.15,2]}']));
+});
 
 test('a still or slow frame keeps one subframe', () => {
   assert.equal(subframesForTravel(0, 16), 1);

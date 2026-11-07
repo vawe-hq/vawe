@@ -323,8 +323,15 @@ export function renderKey({ pagePath, frame, frames, fps, from, blur, draftVaria
   return createHash('sha1').update(JSON.stringify([treeSignature(files, { content: true }), path.resolve(pagePath), frame, frames, fps, from, blur, ...(draftVariant ? [draftVariant] : []), ...(query ? [query] : [])])).digest('hex').slice(0, 16);
 }
 
+/** A short hash of the code and numbers that turn a page's motion into subframe counts. */
+export const subframeRulesKey = (parts = [measureSubframes, frameSpeedsFromBoxes, frameSpeedsFromPixels, subframesForTravel, bucketize, clampSegments, JSON.stringify({ SHUTTER, STEP_PX, PIXEL_BANDS })]) =>
+  createHash('sha1').update(parts.map(String).join('\n')).digest('hex').slice(0, 8);
+
+// The counts also depend on rules in this file, which renderKey does not cover (it hashes the page and core/ only).
+export const prepassCacheFile = (key) => scratch('render-prepass', `${key}-${subframeRulesKey()}.json`);
+
 async function frameSubframes(page, job, key) {
-  const cacheFile = scratch('render-prepass', `${key}.json`);
+  const cacheFile = prepassCacheFile(key);
   try { return JSON.parse(fs.readFileSync(cacheFile, 'utf8')); } catch { /* not cached yet */ }
   const kArr = await measureSubframes(page, job);
   fs.writeFileSync(cacheFile, JSON.stringify(kArr));
