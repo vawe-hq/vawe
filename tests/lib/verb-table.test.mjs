@@ -29,13 +29,13 @@ test('every verb has a tier, a unique name and a one-line summary', () => {
 
 test('the verb set stays small', () => {
   assert.ok(VERBS.length <= 15, `${VERBS.length} verbs: merge into a flag of the owner verb, or put a framework tool in bin/vawe-dev, before you add one`);
-  assert.equal(VERBS.filter((v) => v.tier === 'core').length, 10);
-  assert.equal(VERBS.length, 10, 'every verb left in the table is a core verb');
+  assert.equal(VERBS.filter((v) => v.tier === 'core').length, 11);
+  assert.equal(VERBS.length, 11, 'every verb left in the table is a core verb');
 });
 
-test('the core list is the ten verbs of the loop, and vawe --help stays under 300 words', () => {
+test('the core list is the eleven verbs of the loop, and vawe --help stays under 300 words', () => {
   const core = VERBS.filter((v) => v.tier === 'core').map((v) => v.name).sort();
-  assert.deepEqual(core, ['check', 'critique', 'dev', 'frame', 'new', 'refs', 'see', 'ship', 'sound', 'wait']);
+  assert.deepEqual(core, ['check', 'critique', 'dev', 'footage', 'frame', 'new', 'refs', 'see', 'ship', 'sound', 'wait']);
   assert.equal(verb('approve'), undefined);
   const words = topHelp(VERBS).split(/\s+/).length;
   assert.ok(words <= 300, `${words} words in vawe --help`);
