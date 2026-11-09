@@ -214,6 +214,16 @@ PAGES['/edit-video-with-claude-code'] = {
   h: 'Edit video with Claude Code.',
   sub: 'A folder of clips in,<br>an MP4 out.',
 };
+PAGES['/programmatic-video-editing'] = {
+  ...BLOG_STILL, ink: 'a',
+  h: 'Edit video with code.',
+  sub: 'ffmpeg, MoviePy, Editly,<br>Remotion and vawe compared.',
+};
+PAGES['/screen-recording-to-demo-video'] = {
+  ...LAUNCH_STILL, ink: 'a',
+  h: 'A screen recording, a demo video.',
+  sub: 'Cut the dead time,<br>speed up the waits.',
+};
 
 // Blog posts: each scene's composition, varied by the post's seed within safe ranges.
 const POST_LAY = {

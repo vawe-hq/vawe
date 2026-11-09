@@ -4,10 +4,12 @@ import type { Code, Crumb, Link, Meta, NextBlock, Section } from "./types";
 const CLUSTER_LINKS = [
   { path: "/edit-video-with-claude-code", item: [{ text: "Edit video with Claude Code", href: "/edit-video-with-claude-code" }, ": the steps in Claude Code, Codex or Cursor, and the questions the agent asks first."] },
   { path: "/agentic-video-editing", item: [{ text: "Agentic video editing", href: "/agentic-video-editing" }, ": how an agent reads footage it cannot watch, and what an edit can and cannot do."] },
+  { path: "/programmatic-video-editing", item: [{ text: "Edit video with code", href: "/programmatic-video-editing" }, ": ffmpeg, MoviePy, Editly, Remotion and vawe compared, with sources."] },
+  { path: "/screen-recording-to-demo-video", item: [{ text: "Turn a screen recording into a demo video", href: "/screen-recording-to-demo-video" }, ": trim the dead time, speed up the waits, add titles and captions."] },
 ] as const;
 
 // The cluster list for one page: every sibling but the page itself.
-const cluster = (self: string): Section => ({
+export const cluster = (self: string): Section => ({
   id: "more",
   title: "More on editing with an agent.",
   blocks: [
@@ -15,6 +17,9 @@ const cluster = (self: string): Section => ({
       ol: [
         ...CLUSTER_LINKS.filter((l) => l.path !== self).map((l) => [...l.item]),
         [{ text: "vawe vs video-use", href: "/vs/video-use" }, ": another open-source way to edit clips with a coding agent, and when it is the better choice."],
+        [{ text: "vawe vs OpenEdit", href: "/vs/openedit" }, ": an open-source pipeline from VEED that also lets an agent edit clips, and how it differs."],
+        [{ text: "How an agent reads footage it cannot watch", href: "/blog/how-an-agent-reads-footage" }, ": what footage.md holds and why the agent cuts on a word end."],
+        [{ text: "Cut the silences with an agent", href: "/blog/cut-silences-with-an-agent" }, ": trim the pauses and keep every word whole."],
         [{ text: "Captions on a video, in HTML", href: "/blog/animated-captions-html" }, ": word-timed captions, the part of an edit a muted viewer reads."],
         [{ text: "Aspect ratios without cropping", href: "/blog/html-video-aspect-ratios" }, ": one edit at 16:9, 9:16, 1:1 or 4:5."],
       ],
@@ -46,7 +51,7 @@ export const AGENTIC_EDITING = {
       {
         ol: [
           [{ strong: "Hand over the clips. " }, { code: "bin/vawe new trip-edit --footage ~/Movies/trip" }, " copies them into the film’s folder."],
-          [{ strong: "Log them. " }, "vawe writes ", { code: "footage.md" }, ": each clip’s length, shots, loudness, a contact sheet and a transcript with a time for every word."],
+          [{ strong: "Log them. " }, "vawe writes ", { code: "footage.md" }, ": each clip’s length, shots, loudness, a contact sheet and a transcript. A words file beside it gives every word its start and end time."],
           [{ strong: "Plan the cut. " }, "The agent fills a Cut list: one row per beat with the clip, the in and out seconds, the speed and the reason."],
           [{ strong: "Write one page. " }, "Each clip is a ", { code: "<video>" }, " inside its beat. ", { code: "data-at" }, ", ", { code: "data-trim" }, " and ", { code: "data-rate" }, " say which second shows when, and the engine seeks it every frame."],
           [{ strong: "Render. " }, { code: "bin/vawe dev" }, " renders a half-size draft with sound. The final render waits for your OK."],
@@ -63,7 +68,7 @@ export const AGENTIC_EDITING = {
         p: [
           "A model that looked at every frame would spend its budget on noise. ",
           { code: "footage.md" },
-          " gives it the facts it can act on: where the shots change, how loud each clip is, and which word is spoken at which second. The agent cuts on a word end or an action, never on a guess from a file name.",
+          " and the words file beside each clip give it the facts it can act on: where the shots change, how loud each clip is, and which word is spoken at which second. The agent cuts on a word end or an action, never on a guess from a file name.",
         ],
       },
       {

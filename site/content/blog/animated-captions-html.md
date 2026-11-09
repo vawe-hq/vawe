@@ -2,7 +2,7 @@
 title: "Animated captions in HTML: word by word, rendered to MP4"
 description: "Make animated word-by-word captions with plain HTML and CSS, then render them to an MP4 with vawe. One table of times, no React, code that ran."
 date: 2026-11-03
-updated: 2026-11-03
+updated: 2026-11-09
 section: how-to
 topic: motion
 docs: kinetic-type, text-and-fonts, time-and-seek
@@ -24,7 +24,7 @@ The one thing missing is a renderer that moves time by hand. A browser plays an 
 
 ## The page
 
-This is a 9:16 page, 5 seconds long, with nine words. Each span has a `--at` value, the second the word is spoken:
+This is a 9:16 page, 5 seconds long, with nine words. Each span has a `--at` value, the second the word is spoken:
 
 ```html
 <!doctype html>
@@ -72,7 +72,7 @@ Save it as `films/captions/page.html` and render a draft:
 bin/vawe dev films/captions/page.html --whole --small
 ```
 
-We ran this and got a 5 second MP4 with 150 frames at 540 by 960 pixels. The draft is half size. Run `bin/vawe ship` for the full size at 60 fps.
+We ran this and got a 5 second MP4 with 150 frames at 540 by 960 pixels. The draft is half size. Run `bin/vawe ship` for the full size at 60 fps.
 
 ## How the effect works
 
@@ -80,7 +80,7 @@ The `say` keyframes have four stops. Before its start time, a word waits at the 
 
 That gives the karaoke look with one rule. The spoken word is the bright one, and the words already said stay white. The words still to come stay dim, so the viewer can read ahead.
 
-We looked at nine frames of the render, from 0 to 4.97 s. At 1.33 s only "makes" is yellow, "Plain" and "HTML" are white, and the other six are dim. At 2.83 s "land" is yellow and the first five are white. At 4.97 s all nine are white.
+We looked at nine frames of the render, from 0 to 4.97 s. At 1.33 s only "makes" is yellow, "Plain" and "HTML" are white, and the other six are dim. At 2.83 s "land" is yellow and the first five are white. At 4.97 s all nine are white.
 
 ## Change the timing
 
@@ -91,13 +91,17 @@ For a voice track, put an `<audio>` tag in the page with a `src` and a `data-at`
 Two tips from this page:
 
 - Let the spans wrap. The `flex-wrap` line breaks by itself, and no word moves when another word animates, because each span keeps its box. The transform does not change layout.
-- Keep the text large. The vertical formats have a small safe area. Our caption is 9vw, which is 97 pixels on a 1080 pixel wide frame.
+- Keep the text large. The vertical formats have a small safe area. Our caption is 9vw, which is 97 pixels on a 1080 pixel wide frame.
 
 ## A ready-made move
 
 The vawe moves library has two caption clips. [Caption karaoke](/video-components/caption-karaoke) turns the spoken word solid yellow on its second. [Caption editorial](/video-components/caption-editorial) is a quieter style. Caption karaoke uses one table of `[word, second]` pairs and a `vawe.onFrame` hook, and you can copy it. The page above uses only CSS. Pick CSS for a short line, and the hook when you want to compute the state from a table.
 
 For text that moves as an effect and not as a subtitle, read [kinetic typography in CSS](/blog/kinetic-typography-css). For the vertical format, see [9:16 video from HTML](/docs/vertical-social). To post it, check [video specs by platform](/docs/platforms).
+
+## Captions for your own footage
+
+If the voice is in a clip you filmed, you do not need a separate transcription tool. Run `bin/vawe new <name> --footage <folder>` and vawe writes `footage/<clip>.words.json` next to each clip: every word with a `start` and an `end` in seconds, made on your machine by whisper.cpp. Turn each entry into a span with `--at` set to its start, minus the clip’s `data-trim` if you trimmed the clip, plus the clip’s `data-at`. Put the captions in the same world as the `<video>`. For the whole edit, see [agentic video editing](/agentic-video-editing).
 
 ## FAQ
 
@@ -108,7 +112,7 @@ Wrap each word in a span with a start time as a CSS variable. Animate colour and
 Yes. The page above has no framework and no script. The renderer does the timing.
 
 **How do I get the word times?**
-From the transcript of your audio, with any speech-to-text tool that gives word timestamps. Paste them in as `--at` values. We do not produce the transcript for you.
+For your own clips, from `footage/<clip>.words.json`, which `bin/vawe new --footage` writes with whisper.cpp on your machine. For other audio, use any speech-to-text tool that gives word timestamps and paste them in as `--at` values.
 
 **Do captions follow a voice track?**
 They follow the times you write. Put the voice in an `<audio>` tag, and the film mixes it on the same clock.

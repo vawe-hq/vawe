@@ -227,6 +227,20 @@
       "label": "Edit video with Claude Code"
     },
     {
+      "path": "/programmatic-video-editing",
+      "priority": 0.8,
+      "changeFrequency": "monthly",
+      "group": "topic",
+      "label": "Edit video with code"
+    },
+    {
+      "path": "/screen-recording-to-demo-video",
+      "priority": 0.7,
+      "changeFrequency": "monthly",
+      "group": "topic",
+      "label": "Screen recording to demo video"
+    },
+    {
       "path": "/vs/remotion",
       "priority": 0.7,
       "changeFrequency": "monthly",
@@ -267,6 +281,13 @@
       "changeFrequency": "monthly",
       "group": "comparison",
       "label": "vawe vs video-use"
+    },
+    {
+      "path": "/vs/openedit",
+      "priority": 0.7,
+      "changeFrequency": "monthly",
+      "group": "comparison",
+      "label": "vawe vs OpenEdit"
     },
     {
       "path": "/problems",

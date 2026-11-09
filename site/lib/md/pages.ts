@@ -7,6 +7,8 @@ import { HOME } from "../content/home";
 import { HYPERFRAMES_ALTERNATIVES } from "../content/hyperframes-alternatives";
 import { LAUNCH_VIDEO } from "../content/launch-video";
 import { AGENTIC_EDITING, EDIT_WITH_CLAUDE_CODE } from "../content/agentic-editing";
+import { PROGRAMMATIC_EDITING } from "../content/programmatic-editing";
+import { SCREEN_RECORDING } from "../content/screen-recording";
 import { EXPLAINER, PRODUCT_SHOWCASE, type VideoTypePage } from "../content/video-types";
 import { OPEN, PROBLEMS_PAGE, SOLVED, STATUS_LABEL, type Problem } from "../content/problems";
 import { REMOTION_ALTERNATIVES } from "../content/remotion-alternatives";
@@ -202,6 +204,30 @@ const editWithClaudeCode = single(EDIT_WITH_CLAUDE_CODE.path, EDIT_WITH_CLAUDE_C
   ], EDIT_WITH_CLAUDE_CODE.next),
 );
 
+const programmaticEditing = single(PROGRAMMATIC_EDITING.path, PROGRAMMATIC_EDITING.meta, () =>
+  doc(PROGRAMMATIC_EDITING.path, PROGRAMMATIC_EDITING.h1, PROGRAMMATIC_EDITING.meta, [
+    PROGRAMMATIC_EDITING.lede,
+    join([heading(2, PROGRAMMATIC_EDITING.table.title), PROGRAMMATIC_EDITING.table.lead, tableOf(PROGRAMMATIC_EDITING.table.data)]),
+    section(PROGRAMMATIC_EDITING.tools),
+    section(PROGRAMMATIC_EDITING.agent),
+    section(PROGRAMMATIC_EDITING.pick),
+    section(PROGRAMMATIC_EDITING.sources),
+    section(PROGRAMMATIC_EDITING.more),
+  ], PROGRAMMATIC_EDITING.next),
+);
+
+const screenRecording = single(SCREEN_RECORDING.path, SCREEN_RECORDING.meta, () =>
+  doc(SCREEN_RECORDING.path, SCREEN_RECORDING.h1, SCREEN_RECORDING.meta, [
+    SCREEN_RECORDING.lede,
+    section(SCREEN_RECORDING.steps),
+    section(SCREEN_RECORDING.waits),
+    section(SCREEN_RECORDING.extras),
+    section(SCREEN_RECORDING.differs),
+    join([heading(2, SCREEN_RECORDING.moves.title), SCREEN_RECORDING.moves.lead, SCREEN_RECORDING.moves.clips.map((name) => item(name, `/video-components/${name}`)).join("\n")]),
+    section(SCREEN_RECORDING.more),
+  ], SCREEN_RECORDING.next),
+);
+
 const videoType = (c: VideoTypePage) =>
   single(c.path, c.meta, () =>
     doc(c.path, c.h1, c.meta, [
@@ -354,6 +380,8 @@ export const CONTENT_RENDERERS: Record<string, Renderer> = {
   "/launch-video": launchVideo,
   [AGENTIC_EDITING.path]: agenticEditing,
   [EDIT_WITH_CLAUDE_CODE.path]: editWithClaudeCode,
+  [PROGRAMMATIC_EDITING.path]: programmaticEditing,
+  [SCREEN_RECORDING.path]: screenRecording,
   [PRODUCT_SHOWCASE.path]: videoType(PRODUCT_SHOWCASE),
   [EXPLAINER.path]: videoType(EXPLAINER),
   "/remotion-alternatives": remotionAlternatives,

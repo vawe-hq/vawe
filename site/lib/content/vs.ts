@@ -426,7 +426,7 @@ export const RIVALS: Rival[] = [
       { feature: "What it is", them: "A skill that edits footage with a coding agent and ffmpeg", vawe: "A framework where the agent writes one HTML page that vawe renders to MP4" },
       { feature: "Licence", them: "MIT", vawe: "Apache-2.0", t: "yes", v: "yes" },
       { feature: "Transcripts", them: "ElevenLabs Scribe: word times, speakers, audio events; needs an API key", vawe: "whisper.cpp on your machine: word times; no API key", t: "yes", v: "yes" },
-      { feature: "How the model sees footage", them: "Packed transcripts, plus a filmstrip and waveform image on demand", vawe: "footage.md: length, shots, loudness, a contact sheet and word-timed transcripts" },
+      { feature: "How the model sees footage", them: "Packed transcripts, plus a filmstrip and waveform image on demand", vawe: "footage.md: length, shots, loudness, a contact sheet and a transcript; a words file times every word" },
       { feature: "The edit is written as", them: "An edit decision list rendered by ffmpeg", vawe: "One HTML page: each clip is a video element with in, out and speed" },
       { feature: "Titles, captions, motion", them: "Burned subtitles; overlays from HyperFrames, Remotion, Manim or PIL", vawe: "HTML, CSS and Web Animations in the same page, with a library of video components" },
       { feature: "Filler-word removal", them: "Yes", vawe: "No: the agent cuts silences and keeps words whole", t: "yes", v: "partial" },
@@ -459,6 +459,69 @@ export const RIVALS: Rival[] = [
       { href: "/agentic-video-editing", label: "Agentic video editing with vawe" },
       { href: "/edit-video-with-claude-code", label: "Edit video with Claude Code" },
       { href: "/vs/hyperframes", label: "vawe vs HyperFrames" },
+    ],
+  },
+  {
+    slug: "openedit",
+    name: "OpenEdit",
+    read: "2026-11-09",
+    metaTitle: "vawe vs OpenEdit: two open-source ways an agent edits video",
+    metaDescription:
+      "OpenEdit by VEED and vawe both let a coding agent write an edit as HTML and render an MP4. A fact-checked comparison of licence, renderer and transcripts.",
+    h1: "vawe vs OpenEdit.",
+    intro:
+      "OpenEdit and vawe both let a coding agent write a video as an HTML page and render it to an MP4 on your machine. They differ in the licence of the renderer, where the transcript comes from, and how much of the toolkit is open.",
+    what:
+      "OpenEdit is an open-source, agent-driven editing pipeline from VEED. There is no timeline: you install a skill into Claude Code, Codex or Gemini CLI, describe the edit, and the agent transcribes, composes the page, renders it and hands you the file. The pipeline is Apache-2.0. The renderer it ships with, VEED Engine, is closed source under PolyForm Shield 1.0.0 and free to use. VEED says you can render through Chrome instead.",
+    stronger: [
+      "Backing and reach. OpenEdit is built by VEED, and its GitHub repo showed about 1,790 stars on 2026-11-09.",
+      "Hosted transcription. Besides local WhisperX, it can use VEED’s hosted transcription, which needs a veed.io account and has a free tier of about ten minutes a month.",
+      "Generated media. The agent can call AI video or image generators and MCP servers, and VEED Fabric can make a talking-head clip from a script. Fabric is billed and asks first.",
+      "Documented Windows and Linux support, with ffmpeg fetched on Windows without admin rights.",
+    ],
+    chooseThem: [
+      "You want captions and cuts on your footage, with generated clips or other tools mixed in.",
+      "You already have a VEED account and want its hosted transcription.",
+      "You accept a closed-source renderer under PolyForm Shield, or you are happy to render through Chrome.",
+    ],
+    choosevawe: [
+      "You want the whole stack open: the engine, the renderer and the video components under Apache-2.0.",
+      "You want transcripts made on your machine with whisper.cpp, with no account and no upload.",
+      `You want ${MOVES.length} video components, such as word-timed captions and lower thirds, and one clock for the clips and the graphics.`,
+      "You want the same frames on every render: the engine seeks each clip to an exact second instead of playing it.",
+    ],
+    rows: [
+      { feature: "What it is", them: "An agent-driven editing pipeline with a skill for coding agents", vawe: "A framework where the agent writes one HTML page that vawe renders to MP4" },
+      { feature: "Pipeline licence", them: "Apache-2.0", vawe: "Apache-2.0", t: "yes", v: "yes" },
+      { feature: "Renderer", them: "VEED Engine: closed source, PolyForm Shield 1.0.0, free to use; or render through Chrome", vawe: "vawe’s own renderer, open source with the rest", t: "partial", v: "yes" },
+      { feature: "Transcripts", them: "WhisperX on your machine, VEED hosted transcription, or your own Whisper-style JSON", vawe: "whisper.cpp on your machine: word times; no account", t: "yes", v: "yes" },
+      { feature: "Agents", them: "Claude Code, Codex, Gemini CLI", vawe: "Claude Code, Codex, Cursor, any agent that reads AGENTS.md", t: "yes", v: "yes" },
+      { feature: "Generated video and MCP tools", them: "Yes: AI generators, MCP servers and VEED Fabric", vawe: "No generated video", t: "yes", v: "no" },
+      { feature: "Edits to your own footage", them: "Cut, caption and reframe footage; motion graphics; slides", vawe: "Trim, order, speed, titles, captions, grade, transitions, music from a file", t: "yes", v: "yes" },
+    ],
+    faq: [
+      {
+        q: "Is OpenEdit open source?",
+        a: "The pipeline is, under Apache-2.0. VEED’s own page says the renderer binaries it ships with are closed source under PolyForm Shield 1.0.0 and free to use, and that you can render through Chrome instead.",
+      },
+      {
+        q: "Does OpenEdit need an account?",
+        a: "Not for local transcription. WhisperX runs on your machine. VEED’s hosted transcription needs a veed.io account. vawe transcribes locally with whisper.cpp and needs no account.",
+      },
+      {
+        q: "Can vawe generate video?",
+        a: "No. vawe edits clips you give it and builds motion graphics in HTML. For generated clips, OpenEdit is the closer fit.",
+      },
+    ],
+    sources: [
+      { label: "OpenEdit by VEED", url: "https://www.veed.io/learn/openedit-by-veed" },
+      { label: "OpenEdit README", url: "https://github.com/veedstudio/open-edit#readme" },
+      { label: "OpenEdit LICENSE", url: "https://github.com/veedstudio/open-edit/blob/main/LICENSE" },
+    ],
+    related: [
+      { href: "/agentic-video-editing", label: "Agentic video editing with vawe" },
+      { href: "/vs/video-use", label: "vawe vs video-use" },
+      { href: "/edit-video-with-claude-code", label: "Edit video with Claude Code" },
     ],
   },
 ];
