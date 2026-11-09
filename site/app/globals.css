@@ -164,9 +164,14 @@ a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{o
 .gh-star svg{display:block;width:100%;height:100%;overflow:visible}
 .gh-star path{fill:var(--gold);stroke:var(--bg);stroke-width:2;paint-order:stroke;stroke-linejoin:round}
 .gh-spark{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:1px;background:var(--gold);opacity:0;transform:rotate(45deg)}
-.ghbtn:is(:hover,:focus-visible) .gh-star{opacity:1;transform:none;
+.ghbtn:focus-visible .gh-star{opacity:1;transform:none;
   transition:opacity var(--dur-press) var(--ease-out),transform 320ms cubic-bezier(.34,1.56,.64,1)}
-.ghbtn:is(:hover,:focus-visible) .gh-spark{animation:gh-spark 380ms var(--ease-out) 60ms both}
+.ghbtn:focus-visible .gh-spark{animation:gh-spark 380ms var(--ease-out) 60ms both}
+@media (hover:hover){
+  .ghbtn:hover .gh-star{opacity:1;transform:none;
+    transition:opacity var(--dur-press) var(--ease-out),transform 320ms cubic-bezier(.34,1.56,.64,1)}
+  .ghbtn:hover .gh-spark{animation:gh-spark 380ms var(--ease-out) 60ms both}
+}
 .gh-spark:nth-child(2){--dx:-15px;--dy:-9px}
 .gh-spark:nth-child(3){--dx:14px;--dy:-11px}
 .gh-spark:nth-child(4){--dx:-12px;--dy:12px}

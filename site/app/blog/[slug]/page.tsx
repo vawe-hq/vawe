@@ -7,6 +7,7 @@ import { blogPostingSchema, breadcrumbSchema, jsonLdScript } from "../../../lib/
 import { allPosts, postBySlug, relatedPosts, smart, updatedLabel } from "../../../lib/blog";
 import { Cover } from "../Cover";
 import { Card } from "../Card";
+import { ScrollSpy } from "../../components/ScrollSpy";
 import "../blog.css";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -104,6 +105,7 @@ export default async function PostPage({ params }: Params) {
                     </li>
                   ))}
                 </ol>
+                <ScrollSpy nav=".bp-toc" />
               </nav>
             ) : null}
             <div className="bp-body">

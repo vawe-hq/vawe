@@ -7,6 +7,7 @@ import { clip, type Theme } from "../../lib/clip";
 import { moveAlt } from "../../lib/move-words";
 import { GroupIcon, MiscSvg } from "./icons";
 import { ThemeToggle, useClipTheme } from "./ThemeToggle";
+import { ScrollSpy } from "../components/ScrollSpy";
 
 // Enough to show the grid is alive; each playing clip holds a decoder, and phones drop frames past this.
 const MAX_PLAYING = 6;
@@ -263,6 +264,7 @@ export function MovesGallery({
               <span className="mv-n">{g.moves.length}</span>
             </a>
           ))}
+          <ScrollSpy nav=".mv-jump" />
         </nav>
       </div>
 

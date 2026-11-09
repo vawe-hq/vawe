@@ -80,9 +80,10 @@
 
 .lp-rail{position:fixed;z-index:var(--z-sticky);right:24px;top:50%;translate:0 -50%;display:grid;gap:10px;opacity:0;pointer-events:none;transition:opacity var(--dur-state) var(--ease-out)}
 .lp[data-inch] .lp-rail{opacity:1;pointer-events:auto}
-.lp-rail a{position:relative;display:block;width:8px;height:8px;border-radius:50%;background:var(--line-2)}
+.lp-rail a{position:relative;display:block;width:8px;height:8px;border-radius:50%;background:var(--line-2);transition:background-color var(--dur-hover) var(--ease-out)}
 .lp-rail a::before{content:"";position:absolute;inset:-14px}
 .lp-rail a[aria-current]{background:var(--ink)}
+@media (hover:hover){ .lp-rail a:not([aria-current]):hover{background:var(--muted)} }
 @media (max-width:900px){ .lp-rail{display:none} }
 
 /* ===== REVEAL: one-time, only with motion and script ===== */

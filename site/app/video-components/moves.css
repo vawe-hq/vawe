@@ -65,6 +65,8 @@
 .mv-jump::-webkit-scrollbar{display:none}
 .mv-jump a{display:inline-flex;align-items:center;gap:var(--sp-2);flex:none;min-height:var(--hit);padding:0 var(--sp-3);border-radius:var(--r-ctl);
   color:var(--muted);font-size:var(--fs-ui);white-space:nowrap;transition:color var(--dur-hover) var(--ease-out),background-color var(--dur-hover) var(--ease-out)}
+.mv-jump a[aria-current]{color:var(--ink);background:var(--raised)}
+.mv-jump a[aria-current] .mv-n{color:var(--ink-2)}
 .mv-n{font-family:var(--font-mono),monospace;font-size:var(--fs-code);color:var(--muted);font-variant-numeric:tabular-nums}
 
 .mv-filters{display:none;flex-wrap:wrap;align-items:flex-start;gap:var(--sp-5) var(--sp-6);padding:var(--sp-4) 0;border-bottom:1px solid var(--line)}
@@ -146,6 +148,7 @@
   .mv-card:hover .mv-cap{color:var(--ink)}
   .mv-clear:hover,.mv-play:hover,.mv-copy:hover,.mv-fold:hover{background:var(--raised-2)}
   .mv-jump a:hover{color:var(--ink);background:var(--raised)}
+  .mv-jump a[aria-current]:hover{background:var(--raised-2)}
   .mv-links a:hover{color:var(--ink);box-shadow:0 0 0 1px var(--line-2)}
   .mvd-head .kicker a:hover,.mvd-row .meta a:hover{color:var(--ink)}
 }
@@ -203,8 +206,8 @@
 .mvd-doc h2{font-size:var(--fs-sub);font-weight:var(--fw-head);letter-spacing:var(--track-sub);line-height:var(--lh-sub);color:var(--ink);
   margin-top:var(--sp-7);text-wrap:balance}
 .mvd-doc strong{color:var(--ink);font-weight:600}
-.mvd-doc a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--accent-line);text-underline-offset:3px}
-.mvd-doc a:hover{text-decoration-color:currentColor}
+.mvd-doc a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--accent-line);text-underline-offset:3px;transition:text-decoration-color var(--dur-hover) var(--ease-out)}
+@media (hover:hover){ .mvd-doc a:hover{text-decoration-color:currentColor} }
 .mvd-doc ul,.mvd-doc ol{padding-left:1.25em}
 .mvd-doc li + li{margin-top:var(--sp-2)}
 .mvd-doc :not(pre) > code{font-family:var(--font-mono),monospace;font-size:max(12px,.86em);color:var(--ink);

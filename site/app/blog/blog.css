@@ -159,9 +159,14 @@
   .bp-toc{display:block;position:sticky;top:var(--sp-7);align-self:start;padding-right:var(--sp-4);border-right:1px solid var(--line)}
 }
 .bp-toc ol{list-style:none;display:grid;gap:0;margin-top:var(--sp-3)}
-.bp-toc a{display:grid;grid-template-columns:var(--sp-5) 1fr;align-items:center;min-height:var(--hit);font-size:var(--fs-ui);line-height:var(--lh-ui);color:var(--ink-2);transition:color var(--dur-hover) var(--ease-out)}
+.bp-toc a{position:relative;display:grid;grid-template-columns:var(--sp-5) 1fr;align-items:center;min-height:var(--hit);font-size:var(--fs-ui);line-height:var(--lh-ui);color:var(--ink-2);transition:color var(--dur-hover) var(--ease-out)}
 @media (hover:hover){ .bp-toc a:hover{color:var(--ink)} }
 .bp-toc-n{font-family:var(--font-mono),monospace;font-size:var(--fs-label);color:var(--muted);font-variant-numeric:tabular-nums}
+/* The section being read: ink text and a 2px ink bar laid over the TOC's right hairline, so it is not colour alone. */
+.bp-toc a::after{content:"";position:absolute;inset-block:var(--sp-2);right:calc(var(--sp-4) * -1 - 1px);width:2px;background:var(--ink);opacity:0;transition:opacity var(--dur-state) var(--ease-out)}
+.bp-toc a[aria-current]{color:var(--ink)}
+.bp-toc a[aria-current]::after{opacity:1}
+.bp-toc a[aria-current] .bp-toc-n{color:var(--ink-2)}
 
 /* The prose: 19 px at 1.45 on a 34rem (544 px) line, about 65 characters (Butterick 45-90, Calvez 40-70); 16 px on phones.
    Paragraphs are separated by space, never also indented. */
@@ -243,5 +248,5 @@
   .bp-body figure{padding:var(--sp-2);margin-inline:calc(var(--sp-1) * -1)}
 }
 @media (prefers-reduced-motion:reduce){
-  .bl-filter label,.bl-view button,.bl-card,.bp-toc a,.bp-prose a{transition:none}
+  .bl-filter label,.bl-view button,.bl-card,.bp-toc a,.bp-toc a::after,.bp-prose a{transition:none}
 }

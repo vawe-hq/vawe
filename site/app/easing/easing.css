@@ -218,6 +218,8 @@
 .ez-jump a{display:inline-flex;align-items:center;min-height:var(--hit);color:var(--accent);text-decoration:underline;text-decoration-color:var(--accent-line);text-underline-offset:3px}
 .ez-all{margin-top:var(--sp-8);scroll-margin-top:var(--sp-5)}
 .ez-table a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--accent-line);text-underline-offset:3px}
+.ez-jump a,.ez-table a{transition:text-decoration-color var(--dur-hover) var(--ease-out)}
+@media (hover:hover){ .ez-jump a:hover,.ez-table a:hover{text-decoration-color:currentColor} }
 .ez-table caption{caption-side:top;text-align:left;padding-bottom:var(--sp-2);color:var(--muted);font-size:var(--fs-ui);line-height:var(--lh-body)}
 .ez-table td.ez-hit{color:var(--ink);background:var(--surface-2)}
 .ez-first{margin-top:var(--sp-4)}
