@@ -230,7 +230,7 @@ export function sessionOf(input) {
   try { return JSON.parse(input).session_id ?? null; } catch { return null; }
 }
 
-const VAWE_VERB = /(?:^|[\s;&|(])(?:\S*\/)?vawe\s+[a-z]/;
+const VAWE_VERB = /(?:^|[;&|(])\s*(?:\w+=\S*\s+)*(?:\S*\/)?vawe\s+[a-z]/;
 const HELP_ONLY = /\s(?:--help|-h)(?:\s|$)/;
 
 /** What the PostToolUse hook says after a Bash call that ran a vawe verb: the film's stage line when it changed since this agent last saw it, else null. A subagent gets no UserPromptSubmit, so this is how its stage reaches it. */

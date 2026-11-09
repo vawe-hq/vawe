@@ -342,5 +342,8 @@ test('after a vawe verb a subagent hears the stage line once per change; a paren
   assert.match(call('a2'), /next: bin\/vawe frame/);
   assert.equal(call('a3', 'ls films'), null);
   assert.equal(call('a3', 'bin/vawe dev --help'), null);
+  assert.equal(call('a3', `echo '{"command":"bin/vawe frame x"}' | node hook.mjs`), null);
+  assert.equal(call('a3', 'grep -n "vawe dev" AGENTS.md'), null);
+  assert.match(call('a3', 'export VAWE_AGENT=f && VAWE_MODEL=m bin/vawe frame films/f/page.html'), /next:/);
   assert.equal(afterToolSay({ session_id: 's1', agent_id: 'a4', tool_input: { command: 'bin/vawe refs list' } }, null, root), null);
 });
