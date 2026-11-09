@@ -147,7 +147,8 @@
 .lp-faq details[open] summary::after{content:"\2212"}
 @media (hover:hover){ .lp-faq summary:hover::after{color:var(--ink)} }
 .lp-faq details p{padding-bottom:var(--sp-5);color:var(--muted);max-width:var(--measure)}
-.lp-faq details a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px;text-underline-position:from-font;text-decoration-skip-ink:auto}
+.lp-faq details a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px;text-underline-position:from-font;text-decoration-skip-ink:auto;transition:color var(--dur-hover) var(--ease-out)}
+@media (hover:hover){ .lp-faq details a:hover{color:var(--ink)} }
 
 /* ===== THE WAY IN ===== */
 .lp-end{display:grid;gap:var(--sp-6);justify-items:start;padding:clamp(96px,16vw,240px) var(--gutter) clamp(72px,10vw,140px)}

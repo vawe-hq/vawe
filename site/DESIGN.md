@@ -282,7 +282,10 @@ product; reduced motion pauses it and sets every transition to 0.01ms.
 One rule per state, the same on every control:
 
 - **Hover:** inside `@media (hover: hover)`; `raised` goes to `raised-2`, `ink` to `ink-2`, a text
-  link gains its underline. Never a lift, never a weight change.
+  link gains its underline. Never a lift, never a weight change. A link that is always underlined
+  rests on a dim underline (`--line-2`, or `--accent-line` on the accent) that turns `currentColor` on
+  hover; a card link gains the `--line-2` ring. Every link and button has a hover, except the selected
+  one and the logo.
 - **Press:** `scale: var(--press)` (.96) over `--dur-press` on `--ease-press`, on buttons, tabs and
   round controls; never on cards.
 - **Focus:** `:focus-visible` only, `outline: var(--focus-ring)` (2px accent) at a 2px offset, on
@@ -296,7 +299,10 @@ One rule per state, the same on every control:
   chip bar that scrolls sideways brings that chip to its middle. A nav that does not stay on screen
   (`.ez-jump`, the `.xp-toc` chips) gets no current state.
 - **Disabled:** `opacity: .5` and `pointer-events: none`; no hover, no tooltip.
-- **Hit area:** 40px on desktop, 44px under 640; inline links in prose are exempt.
+- **Hit area:** 40px on desktop, 44px under 640; inline links in prose are exempt. A one-line breadcrumb
+  link reaches `--hit` through a `::before` box (`globals.css`), so its line does not move; a wrapped
+  row of links (the blog "Docs" row) puts the height in each link and has no row gap, so no dead strip
+  sits between rows.
 
 ## Migration to the scales
 
@@ -597,6 +603,7 @@ was tried.
 | same | brand | benji.org/family-values | TAKEN: one family: every control on the page now shares radius `--r-ctl`, the press scale, the hover step and the timing (the hero buttons were 12px radius and 15px beside 8px tabs at 13px). Delight inverse to frequency, same as Emil. REJECTED: trays, text morphing and easter eggs (a marketing page, nothing repeated enough to earn them). |
 | same | product | practicaltypography.com (Butterick: Typography in ten minutes, Summary of key rules, body text, line length, line spacing, all caps, letterspacing, kerning, hierarchy, quotes, dashes, ellipses, nonbreaking spaces, bold or italic, underlining, centered text, tables) and pierrickcalvez.com/journal/a-five-minute-guide-to-better-typography | TAKEN: the "Typography rules" section, the type tokens (`--measure`, `--lh-*`, `--fw-head`, `--track-*`), `lib/typo.mjs`, the audit and the gate; the stricter value where the two differ (line length 45 to 70, 12px label floor, a skipped weight). REJECTED: the em dash both guides use (house rule), first-line indents, 800-weight headings. The owner's reference weight is the landing's 600. |
 | Interaction states sweep: current section and hover gating (2026-11-09) | product | ui-skills `jakubkrehel/better-ui` (read `categories`, then `list --category interaction`) | TAKEN: hover only behind `@media (hover: hover)` (five rules moved: the GitHub star, `.mvd-doc` links; new hovers on `.ez-jump` and `.ez-table` links and the landing rail dots), state by transition on named properties at `--dur-hover`, and a current-section state for the sticky TOC and category bar. REJECTED: its Tailwind and `motion/react` snippets (neither is used here) and any IntersectionObserver threshold rule; a read line at 30% of the screen picks one section even when two short ones share the screen. |
+| same, second pass (2026-11-09) | product | ui-skills `jakubkrehel/better-accessibility`, `millionco/interactive-hit-areas`, `emilkowalski/review-animations`, `vercel-labs/web-design-guidelines` (fetched with `ui-skills get`) | TAKEN: their find lists as page checks (hover each kind of control on 22 routes; targets under 24px; focus hidden under sticky bars; anchors under sticky bars), the 2.5.8 target rule with its inline and spacing exceptions, a pseudo-element to grow a small target, flush rows with the spacing inside the target. Fixed: 15 controls with no hover, the breadcrumb, blog "Docs" and slider targets, `.ez-chip` raised from 36px to `--hit`, the easing facts link that had no link look. REJECTED: "`ease-in` on UI is a block" (our exits ease in, `--dur-exit`, by DESIGN.md Motion); hover gated on `(pointer: fine)` everywhere (both forms ship; this pass used the file's own); its 300ms ceiling for the GitHub star (320ms, a rare decorative pop) and the landing reveal (600ms, a scroll entrance, not a control). |
 
 | every remaining route on the scales (2026-10-14) | product | the 14 sources of the landing pass (rows above, same text) applied to `/moves`, `/easing`, the intent pages, `/problems`, `/roadmap`, `/vs/*`, `/blog`, the bar; ui-skills `pbakaus/polish` (fetched) | polish: TAKEN, classify each drift (missing token, one-off, local defect) and fix at the narrowest level: a missing token became `--fs-panel`, `--hit` and friends, one-offs became existing tokens, the local defect was the `.ez-note` class used for both SVG labels and a paragraph, so the paragraph rendered in mono. Also TAKEN from the sources: 40/44 px targets on every control, hover only inside `(hover: hover)`, the house focus ring, press scale on buttons and pill controls, tabular numbers on tables, no layout shift. REJECTED: polish's critique-storage commands (no impeccable install here), `impeccable detect`. The blog kept its Butterick sizes as local custom properties. Verified with before and after shots at 1440 and 390 of 17 routes (`out/site-scales/`). |
 

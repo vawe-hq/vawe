@@ -6,7 +6,8 @@
 .ft-row{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,6fr);gap:var(--gap-panel);align-items:start;padding:var(--sp-5) 0;border-top:1px solid var(--line)}
 .ft-text h3{font-size:var(--fs-body);font-weight:600;color:var(--ink);line-height:var(--lh-sub)}
 .ft-text p{margin-top:var(--sp-2);color:var(--ink-2);font-size:var(--fs-body);line-height:var(--lh-body);max-width:var(--measure)}
-.ft-text a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2)}
+.ft-text a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2);transition:text-decoration-color var(--dur-hover) var(--ease-out)}
+@media (hover:hover){ .ft-text a:hover{text-decoration-color:currentColor} }
 .ft-text code{font-family:var(--font-mono),monospace;font-size:.92em;background:var(--raised);border-radius:var(--r-in);padding:1px var(--sp-2);color:var(--ink);overflow-wrap:anywhere}
 .ft-proof{display:grid;gap:var(--sp-3);min-width:0;align-content:start}
 .ft-proof .codeblock{margin:0;max-width:none;box-shadow:var(--ring)}
@@ -25,13 +26,15 @@
 .ftv{padding:var(--sp-4);display:grid;gap:var(--sp-3)}
 .ftv-stage{position:relative;display:grid;place-items:center;background:var(--bg);border-radius:var(--r-in);overflow:hidden}
 .ftv-slide{display:grid;grid-template-columns:auto minmax(0,1fr) 2.5ch;align-items:center;gap:var(--sp-3)}
+.ftv-slide input{height:var(--hit)}
 .ftv-slide b{font-weight:400;color:var(--ink);text-align:right}
 .ftv-blur{height:150px;container-type:inline-size}
 .ftv-run{position:relative;width:34px;height:34px;animation:ftv-run 2.4s var(--ease-out) infinite alternate;margin-left:12px}
 .ftv-ghost{position:absolute;top:0;width:34px;height:34px;border-radius:var(--r-in);background:var(--ink)}
 @keyframes ftv-run{from{translate:0 0}to{translate:calc(100cqw - 124px) 0}}
 .ft-visual .imoves{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:0}
-.ft-curve{display:grid;gap:var(--sp-2);padding:var(--sp-3);text-decoration:none}
+.ft-curve{display:grid;gap:var(--sp-2);padding:var(--sp-3);text-decoration:none;transition:box-shadow var(--dur-hover) var(--ease-out)}
+@media (hover:hover){ .ft-curve:hover{box-shadow:0 0 0 1px var(--line-2)} }
 .ft-curve .meta{white-space:normal}
 
 @media (max-width:640px){

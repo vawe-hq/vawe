@@ -48,6 +48,8 @@
 .ej-facts .panel{padding:var(--sp-4) var(--sp-5)}
 .ej-facts dt{font-family:var(--font-mono),monospace;font-size:var(--fs-label);letter-spacing:var(--track-caps);text-transform:uppercase;color:var(--muted)}
 .ej-facts dd{margin-top:var(--sp-2);color:var(--ink);font-size:var(--fs-body);line-height:var(--lh-body)}
+.ej-facts dd a{text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:3px;transition:text-decoration-color var(--dur-hover) var(--ease-out)}
+@media (hover:hover){ .ej-facts dd a:hover{text-decoration-color:currentColor} }
 .ej-facts dd small{display:block;color:var(--ink-2);font-size:var(--fs-ui)}
 .ej-curve{margin-top:var(--sp-5);max-width:28rem}
 .ej-list{list-style:none;display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-top:var(--sp-4)}

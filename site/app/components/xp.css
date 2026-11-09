@@ -7,7 +7,8 @@
 .mv.ls-top > h1{max-width:none}
 .xp .phead p:not(.kicker):not(.bnote){color:var(--ink-2);font-size:var(--fs-lead);max-width:var(--measure);margin-top:var(--sp-5)}
 .xp .phead .bnote{color:var(--muted);font-size:var(--fs-ui);margin-top:var(--sp-4);max-width:var(--measure)}
-.xp .phead .bnote a,.xp .ievidence a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2)}
+.xp .phead .bnote a,.xp .ievidence a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2);transition:text-decoration-color var(--dur-hover) var(--ease-out)}
+@media (hover:hover){ .xp .phead .bnote a:hover,.xp .ievidence a:hover{text-decoration-color:currentColor} }
 .mv .ls-sub{font-size:var(--fs-lead);color:var(--ink-2);max-width:var(--measure)}
 
 /* WHERE YOU ARE (Jakob): the same trail on every content page. */
