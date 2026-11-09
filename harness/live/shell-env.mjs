@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-export const ENV_LINE = '[ -n "$ZSH_VERSION" ] && setopt nonomatch';
+export const ENV_LINE = 'if [ -n "$ZSH_VERSION" ]; then setopt nonomatch; fi';
 
 export function addNoMatch(envFile) {
   if (!envFile) return false;

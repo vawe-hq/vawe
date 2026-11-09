@@ -46,6 +46,6 @@ test('a glob that matches still expands, and the line is harmless in bash', () =
   runHook(file);
   const z = inZsh(file, 'touch a.png; echo *.png');
   assert.equal(z.stdout.trim(), 'a.png');
-  const b = spawnSync('bash', ['-c', `source '${file}'; echo ok`], { encoding: 'utf8' });
+  const b = spawnSync('bash', ['-c', `source '${file}' && echo ok`], { encoding: 'utf8' });
   assert.equal(b.stdout.trim(), 'ok');
 });
