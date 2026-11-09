@@ -7,8 +7,14 @@ const entries = (o) => Object.entries(o).map(([k, v]) => `${k} ${v}`).join(', ')
 
 function routingLine(r) {
   const pct = (n, of) => (of ? `${Math.round((100 * n) / of)}%` : '-');
-  return [`next lines followed ${r.nextFollowed}/${r.nextLines} (${pct(r.nextFollowed, r.nextLines)}), ignored ${r.nextIgnored}`,
+  return [`next lines followed ${r.nextFollowed}/${r.nextLines} (${pct(r.nextFollowed, r.nextLines)}), same verb again ${r.nextRepeated}, ignored ${r.nextIgnored} (in a result over 8000 chars ${r.nextIgnoredBig}, not near the end ${r.nextIgnoredBuried}, neither ${r.nextIgnoredPlain})`,
     `hook hints followed ${r.hintsFollowed}/${r.hints} (${pct(r.hintsFollowed, r.hints)}), ignored ${r.hintsIgnored}`].join('; ');
+}
+
+function navigationLine(n) {
+  return [`navigation: before the page ${n.readsBeforePage} reads, ${n.searchesBeforePage} searches`,
+    `in all ${n.reads} reads, ${n.searches} searches, ${n.rereads} read again, ${n.pollReads} task-output polls`,
+    `found nothing ${n.missedReads} reads, ${n.missedSearches} searches${n.missed.length ? ` (${n.missed.join('; ')})` : ''}`].join('; ');
 }
 
 function verbUseLines(use) {
@@ -81,6 +87,7 @@ export function agentMarkdown(a) {
     `routing: next ${entries(a.routing.nextCounts)}; hints ${entries(a.routing.hintCounts)}`,
     `raw tools: ${entries(a.raw)}`,
     `docs read: ${list(a.docs.map((d) => `${d.doc}@${d.sec}s${d.beforePage ? '' : ' (after page)'}`))}; ban lines seen ${entries(Object.fromEntries(Object.entries(a.banSeen).map(([k, v]) => [k, v.join('/')])))}`,
+    navigationLine(a.navigation),
     `failures ${a.failures.total}: ${entries(a.failures.byClass)}; hook errors ${a.failures.hookErrors}`,
     `cost: ${a.cost.calls} calls, ${a.cost.repeats} repeats, ${a.cost.bigResults} big results (${a.cost.bigChars} chars), wait ${a.cost.waitSecs}s, render ${a.cost.renderSecs}s${a.cost.unloggedRenderSecs ? ` (+${a.cost.unloggedRenderSecs}s in render calls with no run-log record)` : ''}, slot wait ${a.cost.slotWaitSecs}s`,
     `rule breaks: ${list(Object.entries(a.breaks).filter(([, v]) => v).map(([k]) => k))}`,

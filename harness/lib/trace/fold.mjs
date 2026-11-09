@@ -1,5 +1,5 @@
 import { brief } from './redact.mjs';
-import { adviceOf, commandVerbs, docsRead, filmWrites, footersOf, namedVerbs, newFilm, nextNamed, rawTools, resultFlags, textOf } from './calls.mjs';
+import { adviceOf, commandVerbs, docsRead, filmWrites, footersOf, lookupMissed, lookupOf, namedVerbs, newFilm, nextNamed, nextPlacement, rawTools, resultFlags, textOf } from './calls.mjs';
 
 const stampOf = (row) => Date.parse(row.timestamp);
 
@@ -13,6 +13,7 @@ function newCall(block, ms, index) {
     raw: block.name === 'Bash' ? rawTools(input.command ?? '', verbs.length > 0) : [],
     docs: docsRead(block.name, input),
     writes: filmWrites(block.name, input),
+    lookup: lookupOf(block.name, input),
     newFilm: newFilm(verbs),
     unattended: /VAWE_UNATTENDED=1/.test(input.command ?? ''),
     label: (input.command ?? '').match(/VAWE_AGENT=(\S+)/)?.[1] ?? null,
@@ -27,6 +28,8 @@ function settle(call, block, ms) {
   call.footers = footersOf(text);
   call.advice = adviceOf(text);
   call.next = call.verbs.length ? nextNamed(text) : [];
+  call.nextAt = call.verbs.length ? nextPlacement(text) : [];
+  if (call.lookup) call.lookup.missed = lookupMissed(call.lookup, text);
   call.lastLine = brief(text.split('\n').filter(Boolean).at(-1) ?? '', 160);
 }
 

@@ -5,8 +5,9 @@ import { roundsOf } from './rounds.mjs';
 import { stallsOf } from './stalls.mjs';
 import { stageFirstUse, stageOrder } from './stages.mjs';
 import { ownerNotes } from './notes.mjs';
+import { navigationOf } from './navigation.mjs';
 
-const BIG_RESULT = 8000;
+export const BIG_RESULT = 8000;
 const WAIT_TOOLS = new Set(['Monitor', 'TaskOutput']);
 const sec = (ms) => Math.round(ms / 1000);
 const callSecs = (c) => (c.resultMs && c.ms ? Math.max(0, (c.resultMs - c.ms) / 1000) : 0);
@@ -132,7 +133,7 @@ function banSeen(calls) {
   return Object.fromEntries(Object.entries(seen).map(([k, v]) => [k, [...v]]));
 }
 
-/** One agent's record: identity, verb sequence, stages, routing, raw tools, docs, failures, cost, rule breaks. Pure over a fold. */
+/** One agent's record: identity, verb sequence, stages, routing, raw tools, docs, navigation, failures, cost, rule breaks. Pure over a fold. */
 export function analyze(fold, file, readRuns = () => []) {
   const { calls, meta } = fold;
   const startMs = meta.startMs ?? 0;
@@ -160,6 +161,7 @@ export function analyze(fold, file, readRuns = () => []) {
     routing: routingOf(calls, events, fold.hints),
     raw: rawUse(calls),
     docs: docReads(calls, startMs, pageMs, devMs),
+    navigation: navigationOf(calls, pageMs),
     banSeen: banSeen(calls),
     failures: { total: failures.length, byClass: count(failures, (f) => f.cls), hookErrors: fold.hookErrors, list: failures.slice(0, 20) },
     rounds,

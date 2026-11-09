@@ -83,6 +83,36 @@ export function nextNamed(text) {
   return [...text.matchAll(NEXT_LINE)].map((m) => namedVerbs(m[1]));
 }
 
+/** For each `next:` line of a result, in the order nextNamed gives, how many non-empty lines come after it. Pure. */
+export function nextPlacement(text) {
+  const lines = String(text).split('\n').filter((l) => l.trim());
+  return lines.flatMap((l, i) => (l.startsWith('next: ') ?[lines.length - 1 - i] : []));
+}
+
+const LOOK_READ = /^(?:cat|head|tail|sed\s+-n|less|bat)\b/;
+const LOOK_SEARCH = /^(?:grep|rg|find|ls|fd|git\s+grep)\b/;
+const MISSED_READ = /No such file|does not exist/i;
+const MISSED_SEARCH = /No (?:files|matches) found|no matches found|^0 matches for/im;
+
+const pathWord = (segment) => segment.split(/\s+/).slice(1).find((w) => !w.startsWith('-') && /[/.]\w/.test(w)) ?? segment;
+
+/** What a call looks up: { kind: 'read' | 'search', target }, or null. A shell chain counts by its first command. Pure. */
+export function lookupOf(name, input = {}) {
+  if (name === 'Read') return { kind: 'read', target: String(input.file_path ?? '') };
+  if (name === 'Grep' || name === 'Glob') return { kind: 'search', target: String(input.pattern ?? '') };
+  if (name !== 'Bash') return null;
+  const first = withoutHeredocs(String(input.command ?? '')).split(SEGMENT)[0].replace(/^\s*(?:[A-Z_][A-Z0-9_]*=\S*\s+)*(?:rtk\s+)?/, '').trim();
+  if (LOOK_READ.test(first)) return { kind: 'read', target: pathWord(first) };
+  if (LOOK_SEARCH.test(first)) return { kind: 'search', target: first.slice(0, 120) };
+  return null;
+}
+
+/** True when a lookup found nothing: a read of a missing path, or a search with no match. Pure. */
+export function lookupMissed(lookup, text) {
+  if (lookup.kind === 'read') return MISSED_READ.test(text);
+  return !String(text).trim() || MISSED_SEARCH.test(text);
+}
+
 /** The vawe verbs a line of advice names, in order. Pure. */
 export const namedVerbs = (line) => [...String(line).matchAll(/vawe ([a-z0-9-]+)/g)].map((m) => m[1]).filter((v) => VERB_NAMES.has(v));
 

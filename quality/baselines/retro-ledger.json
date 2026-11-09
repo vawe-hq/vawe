@@ -1,0 +1,60 @@
+{
+  "measured": {
+    "on": "2026-11-09",
+    "sha": "035efff9b",
+    "agents": 12,
+    "command": "node harness/dev/trace-review.mjs --project <claude project dir> --films --aggregate-only --since 2026-10-15"
+  },
+  "changes": [
+    {
+      "id": "render-state-no-poll",
+      "change": "bin/vawe wait and the dev output name the slot state and the seconds left, so a poll tells the agent nothing new",
+      "evidence": "8 of 12 film agents read background task output to wait; 8 of 12 ran sleep and 7 of 12 polled ps, with the verb-hint advice live since 2026-10-16",
+      "metric": "rows.pollRead",
+      "baseline": { "count": 8, "of": 12 },
+      "status": "proposed",
+      "sha": null,
+      "trial": null
+    },
+    {
+      "id": "shell-globs",
+      "change": "the agent shell accepts an unquoted glob that matches nothing, instead of the AGENTS.md line that asks for quotes",
+      "evidence": "6 of 12 film agents hit zsh: no matches found",
+      "metric": "rows.failGlob",
+      "baseline": { "count": 6, "of": 12 },
+      "status": "proposed",
+      "sha": null,
+      "trial": null
+    },
+    {
+      "id": "api-index",
+      "change": "a generated index of the exports of core/motion/presets.js and core/surfaces/lens.js, named in skills/vawe-page/SKILL.md",
+      "evidence": "3 film agents opened core/motion/presets.js (393 lines) and at least 2 opened core/surfaces/lens.js (717 lines) to learn the API; no pointer to presets in vawe-page",
+      "metric": "numbers.readsBeforePage",
+      "baseline": { "mean": 24.4, "median": 29 },
+      "status": "proposed",
+      "sha": null,
+      "trial": null
+    },
+    {
+      "id": "vawe-page-rewrite",
+      "change": "skills/vawe-page/SKILL.md and the stage next lines rewritten with positive targets, no no-op sentences and a completion criterion per step",
+      "evidence": "Ideas rows were written before the first dev by 2 of 12 film agents, Board rows by 3 of 12",
+      "metric": "rows.ideasFirst",
+      "baseline": { "count": 2, "of": 12 },
+      "status": "proposed",
+      "sha": null,
+      "trial": null
+    },
+    {
+      "id": "next-line-last",
+      "change": "the next line is the last line of every verb result, after any report",
+      "evidence": "of 277 next lines, 83 were ignored; 21 of those had more than 2 lines after them and none sat in a result over 8000 chars, so output size is not the cause",
+      "metric": "routing.nextIgnoredBuried",
+      "baseline": { "value": 21, "of": 277 },
+      "status": "proposed",
+      "sha": null,
+      "trial": null
+    }
+  ]
+}

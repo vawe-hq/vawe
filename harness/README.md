@@ -62,7 +62,7 @@ Run with `node <path>`; the file header holds the usage. A film rarely needs the
 - `harness/media/cutout.mjs` a cutout with the background removed
 - `harness/media/ref.mjs` fetch a reference film into `refs/`
 - `harness/dev/palette.mjs` the script behind the retired palette alias: a brand seed and how to compose a palette around it
-- `harness/dev/trace-review.mjs` the one reader of agent transcripts: per agent the verb and stage order, `next:` lines and hook hints followed, raw tools, docs read, failures by class, cost and rule breaks; an aggregate table, `--json`, `--compare <sha|date>` (parts in `lib/trace/`)
+- `harness/dev/trace-review.mjs` the one reader of agent transcripts: per agent the verb and stage order, `next:` lines and hook hints followed, raw tools, docs read, navigation (reads before the page, rereads, task-output polls, lookups that found nothing), failures by class, cost and rule breaks; an aggregate table, `--json`, `--compare <sha|date>` (parts in `lib/trace/`). Each harness change it motivates gets a row in `quality/baselines/retro-ledger.json`: the metric, its baseline, and after a with-and-without trial whether the problem occurred, the agent used the change and its actions changed; a change that does not help is removed
 - `harness/dev/bench-capture.mjs` where capture time goes, per render variant
 - `harness/dev/check-sweep.mjs` which draft checks fire over many pages, waivers ignored (the false-flag baseline)
 - `scripts/brand/kit.mjs`, `scripts/brand/palette.mjs`, `scripts/brand/photos.mjs` a brand kit from a site

@@ -1,6 +1,7 @@
 import { VERBS } from '../../cli/verbs.mjs';
 import { OLD_NAMES } from '../../cli/aliases.mjs';
 import { noteAggregate } from './notes.mjs';
+import { BIG_RESULT } from './analyze.mjs';
 
 const used = (a, stage) => stage in a.stages.first;
 const before = (a, x, y) => used(a, x) && (!used(a, y) || a.stages.first[x] < a.stages.first[y]);
@@ -55,6 +56,8 @@ export const METRICS = [
   { id: 'failTest', label: 'a test failed', test: (a) => failed(a, 'test') },
   { id: 'repeats', label: 'repeated an identical call', test: (a) => a.cost.repeats > 0 },
   { id: 'bigResults', label: 'got a result over 8000 chars', test: (a) => a.cost.bigResults > 0 },
+  { id: 'missedRead', label: 'read a path that does not exist', test: (a) => a.navigation.missedReads > 0 },
+  { id: 'pollRead', label: 'read background task output to wait', test: (a) => a.navigation.pollReads > 0 },
 ];
 
 /** Numbers averaged over agents: id, label, value of one agent. */
@@ -64,6 +67,10 @@ export const NUMBERS = [
   { id: 'calls', label: 'tool calls', of: (a) => a.cost.calls },
   { id: 'failures', label: 'failed calls', of: (a) => a.failures.total },
   { id: 'verbs', label: 'vawe verb calls', of: (a) => a.verbs.filter((v) => !v.help).length },
+  { id: 'readsBeforePage', label: 'file reads before the first page write', of: (a) => a.navigation.readsBeforePage },
+  { id: 'searchesBeforePage', label: 'searches (grep, find, ls, Glob) before the first page write', of: (a) => a.navigation.searchesBeforePage },
+  { id: 'rereads', label: 'text files read again (images and task output left out)', of: (a) => a.navigation.rereads },
+  { id: 'missedSearches', label: 'searches that found nothing', of: (a) => a.navigation.missedSearches },
   { id: 'waitMin', label: 'minutes waiting (wait, Monitor, sleep, ps)', of: (a) => a.cost.waitSecs / 60 },
   { id: 'renderMin', label: 'minutes of dev and ship render', of: (a) => a.cost.renderSecs / 60 },
   { id: 'waivedRules', label: 'rules waived (findings now in the page allow block)', of: (a) => a.advice.waived },
@@ -72,6 +79,20 @@ export const NUMBERS = [
   { id: 'tokCache', label: 'cache read tokens (M)', of: (a) => a.tokens.cacheRead / 1e6 },
   { id: 'tokOut', label: 'output tokens (k)', of: (a) => a.tokens.output / 1e3 },
 ];
+
+// The verb footer prints after the next line, so 2 lines after it is the normal end of a result.
+const BURIED_AFTER = 2;
+
+/** Why ignored next lines may have been missed: the result was big, the line was not near its end, or neither. Pure. */
+function nextCauses(ignored) {
+  const big = (n) => n.chars > BIG_RESULT;
+  const buried = (n) => n.linesAfter !== null && n.linesAfter > BURIED_AFTER;
+  return {
+    nextIgnoredBig: ignored.filter(big).length,
+    nextIgnoredBuried: ignored.filter((n) => !big(n) && buried(n)).length,
+    nextIgnoredPlain: ignored.filter((n) => !big(n) && !buried(n)).length,
+  };
+}
 
 const median = (xs) => (xs.length ? [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)] : 0);
 const round = (x) => Number(x.toFixed(1));
@@ -97,7 +118,8 @@ export function aggregate(agents) {
   const next = agents.flatMap((a) => a.routing.next);
   const hints = agents.flatMap((a) => a.routing.hints);
   const routing = {
-    nextLines: next.length, nextFollowed: rate(next, 'followed'), nextIgnored: rate(next, 'ignored'),
+    nextLines: next.length, nextFollowed: rate(next, 'followed'), nextRepeated: rate(next, 'repeated'), nextIgnored: rate(next, 'ignored'),
+    ...nextCauses(next.filter((n) => n.outcome === 'ignored')),
     hints: hints.length, hintsFollowed: rate(hints, 'followed'), hintsIgnored: rate(hints, 'ignored'),
   };
   return { n: agents.length, rows, numbers, routing, verbUse: verbUse(agents), notes: noteAggregate(agents) };

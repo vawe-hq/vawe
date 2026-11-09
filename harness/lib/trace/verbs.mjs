@@ -30,7 +30,11 @@ export function verbEvents(calls, startMs, runLog = []) {
   return events;
 }
 
-/** How the agent treated each `next:` line a verb printed: followed (its next verb call is a named one), ignored (another verb) or none (no verb call after). Pure. */
+const outcomeOf = (named, printer, after) => (!after ? 'none'
+  : named.map(verbNow).includes(verbNow(after.verb)) ? 'followed'
+    : verbNow(after.verb) === verbNow(printer.verb) ? 'repeated' : 'ignored');
+
+/** How the agent treated each `next:` line a verb printed: followed (its next verb call is a named one), repeated (the same verb again, as in a fix loop), ignored (another verb) or none (no verb call after); with the lines after it and the size of the result it sat in. Pure. */
 export function nextLineOutcomes(calls, allEvents) {
   const events = allEvents.filter((e) => !e.help);
   const out = [];
@@ -39,9 +43,9 @@ export function nextLineOutcomes(calls, allEvents) {
     if (!mine.length) continue;
     const printer = mine.at(-1);
     const after = events[events.indexOf(printer) + 1];
-    for (const named of call.next ?? []) {
+    for (const [i, named] of (call.next ?? []).entries()) {
       if (!named.length) continue;
-      out.push({ verb: printer.verb, named, then: after?.verb ?? null, outcome: !after ? 'none' : named.map(verbNow).includes(verbNow(after.verb)) ? 'followed' : 'ignored' });
+      out.push({ verb: printer.verb, named, then: after?.verb ?? null, outcome: outcomeOf(named, printer, after), linesAfter: call.nextAt?.[i] ?? null, chars: call.chars ?? 0 });
     }
   }
   return out;
