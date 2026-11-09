@@ -15,7 +15,7 @@ list below. A script none of those reaches is dead: delete it.
 | `media/` | the renderer (`render-page.mjs`, `page-audio.mjs`), the views (`see.mjs`, `see/`, `see-views.mjs`), `still.mjs` (one full-size PNG of a page or mp4), `storyboard.mjs` (one self-contained HTML board of a page or draft: a card per world, the handoffs, a rhythm strip; its data is `lib/storyboard.mjs`, its page `lib/storyboard-html.mjs`), the reference measures (`ref-spec.mjs`, `render-spec.mjs`) |
 | `lib/` | shared helpers: the gate table (`check-gate.mjs`), the render harness, run logs, judge codes |
 | `dev/` | the `vawe-dev` verb table, git hooks' helpers (`no-emdash.mjs`, `push-guard.mjs`), `e2e.mjs`, `bench.mjs`, worktree tools |
-| `live/` | Claude Code hooks: `stage-say.mjs` (next command), `verb-hint.mjs` (names the verb for a hand-made screenshot, link check or contact sheet), `code-quality.mjs`, `no-emdash-live.mjs`, `no-blanket-git.mjs`, `log-read.mjs` (see Hooks below) |
+| `live/` | Claude Code hooks: `stage-say.mjs` (next command), `verb-hint.mjs` (names the verb for a hand-made screenshot, link check or contact sheet), `code-quality.mjs`, `no-emdash-live.mjs`, `no-blanket-git.mjs`, `log-read.mjs`, `shell-env.mjs` (see Hooks below) |
 
 ## Hooks
 
@@ -26,6 +26,7 @@ Register it in your own settings with matcher `Read` and command `node harness/l
 from the repo root).
 `verb-hint.mjs` is a PreToolUse hook (matcher `Bash`, command `node harness/live/verb-hint.mjs`): when a command does by hand what a verb does (a puppeteer or headless Chrome screenshot, a curl status loop, a sleep loop on a render, an ffmpeg contact sheet or frame grab) it adds one line naming the verb. It never blocks and names each verb once per 30 minutes.
 `stage-say.mjs` names the film's next stage. Register it twice: as a UserPromptSubmit hook (command `node harness/live/stage-say.mjs`), and as a PostToolUse hook (matcher `Bash`, command `node harness/live/stage-say.mjs --after-tool`). A subagent gets no UserPromptSubmit, so the second one is the only way its stage reaches it; it speaks after a `bin/vawe` call, and only when the stage line changed.
+`shell-env.mjs` is a SessionStart hook (command `node harness/live/shell-env.mjs`, no matcher, so it also runs on resume). It appends `setopt nonomatch` to `$CLAUDE_ENV_FILE`, which Claude Code sources before each Bash command of the session, subagents included. An unquoted glob or `?` with no match then reaches the command as plain text, as in bash, instead of stopping zsh with `no matches found`. Docs: https://code.claude.com/docs/en/hooks (SessionStart, `CLAUDE_ENV_FILE`).
 
 ## Run log
 

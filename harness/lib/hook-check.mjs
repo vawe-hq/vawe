@@ -10,6 +10,7 @@ export const LIVE_HOOKS = [
   { file: 'no-blanket-git.mjs', event: 'PreToolUse', matcher: 'Bash|Write|Edit|NotebookEdit', why: 'refuses a blanket git command, and an agent approving its own plan or draft' },
   { file: 'stage-say.mjs', event: 'UserPromptSubmit', matcher: null, why: 'names the next command for the film you edited last' },
   { file: 'stage-say.mjs', args: '--after-tool', event: 'PostToolUse', matcher: 'Bash', why: 'names the next command after a vawe verb, the only way a subagent hears it' },
+  { file: 'shell-env.mjs', event: 'SessionStart', matcher: null, why: 'lets an unquoted glob with no match pass through instead of stopping zsh' },
 ];
 
 const commandOf = (h) => `node harness/live/${h.file}${h.args ? ` ${h.args}` : ''}`;

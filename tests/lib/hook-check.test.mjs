@@ -24,7 +24,7 @@ test('a hook in the project, the user or the local settings counts as registered
   write(root, 'settings.json', reg('PostToolUse', 'log-read.mjs'));
   write(home, 'settings.json', reg('PreToolUse', 'verb-hint.mjs'));
   write(root, 'settings.local.json', merged(reg('UserPromptSubmit', 'stage-say.mjs'), reg('PostToolUse', 'stage-say.mjs --after-tool', 'Bash')));
-  write(home, 'settings.local.json', reg('PreToolUse', 'no-blanket-git.mjs'));
+  write(home, 'settings.local.json', merged(reg('PreToolUse', 'no-blanket-git.mjs'), reg('SessionStart', 'shell-env.mjs')));
   assert.deepEqual(missingHooks(root, home), []);
 });
 

@@ -65,7 +65,7 @@ Set `VAWE_AGENT=<name>` (one per agent) and `VAWE_MODEL=<model>` in your shell: 
 
 ## Shell
 
-- The shell is zsh: quote every glob and `?`, `grep --include='*.mjs'`, `curl 'x?a=b'` (unquoted: `no matches found`).
+- The shell is zsh. An unquoted glob with no match passes through as text (the `shell-env` hook); quote it for `grep --include='*.mjs'` and `curl 'x?a=b'` anyway.
 - In a worktree a call with a heredoc, a `for` loop, a variable or `$(...)` is refused as "too complex to verify": one verb per call with literal arguments, the Write tool for any file, and plain `git` (no `git -C`).
 - `bin/vawe wait <page>`, alone, waits for a render or critique (on STILL RUNNING call it again).
 - A call over 120 s moves to the background and keeps its render slot: run `dev` alone, start a long render in the background yourself, and keep working.
