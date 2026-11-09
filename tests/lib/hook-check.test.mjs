@@ -12,7 +12,8 @@ const write = (base, name, settings) => {
   fs.mkdirSync(path.join(base, '.claude'), { recursive: true });
   fs.writeFileSync(path.join(base, '.claude', name), JSON.stringify(settings));
 };
-const reg = (event, file) => ({ hooks: { [event]: [{ hooks: [{ type: 'command', command: `node harness/live/${file}` }] }] } });
+const reg = (event, file, matcher = null) => ({ hooks: { [event]: [{ ...(matcher ? { matcher } : {}), hooks: [{ type: 'command', command: `node harness/live/${file}` }] }] } });
+const merged = (...all) => ({ hooks: Object.assign({}, ...all.map((s) => s.hooks)) });
 
 test('with no settings file every live hook is missing', () => {
   assert.deepEqual(missingHooks(dir(), dir()).map((h) => h.file), LIVE_HOOKS.map((h) => h.file));
@@ -22,9 +23,17 @@ test('a hook in the project, the user or the local settings counts as registered
   const root = dir(), home = dir();
   write(root, 'settings.json', reg('PostToolUse', 'log-read.mjs'));
   write(home, 'settings.json', reg('PreToolUse', 'verb-hint.mjs'));
-  write(root, 'settings.local.json', reg('UserPromptSubmit', 'stage-say.mjs'));
+  write(root, 'settings.local.json', merged(reg('UserPromptSubmit', 'stage-say.mjs'), reg('PostToolUse', 'stage-say.mjs --after-tool', 'Bash')));
   write(home, 'settings.local.json', reg('PreToolUse', 'no-blanket-git.mjs'));
   assert.deepEqual(missingHooks(root, home), []);
+});
+
+test('the stage hook after a tool counts only with --after-tool on a PostToolUse Bash matcher', () => {
+  const root = dir(), home = dir();
+  write(root, 'settings.json', merged(reg('UserPromptSubmit', 'stage-say.mjs'), reg('PostToolUse', 'stage-say.mjs', 'Bash')));
+  const missing = missingHooks(root, home).filter((h) => h.file === 'stage-say.mjs');
+  assert.deepEqual(missing.map((h) => h.args), ['--after-tool']);
+  assert.match(hookAdvice(missing)[0], /stage-say\.mjs --after-tool is not registered.*"matcher":"Bash".*"command":"node harness\/live\/stage-say\.mjs --after-tool"/);
 });
 
 test('a hook on the wrong event, and a settings file that is not JSON, do not count', () => {

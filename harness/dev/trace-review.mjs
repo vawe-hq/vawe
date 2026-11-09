@@ -1,8 +1,9 @@
 // harness/dev/trace-review.mjs: the one tool that reads agent transcripts (Claude Code JSONL) and says what each agent did,
 // what failed, what cost most and which rules the trace shows broken, so a framework change can be measured.
 //   node harness/dev/trace-review.mjs <transcript.jsonl | dir> ...        one report per agent, then the aggregate table
-//   node harness/dev/trace-review.mjs --project <dir> [--since <date|sha>] [--films] [--agent <id|label>] [--main]
+//   node harness/dev/trace-review.mjs --project <dir> [--since <date|sha>] [--films | --authors] [--agent <id|label>] [--main]
 //   flags: --films        only film agents: wrote films/<name>/page.html or ran bin/vawe new for a real film (not zz-*, probes, trials) and ran dev
+//          --authors      only film agents that started their film with bin/vawe new (not a resume, merge or engine task)
 //          --since X      only agents that started on or after X (an ISO date or a commit sha)
 //          --agent X      only agents whose id or VAWE_AGENT label contains X
 //          --main         with --project, read the main sessions too (default: sub-agent transcripts only)
@@ -26,7 +27,7 @@ import { agentMarkdown, aggregateMarkdown, compareMarkdown } from '../lib/trace/
 
 const OPTIONS = {
   project: { type: 'string' }, since: { type: 'string' }, agent: { type: 'string' }, compare: { type: 'string' },
-  films: { type: 'boolean' }, main: { type: 'boolean' }, json: { type: 'boolean' }, 'aggregate-only': { type: 'boolean' }, handmade: { type: 'boolean' },
+  films: { type: 'boolean' }, authors: { type: 'boolean' }, main: { type: 'boolean' }, json: { type: 'boolean' }, 'aggregate-only': { type: 'boolean' }, handmade: { type: 'boolean' },
 };
 
 async function review(file) {
@@ -49,7 +50,7 @@ const print = (text) => fs.createWriteStream(null, { fd: 1 }).end(`${text}\n`);
 async function main() {
   const { values, positionals } = parseArgs({ options: OPTIONS, allowPositionals: true });
   if (!positionals.length && !values.project) {
-    console.error('usage: node harness/dev/trace-review.mjs <transcript.jsonl | dir> ... | --project <dir> [--since X] [--films] [--agent X] [--compare X] [--json]');
+    console.error('usage: node harness/dev/trace-review.mjs <transcript.jsonl | dir> ... | --project <dir> [--since X] [--films | --authors] [--agent X] [--compare X] [--json]');
     process.exit(2);
   }
   const sinceMs = cutoffMs(values.since);
@@ -59,7 +60,7 @@ async function main() {
       console.error('trace-review: --handmade does not take --compare');
       process.exit(2);
     }
-    const keep = (a) => selectAgents([a], { films: values.films, agent: values.agent, sinceMs }).length > 0;
+    const keep = (a) => selectAgents([a], { films: values.films, authors: values.authors, agent: values.agent, sinceMs }).length > 0;
     const events = [];
     for (const file of files) events.push(...await handmadeEvents(file, keep));
     const top = rankShapes(events).slice(0, TOP_SHAPES);
@@ -69,7 +70,7 @@ async function main() {
   }
   const all = [];
   for (const file of files) all.push(await review(file));
-  const agents = selectAgents(all, { films: values.films, agent: values.agent, sinceMs });
+  const agents = selectAgents(all, { films: values.films, authors: values.authors, agent: values.agent, sinceMs });
   const agg = aggregate(agents);
   const compared = values.compare ? compareAt(agents, cutoffMs(values.compare)) : null;
   if (values.json) {

@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pageDigest, writeApproval, writePlanApproval } from '../../harness/lib/approval.mjs';
 import { appendRun, readRuns } from '../../harness/lib/runlog.mjs';
-import { FILM_PAGE, isTestPage, SAY, tasteOnce, sessionOf, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
+import { afterToolSay, FILM_PAGE, isTestPage, SAY, tasteOnce, sessionOf, BRIEF_ASK, CRITIQUE_ASK, WAIT_WORK, nextStep,takenFromCount, movesTakenCount, boardFilled, missingRungs } from '../../harness/live/stage-say.mjs';
 
 process.env.HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-home-'));
 
@@ -331,4 +331,16 @@ test('no plan OK never holds the draft: the plan stage names dev, and once a dra
   const later = new Date(Date.now() - 1000);
   fs.utimesSync(draft, later, later);
   assert.equal(nextStep(page, root).stage, 'motion');
+});
+
+test('after a vawe verb a subagent hears the stage line once per change; a parent session that saw it does not silence it', () => {
+  const { root, page } = film('<section data-world="s1"></section>');
+  const call = (agent, command = 'bin/vawe refs list') => afterToolSay({ session_id: 's1', agent_id: agent, tool_input: { command } }, page, root);
+  const first = call('a1');
+  assert.match(first, /^vawe: f: .*\n  next: bin\/vawe frame films\/f\/page\.html --world all/);
+  assert.equal(call('a1'), null);
+  assert.match(call('a2'), /next: bin\/vawe frame/);
+  assert.equal(call('a3', 'ls films'), null);
+  assert.equal(call('a3', 'bin/vawe dev --help'), null);
+  assert.equal(afterToolSay({ session_id: 's1', agent_id: 'a4', tool_input: { command: 'bin/vawe refs list' } }, null, root), null);
 });

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // UserPromptSubmit hook: says when the checkout lags origin/main, then names the one next command for the page film edited most recently.
+// With --after-tool, a PostToolUse hook on Bash: the same stage line after a vawe verb, only when it changed.
 // The stage line is silent when no films/*/page.html changed in the last RECENT_MS, so a framework session sees nothing of it.
-//   node harness/live/stage-say.mjs [--reset]
+//   node harness/live/stage-say.mjs [--reset | --after-tool]
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -229,8 +230,31 @@ export function sessionOf(input) {
   try { return JSON.parse(input).session_id ?? null; } catch { return null; }
 }
 
+const VAWE_VERB = /(?:^|[\s;&|(])(?:\S*\/)?vawe\s+[a-z]/;
+const HELP_ONLY = /\s(?:--help|-h)(?:\s|$)/;
+
+/** What the PostToolUse hook says after a Bash call that ran a vawe verb: the film's stage line when it changed since this agent last saw it, else null. A subagent gets no UserPromptSubmit, so this is how its stage reaches it. */
+export function afterToolSay(input, page, root) {
+  const cmd = input.tool_input?.command ?? '';
+  if (!page || !VAWE_VERB.test(cmd) || HELP_ONLY.test(cmd)) return null;
+  const s = nextStep(page, root);
+  const sessionId = input.session_id ?? null;
+  const agent = input.agent_id ?? null;
+  if (nextSeen(s.name, { next: s.next, why: s.why }, { root, sessionId, agent })) return null;
+  return [`vawe: ${s.name}: ${s.why}.\n  next: ${s.next}`, ...tasteOnce(s.stage, s.name, root, sessionId)].join('\n');
+}
+
+function afterTool() {
+  let input;
+  try { input = JSON.parse(read(0)); } catch { return; }
+  const root = input.cwd && fs.existsSync(path.join(input.cwd, 'films')) ? input.cwd : process.cwd();
+  const text = afterToolSay(input, recentPage(root), root);
+  if (text) console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext: text } }));
+}
+
 function main() {
   const root = process.cwd();
+  if (process.argv.includes('--after-tool')) return afterTool();
   if (process.argv.includes('--reset')) return resetShown(root, sessionOf(process.stdin.isTTY ? '' : read(0)));
   const stale = staleCheckoutLine(root);
   if (stale) console.log(`vawe: ${stale}`);

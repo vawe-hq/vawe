@@ -1,6 +1,6 @@
 ---
 when: "about to fan work out to subagents"
-answers: "what a fan-out costs; the brief lines and worktree contract every subagent brief needs (the critics are in skills/vawe-critique)"
+answers: "what a fan-out costs; the brief lines and worktree contract every subagent brief needs; the brief for a film author (the critics are in skills/vawe-critique)"
 group: crosscutting
 ---
 
@@ -49,6 +49,26 @@ A brief that omits these does not fail loudly. The agent works for an hour and r
 - A worktree does not carry gitignored inputs (`node_modules`, `assets/fonts`, `refs`, films). Create it
   with `harness/dev/worktree.sh add <name> <glob ...>` (it links them and records the scope, so
   `node harness/dev/worktree-status.mjs` warns the next agent about overlap). Never a bare `git worktree add`.
+
+## A film author's brief
+
+The method lives in AGENTS.md, the verbs' `next:` lines and the stage hook. A brief gives the facts and
+leaves the method to them, so the agent follows one source:
+
+```
+Make a film in the vawe repo, up to a draft the person reviews. In every shell call:
+export VAWE_AGENT=<film> VAWE_MODEL=<model>. Follow AGENTS.md and the next: line of each verb; run every
+stage in its order. Never run ship or approve. Do not commit.
+The ask: <the person's words, verbatim>.
+Facts for bin/vawe new --answers: <name, length, subject, message, assets with their paths>.
+```
+
+- Start the agent in its own worktree (the Agent tool's worktree isolation). An agent started in another
+  checkout carries that checkout's AGENTS.md: one brief had to say "ignore the AGENTS.md in your
+  context", and two agents read an AGENTS.md path that did not exist.
+- Leave out read lists and steps of your own. Each stage names its doc when the agent reaches it.
+- Measure the run with `node harness/dev/trace-review.mjs --project <dir> --authors --since <date>`.
+  From 2026-10-15 to 2026-11-09, 3 of 8 authors ran every stage, none in order, and 4 skipped Ideas.
 
 ## Worktree agent contract
 

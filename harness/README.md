@@ -25,6 +25,7 @@ user registers them. `log-read.mjs` is a PostToolUse hook: it logs every image t
 Register it in your own settings with matcher `Read` and command `node harness/live/log-read.mjs` (run
 from the repo root).
 `verb-hint.mjs` is a PreToolUse hook (matcher `Bash`, command `node harness/live/verb-hint.mjs`): when a command does by hand what a verb does (a puppeteer or headless Chrome screenshot, a curl status loop, a sleep loop on a render, an ffmpeg contact sheet or frame grab) it adds one line naming the verb. It never blocks and names each verb once per 30 minutes.
+`stage-say.mjs` names the film's next stage. Register it twice: as a UserPromptSubmit hook (command `node harness/live/stage-say.mjs`), and as a PostToolUse hook (matcher `Bash`, command `node harness/live/stage-say.mjs --after-tool`). A subagent gets no UserPromptSubmit, so the second one is the only way its stage reaches it; it speaks after a `bin/vawe` call, and only when the stage line changed.
 
 ## Run log
 
@@ -62,7 +63,7 @@ Run with `node <path>`; the file header holds the usage. A film rarely needs the
 - `harness/media/cutout.mjs` a cutout with the background removed
 - `harness/media/ref.mjs` fetch a reference film into `refs/`
 - `harness/dev/palette.mjs` the script behind the retired palette alias: a brand seed and how to compose a palette around it
-- `harness/dev/trace-review.mjs` the one reader of agent transcripts: per agent the verb and stage order, `next:` lines and hook hints followed, raw tools, docs read, navigation (reads before the page, rereads, task-output polls, lookups that found nothing), failures by class, cost and rule breaks; an aggregate table, `--json`, `--compare <sha|date>` (parts in `lib/trace/`). Each harness change it motivates gets a row in `quality/baselines/retro-ledger.json`: the metric, its baseline, and after a with-and-without trial whether the problem occurred, the agent used the change and its actions changed; a change that does not help is removed
+- `harness/dev/trace-review.mjs` the one reader of agent transcripts: per agent the verb and stage order, `next:` lines and hook hints followed, raw tools, docs read, navigation (reads before the page, rereads, task-output polls, lookups that found nothing), failures by class, cost and rule breaks; an aggregate table, `--json`, `--compare <sha|date>` (parts in `lib/trace/`)
 - `harness/dev/bench-capture.mjs` where capture time goes, per render variant
 - `harness/dev/check-sweep.mjs` which draft checks fire over many pages, waivers ignored (the false-flag baseline)
 - `scripts/brand/kit.mjs`, `scripts/brand/palette.mjs`, `scripts/brand/photos.mjs` a brand kit from a site

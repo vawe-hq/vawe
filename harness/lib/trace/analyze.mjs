@@ -156,6 +156,7 @@ export function analyze(fold, file, readRuns = () => []) {
     activeMinutes: Number((fold.active.reduce((t, a) => t + a.dt, 0) / 60000).toFixed(1)), helpCalls: events.filter((e) => e.help).length,
     tokens: tokensOf(fold.usage), films: filmsOf(calls),
     filmAgent: wrotePage, wrotePage: pageMs !== null, ranNew: calls.some((c) => c.newFilm),
+    started: [...new Set(calls.map((c) => c.newFilm).filter(Boolean))],
     verbs: events,
     stages: { first, ...stageOrder(first) },
     routing: routingOf(calls, events, fold.hints),
