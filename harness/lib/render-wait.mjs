@@ -5,7 +5,7 @@ import { slotsInUse } from './render-slots.mjs';
 import { readRuns, filmKeyOf } from './runlog.mjs';
 import { footerLine } from './verb-log.mjs';
 
-export const WAIT_CAP_DEFAULT_MS = 210_000;
+export const WAIT_CAP_DEFAULT_MS = 100_000;
 const POLL_MS = 1000;
 const SETTLE_MS = 60_000;
 

@@ -233,7 +233,7 @@ export const VERBS = [
       PARAM,
       { name: 'out', type: 'path', default: 'out/<name>.mp4', help: 'output file (not with --aspect all)' },
       { name: 'wait', type: 'bool', help: 'block until the render ends instead of running it in the background' },
-      { name: 'status', type: 'bool', retired: 'wait for the render with bin/vawe wait <page> (it returns within about 3.5 minutes; on STILL RUNNING run it again)' },
+      { name: 'status', type: 'bool', retired: 'wait for the render with bin/vawe wait <page> (it returns within 100 seconds; on STILL RUNNING run it again)' },
       { name: 'profile', type: 'bool', help: 'print a cost table: frames, subframes, screenshots, capture and encode seconds, the 5 costliest seconds' },
     ],
     example: 'vawe ship films/my-launch/page.html --aspect all   (then: vawe wait films/my-launch/page.html)',
@@ -246,13 +246,13 @@ export const VERBS = [
     fix: (reason, [page]) => (page?.endsWith('.html') && !/ship refused/.test(reason) ? `bin/vawe dev ${page}` : null),
     next: (v, [page]) => {
       if (v.wait) return critiqueFreshCommand(page);
-      return `rendering in the background: bin/vawe wait ${page} (one call waits up to 3.5 minutes, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`;
+      return `rendering in the background: bin/vawe wait ${page} (one call waits up to 100 seconds, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`;
     },
   },
   {
     tier: 'core',
     name: 'wait', summary: 'use when a draft, clip or final render or a critique is running, instead of sleep, ps or an until loop: prints its result line',
-    positional: [{ name: 'page|film', required: true, help: 'films/<name>/page.html, or the film name; a call returns after about 3.5 minutes with a STILL RUNNING line and a progress line a minute: call it again' }],
+    positional: [{ name: 'page|film', required: true, help: 'films/<name>/page.html, or the film name; a call returns after 100 seconds with a STILL RUNNING line and a progress line every 20 seconds: call it again' }],
     flags: [],
     example: 'vawe wait films/my-launch/page.html   |   vawe wait my-launch',
     build: (v, [film]) => [{ script: 'harness/media/ship-job.mjs', args: ['wait', film] }],

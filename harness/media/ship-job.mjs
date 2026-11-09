@@ -2,8 +2,8 @@
 //
 //   node harness/media/ship-job.mjs start <page.html> [render-page args]   detach a final render, print its job id
 //   node harness/media/ship-job.mjs status [job] [--wait]                  progress, or the result (default: newest job);
-//                                                                          --wait blocks until the job ends or 3.5 minutes pass,
-//                                                                          one progress line per minute
+//                                                                          --wait blocks until the job ends or 100 seconds pass,
+//                                                                          one progress line per 20 seconds
 //   node harness/media/ship-job.mjs wait <page|film>                       the same wait for any render of the film: a running ship job,
 //                                                                          else a draft or clip holding a render slot; prints its result line
 //
@@ -31,9 +31,9 @@ import { EXIT, fail } from '../lib/exit-codes.mjs';
 import { finalAcceptance, lastPageFacts } from './acceptance-run.mjs';
 import { transition, isTerminal, runnerLost } from '../lib/job-state.mjs';
 
-// An agent tool call stalls at its 10 minute watchdog; 3.5 minutes leaves a wide margin.
+// A tool call over 120 s moves to the background, where the agent cannot read it: the wait stays under that.
 const WAIT_CAP_MS = Number(process.env.VAWE_SHIP_WAIT_MS) || WAIT_CAP_DEFAULT_MS;
-const PROGRESS_MS = Number(process.env.VAWE_SHIP_PROGRESS_MS) || 60_000;
+const PROGRESS_MS = Number(process.env.VAWE_SHIP_PROGRESS_MS) || 20_000;
 
 const SELF = fileURLToPath(import.meta.url);
 const RENDER = path.join(path.dirname(SELF), 'render-page.mjs');

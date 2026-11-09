@@ -4,9 +4,9 @@ import { waitForFilm, stillRunningLine, waitExitCode, WAIT_CAP_DEFAULT_MS } from
 
 const slot = { who: 'brindle', kind: 'draft', start: new Date(0).toISOString(), pid: 1 };
 
-test('the default cap is under 4 minutes so an agent tool call never hits its watchdog', () => {
-  assert.ok(WAIT_CAP_DEFAULT_MS <= 240_000);
-  assert.ok(WAIT_CAP_DEFAULT_MS >= 180_000);
+test('the default cap is under 120 s so the wait call never moves to the background', () => {
+  assert.ok(WAIT_CAP_DEFAULT_MS <= 110_000);
+  assert.ok(WAIT_CAP_DEFAULT_MS >= 60_000);
 });
 
 test('a render that outlives the cap returns running, within the cap', async () => {
@@ -17,8 +17,8 @@ test('a render that outlives the cap returns running, within the cap', async () 
 });
 
 test('the still running line names the command to call again', () => {
-  const line = stillRunningLine('bin/vawe wait brindle', 210_000);
-  assert.match(line, /STILL RUNNING after 210s/);
+  const line = stillRunningLine('bin/vawe wait brindle', 100_000);
+  assert.match(line, /STILL RUNNING after 100s/);
   assert.match(line, /Call again: bin\/vawe wait brindle$/);
 });
 
