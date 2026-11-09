@@ -166,7 +166,7 @@ test('the motion step names the doc and each principle to check; every stage lin
 
 test('the ship step names the work for the wait', () => {
   assert.match(WAIT_WORK, /Board and Motion pass rows.*frame <page> --cuts.*critique notes/);
-  assert.match(SAY.ship('f', 'films/f/page.html'), /bin\/vawe wait films\/f\/page\.html \(one call waits up to 3.5 minutes, then says STILL RUNNING: call it again; run it alone, not in parallel\); while it renders, fill/);
+  assert.match(SAY.ship('f', 'films/f/page.html'), /bin\/vawe wait films\/f\/page\.html \(one call waits up to 100 seconds, then says STILL RUNNING: call it again; run it alone, not in parallel\); while it renders, fill/);
 });
 
 test('after a draft the next step follows what is done: strips under any out/strip/<name>* folder, Motion pass rows, critique, then ship', () => {

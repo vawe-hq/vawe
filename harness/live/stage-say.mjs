@@ -97,7 +97,7 @@ export const SAY = {
   motionRows: (name) => `write one row per cut in "Motion pass" in films/${name}/brief.md: each principle checked, what read flat, what you fixed`,
   critique: (name, rel) => `bin/vawe critique ${rel} --fresh`,
   plan: (page, rel) => `${planProblem(page) ?? `show the plan to the person: the directions board (bin/vawe frame ${rel} --directions) and the Board`}, then go on with ${SAY.dev('', rel)} and ${ASK_LINE}`,
-  ship: (name, rel) => `bin/vawe ship ${rel}, then bin/vawe wait ${rel} (one call waits up to 3.5 minutes, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`,
+  ship: (name, rel) => `bin/vawe ship ${rel}, then bin/vawe wait ${rel} (one call waits up to 100 seconds, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`,
 };
 
 /** True when `out/strip/<name>` or `out/strip/<name>-*` changed after `sinceMs`: an agent's own --out folders count. */
