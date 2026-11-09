@@ -239,6 +239,12 @@ export const LEGACY_REDIRECTS = [
   // Crawlers still fetch the share images of old /moves pages and the blog thumbs removed on 2026-11-03 (the bot log's 404s).
   permanent("/moves/:name([a-z0-9-]+)/opengraph-image", "/video-components/:name/opengraph-image"),
   permanent("/blog/:slug([a-z0-9-]+)/thumb.webp", "/og/blog/:slug.png"),
+  // Browsers and crawlers ask for icons at the root by habit; the files live in /assets.
+  permanent("/apple-touch-icon.png", "/assets/apple-touch-icon.png"),
+  permanent("/apple-touch-icon-precomposed.png", "/assets/apple-touch-icon.png"),
+  permanent("/favicon.svg", "/assets/favicon.svg"),
+  permanent("/favicon.png", "/assets/favicon-96.png"),
+  permanent("/og.png", "/assets/og.png"),
 ];
 
 // Any Host other than the apex gets a 301 to it: the raw server IP and stray alias hostnames were

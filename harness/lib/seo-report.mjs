@@ -134,8 +134,8 @@ const gapActions = (pageQuery, titles) => pageQuery
 
 const notFoundActions = (notFound) => Object.entries(notFound)
   .filter(([p, n]) => n >= 3 && !SCANNER.test(p))
-  // The middleware skips image and file paths, so a 404 on one of them is logged with no path.
-  .map(([p, n]) => act('404', n, `${p || 'An image or file path (the log does not record which)'} gave a 404 to bots ${n} times. Add the page or a redirect.`));
+  // Until 2026-11-09 a 404 on a path the middleware skips (assets, files) was logged with no path.
+  .map(([p, n]) => act('404', n, `${p || 'A path logged before 2026-11-09 (with no path recorded)'} gave a 404 to bots ${n} times. Add the page or a redirect.`));
 
 const isBigMove = (d) => (d.prev === 0 ? d.cur >= MIN_IMPRESSIONS : Math.abs(d.delta) / d.prev >= 0.3 && Math.max(d.prev, d.cur) >= MIN_IMPRESSIONS);
 
