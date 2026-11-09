@@ -35,7 +35,7 @@ sheet that shows every part once. Example: `films/examples/colour-sting/DESIGN.m
 Each `data-world` is a static state from the kit first (`bin/vawe frame <page> --world all`): about 1 line and 2 or 3 things, a ground that is never flat (a light, grain or depth device named from a reference frame, changed at each world turn).
 The Board is a plan for time, not frames: rhythm (cuts not all equal: one under 0.4 s, one over 0.9 s), the spectacle second (also `<meta name="spectacle">`; recipe 15 in `prompts/moves/RECIPES.md`), a named move per cut (overlap, camera, what carries the eye, which arrivals overshoot: `EASE.nudge` for ordinary ones, `EASE.pop` for the hero), a handoff per cut (`vawe-transitions`), and sound (below). Ideas first: `guides/IDEATE.md`.
 The camera holds still by default and moves only with a reason (the spectacle, a reveal): a hold stays alive through an element motion (typing, a counter, a glint), not a camera drift. The motion is done when overshoot-share, live-hold, constant-camera and seam-variety are clean or waived with a reason, every cut is Read (`bin/vawe frame <page> --cuts`; on the spectacle second `--moment <s> --onion` and `--velocity`) against `taste/craft/motion-craft.md` and `core/motion/README.md`, and each cut has a "Motion pass" row.
-A film that uses the lens (`core/surfaces/lens.js`, `prompts/moves/lens.md`) picks its look by sight: `bin/vawe frame <page> --looks --at <s>` shows the page under every look, then set `look: '<name>'` in the lens options.
+A film that uses the lens (`core/surfaces/lens.js`, `prompts/moves/lens.md`; every look, option and default in `skills/vawe-page/API.md`) picks its look by sight: `bin/vawe frame <page> --looks --at <s>` shows the page under every look, then set `look: '<name>'` in the lens options.
 
 ```html
 <meta name="message" content="zero fees">    <!-- the one thing to remember -->
@@ -60,6 +60,7 @@ approximate it by eye.
 
 ## Springs and tables
 
+`skills/vawe-page/API.md` lists every motion preset and lens option with its parameters and defaults: read it, not the source.
 Start every entrance, exit and group from `core/motion/presets.js` (`enter`, `leave`, `stagger`,
 `layer`, `BANDS`): they land on real curves, exit shorter than the entrance (rule exits-shorter) and stagger 30 to 80 ms,
 and the `bin/vawe dev` motion lint names each move that breaks those rules.
