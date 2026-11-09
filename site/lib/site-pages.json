@@ -213,6 +213,20 @@
       "label": "Explainer video"
     },
     {
+      "path": "/agentic-video-editing",
+      "priority": 0.8,
+      "changeFrequency": "monthly",
+      "group": "topic",
+      "label": "Agentic video editing"
+    },
+    {
+      "path": "/edit-video-with-claude-code",
+      "priority": 0.7,
+      "changeFrequency": "monthly",
+      "group": "topic",
+      "label": "Edit video with Claude Code"
+    },
+    {
       "path": "/vs/remotion",
       "priority": 0.7,
       "changeFrequency": "monthly",
@@ -246,6 +260,13 @@
       "changeFrequency": "monthly",
       "group": "comparison",
       "label": "vawe vs Revideo"
+    },
+    {
+      "path": "/vs/video-use",
+      "priority": 0.7,
+      "changeFrequency": "monthly",
+      "group": "comparison",
+      "label": "vawe vs video-use"
     },
     {
       "path": "/problems",

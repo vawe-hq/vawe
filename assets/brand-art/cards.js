@@ -204,6 +204,16 @@ PAGES['/explainer-video'] = {
   h: 'An explainer video from code.',
   sub: 'Facts first, then one idea per scene.',
 };
+PAGES['/agentic-video-editing'] = {
+  ...LAUNCH_STILL, ink: 'a',
+  h: 'Agentic video editing.',
+  sub: 'Your coding agent reads the clips<br>and cuts the film.',
+};
+PAGES['/edit-video-with-claude-code'] = {
+  ...BLOG_STILL, ink: 'a',
+  h: 'Edit video with Claude Code.',
+  sub: 'A folder of clips in,<br>an MP4 out.',
+};
 
 // Blog posts: each scene's composition, varied by the post's seed within safe ranges.
 const POST_LAY = {

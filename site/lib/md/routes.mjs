@@ -26,6 +26,8 @@ export const RENDERED = [
   "/problems",
   "/roadmap",
   "/launch-video",
+  "/agentic-video-editing",
+  "/edit-video-with-claude-code",
   "/product-showcase-video",
   "/explainer-video",
   "/remotion-alternatives",

@@ -128,6 +128,7 @@ export default function Features() {
           <section className="phead">
             <PageTop group={crumb.group} current={crumb.current} />
             <h1>{FEATURES.h1}</h1>
+            <p>{FEATURES.lede}</p>
             <Toc items={FEATURES.toc} />
             <div className="ft-film ft-hero">
               <Clip src={showcase.mp4} poster={showcase.poster} decorative />

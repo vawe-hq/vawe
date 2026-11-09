@@ -120,6 +120,8 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
       { href: "/launch-video", title: "Launch videos", line: "A product launch film built from captured UI, one message per beat.", icon: "play", meta: "guide" },
       { href: "/product-showcase-video", title: "Product showcase videos", line: "A feature tour of the real product: four screens, one camera, about 20\u00a0seconds.", icon: "play", meta: "guide" },
       { href: "/explainer-video", title: "Explainer videos", line: "Facts first, then one idea per scene, 9\u00a0seconds to 3\u00a0minutes.", icon: "play", meta: "guide" },
+      { href: "/agentic-video-editing", title: "Agentic video editing", line: "A coding agent reads your clips as text and cuts them into one film.", icon: "play", meta: "guide" },
+      { href: "/edit-video-with-claude-code", title: "Edit video with Claude Code", line: "Set up once, hand over a folder of clips, approve the draft.", icon: "play", meta: "guide" },
       { href: "/blog", title: "Blog", line: "Notes on what broke, what we measured and what changed.", icon: "pen", meta: `${allPosts().length}${NBSP}posts` },
     ],
   },

@@ -6,6 +6,7 @@ import { FEATURES, FEATURES_BARS, FEATURES_SESSION } from "../content/features";
 import { HOME } from "../content/home";
 import { HYPERFRAMES_ALTERNATIVES } from "../content/hyperframes-alternatives";
 import { LAUNCH_VIDEO } from "../content/launch-video";
+import { AGENTIC_EDITING, EDIT_WITH_CLAUDE_CODE } from "../content/agentic-editing";
 import { EXPLAINER, PRODUCT_SHOWCASE, type VideoTypePage } from "../content/video-types";
 import { OPEN, PROBLEMS_PAGE, SOLVED, STATUS_LABEL, type Problem } from "../content/problems";
 import { REMOTION_ALTERNATIVES } from "../content/remotion-alternatives";
@@ -87,6 +88,7 @@ const home = single("/", { title: "vawe", description: HOME.hero.lede }, () => (
 
 const features = single(FEATURES.path, FEATURES.meta, () =>
   doc(FEATURES.path, FEATURES.h1, FEATURES.meta, [
+    FEATURES.lede,
     ...FEATURES.sections.map((s) =>
       join([
         heading(2, s.title),
@@ -175,6 +177,29 @@ const launchVideo = single(LAUNCH_VIDEO.path, LAUNCH_VIDEO.meta, () =>
     section(LAUNCH_VIDEO.invent),
     section(LAUNCH_VIDEO.family),
   ], LAUNCH_VIDEO.next),
+);
+
+const agenticEditing = single(AGENTIC_EDITING.path, AGENTIC_EDITING.meta, () =>
+  doc(AGENTIC_EDITING.path, AGENTIC_EDITING.h1, AGENTIC_EDITING.meta, [
+    AGENTIC_EDITING.lede,
+    section(AGENTIC_EDITING.how),
+    section(AGENTIC_EDITING.reads),
+    section(AGENTIC_EDITING.scope),
+    join([heading(2, AGENTIC_EDITING.moves.title), AGENTIC_EDITING.moves.lead, AGENTIC_EDITING.moves.clips.map((name) => item(name, `/video-components/${name}`)).join("\n")]),
+    section(AGENTIC_EDITING.more),
+  ], AGENTIC_EDITING.next),
+);
+
+const editWithClaudeCode = single(EDIT_WITH_CLAUDE_CODE.path, EDIT_WITH_CLAUDE_CODE.meta, () =>
+  doc(EDIT_WITH_CLAUDE_CODE.path, EDIT_WITH_CLAUDE_CODE.h1, EDIT_WITH_CLAUDE_CODE.meta, [
+    EDIT_WITH_CLAUDE_CODE.lede,
+    section(EDIT_WITH_CLAUDE_CODE.setup),
+    section(EDIT_WITH_CLAUDE_CODE.ask),
+    section(EDIT_WITH_CLAUDE_CODE.steps),
+    section(EDIT_WITH_CLAUDE_CODE.questions),
+    section(EDIT_WITH_CLAUDE_CODE.gotchas),
+    section(EDIT_WITH_CLAUDE_CODE.more),
+  ], EDIT_WITH_CLAUDE_CODE.next),
 );
 
 const videoType = (c: VideoTypePage) =>
@@ -327,6 +352,8 @@ export const CONTENT_RENDERERS: Record<string, Renderer> = {
   "/problems": problems,
   "/roadmap": roadmap,
   "/launch-video": launchVideo,
+  [AGENTIC_EDITING.path]: agenticEditing,
+  [EDIT_WITH_CLAUDE_CODE.path]: editWithClaudeCode,
   [PRODUCT_SHOWCASE.path]: videoType(PRODUCT_SHOWCASE),
   [EXPLAINER.path]: videoType(EXPLAINER),
   "/remotion-alternatives": remotionAlternatives,

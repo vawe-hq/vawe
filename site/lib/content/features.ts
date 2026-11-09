@@ -63,6 +63,7 @@ export const FEATURES = {
   } as Meta,
   crumb: { group: "Product", current: "Features" } as Crumb,
   h1: "Agents write it. It looks made. It renders fast.",
+  lede: `vawe is an open-source framework that renders one HTML page to an MP4. Its features: a command line an AI coding agent can drive step by step, ${MOVES.length} video components and ${EASES.length} easing curves to build from, motion blur and a virtual clock, so the same page gives the same frames on every render.`,
   toc: [
     { href: "#ax", label: "Agent experience" },
     { href: "#taste", label: "Taste" },

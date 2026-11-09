@@ -188,6 +188,7 @@ paid "Company License":
       { href: "/hyperframes-alternatives", label: "HyperFrames alternatives" },
       { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },
       { href: "/vs/revideo", label: "vawe vs Revideo" },
+      { href: "/vs/video-use", label: "vawe vs video-use, for editing your own clips" },
       { href: "/blog/claude-code-remotion-or-html", label: "Claude Code with Remotion or plain HTML" },
       { href: "/blog/programmatic-video-javascript", label: "Six JavaScript video tools compared" },
       { href: "/determinism", label: "Why the same page always renders the same frames" },

@@ -392,6 +392,75 @@ export const RIVALS: Rival[] = [
       { href: "/vs/remotion", label: "vawe vs Remotion" },
     ],
   },
+  {
+    slug: "video-use",
+    name: "video-use",
+    read: "2026-11-09",
+    metaTitle: "vawe vs video-use: two ways a coding agent edits your clips",
+    metaDescription:
+      "video-use and vawe both let Claude Code or Codex edit your own footage. A fact-checked comparison of transcripts, API keys, rendering, overlays and licence.",
+    h1: "vawe vs video-use.",
+    intro:
+      "video-use and vawe both let a coding agent edit your own clips: you hand over a folder, the agent reads the footage as text, and you get an MP4 back. They differ in where the transcript comes from, how the edit is written down, and how the film is rendered.",
+    what:
+      "video-use is an MIT-licensed skill from Browser Use for Claude Code, Codex and other agents with shell access. It transcribes each take with ElevenLabs Scribe, packs the transcripts into one file the model reads, writes an edit decision list, renders it with ffmpeg and checks the result at every cut before it shows you a preview.",
+    stronger: [
+      "Talking-head cleanup. It cuts filler words such as umm and uh, false starts and dead space between takes, and adds a 30\u00a0ms audio fade at every cut.",
+      "Speaker and sound labels. ElevenLabs Scribe gives speaker diarization and audio events such as laughter and applause, which vawe’s local transcripts do not have.",
+      "A self-check loop. It inspects the rendered output at every cut boundary and fixes and re-renders up to three times before you see it.",
+      "Reach. Its GitHub repo showed about 30,800 stars on 2026-11-09.",
+    ],
+    chooseThem: [
+      "You edit long talking-head footage, interviews or tutorials and want filler words cut for you.",
+      "You want speaker labels and audio events in the transcript.",
+      "You are happy to send audio to ElevenLabs with an API key.",
+      "You want animation overlays from HyperFrames, Remotion or Manim added to an ffmpeg edit.",
+    ],
+    choosevawe: [
+      "You want transcripts made on your machine with whisper.cpp: no API key and no upload.",
+      "You want the edit and the motion graphics in one HTML page, so titles, captions and transitions use the same clock as the clips.",
+      `You want ${MOVES.length} video components, such as word-timed captions and lower thirds, ready to drop between clips.`,
+      "You want the same frames on every render: the engine seeks each clip to an exact second instead of playing it.",
+    ],
+    rows: [
+      { feature: "What it is", them: "A skill that edits footage with a coding agent and ffmpeg", vawe: "A framework where the agent writes one HTML page that vawe renders to MP4" },
+      { feature: "Licence", them: "MIT", vawe: "Apache-2.0", t: "yes", v: "yes" },
+      { feature: "Transcripts", them: "ElevenLabs Scribe: word times, speakers, audio events; needs an API key", vawe: "whisper.cpp on your machine: word times; no API key", t: "yes", v: "yes" },
+      { feature: "How the model sees footage", them: "Packed transcripts, plus a filmstrip and waveform image on demand", vawe: "footage.md: length, shots, loudness, a contact sheet and word-timed transcripts" },
+      { feature: "The edit is written as", them: "An edit decision list rendered by ffmpeg", vawe: "One HTML page: each clip is a video element with in, out and speed" },
+      { feature: "Titles, captions, motion", them: "Burned subtitles; overlays from HyperFrames, Remotion, Manim or PIL", vawe: "HTML, CSS and Web Animations in the same page, with a library of video components" },
+      { feature: "Filler-word removal", them: "Yes", vawe: "No: the agent cuts silences and keeps words whole", t: "yes", v: "partial" },
+      { feature: "Agents", them: "Claude Code, Codex, Hermes, Openclaw, any agent with a shell", vawe: "Claude Code, Codex, Cursor, any agent that reads AGENTS.md", t: "yes", v: "yes" },
+    ],
+    faq: [
+      {
+        q: "Does video-use need an API key?",
+        a: "Yes. Its setup asks for an ElevenLabs API key, because each take is transcribed with ElevenLabs Scribe. vawe transcribes with whisper.cpp on your machine and needs no key.",
+      },
+      {
+        q: "Can the agent watch the video?",
+        a: "In both tools the model reads the footage as text instead of watching every frame. video-use adds a filmstrip and waveform image when it must decide a cut. vawe gives the agent footage.md and a contact sheet of each clip.",
+      },
+      {
+        q: "Can vawe cut filler words?",
+        a: "Not by itself. The agent sees each word with its start and end time and can cut between words, but vawe has no filler-word detector. For long talking-head footage, video-use is the stronger choice today.",
+      },
+      {
+        q: "Can I add motion graphics to an edit?",
+        a: "Yes, in both. video-use spawns sub-agents that make overlays with HyperFrames, Remotion, Manim or PIL. In vawe the overlays are part of the same HTML page as the clips.",
+      },
+    ],
+    sources: [
+      { label: "video-use README", url: "https://github.com/browser-use/video-use" },
+      { label: "video-use SKILL.md", url: "https://github.com/browser-use/video-use/blob/main/SKILL.md" },
+      { label: "ElevenLabs API keys", url: "https://elevenlabs.io/app/settings/api-keys" },
+    ],
+    related: [
+      { href: "/agentic-video-editing", label: "Agentic video editing with vawe" },
+      { href: "/edit-video-with-claude-code", label: "Edit video with Claude Code" },
+      { href: "/vs/hyperframes", label: "vawe vs HyperFrames" },
+    ],
+  },
 ];
 
 export const RIVAL_BY_SLUG = Object.fromEntries(RIVALS.map((r) => [r.slug, r]));
