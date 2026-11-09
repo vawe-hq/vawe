@@ -16,8 +16,8 @@ test('looksProblem: names the first bad flag, null when both are good', () => {
   assert.match(looksProblem({ at: '1', only: 'x' }), /no look "x"/);
 });
 
-test('the LOOKS table: ten looks, clean is empty, every look is plain data the preview can send as JSON', () => {
-  assert.equal(Object.keys(LOOKS).length, 10);
+test('the LOOKS table: eleven looks, clean is empty, every look is plain data the preview can send as JSON', () => {
+  assert.equal(Object.keys(LOOKS).length, 11);
   assert.deepEqual(LOOKS.clean, {});
   for (const [name, look] of Object.entries(LOOKS)) assert.deepEqual(JSON.parse(JSON.stringify(look)), look, name);
 });

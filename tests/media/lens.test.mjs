@@ -128,6 +128,32 @@ test('palette: a 50% grey maps to the stop mix at its brightness', async () => {
   assert.ok(r > 250 && b < 6 && Math.abs(g - expectG) < 8, `got ${r},${g},${b} want 255,${expectG.toFixed(0)},0`);
 });
 
+const RISO_BLACK = { amount: 1, inks: [[0, 0, 0]], cell: 10, soft: 0.5, mottle: 0, fibre: 0 };
+
+test('riso: a 50% grey prints as dots of solid ink at its tone, a dark ground prints solid', async () => {
+  const img = await shoot({ riso: RISO_BLACK }, { only: 'patch' });
+  const lum = window2(img, 1200, 400, 400, 200).map(luma);
+  const mid = lum.filter((v) => v > 60 && v < 180).length / lum.length;
+  assert.ok(Math.abs(mean(lum) - 128) < 16, `the patch keeps its tone: mean ${mean(lum).toFixed(0)}`);
+  assert.ok(mid < 0.3, `the patch is dots, not a flat grey: ${(mid * 100).toFixed(0)}% of pixels are mid-tone`);
+  assert.ok(luma(img.px(600, 900)) < 20, `the dark ground is solid ink: ${luma(img.px(600, 900)).toFixed(0)}`);
+});
+
+test('riso: a register offset moves the plate by that many CSS px', async () => {
+  const still = await shoot({ riso: RISO_BLACK }, { only: 'glyph' });
+  const moved = await shoot({ riso: { ...RISO_BLACK, offset: [[20, 0]] } }, { only: 'glyph' });
+  assert.ok(luma(still.px(305, 530)) > 200 && luma(moved.px(305, 530)) < 40, 'the white glyph left its old left edge');
+  assert.ok(luma(still.px(372, 530)) < 40 && luma(moved.px(372, 530)) > 200, 'and prints 20 px to the right');
+});
+
+test('riso: two inks over each other multiply, as an overprint does', async () => {
+  const pink = [1, 0.282, 0.69], blue = [0, 0.471, 0.749], paper = [1, 1, 1];
+  const img = await shoot({ riso: { amount: 1, inks: [pink, blue], paper, cell: 10, soft: 0.5, mottle: 0, fibre: 0 } }, { only: 'patch' });
+  const [r, g, b] = img.px(600, 900);
+  const want = pink.map((v, i) => 255 * v * blue[i]);
+  assert.ok([r, g, b].every((v, i) => Math.abs(v - want[i]) < 12), `the dark ground is pink times blue: got ${r},${g},${b} want ${want.map(Math.round)}`);
+});
+
 test('bloom: a bright glyph lifts the pixels around it, not the far ground', async (t) => {
   const off = await shoot({}, { only: 'glyph' });
   const on = await shoot({ bloom: { strength: 1.5, radius: 30, threshold: 0.2 } }, { only: 'glyph' });

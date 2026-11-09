@@ -19,6 +19,12 @@ export const PALETTES = {
   cyanotype: ['#010306', '#070d13', '#162432', '#3b4f64', '#6f8599', '#ccd8e4'].map(hex),
 };
 
+export const RISO_INKS = {
+  pink: hex('#ff48b0'), blue: hex('#0078bf'), yellow: hex('#ffe800'), teal: hex('#00838a'),
+  red: hex('#ff665e'), green: hex('#00a95c'), orange: hex('#ff6c2f'), purple: hex('#765ba7'), black: hex('#000000'),
+};
+const RISO_PAPER = hex('#f4efe4');
+
 const LAYOUTS = { stripe: 0, triad: 1, dot: 2 };
 // Share of a cell a subpixel lights, per layout: the mask gain is 1 / share so the average light is kept.
 const LIT_SHARE = { stripe: 0.232, triad: 0.152, dot: 0.458 };
@@ -33,6 +39,11 @@ const DEFAULTS = {
   fit: { keep: null, margin: 60, cover: false }, // keep: a source point or list the view must hold; cover: never show the border
   dof: { blur: 0.5, band: 0, focus: null, max: 46, bokeh: 7, taps: 48, soft: 2.5, blades: 6, rotation: 0.3, roundness: 0.15, catEye: 0.5 },
   palette: null, // { stops: [[r,g,b] ...2 to 8], amount: 1, keepColor: 0 }
+  // A stencil print: the frame split into 1 to 4 spot inks, each a halftone screen at its own angle and register offset (CSS px), multiplied on paper.
+  riso: {
+    amount: 0, inks: [RISO_INKS.pink, RISO_INKS.blue, RISO_INKS.yellow], paper: RISO_PAPER,
+    cell: 5, angles: [15, 75, 0, 45], offset: [[0, 0], [2, -1], [-1, 2], [1, 1]], soft: 0.7, mottle: 0.12, fibre: 0.03,
+  },
   bloom: { strength: 0.9, radius: 42, threshold: 0.3, knee: 0.3 },
   halation: { strength: 0, radius: 90, threshold: 0.6, knee: 0.3, tint: [1, 0.3, 0.1] },
   grid: { amount: 0.9, cell: 3, layout: 'stripe', softness: 0.08, brightness: 0.85 },
@@ -47,7 +58,7 @@ const DEFAULTS = {
   grain: 0.05, vignette: 0.4, exposure: 1, lift: 0, fade: 0,
 };
 export const OFF = {
-  dof: { blur: 0, soft: 0 }, palette: null, bloom: { strength: 0 }, halation: { strength: 0 }, grid: { amount: 0 },
+  dof: { blur: 0, soft: 0 }, palette: null, riso: { amount: 0 }, bloom: { strength: 0 }, halation: { strength: 0 }, grid: { amount: 0 },
   aberration: { amount: 0 }, tear: { amount: 0 }, streaks: { strength: 0 }, diffusion: { strength: 0 }, softFocus: { amount: 0 },
   tiltShift: { blur: 0 }, distortion: { amount: 0 }, weave: { amount: 0 }, grain: 0, vignette: 0, exposure: 1, lift: 0, fade: 0,
 };
@@ -68,6 +79,7 @@ export const LOOKS = {
     grain: 0.09, weave: { amount: 1.6 }, vignette: 0.55, lift: 0.02,
   },
   cyanotype: { palette: { stops: PALETTES.cyanotype }, halation: { strength: 0.8, radius: 90, threshold: 0.5, tint: [0.1, 0.4, 1] }, grain: 0.07, vignette: 0.3 },
+  riso: { riso: { amount: 1 }, grain: 0.04 },
   crt: { grid: { amount: 0.9, cell: 3, layout: 'stripe' }, tear: { amount: 6, prob: 0.04, band: 12 }, aberration: { amount: 5 }, bloom: { strength: 0.7, radius: 40, threshold: 0.3 }, vignette: 0.5, grain: 0.04 },
 };
 
@@ -429,6 +441,38 @@ uniform sampler2D u_scene, u_bloomTex, u_haloTex, u_streakTex, u_mistTex, u_soft
 uniform vec2 u_res;
 uniform vec3 u_haloTint, u_streakTint;
 uniform float u_bloom, u_halo, u_streak, u_mist, u_soft, u_exp, u_lift, u_vig, u_grain, u_fade, u_seed, u_frame;
+uniform float u_riso, u_risoN, u_cell, u_risoSoft, u_mottle, u_fibre;
+uniform mat4 u_sepInv;
+uniform vec3 u_paper, u_abs[4], u_trans[4];
+uniform float u_angle[4];
+uniform vec2 u_off[4];
+float inkDensity(vec2 frag, int i) {
+  vec3 c = toDisplay(texture(u_scene, frag / u_res).rgb);
+  vec3 a = -log(clamp(c / u_paper, 0.004, 1.0));
+  vec4 b = vec4(dot(u_abs[0], a), dot(u_abs[1], a), dot(u_abs[2], a), dot(u_abs[3], a));
+  float d = clamp((u_sepInv * b)[i], 0.0, 1.0);
+  float tl = clamp(dot(u_trans[i], LUMA), 0.004, 0.999);
+  return (1.0 - pow(tl, d)) / (1.0 - tl);
+}
+float dotCover(vec2 frag, float d, int i) {
+  if (d < 0.002) return 0.0;
+  float s = sin(u_angle[i]), k = cos(u_angle[i]);
+  vec2 p = mat2(k, -s, s, k) * frag / u_cell;
+  float dist = length(fract(p) - 0.5);
+  float r = d < 0.785 ? sqrt(d / 3.14159) : 0.5 + (d - 0.785) / 0.215 * 0.2072;
+  float aa = u_risoSoft / u_cell;
+  float cover = d > 0.99 ? 1.0 : smoothstep(r + aa, r - aa, dist);
+  return cover * (1.0 - u_mottle * hash(vec3(floor(p) + 4096.0, float(i) + u_seed * 7.0)));
+}
+vec3 risoPrint(vec2 frag) {
+  vec3 print = u_paper * (1.0 - u_fibre * hash(vec3(floor(frag * 0.5), u_seed + 911.0)));
+  for (int i = 0; i < 4; i++) {
+    if (float(i) >= u_risoN) break;
+    vec2 at = frag - u_off[i];
+    print *= mix(vec3(1.0), u_trans[i], dotCover(at, inkDensity(at, i), i));
+  }
+  return print;
+}
 void main() {
   vec2 uv = gl_FragCoord.xy / u_res;
   vec3 col = texture(u_scene, uv).rgb;
@@ -447,6 +491,7 @@ void main() {
   vec3 ex = max(col - 1.0, 0.0);
   col = min(col, 1.0) + (ex.r + ex.g + ex.b) * 0.5 * (1.0 - min(col, 1.0));
   col = toDisplay(col);
+  if (u_riso > 0.0) col = mix(col, risoPrint(gl_FragCoord.xy), u_riso);
   col += (hash(vec3(gl_FragCoord.xy, u_frame + u_seed * 31.0)) - 0.5) * u_grain;
   col *= 1.0 - u_fade;
   o = vec4(clamp(col, 0.0, 1.0), 1.0);
@@ -636,7 +681,46 @@ function finalPass(rig, p, t) {
   u1('u_streak', p.streaks.strength > 0 ? p.streaks.strength * STREAK_GAIN : 0); u1('u_mist', p.diffusion.strength > 0 ? p.diffusion.strength : 0); u1('u_soft', p.softFocus.amount > 0 ? p.softFocus.amount : 0);
   u1('u_exp', p.exposure); u1('u_lift', p.lift); u1('u_vig', p.vignette);
   u1('u_grain', p.grain); u1('u_fade', p.fade); u1('u_seed', p.seed); u1('u_frame', Math.floor(t * p.fps));
+  setRiso(gl, f, p.riso, rig.pxs);
   draw3(gl);
+}
+
+// Ink densities d solve sum(d_i * a_i) = a in optical density (a = -log(colour / paper)) by least squares;
+// the 4x4 normal matrix is the same for every pixel, so it is inverted here once per frame.
+export function risoSeparation(inks, paper) {
+  const abs = [0, 1, 2, 3].map((i) => (inks[i] ? inks[i].map((v, c) => -Math.log(Math.min(1, Math.max(0.004, v / paper[c])))) : [0, 0, 0]));
+  const m = abs.map((a, i) => abs.map((b, j) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + (i === j ? 1e-3 : 0)));
+  return { abs, inv: invert4(m), trans: [0, 1, 2, 3].map((i) => (inks[i] ? inks[i].map((v, c) => Math.min(1, v / paper[c])) : [1, 1, 1])) };
+}
+
+function invert4(m) {
+  const a = m.map((row, i) => [...row, ...[0, 1, 2, 3].map((j) => (i === j ? 1 : 0))]);
+  for (let c = 0; c < 4; c++) {
+    const pivot = a.reduce((best, row, r) => (r >= c && Math.abs(row[c]) > Math.abs(a[best][c]) ? r : best), c);
+    [a[c], a[pivot]] = [a[pivot], a[c]];
+    const d = a[c][c];
+    a[c] = a[c].map((v) => v / d);
+    for (let r = 0; r < 4; r++) if (r !== c) { const k = a[r][c]; a[r] = a[r].map((v, j) => v - k * a[c][j]); }
+  }
+  return a.map((row) => row.slice(4));
+}
+
+function setRiso(gl, prog, r, pxs) {
+  gl.uniform1f(prog.loc('u_riso'), r.amount > 0 ? r.amount : 0);
+  if (!(r.amount > 0)) return;
+  const inks = r.inks.slice(0, 4);
+  const sep = risoSeparation(inks, r.paper);
+  gl.uniformMatrix4fv(prog.loc('u_sepInv'), false, new Float32Array([0, 1, 2, 3].flatMap((c) => sep.inv.map((row) => row[c]))));
+  gl.uniform3fv(prog.loc('u_abs'), new Float32Array(sep.abs.flat()));
+  gl.uniform3fv(prog.loc('u_trans'), new Float32Array(sep.trans.flat()));
+  gl.uniform3fv(prog.loc('u_paper'), r.paper);
+  gl.uniform1fv(prog.loc('u_angle'), new Float32Array([0, 1, 2, 3].map((i) => ((r.angles[i] ?? 0) * Math.PI) / 180)));
+  gl.uniform2fv(prog.loc('u_off'), new Float32Array([0, 1, 2, 3].flatMap((i) => { const [x, y] = r.offset[i] ?? [0, 0]; return [x * pxs, -y * pxs]; })));
+  gl.uniform1f(prog.loc('u_risoN'), inks.length);
+  gl.uniform1f(prog.loc('u_cell'), r.cell * pxs);
+  gl.uniform1f(prog.loc('u_risoSoft'), r.soft * pxs);
+  gl.uniform1f(prog.loc('u_mottle'), r.mottle);
+  gl.uniform1f(prog.loc('u_fibre'), r.fibre);
 }
 
 const EDGE_INSET_PX = 10;
