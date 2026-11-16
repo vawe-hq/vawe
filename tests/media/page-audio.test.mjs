@@ -99,3 +99,27 @@ test('data-trim and data-trim-end play only that part of a file, with a fade at 
   assert.ok(peak(0.6, 0.95) > 0.05, 'sounds inside the trimmed part');
   assert.ok(peak(1.15, 3) < 0.01, `silent after the trimmed part (0.5 s long): ${peak(1.15, 3)}`);
 }));
+
+test('an effect file that opens with silence is heard at data-at: the mixer skips its silent lead', () => withFilm(2, async ({ dir, video }) => {
+  const { leadOf } = await import('../../harness/media/page-audio.mjs');
+  assert.equal(leadOf(new Float32Array([0, 0.001, 0, 0.5, 1]), 1000), 0.001);
+  assert.equal(leadOf(new Float32Array(4), 1000), 0, 'a silent file has no lead');
+  const late = path.join(dir, 'late.wav');
+  const mk = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'aevalsrc=if(gt(t\\,0.1)\\,0.8*sin(2*PI*900*t)*exp(-30*(t-0.1))\\,0):s=48000:d=0.4', late]);
+  assert.equal(mk.status, 0, String(mk.stderr));
+  const out = path.join(dir, 'lead.mp4');
+  await mixAndMux({ specs: [{ src: late, at: 0.5, gain: 0, fadeIn: 0, fadeOut: 0, trim: 0, trimEnd: null, duck: null, role: 'sfx' }], duration: 2, video, out });
+  const pcm = spawnSync('ffmpeg', ['-loglevel', 'error', '-i', out, '-ac', '1', '-ar', String(SR), '-f', 'f32le', '-'], { maxBuffer: 64 * 1024 * 1024 });
+  const s = new Float32Array(pcm.stdout.buffer.slice(pcm.stdout.byteOffset, pcm.stdout.byteOffset + pcm.stdout.byteLength));
+  const first = s.findIndex((v) => Math.abs(v) > 0.05);
+  assert.ok(Math.abs(first / SR - 0.5) < 0.012, `heard at ${(first / SR).toFixed(3)} s, data-at 0.5 s`);
+}));
+
+test('sharp clicks stay at -1 dBTP or under after the AAC encode', () => withFilm(3, async ({ dir, video }) => {
+  const click = path.join(dir, 'click.wav');
+  const mk = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'aevalsrc=if(lt(mod(t\\,0.05)\\,0.0004)\\,1\\,-1)*exp(-80*mod(t\\,0.05)):s=48000:d=1', click]);
+  assert.equal(mk.status, 0, String(mk.stderr));
+  const c = (at) => ({ src: click, at, gain: 12, fadeIn: 0, fadeOut: 0, trim: 0, trimEnd: null, duck: null, role: 'sfx' });
+  const { measured } = await mixAndMux({ specs: [c(0.2), c(0.2), c(1.3)], duration: 3, video, out: path.join(dir, 'clicks.mp4') });
+  assert.ok(measured.TP <= -1, `clicks peak at ${measured.TP} dBTP`);
+}));

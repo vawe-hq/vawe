@@ -47,6 +47,7 @@ const CUE_CEILING = 0.8;
 const CUE_SPREAD_DB = 6;
 const PEAK_LIMIT_DB = -1;
 const LIMITER_DB = -1.5;
+const CODEC_MARGIN_DB = 0.3;
 
 function run(cmd, args) {
   const r = spawnSync(cmd, args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
@@ -179,9 +180,33 @@ function probePeakDb(file) {
   return m ? parseFloat(m[1]) : 0;
 }
 
+// An effect file often opens with silence (94 ms in one recorded key click): its sound starts here, so data-at is the moment it is heard.
+const LEAD_LEVEL = 0.03;
+const LEAD_PREROLL_S = 0.002;
+const leads = new Map();
+
+/** Seconds of near silence (under LEAD_LEVEL of the file's peak) at the start of `file` from `trim`, less a 2 ms pre-roll. */
+export function leadSeconds(file, trim = 0) {
+  const key = `${file}@${trim}`;
+  if (leads.has(key)) return leads.get(key);
+  const r = spawnSync('ffmpeg', ['-v', 'error', '-ss', String(trim), '-i', file, '-ac', '1', '-ar', String(RATE), '-f', 'f32le', '-'], { maxBuffer: 1 << 28 });
+  const pcm = new Float32Array(r.stdout.buffer, r.stdout.byteOffset, Math.floor(r.stdout.length / 4));
+  leads.set(key, leadOf(pcm, RATE));
+  return leads.get(key);
+}
+
+/** The lead of mono samples at `rate`: the first sample at LEAD_LEVEL of the peak, in seconds, less the pre-roll. Pure. */
+export function leadOf(pcm, rate) {
+  let peak = 0;
+  for (const v of pcm) peak = Math.max(peak, Math.abs(v));
+  if (peak === 0) return 0;
+  const first = pcm.findIndex((v) => Math.abs(v) >= LEAD_LEVEL * peak);
+  return Math.max(0, +(first / rate - LEAD_PREROLL_S).toFixed(4));
+}
+
 // peakDb is the cue's loudest sample after data-gain, in dBFS, before the limiter.
 function materialise(spec, tmp, i) {
-  if (spec.src) return { file: spec.src, seconds: probeSeconds(spec.src), peakDb: probePeakDb(spec.src) + spec.gain };
+  if (spec.src) return { file: spec.src, seconds: probeSeconds(spec.src), peakDb: probePeakDb(spec.src) + spec.gain, lead: spec.role === 'sfx' || !spec.role ? leadSeconds(spec.src, spec.trim) : 0 };
   const cue = CUES[spec.synth];
   // A palette voice draws pitch, timing and detune from its seed: the index gives each use its own.
   const samples = cue.voice
@@ -216,12 +241,12 @@ function duckExpr(windows) {
     .join('*');
 }
 
-function trackChain({ spec, seconds }, i, duration, windows) {
+function trackChain({ spec, seconds, lead = 0 }, i, duration, windows) {
   const isMusic = spec.role === 'music';
   const room = Math.max(0.01, duration - spec.at);
-  const playable = playableOf(spec, seconds);
+  const playable = Math.max(0.01, playableOf(spec, seconds) - lead);
   const len = isMusic && playable < room ? room : Math.min(room, playable);
-  const c = [`atrim=start=${f(spec.trim)}`, 'asetpts=PTS-STARTPTS', `aresample=${RATE}`, 'aformat=channel_layouts=stereo'];
+  const c = [`atrim=start=${f(spec.trim + lead)}`, 'asetpts=PTS-STARTPTS', `aresample=${RATE}`, 'aformat=channel_layouts=stereo'];
   if (spec.rate) c.push(`atrim=end=${f(playable * spec.rate)}`, 'asetpts=PTS-STARTPTS', ...tempoFilters(spec.rate), 'asetpts=PTS-STARTPTS');
   if (isMusic) c.push('aloop=loop=-1:size=2147483647', 'asetpts=N/SR/TB');
   c.push(`atrim=end=${f(len)}`, 'asetpts=PTS-STARTPTS', `volume=${f(spec.gain)}dB`);
@@ -330,10 +355,15 @@ export async function mixAndMux({ specs, duration, video, out, loudness = null }
     const { warnings, mixWav } = writeMix(specs, duration, tmp);
     for (const w of warnings) console.warn(`page-audio: ${w}`);
     const af = loudness === null ? `${LIMITER},aresample=${RATE}` : `${normaliseFilter(mixWav, loudness)},${LIMITER}`;
-    run('ffmpeg', ['-y', '-hide_banner', '-nostats', '-i', video, '-i', mixWav, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-af', af,
-      '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', tmpOut]);
+    const encode = (trimDb) => {
+      run('ffmpeg', ['-y', '-hide_banner', '-nostats', '-i', video, '-i', mixWav, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-af', `${af},volume=${f(-trimDb)}dB`,
+        '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', tmpOut]);
+      return measureFile(tmpOut);
+    };
+    let measured = encode(0);
+    // AAC raises sharp transients by up to about 1.5 dB over the limiter, so the encoded track is measured and lowered once by the overshoot.
+    if (measured.TP > PEAK_LIMIT_DB) measured = encode(measured.TP - PEAK_LIMIT_DB + CODEC_MARGIN_DB);
     fs.renameSync(tmpOut, out);
-    const measured = measureFile(out);
     console.log(`page-audio: ${loudness === null ? 'mix as written' : `normalised to ${loudness} LUFS`}: ${measured.I.toFixed(1)} LUFS, ${measured.TP.toFixed(1)} dBTP`);
     return { out, measured, warnings };
   } finally {

@@ -47,6 +47,7 @@ Audio is `<audio>` tags in the page, never played live, mixed offline by `harnes
 
 - `data-on="start:<sel>"`, `land:<sel>` or `leave:<sel>` puts the cue on that element's move (start, first contact with its rest pose,
   start of its last move) and follows it when the motion is retimed; `data-at` is then an offset. `world:<id>` counts from a scene's first frame.
+- A cue is heard at its second: the mixer skips the silence a recorded file opens with, so do not trim it by hand.
 - Attributes: `data-at` (s), `data-gain` (dB), `data-fade-in`, `data-fade-out`, `data-trim`
   and `data-trim-end` (play seconds trim to trim-end of the file; an 8 ms fade at each cut),  `data-duck` (dB), `data-role`. An unknown voice or a missing file fails the render with the list.
 - `data-gain` is absolute dB and replaces the voice default: leave it off unless you move one cue on purpose.
