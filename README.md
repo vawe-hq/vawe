@@ -53,6 +53,18 @@ bin/vawe new hello --request "a 10 s sting for a coffee brand"
 # then run the next: line that each command prints (AGENTS.md is the map)
 ```
 
+## Studio: change a film by hand
+
+```bash
+bin/vawe dev films/<name>/page.html --studio    # open the printed address
+```
+
+A live editor for one page: scrub the film, drag keys on the timeline, change colours and text, switch the
+aspect. Every edit is a text patch in `page.html`, so the agent keeps working on the same file. More at
+[vawe.dev/studio](https://vawe.dev/studio) and in `studio/README.md`.
+
+![The vawe studio: a preview, a timeline of keys and the Key panel](site/public/studio/studio-main.webp)
+
 ## Films made with vawe
 
 Each film is one `page.html`. Click a still to play the mp4.

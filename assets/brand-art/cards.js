@@ -218,6 +218,11 @@ PAGES['/screen-recording-to-demo-video'] = {
   h: 'A screen recording, a demo video.',
   sub: 'Cut the dead time,<br>speed up the waits.',
 };
+PAGES['/studio'] = {
+  ...LAUNCH_STILL, ink: 'b',
+  h: 'Edit an AI-made video by hand.',
+  sub: 'Scrub it, drag its keys,<br>change its colours and text.',
+};
 
 // Blog posts: each scene's composition, varied by the post's seed within safe ranges.
 const POST_LAY = {

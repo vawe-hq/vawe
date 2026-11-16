@@ -541,6 +541,7 @@ export const HOW_TO_HUB = {
           [{ strong: "Hand over the clips. " }, { code: "bin/vawe new <name> --footage <folder or clip>" }, " copies them and writes footage.md."],
           [{ strong: "Write one page. " }, "Each clip is a ", { code: "<video>" }, " in its own beat."],
           [{ strong: "Render a draft. " }, { code: "bin/vawe dev films/<name>/page.html" }, " renders half size with sound. The final render waits for your OK."],
+          [{ strong: "Change it by hand. " }, "Open the page in ", { text: "the studio", href: "/studio" }, " to drag a key or change a colour or a line of text."],
         ],
       },
     ],

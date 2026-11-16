@@ -9,6 +9,7 @@ import { LAUNCH_VIDEO } from "../content/launch-video";
 import { AGENTIC_EDITING, EDIT_WITH_CLAUDE_CODE } from "../content/agentic-editing";
 import { PROGRAMMATIC_EDITING } from "../content/programmatic-editing";
 import { SCREEN_RECORDING } from "../content/screen-recording";
+import { STUDIO } from "../content/studio";
 import { EXPLAINER, PRODUCT_SHOWCASE, type VideoTypePage } from "../content/video-types";
 import { OPEN, PROBLEMS_PAGE, SOLVED, STATUS_LABEL, type Problem } from "../content/problems";
 import { REMOTION_ALTERNATIVES } from "../content/remotion-alternatives";
@@ -229,6 +230,10 @@ const screenRecording = single(SCREEN_RECORDING.path, SCREEN_RECORDING.meta, () 
   ], SCREEN_RECORDING.next),
 );
 
+const studio = single(STUDIO.path, STUDIO.meta, () =>
+  doc(STUDIO.path, STUDIO.h1, STUDIO.meta, [STUDIO.lede, section(STUDIO.open), section(STUDIO.panels), section(STUDIO.patch), section(STUDIO.limits), section(STUDIO.more)], STUDIO.next),
+);
+
 const videoType = (c: VideoTypePage) =>
   single(c.path, c.meta, () =>
     doc(c.path, c.h1, c.meta, [
@@ -444,6 +449,7 @@ export const CONTENT_RENDERERS: Record<string, Renderer> = {
   [EDIT_WITH_CLAUDE_CODE.path]: editWithClaudeCode,
   [PROGRAMMATIC_EDITING.path]: programmaticEditing,
   [SCREEN_RECORDING.path]: screenRecording,
+  [STUDIO.path]: studio,
   [PRODUCT_SHOWCASE.path]: videoType(PRODUCT_SHOWCASE),
   [EXPLAINER.path]: videoType(EXPLAINER),
   "/remotion-alternatives": remotionAlternatives,

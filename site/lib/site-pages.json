@@ -274,6 +274,13 @@
       "label": "Screen recording to demo video"
     },
     {
+      "path": "/studio",
+      "priority": 0.7,
+      "changeFrequency": "monthly",
+      "group": "topic",
+      "label": "The studio: edit by hand"
+    },
+    {
       "path": "/how-to",
       "priority": 0.8,
       "changeFrequency": "monthly",

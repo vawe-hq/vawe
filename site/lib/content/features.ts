@@ -124,6 +124,8 @@ pass a glint), never a camera drift`,
             { code: "llms.txt" },
             ` and markdown. Six skills carry the parts an agent gets wrong: ${SKILLS}. `,
             { text: "How an agent writes the page", href: "/ai-agents" },
+            ". To change a film by hand, open it in ",
+            { text: "the studio", href: "/studio" },
             ".",
           ],
           proof: {

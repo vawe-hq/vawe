@@ -33,12 +33,15 @@ export function SectionView({ s }: { s: Section }) {
         )}
         {s.cite ? <span className="cite">{s.cite}</span> : null}
       </div>
-      {s.code ? (
+      {s.code || s.shot ? (
         <div className="isec-art">
-          <div className="codeblock">
-            <div className="lbl">{s.code.label}</div>
-            <pre className="code">{s.code.text}</pre>
-          </div>
+          {s.code ? (
+            <div className="codeblock">
+              <div className="lbl">{s.code.label}</div>
+              <pre className="code">{s.code.text}</pre>
+            </div>
+          ) : null}
+          {s.shot ? <img className="ishot" src={s.shot.src} alt={s.shot.alt} width={s.shot.w} height={s.shot.h} loading="lazy" decoding="async" /> : null}
         </div>
       ) : null}
     </section>

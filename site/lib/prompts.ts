@@ -61,6 +61,12 @@ export const PAGE_PROMPTS: Record<string, string> = {
     "make an explainer video.",
     "Topic: <what to explain>. One idea per beat, visuals that build on screen, plain words, and no sales pitch. Length: about 45 seconds.",
   ),
+  "/studio": [
+    "Use vawe (https://github.com/vawe-hq/vawe), the open-source HTML-to-video tool, to open my film in the vawe studio so I can edit it by hand.",
+    "My film: <path to your film's page.html>.",
+    "Start it with bin/vawe dev <my film> --studio in the background, then tell me the address it prints. While it runs, read the page file again before you change it, because I may have edited it in the studio.",
+    SETUP,
+  ].join("\n\n"),
   "/ai-agents": FILM("make a short motion graphics video.", "What it is about: <topic, product or message>. Length: <seconds>."),
 };
 

@@ -29,6 +29,7 @@ export const RENDERED = [
   "/edit-video-with-claude-code",
   "/programmatic-video-editing",
   "/screen-recording-to-demo-video",
+  "/studio",
   "/product-showcase-video",
   "/explainer-video",
   "/remotion-alternatives",

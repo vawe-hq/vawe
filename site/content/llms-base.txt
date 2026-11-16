@@ -27,6 +27,7 @@ A Vawe film is one HTML page (CSS, Web Animations, SVG, canvas or three.js). The
 - [how-to](https://vawe.dev/how-to): One guide per video editing task with code: captions, silences, titles, trim and join, music and speed.
 - [launch-video](https://vawe.dev/launch-video): How Vawe builds a product launch video: real captured UI, not invented mockups, one message per beat, from the site's own palette and type.
 - [product-showcase-video](https://vawe.dev/product-showcase-video): A product showcase video shows the real product doing real things, one feature per beat. The beats, the timing, the vawe commands to make one, and examples.
+- [studio](https://vawe.dev/studio): Edit an AI-made video by hand. The vawe studio opens a film's HTML page in a live editor: scrub the timeline, drag keys, change colours and text. Every edit is a text patch in the page, so the agent keeps working on the same file.
 - [explainer-video](https://vawe.dev/explainer-video): An explainer video teaches one topic with visuals that build on screen and sells nothing. The facts list, the scenes, the timing, the vawe commands to make one, and examples.
 
 {{DOCS}}

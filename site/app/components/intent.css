@@ -17,6 +17,8 @@
   border-radius:var(--r-in);padding:1px var(--sp-2);color:var(--ink);overflow-wrap:anywhere}
 /* Inside a panel the proof is a recessed well, not a second raised card. */
 .isec-art > .codeblock{margin:0;max-width:none;box-shadow:none}
+.isec-art > .ishot{display:block;width:100%;height:auto;border-radius:var(--r-in);box-shadow:var(--ring)}
+.isec-art > .codeblock + .ishot{margin-top:var(--sp-3)}
 .isec .cite{display:block;margin-top:var(--sp-3);font-family:var(--font-mono),monospace;font-size:var(--fs-code);color:var(--muted)}
 
 /* Films inside a content page: a heading at the section size, then the cards. */
