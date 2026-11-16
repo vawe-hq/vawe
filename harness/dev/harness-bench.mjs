@@ -41,9 +41,78 @@ export function acceptanceOf(devMd) {
 
 const linesOf = (devMd, re) => String(devMd ?? '').split('\n').filter((l) => re.test(l));
 
-function tokensOf(rows) {
+const MCP_TOOL = /^mcp__(?:plugin_vawe-agent_)?vawe__(vawe_[a-z_]+)$/;
+const VERB_OF_TOOL = { vawe_new_film: 'new', vawe_render_draft: 'dev', vawe_frame: 'frame', vawe_look: 'frame', vawe_critique: 'critique', vawe_ship: 'ship', vawe_wait: 'wait', vawe_refs: 'refs' };
+const FRAME_FLAGS = { world: () => '--world all', board: () => '--board', cuts: () => '--cuts', moment: (t) => `--moment ${t}`, directions: () => '--directions' };
+
+/** The shell-shaped call a vawe MCP tool stands for, or null for a tool that stands for no stage (status, read_rules): the trace analysers then count the plugin like the shell path. */
+export function mcpCall(tool, input = {}) {
+  const page = `films/${input.film}/page.html`;
+  const doc = `films/${input.film}/${input.file}`;
+  const bash = (command) => ({ name: 'Bash', input: { command }, verb: VERB_OF_TOOL[tool] });
+  switch (tool) {
+    case 'vawe_new_film': return bash(`bin/vawe new ${input.name} --request "${input.request ?? ''}"`);
+    case 'vawe_render_draft': return bash(`bin/vawe dev ${page}${input.from !== undefined ? ` --from ${input.from}` : ''}${input.to !== undefined ? ` --to ${input.to}` : ''}`);
+    case 'vawe_frame': return bash(`bin/vawe frame ${page} ${(FRAME_FLAGS[input.mode] ?? (() => ''))(input.t)}`.trim());
+    case 'vawe_look': return bash(`bin/vawe frame ${page} --at ${[].concat(input.t ?? 0)[0]}`);
+    case 'vawe_critique': return bash(`bin/vawe critique ${page} --fresh`);
+    case 'vawe_ship': return bash(`bin/vawe ship ${page}`);
+    case 'vawe_wait': return bash(`bin/vawe wait ${page}`);
+    case 'vawe_refs': return bash(`bin/vawe refs ${input.action}${input.id ? ` ${input.id}` : ''}`);
+    case 'vawe_write_page': return { name: 'Write', input: { file_path: page, content: input.html } };
+    case 'vawe_edit_page': return { name: 'Edit', input: { file_path: page, old_string: input.old, new_string: input.new } };
+    case 'vawe_write_doc': return { name: 'Write', input: { file_path: doc, content: input.text } };
+    case 'vawe_edit_doc': return { name: 'Edit', input: { file_path: doc, old_string: input.old, new_string: input.new } };
+    default: return null;
+  }
+}
+
+const resultText = (content) => (typeof content === 'string' ? content : [].concat(content ?? []).find((c) => c.type === 'text')?.text ?? '');
+
+/** What the verb printed, as far as the folder reads it: its footer line, from the tool's { ok, findings } reply. */
+function footerOf(verb, content) {
+  let reply = null;
+  try { reply = JSON.parse(resultText(content)); } catch { /* an error text: the verb did not succeed */ }
+  if (reply?.ok === true) return `vawe: ${verb} ok in 1.0s`;
+  return `vawe: ${verb} FAILED (${String(reply?.findings?.[0]?.message ?? resultText(content).slice(0, 80)).replace(/\s+/g, ' ')}) in 1.0s`;
+}
+
+/**
+ * Rewrites the calls of the vawe MCP tools, in the main agent and in a subagent (a row with parent_tool_use_id), into the shell or
+ * file calls they stand for, so one fold counts both setups. Returns { rows, mcpIds }: mcpIds are the tool_use ids rewritten, which
+ * are not raw film writes. A verb tool's result becomes the footer the verb would print.
+ */
+export function mcpRows(rows) {
+  const mapped = new Map();
+  const mcpIds = new Set();
+  const out = rows.map((row) => {
+    const content = row.message?.content;
+    if (!Array.isArray(content)) return row;
+    const next = content.map((block) => {
+      if (block.type === 'tool_use') {
+        const tool = MCP_TOOL.exec(block.name)?.[1];
+        const call = tool && mcpCall(tool, block.input);
+        if (!call) return block;
+        mapped.set(block.id, call.verb ?? null);
+        mcpIds.add(block.id);
+        return { ...block, name: call.name, input: call.input };
+      }
+      if (block.type === 'tool_result' && mapped.get(block.tool_use_id)) return { ...block, content: footerOf(mapped.get(block.tool_use_id), block.content) };
+      return block;
+    });
+    return { ...row, message: { ...row.message, content: next } };
+  });
+  return { rows: out, mcpIds };
+}
+
+/** Tokens summed over every assistant message of the stream, main agent and subagents (one message once, though it spans rows); the result row fills in a stream with no per-message usage. */
+function tokensOf(rows, fold) {
   const result = rows.findLast((r) => r.type === 'result');
-  const usage = result?.usage ?? {};
+  const messages = [...fold.usage.values()];
+  const sum = (key) => messages.reduce((n, u) => n + (u[key] ?? 0), 0);
+  const usage = messages.length
+    ? { input_tokens: sum('input_tokens'), output_tokens: sum('output_tokens'), cache_read_input_tokens: sum('cache_read_input_tokens'), cache_creation_input_tokens: sum('cache_creation_input_tokens') }
+    : (result?.usage ?? {});
   const wallS = result?.duration_ms != null ? result.duration_ms / 1000 : (Date.parse(rows.at(-1)?.timestamp) - Date.parse(rows[0]?.timestamp)) / 1000 || 0;
   return {
     input: usage.input_tokens ?? 0, output: usage.output_tokens ?? 0,
@@ -60,31 +129,32 @@ function skippedBefore(calls, cutIndex, runs, startMs) {
     if (r.cmd === 'verb' && r.exitCode === 0 && r.stage) first[r.stage] ??= 0;
   }
   const { skipped, inversions } = stageOrder(first);
-  return { skipped: skipped.filter((s) => BEFORE_FIRST_DRAFT.includes(s)), inversions };
+  return { skipped: skipped.filter((s) => BEFORE_FIRST_DRAFT.includes(s)), inversions, reached: Object.keys(first) };
 }
 
 /** The counts of one first draft. `rows` is the stream, `runs` the film's out/<film>.runs.jsonl records, `devMd` its out/<film>.dev.md or null. */
-export async function countFirstDraft({ rows, runs = [], devMd = null }) {
+export async function countFirstDraft({ rows: streamRows, runs = [], devMd = null }) {
+  const { rows, mcpIds } = mcpRows(streamRows);
   const fold = await foldRows(rows);
   const startMs = fold.meta.startMs ?? 0;
   const events = verbEvents(fold.calls, startMs, runs.filter((r) => r.cmd === 'verb'));
   const draft = events.find(isFirstDraftVerb);
   const cutIndex = draft ? draft.call : Infinity;
   const calls = fold.calls.filter((c) => c.index <= cutIndex);
-  const { skipped, inversions } = skippedBefore(fold.calls, cutIndex, runs, startMs);
+  const { skipped, inversions, reached } = skippedBefore(fold.calls, cutIndex, runs, startMs);
 
   const firstGood = runs.findIndex((r) => r.cmd === 'dev' && !r.failed);
   const failedDrafts = runs.slice(0, firstGood < 0 ? runs.length : firstGood).filter((r) => r.cmd === 'dev' && r.failed).length;
   const refusals = runs.filter((r) => r.cmd === 'verb' && r.refused).length;
   const errorLines = linesOf(devMd, /^error: /).length;
   const devRun = runs.findLast((r) => r.cmd === 'dev' && !r.failed);
-  const filmWrites = calls.filter((c) => FILM_WRITERS.has(c.name)).flatMap((c) => c.writes.map((w) => `${c.name}:${w.film}/${w.what}`));
+  const filmWrites = calls.filter((c) => FILM_WRITERS.has(c.name) && !mcpIds.has(c.id)).flatMap((c) => c.writes.map((w) => `${c.name}:${w.film}/${w.what}`));
 
   return {
     draft: Boolean(draft),
     contractFindings: failedDrafts + refusals + errorLines,
     contractDetail: { failedDrafts, refusals, errorLines },
-    stagesSkipped: skipped.length, skippedStages: skipped, inversions,
+    stagesSkipped: skipped.length, skippedStages: skipped, stagesReached: reached.map((s) => (s === 'dev' ? 'draft' : s)), inversions,
     advice: linesOf(devMd, /^advice: (?!\(advice only)/).length,
     rulesFired: Array.isArray(devRun?.rules_fired) ? devRun.rules_fired.length : null,
     acceptance: acceptanceOf(devMd) ?? devRun?.acceptance ?? null,
@@ -92,7 +162,7 @@ export async function countFirstDraft({ rows, runs = [], devMd = null }) {
     rawMedia: calls.flatMap((c) => c.raw.filter((id) => RAW_MEDIA.has(id))).length,
     verbCalls: events.filter((e) => !e.help && e.call <= cutIndex).length,
     toolCalls: calls.length,
-    ...tokensOf(rows),
+    ...tokensOf(rows, fold),
   };
 }
 

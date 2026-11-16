@@ -1,4 +1,4 @@
-// The vawe MCP server (stdio): the thirteen tools: the ten of the harness plan, vawe_write_doc, vawe_edit_doc and vawe_wait. The guard core (harness/guards) decides every refusal;
+// The vawe MCP server (stdio): the fourteen tools: the ten of the harness plan, vawe_write_doc, vawe_edit_doc, vawe_wait and vawe_refs. The guard core (harness/guards) decides every refusal;
 // the work is done by bin/vawe verbs run as child processes (run-verb.mjs). Each tool returns JSON text { ok, findings, next, taste? }
 // and, for the frame tools, the images.
 import fs from 'node:fs';
@@ -14,13 +14,15 @@ import { writeFileAtomic } from '../lib/atomic-write.mjs';
 import { WORK } from '../lib/workspace.mjs';
 import { isRunning } from '../lib/running-work.mjs';
 import { runVerb } from './run-verb.mjs';
+import { nextAsTools } from './next-as-tools.mjs';
 
 const FILM = z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'film name: lowercase letters, digits and dashes').describe('film name, as in films/<name>');
 const MAX_IMAGES = 6;
 const MAX_IMAGE_BYTES = 4_000_000;
 const MAX_LOOKS = 4;
 const MAX_TASTE = 8;
-const MODES = ['world', 'board', 'cuts', 'moment'];
+const MODES = ['world', 'board', 'cuts', 'moment', 'directions'];
+const REF_ACTIONS = ['list', 'frames', 'cuts'];
 
 const paths = (name, work) => ({ dir: path.join(work, 'films', name), page: path.join(work, 'films', name, 'page.html'), rel: `films/${name}/page.html` });
 
@@ -180,7 +182,7 @@ function status({ film }, work) {
   return reply({ ok: true, findings: [], stage: step.stage, why: step.why, next: step.next });
 }
 
-const FRAME_FLAGS = { world: () => ['--world', 'all'], board: () => ['--board'], cuts: () => ['--cuts'], moment: (t) => ['--moment', String(t)] };
+const FRAME_FLAGS = { world: () => ['--world', 'all'], board: () => ['--board'], cuts: () => ['--cuts'], moment: (t) => ['--moment', String(t)], directions: () => ['--directions'] };
 
 async function frame({ film, mode, t }, work) {
   if (mode === 'moment' && t === undefined) return reply({ ok: false, findings: [finding('missing-t', 'mode moment needs t, the second to show')], next: 'call again with t' });
@@ -197,9 +199,23 @@ async function look({ film, t }, work) {
   });
 }
 
+async function refs({ action, id }, work) {
+  if (action === 'cuts' && !id) return reply({ ok: false, findings: [finding('missing-id', 'action cuts needs id, the reference film id')], next: 'call again with id, from vawe_refs list' });
+  const args = action === 'cuts' ? ['frame', id, '--cuts'] : ['refs', action, ...(id ? [id] : [])];
+  return viaVerb(args, work);
+}
+
+/** The reply with its shell commands swapped for the tool calls that do the same (the agent has no shell). */
+function asTools(result, film) {
+  const body = JSON.parse(result.content[0].text);
+  const swap = (text) => (typeof text === 'string' ? nextAsTools(text, { film }) : text);
+  const next = { ...body, next: swap(body.next), why: swap(body.why), output: swap(body.output), findings: (body.findings ?? []).map((f) => ({ ...f, fix: swap(f.fix) })) };
+  return { ...result, content: [{ type: 'text', text: JSON.stringify(next, null, 2) }, ...result.content.slice(1)] };
+}
+
 function register(server, work) {
   const sent = new Map();
-  const tool = (name, description, inputSchema, run) => server.registerTool(name, { description, inputSchema }, async (input) => run(input, work, sent));
+  const tool = (name, description, inputSchema, run) => server.registerTool(name, { description, inputSchema }, async (input) => asTools(await run(input, work, sent), input.film ?? input.name));
   tool('vawe_status', 'Use first, and after every step: the stage the film is at, why, and the one next step.', { film: FILM }, status);
   tool('vawe_new_film', 'Use once to start a film: writes films/<name>/brief.md and a starter page.html. Refuses when the name exists.', {
     name: FILM, request: z.string().describe('the ask in its own words'), aspect: z.enum(['16:9', '9:16', '1:1', '4:5', '4:3']).optional(),
@@ -219,7 +235,7 @@ function register(server, work) {
   tool('vawe_edit_page', 'Use for a small change: one exact replace of old by new in page.html. Refuses when old is missing or not unique, or the result breaks the page contract.', {
     film: FILM, old: z.string(), new: z.string(),
   }, editPage);
-  tool('vawe_frame', 'Use to see the film as pictures: world (a key state per beat, after the page exists), board (the plan board), cuts or moment (read from a draft; moment needs t).', {
+  tool('vawe_frame', 'Use to see the film as pictures: world (a key state per beat, after the page exists), board (the plan board), directions (the directions board to show the person), cuts or moment (read from a draft; moment needs t).', {
     film: FILM, mode: z.enum(MODES), t: z.number().min(0).optional(),
   }, frame);
   tool('vawe_render_draft', 'Use to render a half-size draft with sound; from and to render only those seconds. Refused until the brief Ideas and Board are filled.', {
@@ -228,6 +244,9 @@ function register(server, work) {
   tool('vawe_look', 'Use to read a draft at full size: one still at each second in t (at most 4). Needs a draft.', {
     film: FILM, t: z.array(z.number().min(0)).min(1),
   }, look);
+  tool('vawe_refs', 'Use for the reference study, before the design: list shows the reference films, frames prints and shows the settled frame of each shot of one film (id), cuts shows how a reference film moves through each cut (id). Needs no film.', {
+    action: z.enum(REF_ACTIONS), id: z.string().regex(/^[\w-]+$/).optional().describe('the reference film id from list; frames without it covers every film'),
+  }, refs);
   tool('vawe_critique', 'Use after the motion pass: starts a fresh critic session (not this one) that writes out/<film>.critique-<n>.md. Takes 1 to 15 minutes.', { film: FILM },
     ({ film }, w) => gated('vawe_critique', film, w, (p) => viaVerb(['critique', p.rel, '--fresh'], w)));
   tool('vawe_wait', 'Use after vawe_ship, vawe_critique or a long draft: waits up to 100 seconds for the running job. On STILL RUNNING call it again. Refused when nothing runs.', { film: FILM }, wait);
@@ -235,7 +254,7 @@ function register(server, work) {
     ({ film }, w) => gated('vawe_ship', film, w, (p) => viaVerb(['ship', p.rel], w)));
 }
 
-/** A server with the thirteen tools on the workspace `work`. */
+/** A server with the fourteen tools on the workspace `work`. */
 export function createServer({ work = WORK } = {}) {
   const server = new McpServer({ name: 'vawe', version: '1.0.0' });
   register(server, work);

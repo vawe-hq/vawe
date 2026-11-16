@@ -16,7 +16,7 @@ const FILM = `mcp-test-${process.pid}`;
 const DIR = path.join(WORK, 'films', FILM);
 const PAGE = path.join(DIR, 'page.html');
 const GOOD = '<meta name="duration" content="3">\n<meta name="message" content="zero fees">\n<section data-world="hello"><h1>Zero fees</h1><h1>Again</h1></section>\n<script>setTimeout(() => {}, 10)</script>\n';
-const TOOLS = ['vawe_status', 'vawe_new_film', 'vawe_read_rules', 'vawe_write_page', 'vawe_edit_page', 'vawe_frame', 'vawe_render_draft', 'vawe_look', 'vawe_critique', 'vawe_ship', 'vawe_write_doc', 'vawe_edit_doc', 'vawe_wait'];
+const TOOLS = ['vawe_status', 'vawe_new_film', 'vawe_read_rules', 'vawe_write_page', 'vawe_edit_page', 'vawe_frame', 'vawe_render_draft', 'vawe_look', 'vawe_critique', 'vawe_ship', 'vawe_write_doc', 'vawe_edit_doc', 'vawe_wait', 'vawe_refs'];
 
 const IDEAS = '## Ideas\n\n| at | meaning | i1 | i2 | i3 | i4 | chosen | why |\n|---|---|---|---|---|---|---|---|\n| cold | start | type: a word, 0.3 | object: a ring, 0.2 | light: a glow, 0.4 | paper: a fold, 0.1 | 2 | because the ring is the brand |\n\n';
 
@@ -180,6 +180,26 @@ test('wait is refused when nothing runs, and a refusal for a film that does not 
   const none = await call('vawe_wait', { film: `${FILM}-nope` });
   assert.equal(none.ok, false);
   assert.equal(none.findings[0].code, 'refused');
+});
+
+test('next names tools, never a bin/vawe command, on every reply a film step returns', async () => {
+  const replies = [await call('vawe_status', { film: FILM }), await call('vawe_read_rules', { film: FILM }), await call('vawe_write_page', { film: FILM, html: GOOD }), await call('vawe_critique', { film: FILM })];
+  for (const r of replies) assert.doesNotMatch(JSON.stringify([r.next, r.why, r.findings]), /bin\/vawe (?:dev|frame|refs|wait|ship|critique|new)/);
+  assert.match(replies[0].next, /vawe_(?:refs|write_doc|edit_doc|frame|render_draft|write_page)/);
+});
+
+test('vawe_refs: cuts needs an id, and an id with a path in it is rejected', async () => {
+  const none = await call('vawe_refs', { action: 'cuts' });
+  assert.equal(none.ok, false);
+  assert.equal(none.findings[0].code, 'missing-id');
+  const bad = await client.callTool({ name: 'vawe_refs', arguments: { action: 'frames', id: '../x' } }).catch((e) => ({ isError: true, content: [{ text: String(e) }] }));
+  assert.equal(bad.isError, true);
+});
+
+test('vawe_refs list runs the verb and returns its text with the next step as a tool call', async () => {
+  const r = await call('vawe_refs', { action: 'list' });
+  assert.equal(typeof r.output, 'string');
+  assert.doesNotMatch(String(r.next), /bin\/vawe (?:refs|frame)/);
 });
 
 test('a film name with a path in it is rejected by the schema', async () => {
