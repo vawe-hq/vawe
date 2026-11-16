@@ -5,10 +5,10 @@ import { filmWrites, rawTools, commandVerbs, lookupOf, RAW_TOOLS } from '../lib/
 import { bare } from '../lib/shell-match.mjs';
 
 export const MCP_PREFIX = 'mcp__plugin_vawe-agent_vawe__';
-export const NAMED_TOOLS = ['vawe_write_page', 'vawe_edit_page', 'vawe_status', 'vawe_render_draft', 'vawe_look'];
+export const NAMED_TOOLS = ['vawe_write_page', 'vawe_edit_page', 'vawe_status', 'vawe_write_doc', 'vawe_edit_doc', 'vawe_render_draft', 'vawe_look'];
 const tool = (...names) => names.map((n) => `${MCP_PREFIX}${n}`).join(' or ');
 
-const PLAN_FIX = `${tool('vawe_status')} names the open step; the film's plan files change only through the vawe tools`;
+const PLAN_FIX = `${tool('vawe_write_doc')} or ${tool('vawe_edit_doc')} writes brief.md, DESIGN.md and kit/ files; ${tool('vawe_status')} names the open step`;
 const WRITE_FIX = {
   page: `Use ${tool('vawe_write_page', 'vawe_edit_page')}: they check the page contract and return the taste rules for the beats you touch`,
   brief: PLAN_FIX,
