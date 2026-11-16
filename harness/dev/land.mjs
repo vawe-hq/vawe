@@ -47,7 +47,7 @@ function scanBigFiles() {
 
 function runTests() {
   const files = TEST_DIRS.flatMap(testFiles).sort();
-  const r = spawnSync(process.execPath, ['--test', ...files], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 28 });
+  const r = spawnSync(process.execPath, ['--test', '--test-reporter=tap', ...files], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 28 });
   if (r.status === 0) return `${files.length} test files passed (${TEST_DIRS.join(', ')})`;
   const failed = r.stdout.split('\n').filter((l) => /^\s*not ok /.test(l)).slice(0, 5).join('\n');
   throw new LandError('tests', `${TEST_DIRS.join(' and ')} failed${failed ? `:\n${failed}` : ` (exit ${r.status})`}`);

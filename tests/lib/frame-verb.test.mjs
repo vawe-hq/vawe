@@ -99,7 +99,7 @@ test('frame: an error names the flags as typed, and --out is refused in --world 
   refusedWith(/--out does not go with --world/, '--world', 'all', '--out', 'x');
   assert.ok(stepOf('--cuts', '--out', 'x'));
   assert.doesNotMatch(verbHelp(frame), /all: --out path/);
-  assert.match(verbHelp(frame), /all but --world: --out path/);
+  assert.match(verbHelp(frame), /--out \(every mode but --world\)/);
 });
 
 test('frame --ref is folded into --vs: the same compare step', () => {

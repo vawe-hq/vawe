@@ -126,3 +126,27 @@ test('land pushes a clean branch to main, runs the tests first and prints the ho
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('land names the failing test, not only "tests failed", and pushes nothing', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-land-'));
+  const git = (cwd, ...a) => execFileSync('git', a, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  try {
+    const origin = path.join(dir, 'origin.git');
+    const w = path.join(dir, 'w');
+    git(dir, 'init', '--bare', '-b', 'main', origin);
+    git(dir, 'clone', '-q', origin, w);
+    git(w, 'config', 'user.email', 't@t');
+    git(w, 'config', 'user.name', 't');
+    for (const d of ['tests/lib', 'tests/hooks']) fs.mkdirSync(path.join(w, d), { recursive: true });
+    fs.writeFileSync(path.join(w, 'tests/lib/ok.test.mjs'), "import test from 'node:test'; test('ok', () => {});\n");
+    git(w, 'add', '.'); git(w, 'commit', '-qm', 'base'); git(w, 'push', '-q', 'origin', 'HEAD:main');
+    fs.writeFileSync(path.join(w, 'tests/lib/bad.test.mjs'), "import test from 'node:test'; test('the help names --out', () => { throw new Error('x'); });\n");
+    git(w, 'add', '.'); git(w, 'commit', '-qm', 'bad');
+    const r = spawnSync(process.execPath, [path.resolve('harness/dev/land.mjs')], { cwd: w, encoding: 'utf8', env: Object.fromEntries(Object.entries(process.env).filter(([k]) => k !== 'NODE_TEST_CONTEXT')) });
+    assert.notEqual(r.status, 0);
+    assert.match(r.stdout + r.stderr, /not ok \d+ - the help names --out/);
+    assert.equal(git(origin, 'log', '-1', '--format=%s', 'main').trim(), 'base');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
