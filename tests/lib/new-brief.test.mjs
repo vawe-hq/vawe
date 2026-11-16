@@ -157,6 +157,23 @@ test('--detail and --answers fill the fields, and an unanswered optional detail 
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+test('--detail look=riso and a look line in --answers are written into the Look section, and look is never asked', () => {
+  const root = sandbox();
+  const file = path.join(root, 'answers.md');
+  fs.writeFileSync(file, 'look: paper grain, one red ink\n');
+  assert.equal(readDetails({ answers: file }).look, 'paper grain, one red ink');
+  const details = readDetails({ detail: ['look=riso'] });
+  assert.equal(details.look, 'riso');
+  const made = runNew(root, { request: FULL, details });
+  assert.equal(made.asked, undefined);
+  const look = briefOf(root).split(/^## /m).find((s) => s.startsWith('Look'));
+  assert.match(look, /^- look: riso$/m);
+  assert.doesNotMatch(look, /only for a film that uses the lens/);
+  const calls = questionsJson('zz', { request: 'a launch film for Argus', details });
+  assert.ok(!calls.calls.flatMap((c) => c.questions.map((q) => q.header)).includes('Look'));
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
 test('--questions-json shape: at most 4 questions per call, short headers, 2 to 4 options, recommended first', () => {
   const { calls, answer_with } = questionsJson('zz', { request: 'a launch film for Argus' });
   assert.deepEqual(calls.map((c) => c.questions.length), [4, 2]);

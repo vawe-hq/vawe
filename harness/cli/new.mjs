@@ -15,7 +15,7 @@ import { isAspect, aspectProblem } from '../lib/page-params.mjs';
 import { FAMILIES, FIELDS, brandAdvice } from '../lib/directions.mjs';
 import { adviceBlock } from '../lib/advice.mjs';
 import { SAY } from '../live/stage-say.mjs';
-import { measuredSections, DEFAULT_LENGTH, GUESS, DETAIL_KEYS, answeredDetails, unansweredDetails, questionCalls, PLACEHOLDER, STARTER_LINE } from '../lib/measured-brief.mjs';
+import { measuredSections, DEFAULT_LENGTH, GUESS, GIVEN_KEYS, answeredDetails, unansweredDetails, questionCalls, PLACEHOLDER, STARTER_LINE } from '../lib/measured-brief.mjs';
 import { dialRanges, signatureSection } from '../lib/signature.mjs';
 import { recentFromDisk, varietyFor, namesBrandKit } from '../lib/variety.mjs';
 import { DIALS } from '../../core/motion/signature.js';
@@ -451,7 +451,7 @@ function readAnswers({ length, aspect }) {
 const DETAIL_LINE = /^\s*(?:[-*]\s+|\d+\.\s+)?([a-z]+)\s*:\s*(.+?)\s*$/;
 
 function checkKey(key, where) {
-  if (!DETAIL_KEYS.includes(key)) throw new UsageError(`${where}: "${key}" is not a detail; valid: ${DETAIL_KEYS.join(' ')}`);
+  if (!GIVEN_KEYS.includes(key)) throw new UsageError(`${where}: "${key}" is not a detail; valid: ${GIVEN_KEYS.join(' ')}`);
 }
 
 /** The details from an --answers file (markdown or `key: value` lines) and repeated --detail key=value. */
@@ -460,7 +460,7 @@ export function readDetails({ answers, detail = [] }) {
   if (answers) {
     for (const line of fs.readFileSync(answers, 'utf8').split('\n')) {
       const m = line.match(DETAIL_LINE);
-      if (m && DETAIL_KEYS.includes(m[1])) details[m[1]] = m[2];
+      if (m && GIVEN_KEYS.includes(m[1])) details[m[1]] = m[2];
     }
   }
   for (const item of [detail].flat()) {

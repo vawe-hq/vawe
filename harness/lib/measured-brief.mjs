@@ -86,6 +86,9 @@ export function questionCalls(open, request) {
 
 export const DETAIL_KEYS = DETAILS.map((d) => d.key);
 
+// The look is chosen at stage 3, so `vawe new` never asks it; a person who already knows it can give it.
+export const GIVEN_KEYS = [...DETAIL_KEYS, 'look'];
+
 /** The keys that the request wording or the given values already answer. */
 export function answeredDetails({ request = '', given = {}, length, aspect }) {
   const answered = new Set(Object.keys(given));
@@ -139,7 +142,7 @@ export const PLACEHOLDER = { ground: '#8c8c8c', ink: '#1c1c1c' };
 /** The starter's line under the headline; its first beat is sized to read both. */
 export const STARTER_LINE = 'why it matters';
 
-function lookLines({ face }, guess) {
+function lookLines({ face, details }, guess) {
   return [
     `- ground: ${guess('ground', `${PLACEHOLDER.ground}, the starter's grey placeholder: choose from the palette dial`)}`,
     `- ink: ${guess('ink', `${PLACEHOLDER.ink}, the starter's placeholder`)}`,
@@ -147,7 +150,7 @@ function lookLines({ face }, guess) {
     `- typeface: ${guess('typeface', `${face.family}, weight 700`)}`,
     `- cap height: ${guess('cap height', '10% of frame height for the headline, never under 6%')}`,
     `- surface: ${guess('surface', 'flat fill, 1 px edge rgba(20,22,26,0.12), no shadow')}`,
-    `- look: only for a film that uses the lens: bin/vawe frame <page> --looks --at <s> shows the page under each look (${Object.keys(LOOKS).join(', ')}); then set look: '<name>' in the lens options`,
+    details.look ? `- look: ${details.look}` : `- look: only for a film that uses the lens: bin/vawe frame <page> --looks --at <s> shows the page under each look (${Object.keys(LOOKS).join(', ')}); then set look: '<name>' in the lens options`,
   ].join('\n');
 }
 
