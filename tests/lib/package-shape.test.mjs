@@ -12,9 +12,18 @@ test('the package can be published: not private, node 22, a bin that exists', ()
   assert.ok(fs.existsSync(path.join(ENGINE, pkg.bin.vawe)));
 });
 
-test('the renderer ships as a dependency, never a dev one', () => {
-  assert.ok(pkg.dependencies.puppeteer);
-  assert.equal(pkg.devDependencies.puppeteer, undefined);
+test('an install fetches no Chrome: the renderer ships as puppeteer-core, full puppeteer stays dev only', () => {
+  assert.ok(pkg.dependencies['puppeteer-core']);
+  assert.ok(pkg.dependencies['@puppeteer/browsers']);
+  assert.equal(pkg.dependencies.puppeteer, undefined);
+});
+
+test('the pinned Chrome resolves to the build in .puppeteerrc.cjs', async () => {
+  const { pinnedChrome } = await import('../../harness/lib/render-harness.mjs');
+  const pin = (await import('../../.puppeteerrc.cjs')).default;
+  const { buildId, executablePath } = pinnedChrome({});
+  assert.equal(buildId, pin.chrome.version);
+  assert.ok(executablePath.includes(buildId));
 });
 
 test('the files list ships the engine and keeps font binaries and captured brand assets out', () => {

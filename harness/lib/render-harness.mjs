@@ -5,6 +5,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { Browser, computeExecutablePath, install } from '@puppeteer/browsers';
 
 export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -186,25 +187,32 @@ export function trackBrowser(browser) {
 // Puppeteer's default is 180 s per protocol call; a heavy WebGL frame late in a long render can exceed it.
 export const PROTOCOL_TIMEOUT_MS = 30 * 60 * 1000;
 
-// Puppeteer finds .puppeteerrc.cjs only from the working directory up, and a render may run from a temp dir; without the pin it wants its own older Chrome.
-export async function loadPuppeteer() {
+const CHROME_CACHE = process.env.PUPPETEER_CACHE_DIR || path.join(os.homedir(), '.cache', 'puppeteer');
+
+/** The pinned Chrome build from .puppeteerrc.cjs, and where it lives in puppeteer's cache. */
+export function pinnedChrome(env = process.env) {
   const pin = createRequire(import.meta.url)(path.join(REPO_ROOT, '.puppeteerrc.cjs'));
-  process.env.PUPPETEER_CHROME_VERSION ??= pin.chrome.version;
-  process.env.PUPPETEER_CHROME_HEADLESS_SHELL_VERSION ??= pin['chrome-headless-shell'].version;
-  const puppeteer = (await import('puppeteer')).default;
-  await installPinnedChrome(puppeteer);
-  return puppeteer;
+  const buildId = env.PUPPETEER_CHROME_VERSION || pin.chrome.version;
+  return { buildId, executablePath: computeExecutablePath({ browser: Browser.CHROME, buildId, cacheDir: CHROME_CACHE }) };
 }
 
-// An installed package (npx vawe) has only puppeteer's default Chrome, never the pinned one: the first render fetches it, once, into puppeteer's cache. VAWE_NO_CHROME_INSTALL=1 turns it off.
-async function installPinnedChrome(puppeteer) {
-  if (process.env.VAWE_NO_CHROME_INSTALL) return;
-  const have = await puppeteer.executablePath();
-  if (have && fs.existsSync(have)) return;
-  const pkgFile = createRequire(import.meta.url).resolve('puppeteer/package.json');
-  const bin = path.resolve(path.dirname(pkgFile), JSON.parse(fs.readFileSync(pkgFile, 'utf8')).bin);
-  console.error(`vawe: Chrome ${process.env.PUPPETEER_CHROME_VERSION} is not installed: fetching it once (about 150 MB), then rendering`);
-  spawnSync(process.execPath, [bin, 'browsers', 'install', 'chrome'], { cwd: REPO_ROOT, stdio: ['ignore', 2, 2] });
+// puppeteer-core downloads nothing at install, so an npm install never fetches a second, unpinned Chrome.
+export async function loadPuppeteer() {
+  const { buildId, executablePath } = pinnedChrome();
+  await installPinnedChrome(buildId, executablePath);
+  const core = (await import('puppeteer-core')).default;
+  return {
+    launch: (options) => core.launch({ executablePath, ...options }),
+    connect: (options) => core.connect(options),
+    executablePath: async () => executablePath,
+  };
+}
+
+// VAWE_NO_CHROME_INSTALL=1 turns the first-render fetch off (the doctor and postinstall set it).
+async function installPinnedChrome(buildId, executablePath) {
+  if (process.env.VAWE_NO_CHROME_INSTALL || fs.existsSync(executablePath)) return;
+  console.error(`vawe: Chrome ${buildId} is not installed: fetching it once (about 150 MB), then rendering`);
+  await install({ browser: Browser.CHROME, buildId, cacheDir: CHROME_CACHE });
 }
 
 /** launchPage({ width, height, scale, args }) → { browser, page, close } */
