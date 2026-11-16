@@ -139,6 +139,7 @@ Pick the row for the job the element does. The times come from the speed bands a
 | Job | Ease | Time | Avoid |
 |---|---|---|---|
 | Title or text entrance | EASE.land | 0.5 to 0.8 s | pop or any overshoot on text: held text that overshoots reads as shaking. |
+| Fast kinetic type or an object that snaps in | EASE.snap | 0.15 to 0.3 s (5 to 9 frames); an object pop adds overshoot 0.18 to 0.3 | a title the viewer must read while it lands, and a copied product surface: snap covers 80% of its travel in the first 20% of the move, so it reads as a cut. Overshoot on held text. |
 | UI panel or card in | EASE.land | 0.22 to 0.5 s | scale or overshoot on a panel. A copied product panel only fades in 220 ms with a 0.8vh rise. |
 | Value change (number swap) | EASE.swap | 0.15 s out, 0.26 s in | a spring on a number: it shows a figure that is not true. Roll each digit in its own slot; never half of two readings. |
 | List stagger | EASE.landSoft, EASE.nudge | 0.15 to 0.3 s a row, 30 to 80 ms apart, the run within 0.5 s | land on every row: a hard first frame on each reads as flicker. Overshoot on more than every third row. |

@@ -259,3 +259,25 @@ test('ramp hides the outgoing from the cut and the incoming before it; unknown k
   assert.equal(a.anims.length, 2);
   assert.equal(b.anims.length, 2);
 });
+
+test('snap moves 80% of the way by a fifth of the move and lands without overshoot', () => {
+  const f = easeFn('snap');
+  assert.ok(f(0.2) >= 0.78, `snap at 0.2: ${f(0.2).toFixed(3)}`);
+  assert.ok(easeFn('land')(0.2) < 0.7, 'land stays slower than snap');
+  assert.ok(Array.from({ length: 101 }, (_, i) => f(i / 100)).every((v) => v <= 1.0001), 'no overshoot');
+  assert.match(EASE.snap, /^linear\(/);
+});
+
+test('enter overshoot passes the rest pose by that share of the travel at 40% of the move, then settles', () => {
+  const [move] = enterSpecs({ from: '0 100px', scale: 0, overshoot: 0.2, ease: 'snap', duration: 0.3 });
+  const [start, peak, end] = move.keyframes;
+  assert.equal(peak.offset, 0.4);
+  assert.equal(peak.scale, '1.2');
+  assert.equal(peak.translate, '0 calc((100px) * -0.2)');
+  assert.equal(start.easing, EASE.snap);
+  assert.equal(peak.easing, EASE.settle);
+  assert.deepEqual([end.translate, end.scale], ['0 0', '1']);
+  assert.equal(move.timing.easing, 'linear');
+  assert.throws(() => enterSpecs({ overshoot: 0.5 }), /overshoot is a share/);
+  assert.throws(() => enterSpecs({ overshoot: 0.2, anticipate: 0.1 }), /not both/);
+});

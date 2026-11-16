@@ -43,6 +43,8 @@ export const EASE_HANDLES = {
   launch: ['easyEase', { influence: 25, speed: 3 }],
   pop: ['fling', { influence: 35, speed: -1.5 }],
   nudge: ['fling', { influence: 35, speed: -0.8 }],
+  // 80% of the travel by a fifth of the move: the 1 to 3 frame snaps of fast kinetic type (median move 0.3 s, 2.9 frame heights/s, measured on ref 521432463128991396).
+  snap: [{ influence: 10, speed: 8 }, { influence: 90, speed: 0 }],
 };
 
 const LINEAR_TOLERANCE = 0.002;
@@ -97,6 +99,9 @@ const FADE_SHARE = 0.4;
 // The wind-up of anticipate takes this share of the move (about 4 frames of a 0.5 s move).
 const WIND_SHARE = 0.15;
 const WIND_MAX = 0.2;
+// An overshoot peaks at this share of the move, then settles: the reference pops reach their peak in 1 to 2 frames and settle in 2.
+const OVERSHOOT_PEAK = 0.4;
+const OVERSHOOT_MAX = 0.4;
 
 const lengthsOf = (s) => String(s).match(/calc\((?:[^()]|\([^()]*\))*\)|\S+/g) || [];
 const isZero = (len) => parseFloat(len) === 0 && !/^calc/.test(len);
@@ -106,6 +111,13 @@ export function windUpTranslate(from, share) {
   const [x, y = '0'] = lengthsOf(from);
   const push = (len) => (isZero(len) ? len : `calc((${len}) * ${+(1 + share).toFixed(4)})`);
   return `${push(x)} ${push(y)}`;
+}
+
+/** Pure: the translate `share` of the travel past the rest pose, on the far side from `from`: the peak of an overshoot. */
+export function overshootTranslate(from, share) {
+  const [x, y = '0'] = lengthsOf(from);
+  const past = (len) => (isZero(len) ? len : `calc((${len}) * ${-share})`);
+  return `${past(x)} ${past(y)}`;
 }
 
 // vary: true or a seed. Each element draws once from its key (id or index), so every render repeats.
@@ -132,18 +144,31 @@ export function enterSpecs({ vary = false, key, ...opts } = {}) {
   return plainEnterSpecs(vary ? varied(opts, varyOf(vary, key)) : opts);
 }
 
-function plainEnterSpecs({ at = 0, from = ENTER_FROM, scale = 0.96, blur = 0, anticipate = 0, ease = signed('ease', 'land'), ...rest } = {}) {
-  const d = durationOf(rest);
+function checkEnterShape({ from, anticipate, overshoot }) {
   if (anticipate && !(anticipate > 0 && anticipate <= WIND_MAX)) throw new Error(`presets: anticipate is a share of the travel from 0 to ${WIND_MAX}, got ${anticipate}`);
   if (anticipate && lengthsOf(from).every(isZero)) throw new Error('presets: anticipate needs a from offset to move away from first');
+  if (overshoot && !(overshoot > 0 && overshoot <= OVERSHOOT_MAX)) throw new Error(`presets: overshoot is a share of the travel past the rest pose from 0 to ${OVERSHOOT_MAX}, got ${overshoot}`);
+  if (overshoot && anticipate) throw new Error('presets: pick anticipate (a wind-up before) or overshoot (a pass beyond), not both');
+}
+
+// The enter keyframes: start to end, with a wind-up first (anticipate) or a pass beyond and a settle (overshoot).
+function enterKeyframes({ start, end, from, scale, anticipate, overshoot, ease }) {
+  if (anticipate) return [{ ...start, offset: 0, easing: 'ease-out' }, { ...start, translate: windUpTranslate(from, anticipate), offset: WIND_SHARE, easing: easeOf(ease) }, { ...end, offset: 1 }];
+  const peak = { ...end, translate: overshootTranslate(from, overshoot), scale: String(+(1 + overshoot * (1 - scale)).toFixed(4)) };
+  return [{ ...start, offset: 0, easing: easeOf(ease) }, { ...peak, offset: OVERSHOOT_PEAK, easing: easeOf('settle') }, { ...end, offset: 1 }];
+}
+
+function plainEnterSpecs({ at = 0, from = ENTER_FROM, scale = 0.96, blur = 0, anticipate = 0, overshoot = 0, ease = signed('ease', 'land'), ...rest } = {}) {
+  const d = durationOf(rest);
+  checkEnterShape({ from, anticipate, overshoot });
   const start = { translate: from, scale: String(scale) }, end = { translate: '0 0', scale: '1' };
   if (blur) {
     start.filter = `blur(${blur}px)`;
     end.filter = 'blur(0px)';
   }
   const timing = { delay: ms(at), easing: easeOf(ease), fill: 'both' };
-  const move = anticipate
-    ? { keyframes: [{ ...start, offset: 0, easing: 'ease-out' }, { ...start, translate: windUpTranslate(from, anticipate), offset: WIND_SHARE, easing: easeOf(ease) }, { ...end, offset: 1 }], timing: { ...timing, easing: 'linear', duration: ms(d), id: 'enter' } }
+  const move = anticipate || overshoot
+    ? { keyframes: enterKeyframes({ start, end, from, scale, anticipate, overshoot, ease }), timing: { ...timing, easing: 'linear', duration: ms(d), id: 'enter' } }
     : { keyframes: [start, end], timing: { ...timing, duration: ms(d), id: 'enter' } };
   return [
     move,
@@ -156,7 +181,7 @@ const uniform = (el) => Boolean(el.closest?.('[data-chrome]')) || el.ownerDocume
 const keyOf = (el) => el.id || [...(el.parentElement?.children ?? [])].indexOf(el);
 const varyFor = (el, opts = {}) => (opts.vary && !uniform(el) ? { key: keyOf(el), ...opts } : { ...opts, vary: false });
 
-/** Arrive fast, land soft: opts { at, band | duration, from (a CSS translate), scale, blur (px), ease (an EASE name), anticipate (0 to 0.2: first move that share of the travel away from rest), vary (true or a seed) }. */
+/** Arrive fast, land soft: opts { at, band | duration, from (a CSS translate), scale, blur (px), ease (an EASE name; 'snap' with band 'energy' for fast kinetic type), anticipate (0 to 0.2: first move that share of the travel away from rest), overshoot (0 to 0.4: pass that share of the travel beyond rest at 40% of the move, then settle), vary (true or a seed) }. */
 export function enter(el, opts) {
   return enterSpecs(varyFor(el, opts)).map(({ keyframes, timing }) => el.animate(keyframes, timing));
 }
