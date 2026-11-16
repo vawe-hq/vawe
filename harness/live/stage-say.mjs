@@ -18,6 +18,7 @@ import { readRuns, appendRun, looksSince, readHookSeen } from '../lib/runlog.mjs
 import { tasteLines } from '../lib/taste-steps.mjs';
 import { isEditFilm, emptyPlanParts } from '../lib/plan-parts.mjs';
 import { nextSeen, resetShown, sinceReset, NEXT_UNCHANGED } from '../lib/next-once.mjs';
+import { stepOf } from '../guards/taste.mjs';
 
 export { boardFilled };
 
@@ -43,6 +44,9 @@ function pages(root) {
 }
 
 const hasWorlds = (page) => { try { return /\bdata-world=/.test(fs.readFileSync(page, 'utf8')); } catch { return false; } };
+
+// A film folder with a brief and no page.html yet: nothing rendered, nothing approved.
+const NO_PAGE_STATE = { pageDigest: null, draft: null, final: null, critique: null, plan: { digest: null, cutList: null }, approval: { plan: 'none', draft: 'none' } };
 
 const TAKEN_FROM_MIN = 4;
 const FRAME_PATH = /\.(png|jpe?g|webp)\b/i;
@@ -113,6 +117,9 @@ function designPlan(brief) {
   return { edit, plan, taken: plan ? takenFromCount(plan) : null, moves: plan ? movesTakenCount(plan) : null };
 }
 
+/** The step of a film with no brief.md. */
+export const briefStep = (name) => ({ name, stage: 'brief', next: `create films/${name}/brief.md: the ask, the message, the spectacle second, "Taken from", "Board" (bin/vawe new <other-name> writes the template to copy); ${BRIEF_ASK}`, why: `films/${name} has no brief.md` });
+
 export function nextStep(page, root = process.cwd()) {
   if (isClipDemo(page)) {
     const clip = path.basename(page, '.html');
@@ -125,16 +132,14 @@ export function nextStep(page, root = process.cwd()) {
   }
   const dir = filmDirOf(page);
   const t = mtime(page);
-  const state = loopState(page, root);
+  const state = fs.existsSync(page) ? loopState(page, root) : NO_PAGE_STATE;
   const { draft, final } = state;
   const framed = mtime(path.join(root, 'out', `${name}-frames.png`)) > t;
   const brief = read(path.join(dir, 'brief.md'));
   const design = path.join(dir, 'DESIGN.md');
   const { edit, plan, taken, moves } = designPlan(brief);
   const early = !draft && !final && !framed;
-  if (early && !brief) {
-    return { name, stage: 'brief', next: `create films/${name}/brief.md: the ask, the message, the spectacle second, "Taken from", "Board" (bin/vawe new <other-name> writes the template to copy); ${BRIEF_ASK}`, why: `films/${name} has no brief.md` };
-  }
+  if (early && !brief) return briefStep(name);
   if (early && taken !== null && taken < TAKEN_FROM_MIN) {
     return { name, stage: 'study', next: SAY.study(name), why: `Taken from not filled (${taken} named frames); it comes before the design files` };
   }
@@ -215,11 +220,9 @@ export function recentPage(root) {
   return recent.length ? recent[0].p : null;
 }
 
-const STAGE_STEP = { states: 'frames', board: 'storyboard', motion: 'motion' };
-
 /** The rule lines of the stage's taste step the first time the film's stage is named in a session (`sessionId` from the hook's stdin; null counts all sessions as one); [] after that, or for a stage with no step. */
 export function tasteOnce(stage, name, root, sessionId = null) {
-  const step = STAGE_STEP[stage];
+  const step = stepOf(stage);
   if (!step || sinceReset(readRuns(name, root), sessionId).some((r) => r.cmd === 'taste-shown' && r.stage === stage && r.shownTo === sessionId)) return [];
   appendRun(name, { cmd: 'taste-shown', stage, shownTo: sessionId }, { root });
   return tasteLines(step);

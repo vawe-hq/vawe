@@ -5,14 +5,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { shipProblem } from '../lib/approval.mjs';
-import { critiqueProblem } from '../lib/critique-gate.mjs';
+import { shipProblems } from '../guards/stage-gate.mjs';
 import { EXIT, fail } from '../lib/exit-codes.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const [page] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 if (page && !fs.existsSync(page)) fail(EXIT.IO, `vawe: ship: no such page: ${page}`);
-const problems = page ? [critiqueProblem(page, { root: ROOT }), shipProblem(page, { root: ROOT })].filter(Boolean) : [];
+const problems = page ? shipProblems(page, { root: ROOT }) : [];
 if (problems.length) {
   for (const problem of problems) console.error(`vawe: ship refused: ${problem}`);
   process.exit(EXIT.REFUSED);

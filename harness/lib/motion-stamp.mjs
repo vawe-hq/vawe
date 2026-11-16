@@ -33,11 +33,14 @@ export function motionStampFresh(pagePath) {
 /** `<script type="application/json" id="authoring">{"allow":[...],"_why":{...}}</script>`, the same
  *  `authoring.allow` + `_why` shape a scene JSON carries, read out of a bare page's own markup so a
  *  page with no scene.json still has the one waiver mechanism, never a second one. */
-export function pageAuthoring(pagePath) {
+export function authoringOfHtml(html, { clip = false } = {}) {
   try {
-    const html = fs.readFileSync(pagePath, 'utf8');
     const m = /<script[^>]*id=["']authoring["'][^>]*>([\s\S]*?)<\/script>/.exec(html);
     const worlds = [...html.matchAll(/data-world=["']([^"']+)["']/g)].map((w) => w[1]);
-    return { ...(m ? JSON.parse(m[1]) : { allow: [] }), _worlds: [...new Set(worlds)], _clip: isClipDemo(pagePath) };
+    return { ...(m ? JSON.parse(m[1]) : { allow: [] }), _worlds: [...new Set(worlds)], _clip: clip };
   } catch { return { allow: [] }; }
+}
+
+export function pageAuthoring(pagePath) {
+  try { return authoringOfHtml(fs.readFileSync(pagePath, 'utf8'), { clip: isClipDemo(pagePath) }); } catch { return { allow: [] }; }
 }
