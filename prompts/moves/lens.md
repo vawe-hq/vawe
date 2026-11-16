@@ -44,7 +44,8 @@ Sound: a short noise tick at each tear, and a low thud on a lock (aberration pea
   prints as a halftone dot screen: `cell` px, its own `angles` entry, its own register `offset` [x, y] in px (a
   function of t moves a plate). Inks multiply on `paper`; `mottle` varies each dot, `fibre` marks the paper.
   `amount` 0 by default; the `riso` look turns it on. Paint the page in the ink colours with
-  `mix-blend-mode: multiply` for overlaps, then let the lens make the dots.
+  `mix-blend-mode: multiply` for overlaps, then let the lens make the dots. A stroke thinner than `cell` prints
+  pale (a thin serif at cell 5): set `cell` at or under the thinnest stroke, or use a heavier face.
 - Light is linear from the first tap to the last pass. `grid` is a panel mask on the screen plane: a soft
   dot per subpixel (`layout` stripe, triad or dot, `softness`), the same shape per channel so the
   average colour stays untinted. It follows the plane (period changes with zoom and tilt), fades out of
