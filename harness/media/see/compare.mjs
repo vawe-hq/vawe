@@ -12,7 +12,8 @@ import { approveProblem, fullDraftPath } from '../../lib/approval.mjs';
 // ── --shot <from>-<to>: a dense strip of ONE window, plus its motion curve ──────────────────────────
 // `opts.energy` is an already computed series (a caller with many windows of one video measures it once); `opts.quiet` skips the summary line.
 export function runShot(video, outDirRoot, from, to, fps, opts = {}) {
-  const { width, height, dur } = probeVideo(video);
+  const info = probeVideo(video);
+  const { dur } = info;
   if (from >= dur) die(`--shot ${from}-${to}: from (${from}s) is past ${video}'s duration (${dur.toFixed(2)}s)`);
   const clampedTo = Math.min(to, dur);
   const outDir = path.join(outDirRoot, `shot-${from}-${to}`);
@@ -20,7 +21,7 @@ export function runShot(video, outDirRoot, from, to, fps, opts = {}) {
   fs.mkdirSync(outDir, { recursive: true });
 
   const chosen = timeRange(from, clampedTo, 1 / fps).map((t) => ({ t, tag: '' }));
-  const gridPaths = renderGrids(video, outDir, chosen, width, height, dur);
+  const gridPaths = renderGrids(video, outDir, chosen, info);
 
   const energy = (opts.energy ?? computeEnergy(video)).filter((p) => p.t >= from && p.t < clampedTo);
   const curve = bucketMean(energy, from, clampedTo, 0.5)

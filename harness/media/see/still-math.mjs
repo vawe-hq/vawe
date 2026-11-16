@@ -38,3 +38,9 @@ export function stillArgs(source, seek, out) {
   const input = isUrl(source) ? [...ss, '-i', source] : ['-i', source, ...ss];
   return ['-v', 'error', '-y', ...input, '-frames:v', '1', out];
 }
+
+/** The frame number nearest second `t` in a film of `dur` seconds at `fps`, kept on a real frame. Pure. */
+export const frameAt = (t, fps, dur) => Math.max(0, Math.min(Math.round(t * fps), Math.floor(dur * fps + 1e-6) - 1));
+
+/** The -ss that returns frame `n` and no other: ffmpeg gives the first frame at or after -ss, and -ss is written to 3 decimals, so n / fps itself can round up past frame n. Pure. */
+export const frameSeek = (n, fps) => Math.max(0, (n - 0.25) / fps);

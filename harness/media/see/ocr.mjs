@@ -7,6 +7,7 @@ import { detectCuts } from '../shot-detect.mjs';
 import { trackWords } from '../../lib/ref-measure/words.mjs';
 import { EASINGS } from '../../../core/motion/easings.js';
 import { computeEnergy, defaultOutDir, die, edgeMean, ENERGY_HZ, findHolds, HOLD_FLOOR, HOLD_MIN, pngDims, probeVideo, ROOT, tileInGrids, writeJsonAtomic } from './core.mjs';
+import { frameAt, frameSeek } from './still-math.mjs';
 
 
 // tesseract's own tsv -> [{text, box}], box a FRACTION of the frame this tsv was run on. Pulled out of
@@ -192,16 +193,17 @@ export function pickFrames(cutTimes, holds, beats, dur, budget) {
   return picked.sort((a, b) => a.t - b.t);
 }
 // ── grids: 3x3, <=9 panels, 1568px long edge ────────────────────────────────────────────────────
-export function renderGrids(video, outDir, chosen, width, height, dur) {
+export function renderGrids(video, outDir, chosen, { width, height, dur, fps }) {
   const GRID_CELLS = 9;
   const longEdge = 1568;
   const tileW = Math.floor(longEdge / 3);
   const tileH = Math.round((tileW * height) / width);
   const cellFiles = chosen.map((c, i) => {
-    const t = Math.max(0, Math.min(c.t, dur - 0.03));
+    const n = frameAt(c.t, fps, dur);
+    const t = n / fps;
     const out = path.join(outDir, `.cell_${i}.png`);
     const label = c.tag ? `${c.tag} ${t.toFixed(2)}s` : `${t.toFixed(2)}s`;
-    ffmpegOrDie(['-v', 'error', '-y', '-ss', t.toFixed(3), '-i', video, '-frames:v', '1', '-vf',
+    ffmpegOrDie(['-v', 'error', '-y', '-ss', frameSeek(n, fps).toFixed(4), '-i', video, '-frames:v', '1', '-vf',
       `scale=${tileW}:${tileH},drawtext=text='${drawtext(label)}':x=6:y=6:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.65`,
       out], out, `grid cell ${i}`);
     return out;
@@ -277,7 +279,7 @@ export function runFullFlow(video, positional, flag) {
   const ocr = ocrWords(video, outDir, ocrFps, ocrMinConf, ocrMinLen);
   const beats = buildBeats(cutTimes, holds, ocr, energy, dur);
   const chosen = pickFrames(cutTimes, holds, beats, dur, framesBudget);
-  const gridPaths = renderGrids(video, outDir, chosen, width, height, dur);
+  const gridPaths = renderGrids(video, outDir, chosen, { width, height, dur, fps });
 
   writeOutputs({ outDir, video, dur, fps, cutTimes, energy, holds, beats, gridPaths });
 }

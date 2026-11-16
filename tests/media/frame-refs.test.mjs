@@ -75,3 +75,14 @@ test('a window past the end or before the start is moved inside the film, with o
   assert.doesNotMatch(fits.stdout, /window moved/);
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test('every cell of a 30 fps grid shows its own frame', () => {
+  const { dir, refs } = makeRefs();
+  const out = path.join(dir, 'grids');
+  const r = run(refs, [ID, '--moment', '1.5', '--span', '0.6', '--fps', '30', '--out', out], dir);
+  assert.equal(r.status, 0, r.stderr + r.stdout);
+  const shot = path.join(out, 'shot-1.2-1.8');
+  const shown = [...framesOfGrid(path.join(shot, 'grid-01.png'), 9), ...framesOfGrid(path.join(shot, 'grid-02.png'), 9)];
+  assert.deepEqual(shown, Array.from({ length: 18 }, (_, i) => 36 + i));
+  fs.rmSync(dir, { recursive: true, force: true });
+});
