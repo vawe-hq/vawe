@@ -346,9 +346,10 @@ export function motionLint({ records, scripted }) {
     .sort((a, b) => a.at - b.at);
 }
 
-/** Drops a finding the page waives: authoring.allow holds its code, or code@<second to 2 places>, with a _why. */
+/** Drops a finding the page waives: authoring.allow holds its code or its rule id, bare or as code@<second or range>, with a _why. */
 export function unwaived(findings, authoring = {}) {
-  return findings.filter((f) => !(authoring._clip && CLIP_SKIP_RULES.has(f.rule)) && !isWaived(authoring, f.code, s2(f.at)));
+  const waived = (f) => isWaived(authoring, f.code, s2(f.at)) || isWaived(authoring, f.rule, s2(f.at));
+  return findings.filter((f) => !(authoring._clip && CLIP_SKIP_RULES.has(f.rule)) && !waived(f));
 }
 
 /** One printed line per finding. */

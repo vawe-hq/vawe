@@ -99,6 +99,14 @@ test('a waiver with a reason silences its line, bare or at its second', () => {
   assert.equal(unwaived(findings, { allow: ['exit-length'] }).length, 1);
 });
 
+test('a waiver named by the rule id silences a finding of that rule, scoped to its range', () => {
+  const finding = { code: 'left-edges', rule: 'shared-edges', at: 19.9, what: '4 distinct left edges', fix: 'align' };
+  const why = 'world poster, 3.4 s: the 4 edges at 19.9 s are a ledger and measure 12 px apart';
+  assert.equal(unwaived([finding], { allow: ['shared-edges@17-20.4'], _why: { 'shared-edges@17-20.4': why } }).length, 0);
+  assert.equal(unwaived([finding], { allow: ['shared-edges@1-2'], _why: { 'shared-edges@1-2': why } }).length, 1);
+  assert.equal(unwaived([finding], { allow: ['shared-edges@17-20.4'] }).length, 1);
+});
+
 test('lines carry the rule, the second, the code and one fix, in time order', () => {
   const findings = motionLint({ scripted: false, records: [
     rec({ target: 0, opacity: [0, 1], duration: 0.3 }), rec({ target: 0, opacity: [1, 0], delay: 3, duration: 0.3 }),
