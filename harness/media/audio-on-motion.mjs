@@ -12,11 +12,12 @@ const ARRIVE_SHARE = 0.08;
 const readMotion = (page, selector) => page.evaluate((sel) => {
   const el = document.querySelector(sel);
   if (!el) return null;
-  const STILL = new Set(['offset', 'easing', 'composite', 'computedOffset', 'visibility', 'display']);
+  // Only these move or show the element; a font, colour or spacing swap is not the action a cue sounds for.
+  const MOVE = new Set(['transform', 'translate', 'scale', 'rotate', 'opacity', 'clipPath', 'left', 'top', 'right', 'bottom', 'width', 'height', 'offsetDistance']);
   const props = (a) => a.effect.getKeyframes().flatMap(Object.keys);
   return el.getAnimations().flatMap((a) => {
     const t = a.effect.getComputedTiming();
-    const moves = props(a).some((p) => !STILL.has(p));
+    const moves = props(a).some((p) => MOVE.has(p));
     return moves && Number.isFinite(t.endTime) ? [{ start: t.delay / 1000, end: t.endTime / 1000 }] : [];
   });
 }, selector);
@@ -58,7 +59,7 @@ export async function startOnMotion(page, specs) {
     const [, what, selector] = s.on.match(MOTION_ON);
     const anims = await readMotion(page, selector);
     if (anims === null) { problems.push(`<audio> data-on="${s.on}": no element matches ${selector}`); continue; }
-    if (!anims.length) { problems.push(`<audio> data-on="${s.on}": ${selector} has no animation that moves it (only visibility, or none)`); continue; }
+    if (!anims.length) { problems.push(`<audio> data-on="${s.on}": ${selector} has no animation that moves it (only visibility, font or colour, or none)`); continue; }
     s.at += await motionSecond(page, what, selector, anims);
   }
   return problems;

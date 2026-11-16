@@ -26,9 +26,10 @@ const a = document.querySelector('#a'), b = document.querySelector('#b');
 a.animate([{ transform: 'translateX(-600px)' }, { transform: 'translateX(40px)', offset: 0.4 }, { transform: 'none' }], { delay: 1000, duration: 500, fill: 'both' });
 a.animate([{ transform: 'none' }, { transform: 'translateY(600px)' }], { delay: 3000, duration: 300, fill: 'forwards', composite: 'add' });
 b.animate([{ visibility: 'visible' }, { visibility: 'visible' }], { delay: 500, duration: 500 });
+a.animate([{ fontFamily: 'serif' }, { fontFamily: 'monospace' }], { delay: 0, duration: 4000, fill: 'both' });
 </script>`;
 
-test('start, land and leave read the element motion in a real page; data-at adds; a bad selector or a still element is named', async () => {
+test('start, land and leave read the element motion in a real page; data-at adds; a font swap is not a move; a bad selector or a still element is named', async () => {
   const browser = await puppeteer.launch({ headless: true, args: pageArgs(true) });
   try {
     const page = await browser.newPage();
@@ -42,6 +43,6 @@ test('start, land and leave read the element motion in a real page; data-at adds
     assert.equal(specs[5].at, 0, 'a world cue is left to the world resolver');
     assert.equal(problems.length, 2);
     assert.match(problems[0], /land:#zz.*no element matches #zz/);
-    assert.match(problems[1], /start:#b.*no animation that moves it/);
+    assert.match(problems[1], /start:#b.*no animation that moves it \(only visibility, font/);
   } finally { await browser.close(); }
 });
