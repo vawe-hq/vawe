@@ -1,4 +1,4 @@
-// The vawe MCP server (stdio): the twelve tools: the ten of the harness plan and vawe_write_doc, vawe_edit_doc. The guard core (harness/guards) decides every refusal;
+// The vawe MCP server (stdio): the thirteen tools: the ten of the harness plan, vawe_write_doc, vawe_edit_doc and vawe_wait. The guard core (harness/guards) decides every refusal;
 // the work is done by bin/vawe verbs run as child processes (run-verb.mjs). Each tool returns JSON text { ok, findings, next, taste? }
 // and, for the frame tools, the images.
 import fs from 'node:fs';
@@ -6,18 +6,20 @@ import path from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import * as z from 'zod/v4';
-import { stageGate, contractCheck, tasteFor, TASTE_TOPICS } from '../guards/index.mjs';
+import { stageGate, contractCheck, tasteFor, TASTE_TOPICS, beatTopics, changedWorlds } from '../guards/index.mjs';
 import { nextStep } from '../live/stage-say.mjs';
 import { ideaFindings } from '../lib/ideas.mjs';
 import { boardVerify } from '../lib/board-verify.mjs';
 import { writeFileAtomic } from '../lib/atomic-write.mjs';
 import { WORK } from '../lib/workspace.mjs';
+import { isRunning } from '../lib/running-work.mjs';
 import { runVerb } from './run-verb.mjs';
 
 const FILM = z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'film name: lowercase letters, digits and dashes').describe('film name, as in films/<name>');
 const MAX_IMAGES = 6;
 const MAX_IMAGE_BYTES = 4_000_000;
 const MAX_LOOKS = 4;
+const MAX_TASTE = 8;
 const MODES = ['world', 'board', 'cuts', 'moment'];
 
 const paths = (name, work) => ({ dir: path.join(work, 'films', name), page: path.join(work, 'films', name, 'page.html'), rel: `films/${name}/page.html` });
@@ -38,10 +40,21 @@ function reply(body, images = []) {
 
 const refused = (gate) => reply({ ok: false, findings: [finding('refused', gate.reason, gate.next)], next: gate.next });
 
-/** The stage lines for the film's current stage, or none when the film has no folder yet. */
-function tasteNow(p, work, topic = null) {
-  const stage = fs.existsSync(p.dir) ? nextStep(p.page, work).stage : 'brief';
-  return tasteFor(stage, topic);
+/** The taste lines for the beats a write changed: the topics each beat holds, at most MAX_TASTE lines, none already sent for this film in this session. */
+function beatTaste(p, work, before, after, sent) {
+  const topics = [...new Set(Object.values(beatTopics(after, changedWorlds(before, after))).flat())];
+  if (!topics.length) return [];
+  const seen = sent.get(p.rel) ?? new Set();
+  const quota = Math.max(1, Math.floor(MAX_TASTE / topics.length));
+  const stage = nextStep(p.page, work).stage;
+  const lines = topics.flatMap((topic) => {
+    const fresh = tasteFor(stage, topic).filter((l) => !seen.has(l));
+    const read = fresh.filter((l) => l.startsWith('read '));
+    return [...fresh.filter((l) => !l.startsWith('read ')).slice(0, quota - 1), ...read];
+  });
+  const picked = [...new Set(lines)].slice(0, MAX_TASTE);
+  sent.set(p.rel, new Set([...seen, ...picked]));
+  return picked;
 }
 
 async function viaVerb(args, work) {
@@ -57,22 +70,22 @@ async function gated(tool, name, work, run, opts = {}) {
   return gate.allow ? run(p) : refused(gate);
 }
 
-function checkedWrite(p, html, work) {
+function checkedWrite(p, html, work, sent, before) {
   const findings = contractCheck(html, { filmDir: p.dir });
   const blocks = findings.filter((f) => f.severity === 'block').map(fromContract);
   if (blocks.length) return reply({ ok: false, findings: blocks, next: 'fix the blocking findings and write the page again; nothing was written' });
   writeFileAtomic(p.page, html);
   const next = stageGate(p.dir, 'vawe_write_page', { root: work }).next;
-  return reply({ ok: true, findings: findings.map(fromContract), next, taste: tasteNow(p, work) });
+  return reply({ ok: true, findings: findings.map(fromContract), next, taste: beatTaste(p, work, before, html, sent) });
 }
 
-function writePage({ film, html }, work) {
+function writePage({ film, html }, work, sent) {
   const p = paths(film, work);
   if (!fs.existsSync(p.dir)) return refused(stageGate(p.dir, 'vawe_write_page', { root: work }));
-  return checkedWrite(p, html, work);
+  return checkedWrite(p, html, work, sent, fs.existsSync(p.page) ? fs.readFileSync(p.page, 'utf8') : '');
 }
 
-function editPage({ film, old, new: replacement }, work) {
+function editPage({ film, old, new: replacement }, work, sent) {
   const p = paths(film, work);
   if (!fs.existsSync(p.page)) return refused(stageGate(p.dir, 'vawe_edit_page', { root: work }));
   const html = fs.readFileSync(p.page, 'utf8');
@@ -81,7 +94,7 @@ function editPage({ film, old, new: replacement }, work) {
     const why = count === 0 ? 'the old text is not in page.html' : `the old text is in page.html ${count} times`;
     return reply({ ok: false, findings: [finding('edit-not-unique', why, 'send more surrounding text in old so it matches once')], next: 'edit again with an exact, unique old text' });
   }
-  return checkedWrite(p, html.replace(old, () => replacement), work);
+  return checkedWrite(p, html.replace(old, () => replacement), work, sent, html);
 }
 
 const DOC_FILES = /^(?:brief\.md|DESIGN\.md|kit\/[^\0]+)$/;
@@ -127,14 +140,36 @@ function editDoc({ film, file, old, new: replacement }, work) {
   return docReply(p, file, text.replace(old, () => replacement), work);
 }
 
+function kitLines(p) {
+  const kitDir = path.join(p.dir, 'kit');
+  const parts = fs.existsSync(kitDir) ? fs.readdirSync(kitDir, { recursive: true }).filter((f) => fs.statSync(path.join(kitDir, f)).isFile()).sort() : [];
+  return [
+    ...(parts.length ? parts.map((f) => `kit part: films/${path.basename(p.dir)}/kit/${f}`) : [`no kit yet: write films/${path.basename(p.dir)}/kit/ with vawe_write_doc (DESIGN.md first)`]),
+    'moves, picked by job: prompts/moves/README.md (copy the snippet; every curve is an EASE name)',
+    'moves joined into whole films: prompts/moves/RECIPES.md',
+    'ease per job: core/motion/README.md',
+  ];
+}
+
 function readRules({ film, topic }, work) {
   const p = paths(film, work);
   const stage = fs.existsSync(p.dir) ? nextStep(p.page, work).stage : 'brief';
+  if (topic === 'kit') return reply({ ok: true, findings: [], next: nextStep(p.page, work).next, kit: kitLines(p) });
   if (topic && !TASTE_TOPICS.includes(topic)) {
-    return reply({ ok: false, findings: [finding('unknown-topic', `no topic "${topic}"`, `use one of: ${TASTE_TOPICS.join(', ')}`)], next: 'call vawe_read_rules again with a valid topic' });
+    return reply({ ok: false, findings: [finding('unknown-topic', `no topic "${topic}"`, `use one of: ${[...TASTE_TOPICS, 'kit'].join(', ')}`)], next: 'call vawe_read_rules again with a valid topic' });
   }
   const contract = ['a film is films/<name>/page.html with <meta name="duration"> and one data-world element per beat', 'relative asset paths only'];
   return reply({ ok: true, findings: [], next: nextStep(p.page, work).next, taste: tasteFor(stage, topic ?? null), contract });
+}
+
+async function wait({ film }, work) {
+  const p = paths(film, work);
+  if (!fs.existsSync(p.dir)) return refused(stageGate(p.dir, 'vawe_wait', { root: work }));
+  if (!isRunning(p.rel, work)) {
+    const step = nextStep(p.page, work);
+    return reply({ ok: false, findings: [finding('nothing-running', 'no render, critique or ship of this film is running', step.next)], next: step.next });
+  }
+  return viaVerb(['wait', p.rel], work);
 }
 
 function status({ film }, work) {
@@ -163,7 +198,8 @@ async function look({ film, t }, work) {
 }
 
 function register(server, work) {
-  const tool = (name, description, inputSchema, run) => server.registerTool(name, { description, inputSchema }, async (input) => run(input, work));
+  const sent = new Map();
+  const tool = (name, description, inputSchema, run) => server.registerTool(name, { description, inputSchema }, async (input) => run(input, work, sent));
   tool('vawe_status', 'Use first, and after every step: the stage the film is at, why, and the one next step.', { film: FILM }, status);
   tool('vawe_new_film', 'Use once to start a film: writes films/<name>/brief.md and a starter page.html. Refuses when the name exists.', {
     name: FILM, request: z.string().describe('the ask in its own words'), aspect: z.enum(['16:9', '9:16', '1:1', '4:5', '4:3']).optional(),
@@ -174,7 +210,7 @@ function register(server, work) {
   tool('vawe_edit_doc', 'Use for a small change to brief.md, DESIGN.md or a kit/ file: one exact replace of old by new. Refuses when old is missing or not unique.', {
     film: FILM, file: z.string().describe('brief.md | DESIGN.md | kit/<path>'), old: z.string(), new: z.string(),
   }, editDoc);
-  tool('vawe_read_rules', 'Use before you write a beat: the taste and contract lines for this film stage; topic narrows to type, colour, motion, cuts, sound or layout.', {
+  tool('vawe_read_rules', 'Use before you write a beat: the taste and contract lines for this film stage; topic narrows to type, colour, motion, cuts, sound or layout; kit lists the kit parts and moves to build from.', {
     film: FILM, topic: z.string().optional().describe(TASTE_TOPICS.join(' | ')),
   }, readRules);
   tool('vawe_write_page', 'Use to write the whole films/<name>/page.html. Refuses (writes nothing) when the page contract breaks: no duration meta, no data-world, an absolute path. Other findings advise.', {
@@ -194,11 +230,12 @@ function register(server, work) {
   }, look);
   tool('vawe_critique', 'Use after the motion pass: starts a fresh critic session (not this one) that writes out/<film>.critique-<n>.md. Takes 1 to 15 minutes.', { film: FILM },
     ({ film }, w) => gated('vawe_critique', film, w, (p) => viaVerb(['critique', p.rel, '--fresh'], w)));
+  tool('vawe_wait', 'Use after vawe_ship, vawe_critique or a long draft: waits up to 100 seconds for the running job. On STILL RUNNING call it again. Refused when nothing runs.', { film: FILM }, wait);
   tool('vawe_ship', 'Use only when the person has approved: starts the final render. Refused without a fresh critique and the person\'s OK; never approve for them.', { film: FILM },
     ({ film }, w) => gated('vawe_ship', film, w, (p) => viaVerb(['ship', p.rel], w)));
 }
 
-/** A server with the twelve tools on the workspace `work`. */
+/** A server with the thirteen tools on the workspace `work`. */
 export function createServer({ work = WORK } = {}) {
   const server = new McpServer({ name: 'vawe', version: '1.0.0' });
   register(server, work);

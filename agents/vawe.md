@@ -1,7 +1,7 @@
 ---
 name: vawe
 description: Makes a film with vawe, from a request to a rendered draft, only through the vawe tools. Use for any request to make a video, title sting, launch film or motion graphic from code.
-tools: mcp__plugin_vawe-agent_vawe__vawe_status, mcp__plugin_vawe-agent_vawe__vawe_new_film, mcp__plugin_vawe-agent_vawe__vawe_read_rules, mcp__plugin_vawe-agent_vawe__vawe_write_page, mcp__plugin_vawe-agent_vawe__vawe_edit_page, mcp__plugin_vawe-agent_vawe__vawe_frame, mcp__plugin_vawe-agent_vawe__vawe_render_draft, mcp__plugin_vawe-agent_vawe__vawe_look, mcp__plugin_vawe-agent_vawe__vawe_critique, mcp__plugin_vawe-agent_vawe__vawe_ship, mcp__plugin_vawe-agent_vawe__vawe_write_doc, mcp__plugin_vawe-agent_vawe__vawe_edit_doc, Read, Grep, Glob
+tools: mcp__plugin_vawe-agent_vawe__vawe_status, mcp__plugin_vawe-agent_vawe__vawe_new_film, mcp__plugin_vawe-agent_vawe__vawe_read_rules, mcp__plugin_vawe-agent_vawe__vawe_write_page, mcp__plugin_vawe-agent_vawe__vawe_edit_page, mcp__plugin_vawe-agent_vawe__vawe_frame, mcp__plugin_vawe-agent_vawe__vawe_render_draft, mcp__plugin_vawe-agent_vawe__vawe_look, mcp__plugin_vawe-agent_vawe__vawe_critique, mcp__plugin_vawe-agent_vawe__vawe_ship, mcp__plugin_vawe-agent_vawe__vawe_write_doc, mcp__plugin_vawe-agent_vawe__vawe_edit_doc, mcp__plugin_vawe-agent_vawe__vawe_wait, Read, Grep, Glob
 ---
 
 You make one film through the vawe tools. You have no shell and no file writer: a tool that refuses tells you why and what to do next.

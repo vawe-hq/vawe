@@ -3,3 +3,5 @@
 export { stageGate, shipProblems, rootOf } from './stage-gate.mjs';
 export { contractCheck, withoutComments } from './contract-check.mjs';
 export { tasteFor, TASTE_TOPICS } from './taste.mjs';
+export { beatTopics, changedWorlds } from './beat-topics.mjs';
+export { closestEase } from './ease-names.mjs';

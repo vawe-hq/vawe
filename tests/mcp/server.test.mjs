@@ -1,20 +1,22 @@
 // node --test tests/mcp/server.test.mjs
-// The MCP server driven through the SDK client over stdio. In a checkout the workspace is the checkout, so the test film has a unique
-// name under films/ and the test removes it at the end.
+// The MCP server driven through the SDK client over stdio. VAWE_WORK points the workspace at a temp folder, so the test film and its out/
+// never touch the checkout.
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const WORK = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-mcp-'));
 const FILM = `mcp-test-${process.pid}`;
-const DIR = path.join(ROOT, 'films', FILM);
+const DIR = path.join(WORK, 'films', FILM);
 const PAGE = path.join(DIR, 'page.html');
 const GOOD = '<meta name="duration" content="3">\n<meta name="message" content="zero fees">\n<section data-world="hello"><h1>Zero fees</h1><h1>Again</h1></section>\n<script>setTimeout(() => {}, 10)</script>\n';
-const TOOLS = ['vawe_status', 'vawe_new_film', 'vawe_read_rules', 'vawe_write_page', 'vawe_edit_page', 'vawe_frame', 'vawe_render_draft', 'vawe_look', 'vawe_critique', 'vawe_ship', 'vawe_write_doc', 'vawe_edit_doc'];
+const TOOLS = ['vawe_status', 'vawe_new_film', 'vawe_read_rules', 'vawe_write_page', 'vawe_edit_page', 'vawe_frame', 'vawe_render_draft', 'vawe_look', 'vawe_critique', 'vawe_ship', 'vawe_write_doc', 'vawe_edit_doc', 'vawe_wait'];
 
 const IDEAS = '## Ideas\n\n| at | meaning | i1 | i2 | i3 | i4 | chosen | why |\n|---|---|---|---|---|---|---|---|\n| cold | start | type: a word, 0.3 | object: a ring, 0.2 | light: a glow, 0.4 | paper: a fold, 0.1 | 2 | because the ring is the brand |\n\n';
 
@@ -27,18 +29,15 @@ const call = async (name, args) => {
 
 before(async () => {
   client = new Client({ name: 'mcp-test', version: '1.0.0' });
-  await client.connect(new StdioClientTransport({ command: process.execPath, args: [path.join(ROOT, 'bin', 'vawe'), 'mcp'], cwd: ROOT, stderr: 'ignore' }));
+  await client.connect(new StdioClientTransport({ command: process.execPath, args: [path.join(ROOT, 'bin', 'vawe'), 'mcp'], cwd: ROOT, env: { ...process.env, VAWE_WORK: WORK }, stderr: 'ignore' }));
 });
 
 after(async () => {
   await client.close();
-  fs.rmSync(DIR, { recursive: true, force: true });
-  for (const f of fs.existsSync(path.join(ROOT, 'out')) ? fs.readdirSync(path.join(ROOT, 'out')) : []) {
-    if (f.startsWith(FILM)) fs.rmSync(path.join(ROOT, 'out', f), { recursive: true, force: true });
-  }
+  fs.rmSync(WORK, { recursive: true, force: true });
 });
 
-test('lists the ten tools of the plan and the two doc tools', async () => {
+test('lists the ten tools of the plan, the two doc tools and wait', async () => {
   const { tools } = await client.listTools();
   assert.deepEqual(tools.map((t) => t.name).sort(), [...TOOLS].sort());
   assert.ok(tools.every((t) => t.description.length > 20 && t.description.length < 300));
@@ -145,6 +144,44 @@ test('read_rules: an unknown topic is refused with the valid ones; a known topic
   assert.ok(good.taste.at(-1).startsWith('read taste/craft/'));
 });
 
+test('read_rules kit lists the kit files of the film and the moves index', async () => {
+  const r = await call('vawe_read_rules', { film: FILM, topic: 'kit' });
+  assert.equal(r.ok, true);
+  assert.ok(r.kit.includes(`kit part: films/${FILM}/kit/parts/card.html`), JSON.stringify(r.kit));
+  assert.ok(r.kit.some((l) => l.includes('prompts/moves/README.md')));
+});
+
+test('a write returns taste lines for the beats it changed, and never the same line twice for the film', async () => {
+  const page = (word) => `<meta name="duration" content="3">\n<meta name="message" content="m">\n<section data-world="one"><h1>${word}</h1></section>\n<section data-world="two"><div class="panel"><button>Go</button></div><audio src="assets/a.wav" data-at="1"></audio></section>\n`;
+  const first = await call('vawe_write_page', { film: FILM, html: page('Zero') });
+  assert.equal(first.ok, true);
+  assert.ok(first.taste.length > 0 && first.taste.length <= 8, JSON.stringify(first.taste));
+  assert.ok(first.taste.some((l) => l.startsWith('read taste/craft/')));
+  const again = await call('vawe_edit_page', { film: FILM, old: 'Zero', new: 'Free' });
+  assert.equal(again.ok, true);
+  const repeated = again.taste.filter((l) => first.taste.includes(l));
+  assert.deepEqual(repeated, []);
+  const untouched = await call('vawe_edit_page', { film: FILM, old: 'data-at="1"', new: 'data-at="2"' });
+  assert.ok(untouched.taste.every((l) => !first.taste.includes(l)));
+});
+
+test('a hand cubic-bezier in a write names the house ease', async () => {
+  const html = '<meta name="duration" content="3">\n<meta name="message" content="m">\n<section data-world="one"><h1>x</h1></section>\n<style>h1 { animation: a 1s cubic-bezier(0.55, 0, 1, 0.45) both }</style>\n';
+  const r = await call('vawe_write_page', { film: FILM, html });
+  assert.equal(r.ok, true);
+  const f = r.findings.find((x) => x.code === 'hand-ease');
+  assert.match(f.fix, /--ease-carry/);
+});
+
+test('wait is refused when nothing runs, and a refusal for a film that does not exist', async () => {
+  const r = await call('vawe_wait', { film: FILM });
+  assert.equal(r.ok, false);
+  assert.equal(r.findings[0].code, 'nothing-running');
+  const none = await call('vawe_wait', { film: `${FILM}-nope` });
+  assert.equal(none.ok, false);
+  assert.equal(none.findings[0].code, 'refused');
+});
+
 test('a film name with a path in it is rejected by the schema', async () => {
   const r = await client.callTool({ name: 'vawe_status', arguments: { film: '../x' } });
   assert.equal(r.isError, true);
@@ -153,7 +190,7 @@ test('a film name with a path in it is rejected by the schema', async () => {
 // One real render: a copy of the judged example, whose plan is complete, drafted for its first 3 seconds. Opt in: VAWE_MCP_RENDER=1.
 test('render_draft renders a draft of a film whose plan is filled', { skip: process.env.VAWE_MCP_RENDER !== '1' }, async () => {
   const name = `${FILM}-render`;
-  const dir = path.join(ROOT, 'films', name);
+  const dir = path.join(WORK, 'films', name);
   fs.cpSync(path.join(ROOT, 'films', 'examples', 'colour-sting'), dir, { recursive: true, preserveTimestamps: true });
   const brief = path.join(dir, 'brief.md');
   const stamp = fs.statSync(brief).mtime;
@@ -165,10 +202,10 @@ test('render_draft renders a draft of a film whose plan is filled', { skip: proc
     assert.ok(frames.content.some((c) => c.type === 'image'));
     const r = await call('vawe_render_draft', { film: name, from: 0, to: 3 });
     assert.equal(r.ok, true, JSON.stringify(r.findings) + r.output);
-    assert.ok(fs.readdirSync(path.join(ROOT, 'out')).some((f) => f.startsWith(name) && f.endsWith('.mp4')));
+    assert.ok(fs.readdirSync(path.join(WORK, 'out')).some((f) => f.startsWith(name) && f.endsWith('.mp4')));
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
-    for (const f of fs.readdirSync(path.join(ROOT, 'out'))) if (f.startsWith(name)) fs.rmSync(path.join(ROOT, 'out', f), { recursive: true, force: true });
+    for (const f of fs.readdirSync(path.join(WORK, 'out'))) if (f.startsWith(name)) fs.rmSync(path.join(WORK, 'out', f), { recursive: true, force: true });
   }
 });
 

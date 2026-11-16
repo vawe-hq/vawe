@@ -1,5 +1,5 @@
 // The page contract check (AGENTS.md, Hard rules). A finding of severity 'block' breaks a render: a duration meta, a data-world on each beat,
-// relative paths. Timers, clocks and Math.random advise: core/engine/page-clock.js already makes them a pure function of t. The source traps are quality/gates/anim-traps.mjs
+// relative paths. A hand-written ease advises with the named one to use (ease-names.mjs). Timers, clocks and Math.random advise: core/engine/page-clock.js already makes them a pure function of t. The source traps are quality/gates/anim-traps.mjs
 // pageTraps, run on the page with its comments blanked; a declared, vetted waiver (harness/lib/waivers.mjs) drops a finding.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -7,6 +7,7 @@ import { pageTraps } from '../../quality/gates/anim-traps.mjs';
 import { metaOf } from '../lib/page-meta.mjs';
 import { authoringOfHtml } from '../lib/motion-stamp.mjs';
 import { isWaived } from '../lib/waivers.mjs';
+import { easeFindings } from './ease-names.mjs';
 
 // What a pageTraps finding is: its code, severity and the source text that shows where it is.
 const TRAPS = [
@@ -114,6 +115,6 @@ const waived = (findings, authoring) => findings.filter((f) => !isWaived(authori
 export function contractCheck(html, { filmDir = null } = {}) {
   const authoring = authoringOfHtml(html);
   const code = withoutComments(html);
-  const all = [...metaFindings(html), ...worldFindings(html), ...trapFindings(code, authoring), ...assetFindings(code, filmDir)];
+  const all = [...metaFindings(html), ...worldFindings(html), ...trapFindings(code, authoring), ...easeFindings(code), ...assetFindings(code, filmDir)];
   return waived(all, authoring).sort((a, b) => Number(b.severity === 'block') - Number(a.severity === 'block'));
 }
