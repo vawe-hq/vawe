@@ -182,6 +182,10 @@ async function main(args) {
   const hooksLine = CHECKOUT ? ensureHooks(gitAt(ROOT)) : '';
   if (hooksLine) console.error(hooksLine);
   if (name === 'mcp') return (await import('../harness/mcp/server.mjs')).serve();
+  if (name === 'agent') {
+    process.exitCode = await (await import('../pi/agent.mjs')).runAgent(rest).catch((e) => { console.error(`vawe: ${e.message}`); return 1; });
+    return;
+  }
   if (name && DEV_ALIASES.includes(name) && !VERBS.some((v) => v.name === name)) return runDevAlias(name, rest);
   const alias = name && !VERBS.some((v) => v.name === name) && ALIASES[name] ? name : null;
   if (alias) {

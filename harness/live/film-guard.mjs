@@ -6,20 +6,23 @@ import { bare } from '../lib/shell-match.mjs';
 
 export const MCP_PREFIX = 'mcp__plugin_vawe-agent_vawe__';
 export const NAMED_TOOLS = ['vawe_write_page', 'vawe_edit_page', 'vawe_status', 'vawe_write_doc', 'vawe_edit_doc', 'vawe_render_draft', 'vawe_look'];
-const tool = (...names) => names.map((n) => `${MCP_PREFIX}${n}`).join(' or ');
+const toolsNamed = (prefix) => (...names) => names.map((n) => `${prefix}${n}`).join(' or ');
 
-const PLAN_FIX = `${tool('vawe_write_doc')} or ${tool('vawe_edit_doc')} writes brief.md, DESIGN.md and kit/ files; ${tool('vawe_status')} names the open step`;
-const WRITE_FIX = {
-  page: `Use ${tool('vawe_write_page', 'vawe_edit_page')}: they check the page contract and return the taste rules for the beats you touch`,
-  brief: PLAN_FIX,
-  design: PLAN_FIX,
-  kit: PLAN_FIX,
+const fixes = (tool) => {
+  const plan = `${tool('vawe_write_doc')} or ${tool('vawe_edit_doc')} writes brief.md, DESIGN.md and kit/ files; ${tool('vawe_status')} names the open step`;
+  return {
+    page: `Use ${tool('vawe_write_page', 'vawe_edit_page')}: they check the page contract and return the taste rules for the beats you touch`,
+    brief: plan,
+    design: plan,
+    kit: plan,
+  };
 };
 
-/** The reason a call may not run, or null. Pure: `name` is the tool name, `input` its tool_input. */
-export function denial(name, input = {}) {
+/** The reason a call may not run, or null. Pure: `name` is the tool name, `input` its tool_input, `prefix` the host's tool name prefix (pi has none). */
+export function denial(name, input = {}, prefix = MCP_PREFIX) {
+  const tool = toolsNamed(prefix);
   const [write] = filmWrites(name, input);
-  if (write) return `blocked: a hand-made write to films/${write.film}/ (${write.what}). ${WRITE_FIX[write.what]}.`;
+  if (write) return `blocked: a hand-made write to films/${write.film}/ (${write.what}). ${fixes(tool)[write.what]}.`;
   if (name !== 'Bash') return null;
   const cmd = String(input.command ?? '');
   if (RAW_TOOLS.ffmpeg.test(bare(cmd))) return `blocked: raw ffmpeg. Use ${tool('vawe_render_draft')} to render, ${tool('vawe_look')} for a still.`;

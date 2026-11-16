@@ -173,6 +173,15 @@ finds the seven ways a seeked CSS animation breaks without an error. More: [vawe
   ```
   [vawe-hq/skills](https://github.com/vawe-hq/skills) is a small copy of `skills/` that a workflow
   keeps in sync, so an install does not download this repository.
+- Three ways to give an agent the checked vawe tools:
+
+  | Host | Install |
+  |---|---|
+  | Claude Code plugin | `claude plugin install vawe-agent@vawe-skills` (see above) |
+  | pi package | `pi install npm:vawe` adds the vawe tools, a guard against hand-made film writes, and the skills to pi |
+  | `npx vawe agent` | a chat with only the vawe tools and read; needs `ANTHROPIC_API_KEY` and `npm install @earendil-works/pi-coding-agent@1.5.2` |
+
+  `vawe agent` takes API keys only. Claude subscription login stays with Anthropic's own apps.
 - Ask your agent for a film in plain words. It runs `bin/vawe new <name> --request "<the ask>"` and
   follows the `next:` lines.
 
