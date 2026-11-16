@@ -62,3 +62,16 @@ test('a bare reference id is a film in every mode of frame', () => {
   assert.equal(moment.status, 0, moment.stderr + moment.stdout);
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test('a window past the end or before the start is moved inside the film, with one line', () => {
+  const { dir, refs } = makeRefs();
+  const late = run(refs, [ID, '--moment', '2.9', '--span', '1', '--out', path.join(dir, 'late')], dir);
+  assert.equal(late.status, 0, late.stderr + late.stdout);
+  assert.match(late.stdout, /window moved to 2\.00-3\.00 s to stay inside the film/);
+  const early = run(refs, [ID, '--moment', '0.1', '--span', '1', '--out', path.join(dir, 'early')], dir);
+  assert.equal(early.status, 0, early.stderr + early.stdout);
+  assert.match(early.stdout, /window moved to 0\.00-1\.00 s to stay inside the film/);
+  const fits = run(refs, [ID, '--moment', '1.5', '--span', '1', '--out', path.join(dir, 'fits')], dir);
+  assert.doesNotMatch(fits.stdout, /window moved/);
+  fs.rmSync(dir, { recursive: true, force: true });
+});

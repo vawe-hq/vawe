@@ -3,7 +3,7 @@
 import path from 'node:path';
 import { computeEnergy, die, HOLD_FLOOR, probeVideo } from './core.mjs';
 import { runShot } from './compare.mjs';
-import { cutHolds, energyLines, holdLine, holdsSummary, motionLines, motionRead, stripFpsProblem, stripWindow, transitionLine } from './strip-math.mjs';
+import { cutHolds, energyLines, holdLine, holdsSummary, motionLines, motionRead, stripFpsProblem, stripWindow, transitionLine, windowNote } from './strip-math.mjs';
 import { resolveInput } from './input.mjs';
 
 /** The seconds of the cuts of a page or mp4, for `vawe frame --vs --at cuts`. */
@@ -15,12 +15,13 @@ export async function cutSeconds(input) {
 function stripOne(video, outRoot, energy, { at, span, fps }, dur) {
   const { from, to } = stripWindow(at, span, dur);
   const { gridPaths } = runShot(video, outRoot, from, to, fps, { energy, quiet: true });
-  return { from, to, gridPaths, read: motionRead(energy, from, to, HOLD_FLOOR) };
+  return { from, to, note: windowNote(at, span, { from, to }, dur), gridPaths, read: motionRead(energy, from, to, HOLD_FLOOR) };
 }
 
 function printStrip(title, r, fps, { compact, energy }) {
   console.log(`\n${title}`);
   for (const p of r.gridPaths) console.log(`  ${p}`);
+  if (r.note) console.log(`  ${r.note}`);
   console.log(`  window ${r.from.toFixed(2)}-${r.to.toFixed(2)} s, frames every ${(1 / fps).toFixed(3)} s, left to right, top to bottom`);
   for (const l of energyLines(energy, r.from, r.to, { compact })) console.log(`  ${l}`);
   for (const l of motionLines(r.read, HOLD_FLOOR)) console.log(`  ${l}`);

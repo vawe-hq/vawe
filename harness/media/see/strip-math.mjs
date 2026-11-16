@@ -33,6 +33,12 @@ export function stripWindow(at, span, dur) {
   return { from: round(from), to: round(from + len) };
 }
 
+/** The one line that says a window was moved off the centre `at` to stay inside a film of `dur` seconds, or null when it was not. Pure. */
+export function windowNote(at, span, { from, to }, dur) {
+  if (Math.abs(from - (at - span / 2)) < 0.0005 && Math.abs(to - (at + span / 2)) < 0.0005) return null;
+  return `note: window moved to ${from.toFixed(2)}-${to.toFixed(2)} s to stay inside the film (0-${+dur.toFixed(2)} s)`;
+}
+
 /** The world changes of measured spans [{ id, start, end }]: [{ at, from, to }], `at` the middle between the end of the world before and the start of the next. Worlds never shown are skipped. Pure. */
 export function worldCuts(spans) {
   const shown = spans.filter((s) => s.start != null).sort((a, b) => a.start - b.start);
