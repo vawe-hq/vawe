@@ -1,5 +1,4 @@
-import { readRuns, readAllRuns, appendRun } from './runlog.mjs';
-import path from 'node:path';
+import { readRuns, readAllRuns, appendRun, runsDir } from './runlog.mjs';
 
 export const NEXT_UNCHANGED = 'next: unchanged, see above';
 
@@ -12,7 +11,7 @@ export function sinceReset(runs, sessionId) {
 /** Writes a reset for `sessionId` into every film log that holds a next-shown or taste-shown record of it. */
 export function resetShown(root, sessionId) {
   if (!sessionId) return;
-  for (const f of readAllRuns(path.join(root, 'out'))) {
+  for (const f of readAllRuns(runsDir(root))) {
     if (f.runs.some((r) => ['next-shown', 'taste-shown', 'alias-shown'].includes(r.cmd) && r.shownTo === sessionId)) {
       try { appendRun(f.film, { cmd: 'shown-reset', shownTo: sessionId }, { root }); } catch { /* a hint log never fails the hook */ }
     }

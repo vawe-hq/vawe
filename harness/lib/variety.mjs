@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DIALS, parseSignature } from '../../core/motion/signature.js';
 import { BANDS, EASE_HANDLES } from '../../core/motion/presets.js';
-import { readAllRuns } from './runlog.mjs';
+import { readAllRuns, runsDir } from './runlog.mjs';
 import { table } from './runs-report.mjs';
 
 export const RECENT_FILMS = 6;
@@ -105,5 +105,5 @@ export const metaReader = (root) => (film) => {
 
 /** The recent signatures of the films under `root` (out/ for the logs, films/ for the page meta), without film `skip`. */
 export function recentFromDisk(root, skip) {
-  return recentSignatures(readAllRuns(path.join(root, 'out')), metaReader(root), { skip });
+  return recentSignatures(readAllRuns(runsDir(root)), metaReader(root), { skip });
 }

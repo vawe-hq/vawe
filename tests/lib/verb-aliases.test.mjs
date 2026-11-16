@@ -171,14 +171,15 @@ test('without a session the notice is short, with one it names the whole command
 
 test('bin/vawe shows the notice once per session across calls, and again for the same old verb that became another verb', () => {
   const session = `alias-test-${process.pid}`;
-  const call = (...args) => spawnSync(process.execPath, [path.join(ROOT, 'bin/vawe'), ...args], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, CLAUDE_CODE_SESSION_ID: session, VAWE_AGENT: session } });
+  const runs = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-runs-'));
+  const call = (...args) => spawnSync(process.execPath, [path.join(ROOT, 'bin/vawe'), ...args], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, CLAUDE_CODE_SESSION_ID: session, VAWE_AGENT: session, VAWE_RUNS_DIR: runs } });
   const first = call('sheet', 'no-such.html', '--at', '1,2');
   assert.match(first.stderr, /`vawe sheet` is now `vawe frame no-such\.html --at 1,2`/);
   assert.doesNotMatch(call('sheet', 'no-such.html', '--at', '1,2').stderr, /is now/);
   assert.match(call('storyboard', 'no-such.html').stderr, /`vawe storyboard` is now `vawe frame no-such\.html --board`/);
   assert.match(call('storyboard', 'no-such.html', '--text').stderr, /`vawe storyboard` is now `vawe see no-such\.html --plan`/);
   assert.match(call('sheet', 'no-such.html', '--at', '1,2').stdout, /vawe: frame FAILED/);
-  const file = path.join(ROOT, 'out', '_unfiled.runs.jsonl');
+  const file = path.join(runs, '_unfiled.runs.jsonl');
   const mine = fs.readFileSync(file, 'utf8').split('\n').filter((l) => l.includes(session));
   assert.deepEqual(mine.map((l) => JSON.parse(l).alias), ['sheet->frame', 'storyboard->frame', 'storyboard->see']);
 });

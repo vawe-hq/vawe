@@ -50,7 +50,8 @@ for (const file of workflowFiles) {
   const wfName = nameOf(file);
   const last = runs.find((r) => r.workflowName === wfName);
   if (!last) {
-    console.log(`… ci: ${file} · no runs seen in the last ${runs.length}, or it has never run`);
+    const filtered = /^\s+paths:/m.test(fs.readFileSync(path.join(wfDir, file), 'utf8'));
+    console.log(`· ci: ${file} · no runs in the last ${runs.length}${filtered ? ' (it runs only when its paths change)' : ', or it has never run'}`);
     continue;
   }
   const glyph = last.conclusion === 'success' ? '✓' : last.status !== 'completed' ? '…' : '✗';
@@ -59,7 +60,7 @@ for (const file of workflowFiles) {
   if (glyph === '✗') anyRed = true;
 }
 if (anyRed) {
-  console.log('  CI is red on at least one workflow right now. CI runs only the basics (static gates, lib, motion and hooks tests). This hook runs the site build, dev tests and e2e locally, so a red CI run is a basics failure.');
+  console.log('  CI is red on at least one workflow right now. CI runs only the basics (static gates, lib, motion and hooks tests). This hook runs the site build, dev tests and e2e locally, so a red CI run is a basics failure. Keep it green: harness/README.md "CI".');
 }
 console.log(`  after this push: gh run list --repo ${slug} --limit 10`);
 process.exit(0);

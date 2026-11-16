@@ -123,7 +123,7 @@ test('the top advice of a draft puts the slideshow score and the attractor first
   assert.deepEqual(topAdviceLines([], 'f'), []);
 });
 
-test('dev-warn prints the status on a real page and exits 0', () => {
+test('dev-warn prints the status on a real page and exits 0', { skip: process.env.VAWE_CI ? 'opens Chrome and probes every frame: 3 s on a laptop, 188 s on the CI runner' : false }, () => {
   const r = spawnSync(process.execPath, [path.resolve('harness/live/dev-warn.mjs'), 'films/examples/colour-sting/page.html'], { encoding: 'utf8' });
   assert.equal(r.status, 0);
   assert.ok(r.stdout.trim().split('\n').length <= STATUS_MAX_LINES);

@@ -63,14 +63,10 @@ test('the stage hook says "unchanged" for a repeated next line', () => {
 });
 
 test('a verb prints its next line once per session, then "unchanged"', () => {
-  const log = path.join(ROOT, 'out', '_unfiled.runs.jsonl');
-  const run = () => spawnSync(process.execPath, [path.join(ROOT, 'bin/vawe'), 'palette', '--id', 'seed-200'], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, CLAUDE_CODE_SESSION_ID: `next-once-${process.pid}`, VAWE_AGENT: '' } }).stdout;
-  try {
-    assert.match(run(), /\nnext: write the palette/);
-    const again = run();
-    assert.match(again, /\nnext: unchanged, see above/);
-    assert.doesNotMatch(again, /write the palette/);
-  } finally {
-    if (fs.existsSync(log)) fs.writeFileSync(log, fs.readFileSync(log, 'utf8').split('\n').filter((l) => l && !l.includes('next-once-')).map((l) => `${l}\n`).join(''));
-  }
+  const runs = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-runs-'));
+  const run = () => spawnSync(process.execPath, [path.join(ROOT, 'bin/vawe'), 'palette', '--id', 'seed-200'], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, CLAUDE_CODE_SESSION_ID: `next-once-${process.pid}`, VAWE_AGENT: '', VAWE_RUNS_DIR: runs } }).stdout;
+  assert.match(run(), /\nnext: write the palette/);
+  const again = run();
+  assert.match(again, /\nnext: unchanged, see above/);
+  assert.doesNotMatch(again, /write the palette/);
 });

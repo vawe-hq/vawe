@@ -25,7 +25,7 @@ jobs:
   basics:
     name: basics (static gates, unit tests)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 8
     env:
       VAWE_CI: "1"
     steps:
@@ -38,17 +38,17 @@ jobs:
         with:
           path: ~/.cache/puppeteer
           key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json', '.puppeteerrc.cjs') }}
-      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+      - run: command -v ffmpeg || { sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg; }
       - run: npm ci
       - name: static gates
         run: |
           for g in no-emdash rule-length skill-reach; do
             node bin/vawe-dev check "$g"
           done
-      - run: node quality/gates/doc-refs.mjs
+          node quality/gates/doc-refs.mjs
       - name: fetch the locked faces
         run: node generators/media/fonts.mjs
-      - run: node --test --test-concurrency=1 'tests/lib/*.test.mjs' 'tests/motion/*.test.mjs' 'tests/hooks/*.test.mjs'
+      - run: node --test --test-concurrency=4 'tests/lib/*.test.mjs' 'tests/motion/*.test.mjs' 'tests/hooks/*.test.mjs'
 
   e2e:
     name: "e2e (manual: page tests and draft renders of every page film)"
@@ -65,7 +65,7 @@ jobs:
         with:
           path: ~/.cache/puppeteer
           key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json', '.puppeteerrc.cjs') }}
-      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+      - run: command -v ffmpeg || { sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg; }
       - run: npm ci
       - name: fetch the locked faces
         run: node generators/media/fonts.mjs

@@ -12,7 +12,7 @@ import { UsageError, topHelp } from '../../harness/cli/parse.mjs';
 import { InvariantError, RenderError } from '../../harness/media/render-page.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const env = { ...process.env, VAWE_AGENT: 'exit-codes-test' };
+const env = { ...process.env, VAWE_AGENT: 'exit-codes-test', VAWE_RUNS_DIR: fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-runs-')) };
 
 function vawe(...args) {
   return spawnSync(process.execPath, [path.join(ROOT, 'bin/vawe'), ...args], { cwd: ROOT, encoding: 'utf8', env });
@@ -21,14 +21,10 @@ function vawe(...args) {
 function withFilm(fn, aspect = '16:9') {
   const name = `zz-exit-codes-${process.pid}`;
   const dir = path.join(ROOT, 'films', name);
-  const unfiled = path.join(ROOT, 'out', '_unfiled.runs.jsonl');
-  const before = fs.existsSync(unfiled) ? fs.readFileSync(unfiled) : null;
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'page.html'), `<!doctype html><title>x</title><meta name="aspect" content="${aspect}">`);
   try { return fn(path.relative(ROOT, path.join(dir, 'page.html'))); } finally {
     fs.rmSync(dir, { recursive: true, force: true });
-    fs.rmSync(path.join(ROOT, 'out', `${name}.runs.jsonl`), { force: true });
-    if (before) fs.writeFileSync(unfiled, before); else fs.rmSync(unfiled, { force: true });
   }
 }
 

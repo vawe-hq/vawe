@@ -23,9 +23,12 @@ export function filmKeyOf(film) {
   return name.replace(/\.(json|mp4|webm|html)$/, '').replace(/\.web$/, '').replace(/-draft(-[\d.]+-[\d.]+)?$/, '');
 }
 
+/** The folder of the run logs: <root>/out, or VAWE_RUNS_DIR (a test sets it so parallel tests share no log file). */
+export const runsDir = (root = '.') => process.env.VAWE_RUNS_DIR || path.join(root, 'out');
+
 /** out/<film-key>.runs.jsonl for a scene path, a page path or a bare film name. */
 export function runsPathFor(film, root = '.') {
-  return path.join(root, 'out', `${filmKeyOf(film)}${RUNS_SUFFIX}`);
+  return path.join(runsDir(root), `${filmKeyOf(film)}${RUNS_SUFFIX}`);
 }
 
 // An Agent-tool subagent shares the session id and CLAUDE_PID with its parent (measured 2026-09-27), so

@@ -32,6 +32,19 @@ from the repo root).
 
 Every verb appends one line to `out/<film>.runs.jsonl`: verb, stage, seconds, exit code and render slot wait, tagged
 with `VAWE_AGENT` and `VAWE_MODEL` from the shell. `bin/vawe-dev runs <film>` (or `--all`) reads it.
+`VAWE_RUNS_DIR` moves the logs to another folder. A test that runs a `bin/` script sets it to its own temp folder.
+
+## CI
+
+`.github/workflows/gates.yml` runs the basics on each push to main: the static gates, `doc-refs`, and the tests in
+`tests/lib`, `tests/motion` and `tests/hooks`, 4 files in parallel (the runner has 4 CPUs), with `VAWE_CI=1`. The
+pre-push hook runs the heavy checks (site build, `tests/dev`, e2e) on your machine. Keep the job green and under 2 minutes:
+
+- A test that needs a tool other than node, git, ffmpeg or Chrome skips when the tool is missing. The runner is Ubuntu: it has no zsh.
+- A test that opens a real page in Chrome skips when `VAWE_CI` is set. The runner has no GPU, so one probe can take minutes.
+- A test writes only to its own temp folder. It never rewrites a shared file under `out/`, because a parallel test can append to that file at the same time. For the run logs, set `VAWE_RUNS_DIR`.
+- When CI goes red, fix it before the next push. The pre-push hook prints the state of each workflow.
+- `sync-docs-vendor.yml` and `sync-skills.yml` run only when their paths change. No runs is not a failure.
 
 ## The frame merge: keep or fall back, 14 days after the merge
 

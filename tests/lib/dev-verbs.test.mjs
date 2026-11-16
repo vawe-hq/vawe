@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { VERBS } from '../../harness/cli/verbs.mjs';
@@ -11,7 +12,8 @@ import { GATES } from '../../harness/lib/check-gate.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
 const MOVED = ['land', 'claim', 'e2e', 'test', 'runs', 'moves', 'doctor', 'judge', 'approve'];
-const run = (bin, args, env = {}) => spawnSync(process.execPath, [path.join(ROOT, 'bin', bin), ...args], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, ...env } });
+const RUNS = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-runs-'));
+const run = (bin, args, env = {}) => spawnSync(process.execPath, [path.join(ROOT, 'bin', bin), ...args], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, VAWE_RUNS_DIR: RUNS, ...env } });
 
 test('the maintainer verbs live in vawe-dev, not in the vawe verb table or its --help', () => {
   const all = topHelp(VERBS, { all: true });
@@ -52,18 +54,14 @@ test('an old name runs the vawe-dev verb, names it once per session and agent, a
   const session = `dev-alias-test-${process.pid}`;
   const env = { CLAUDE_CODE_SESSION_ID: session, VAWE_AGENT: session };
   const first = run('vawe', ['doctor', '--quiet'], env);
-  const logs = () => fs.readdirSync(path.join(ROOT, 'out')).filter((f) => f.endsWith('.runs.jsonl')).map((f) => path.join(ROOT, 'out', f));
+  const logs = () => fs.readdirSync(RUNS).filter((f) => f.endsWith('.runs.jsonl')).map((f) => path.join(RUNS, f));
   const rows = (name) => logs().flatMap((f) => fs.readFileSync(f, 'utf8').split('\n').filter((l) => l.includes(session))).map((l) => JSON.parse(l)).filter((r) => r.cmd === name);
-  try {
-    assert.match(first.stderr, /vawe: `vawe doctor` is now `vawe-dev doctor --quiet`/);
-    assert.match(first.stdout, /vawe: doctor (ok|FAILED)/);
-    assert.doesNotMatch(first.stdout, /vawe-dev: doctor/);
-    assert.doesNotMatch(run('vawe', ['doctor', '--quiet'], env).stderr, /is now/);
-    assert.deepEqual(rows('alias-shown').map((r) => r.alias), ['doctor->vawe-dev doctor']);
-    assert.deepEqual(rows('verb').map((r) => [r.verb, r.alias]), [['doctor', 'doctor'], ['doctor', 'doctor']]);
-  } finally {
-    for (const file of logs()) fs.writeFileSync(file, fs.readFileSync(file, 'utf8').split('\n').filter((l) => l && !l.includes(session)).map((l) => `${l}\n`).join(''));
-  }
+  assert.match(first.stderr, /vawe: `vawe doctor` is now `vawe-dev doctor --quiet`/);
+  assert.match(first.stdout, /vawe: doctor (ok|FAILED)/);
+  assert.doesNotMatch(first.stdout, /vawe-dev: doctor/);
+  assert.doesNotMatch(run('vawe', ['doctor', '--quiet'], env).stderr, /is now/);
+  assert.deepEqual(rows('alias-shown').map((r) => r.alias), ['doctor->vawe-dev doctor']);
+  assert.deepEqual(rows('verb').map((r) => [r.verb, r.alias]), [['doctor', 'doctor'], ['doctor', 'doctor']]);
 });
 
 test('no workflow, Makefile target or git hook calls a verb that its binary lacks', () => {

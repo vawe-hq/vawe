@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { DEV_VERBS } from '../../harness/dev/verbs.mjs';
@@ -9,17 +10,11 @@ import { parseArgs, UsageError } from '../../harness/cli/parse.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
 const P = 'films/examples/colour-sting/page.html';
-const run = (bin, args, env = {}) => spawnSync(process.execPath, [path.join(ROOT, 'bin', bin), ...args], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, ...env } });
+const RUNS = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-runs-'));
+const run = (bin, args, env = {}) => spawnSync(process.execPath, [path.join(ROOT, 'bin', bin), ...args], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, VAWE_RUNS_DIR: RUNS, ...env } });
 
-const logRows = (session) => fs.readdirSync(path.join(ROOT, 'out')).filter((f) => f.endsWith('.runs.jsonl'))
-  .flatMap((f) => fs.readFileSync(path.join(ROOT, 'out', f), 'utf8').split('\n').filter((l) => l.includes(session))).map((l) => JSON.parse(l));
-
-const cleanLogs = (session) => {
-  for (const f of fs.readdirSync(path.join(ROOT, 'out')).filter((x) => x.endsWith('.runs.jsonl'))) {
-    const file = path.join(ROOT, 'out', f);
-    fs.writeFileSync(file, fs.readFileSync(file, 'utf8').split('\n').filter((l) => l && !l.includes(session)).map((l) => `${l}\n`).join(''));
-  }
-};
+const logRows = (session) => fs.readdirSync(RUNS).filter((f) => f.endsWith('.runs.jsonl'))
+  .flatMap((f) => fs.readFileSync(path.join(RUNS, f), 'utf8').split('\n').filter((l) => l.includes(session))).map((l) => JSON.parse(l));
 
 test('a moved verb that takes --param or --aspect carries them into the step env, and a bad value is a usage error', () => {
   const owner = DEV_VERBS.find((v) => v.name.startsWith('appr'));
@@ -36,14 +31,12 @@ test('a moved verb that takes --param or --aspect carries them into the step env
 test('an old name that runs in vawe-dev logs its cause, usage flag and help, like any verb', () => {
   const session = `dev-alias-log-${process.pid}`;
   const env = { CLAUDE_CODE_SESSION_ID: session, VAWE_AGENT: session };
-  try {
-    const usage = run('vawe', ['runs'], env);
-    assert.equal(usage.status, 2);
-    const help = run('vawe', ['runs', '--help'], env);
-    assert.equal(help.status, 0);
-    const [fail, ok] = logRows(session).filter((r) => r.cmd === 'verb');
-    assert.equal(fail.usage, true);
-    assert.match(fail.error, /^exit 2: .*missing <film>/);
-    assert.equal(ok.help, true);
-  } finally { cleanLogs(session); }
+  const usage = run('vawe', ['runs'], env);
+  assert.equal(usage.status, 2);
+  const help = run('vawe', ['runs', '--help'], env);
+  assert.equal(help.status, 0);
+  const [fail, ok] = logRows(session).filter((r) => r.cmd === 'verb');
+  assert.equal(fail.usage, true);
+  assert.match(fail.error, /^exit 2: .*missing <film>/);
+  assert.equal(ok.help, true);
 });

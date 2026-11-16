@@ -27,7 +27,9 @@ test('with no CLAUDE_ENV_FILE the hook does nothing and exits 0', () => {
   assert.equal(addNoMatch(''), false);
 });
 
-test('without the line an unquoted glob with no match stops zsh; with it the pattern passes through as in bash', { skip: spawnSync('zsh', ['-c', 'true']).status !== 0 }, () => {
+const NO_ZSH = spawnSync('zsh', ['-c', 'true']).status !== 0 ? 'zsh is not installed' : false;
+
+test('without the line an unquoted glob with no match stops zsh; with it the pattern passes through as in bash', { skip: NO_ZSH }, () => {
   const empty = path.join(tmp(), 'empty.sh');
   fs.writeFileSync(empty, '');
   const before = inZsh(empty, 'ls out/*.png');
@@ -41,7 +43,7 @@ test('without the line an unquoted glob with no match stops zsh; with it the pat
   assert.match(after.stdout, /after\nx\?a=b/);
 });
 
-test('a glob that matches still expands, and the line is harmless in bash', () => {
+test('a glob that matches still expands, and the line is harmless in bash', { skip: NO_ZSH }, () => {
   const file = path.join(tmp(), 'env.sh');
   runHook(file);
   const z = inZsh(file, 'touch a.png; echo *.png');
