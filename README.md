@@ -21,6 +21,8 @@
 
 # vawe: HTML to video for coding agents
 
+English | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
+
 vawe is an open-source HTML to video framework for agent-native motion graphics: one HTML page in, one
 film out. It is programmatic video and motion graphics as code, a free alternative to Remotion,
 HyperFrames and Motion Canvas, built so that coding agents (Claude Code, Codex, Cursor) write the films.
