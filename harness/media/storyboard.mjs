@@ -9,7 +9,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { openPage, seekAll, resolveFrame, readPageMeta } from './render-page.mjs';
-import { sampleWorlds, readWorldAnimations } from './world-sample.mjs';
+import { sampleWorlds, readWorldAnimations, readWorldKeys, readWorldQuiet, stillPlan } from './world-sample.mjs';
 import { readPageAudio } from './page-audio.mjs';
 import { videoStill } from './still.mjs';
 import { readBrief } from '../lib/brief-tables.mjs';
@@ -48,7 +48,13 @@ async function readPage(opened, abs, duration) {
   const seek = (ms) => opened.page.evaluate((t) => window.__pageSeek(t / 1000), ms);
   const spans = await sampleWorlds(opened.page, duration, seek);
   const { specs } = await readPageAudio(opened.page, { pagePath: abs, spans });
-  return { duration, spans, specs, anims };
+  const keys = await readWorldKeys(opened.page);
+  const stills = {};
+  for (const span of spans) {
+    const quiet = keys[span.id] == null ? await readWorldQuiet(opened.page, span, (t) => seek(t * 1000)) : null;
+    stills[span.id] = stillPlan(span, { key: keys[span.id], quiet })[0].t;
+  }
+  return { duration, spans, specs, anims, stills };
 }
 
 const imageName = (s) => `${String(s.n).padStart(2, '0')}-${s.id}.jpg`;

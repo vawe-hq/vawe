@@ -144,7 +144,7 @@ export function storyboardOf({ film, read, brief = null }) {
     const own = cues.filter((c) => c.role !== 'music' && c.at >= w.start - 1e-9 && c.at < w.end);
     return {
       n: i + 1, id: w.id, start: w.start, end: w.end, duration: round(w.end - w.start), in: timecode(w.start), out: timecode(w.end),
-      at: settledSecond(span, anims), ground: groundOf[w.id] ?? null, action: actions[w.id] ?? null,
+      at: read.stills?.[w.id] ?? settledSecond(span, anims), ground: groundOf[w.id] ?? null, action: actions[w.id] ?? null,
       move: null, moveDetail: null, ease: null, note: null,
       cues: own.map((c) => ({ at: c.at, voice: c.voice, gain: c.gain })),
     };

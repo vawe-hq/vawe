@@ -63,6 +63,11 @@ test('storyboardOf gives one shot per world with timecodes and durations from th
   assert.equal(warm.n, 2);
 });
 
+test('a shot is shot at the still second frame --world picked (data-key or quietest), the same second for both views', () => {
+  const b = storyboardOf({ film: 'x', read: { ...read, stills: { warm: 1.6 } }, brief });
+  assert.equal(b.shots.find((s) => s.id === 'warm').at, 1.6);
+});
+
 test('cues go to the shot that shows them, a cue on a boundary to the shot it opens, and a music bed is kept apart', () => {
   const b = storyboardOf({ film: 'x', read, brief });
   const names = (id) => b.shots.find((s) => s.id === id).cues.map((c) => `${c.voice}@${c.at}`);
