@@ -181,6 +181,7 @@ async function main(args) {
   let [name, ...rest] = args;
   const hooksLine = CHECKOUT ? ensureHooks(gitAt(ROOT)) : '';
   if (hooksLine) console.error(hooksLine);
+  if (name === 'mcp') return (await import('../harness/mcp/server.mjs')).serve();
   if (name && DEV_ALIASES.includes(name) && !VERBS.some((v) => v.name === name)) return runDevAlias(name, rest);
   const alias = name && !VERBS.some((v) => v.name === name) && ALIASES[name] ? name : null;
   if (alias) {
