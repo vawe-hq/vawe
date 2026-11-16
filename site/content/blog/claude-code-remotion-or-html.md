@@ -105,9 +105,9 @@ HyperFrames is the other tool that writes HTML. Its page uses data attributes fo
 
 ## Where the framework still matters
 
-The agent writes the page. The harness around it decides if the film is good: the renderer, the checks and the loop of looking at frames and fixing. We cover the loop in [make a video with Claude Code](/blog/make-video-claude-code). A framework that treats the agent as the author needs defaults and checks at each step. That holds for any tool, Remotion included. Our experience with a weaker model is in [design for the weaker model](/blog/weaker-model).
+The agent writes the page. The harness around it decides if the film is good: the renderer, the checks and the loop of looking at frames and fixing. We cover the loop in [make a video with Claude Code](/blog/can-claude-make-videos). A framework that treats the agent as the author needs defaults and checks at each step. That holds for any tool, Remotion included. Our experience with a weaker model is in [design for the weaker model](/blog/weaker-model).
 
-The page format is small. See [the page contract](/blog/page-contract), and the guide to [HTML to MP4 with Claude Code](/docs/html-to-mp4-with-claude-code).
+The page format is small. See [the page contract](/blog/render-html-to-mp4#the-page-format-vawe-reads), and the guide to [HTML to MP4 with Claude Code](/docs/html-to-mp4-with-claude-code).
 
 ## FAQ
 

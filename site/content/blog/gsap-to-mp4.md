@@ -118,4 +118,4 @@ A paused timeline does not move on the ticker, so only your seek call moves it. 
 **Do ScrollTrigger and `delayedCall` work in a render?**
 We did not test them. Both depend on scroll position or on the real clock, so drive the same effect from the timeline instead.
 
-For the page rules that vawe checks, read [render HTML to video: the page contract](/blog/page-contract). To render a canvas scene the same way, read [Three.js to MP4](/blog/threejs-to-mp4).
+For the page rules that vawe checks, read [render HTML to video: the page contract](/blog/render-html-to-mp4#the-page-format-vawe-reads). To render a canvas scene the same way, read [Three.js to MP4](/blog/threejs-to-mp4).

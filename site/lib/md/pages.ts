@@ -173,9 +173,12 @@ const launchVideo = single(LAUNCH_VIDEO.path, LAUNCH_VIDEO.meta, () =>
     LAUNCH_VIDEO.lede,
     section(LAUNCH_VIDEO.route),
     section(LAUNCH_VIDEO.beats),
+    section(LAUNCH_VIDEO.steps),
+    section(LAUNCH_VIDEO.mistake),
     join([heading(2, LAUNCH_VIDEO.moves.title), LAUNCH_VIDEO.moves.lead, LAUNCH_VIDEO.moves.clips.map((name) => item(name, `/video-components/${name}`)).join("\n")]),
     section(LAUNCH_VIDEO.invent),
     section(LAUNCH_VIDEO.family),
+    section(LAUNCH_VIDEO.components),
   ], LAUNCH_VIDEO.next),
 );
 

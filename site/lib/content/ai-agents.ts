@@ -71,7 +71,7 @@ export const AGENT_PAGE: Section = {
         "Audio is ",
         { code: "<audio>" },
         " tags with a start time, mixed offline. Layout is CSS, and one page works at 16:9, 9:16, 1:1, 4:5 and 4:3. The full contract is in ",
-        { text: "the page contract", href: "/blog/page-contract" },
+        { text: "the page contract", href: "/blog/render-html-to-mp4#the-page-format-vawe-reads" },
         " and ",
         { text: "the docs", href: "/docs/the-page" },
         ".",

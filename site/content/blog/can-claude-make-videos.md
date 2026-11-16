@@ -2,14 +2,15 @@
 title: "Can Claude make videos? Yes, if the video is code"
 description: "Can Claude make videos? Yes: Claude Code writes one HTML page and a renderer films it into an MP4. The commands, a page that rendered, and the limits."
 date: 2026-11-03
-updated: 2026-11-03
+updated: 2026-11-17
 section: how-to
 topic: agents
 docs: html-to-mp4-with-claude-code, agents, quickstart
 tags: "can claude make videos, claude code, ai video, html to mp4, vawe"
-keywords: "can claude make videos, can claude create videos, can ai make videos from code, claude code video, claude make mp4"
+keywords: "can claude make videos, claude code video generation, make video with claude code, can claude create videos, can ai make videos from code, claude code video, claude make mp4"
 hero: /blog/make-video-claude-code/colour-sting.webp
 heroAlt: "A frame from colour-sting, a 5 second film that Claude Code made from one HTML page."
+nav: "Video with Claude Code"
 ---
 
 Yes, Claude can make a video, but it does not paint the frames. Claude writes text and code, so it writes an HTML page that describes the film, and a renderer opens the page in headless Chrome and records every frame into an MP4. The film is code that a person can read, change and render again.
@@ -80,9 +81,38 @@ bin/vawe critique films/hello/page.html
 bin/vawe ship films/hello/page.html
 ```
 
-`new` asks for the facts the request leaves out, such as the subject and the ending, then writes `page.html` and `brief.md`. Add `--defaults` for an unattended run that guesses them. We cover those questions in [make a video with Claude Code](/blog/make-video-claude-code).
+`new` asks for the facts the request leaves out, such as the subject and the ending, then writes `page.html` and `brief.md`. Add `--defaults` for an unattended run that guesses them. We cover those questions in [make a video with Claude Code](/blog/can-claude-make-videos).
 
 `dev` renders a draft at half size and 30 fps. On our test page above, a 4 second draft took 9.6 seconds, with 120 frames at 960 by 540 pixels. `frame` prints one still so Claude can look at the result. `critique` is for a fresh session that did not write the page, because the writer misses faults the reader sees. `ship` renders the 60 fps final.
+
+## The five questions it asks first
+
+1. Subject. What is the product, and who is it for?
+2. Message. What is the one thing to remember, and what is the one big moment?
+3. Show. What must the viewer see working: the product screen, a number or a process?
+4. Assets (optional). Which real captures, logo or photos exist?
+5. Ending (optional). How does the film end: the brand, a call to action, a URL?
+
+`bin/vawe new <name> --request "<the ask>"` asks five questions before the agent writes anything. Each question prints a reason and an example. The agent writes the answers to a file and runs the command again with `--answers <file>`. For an unattended run, add `--defaults` and the tool guesses. We explain why we built this gate in [make an AI agent ask questions before it acts](/blog/one-binary).
+
+## What the agent gets wrong
+
+We ran a weaker model and a stronger model on the same loop. These are the faults we measured. Each one led to a change in the tools, not in the prompt.
+
+| What happened | Number | Post |
+| --- | --- | --- |
+| Six films from the weaker model: drafts per film, median | 13 drafts; 0 of 6 passed the review | [AI agent harness: design for the weaker model](/blog/weaker-model) |
+| Films that hid a missing hold behind a slow camera drift | 18 of 36 | [Reward hacking in AI agents](/blog/weaker-model) |
+| Flash length in the agent film against the reference | 0.20 s against 0.07 to 0.10 s | [Can AI agents watch video?](/blog/watch-a-film) |
+
+Three habits follow from this table. First, put the rule in the tool and print the fix in the same line. Second, check the result with a number, because an agent that reads five frames cannot judge timing. Third, never let the session that wrote the page also approve it.
+
+
+## Which design skills to give the agent
+
+One UI skill is not enough for a film frame. Eleven public UI skills, tested one at a time, all gave the same result: a decent but cluttered web hero, with a nav, a pill, a call-to-action button and wide section padding. A film frame needs none of these.
+
+We then tested six combos of skills on two kinds of film frame, and one reviewer judged the frames blind. Only one combo, Warm editorial, won on both kinds. A combo is proven only for the kind of frame it won.
 
 ## Limits
 
@@ -97,9 +127,12 @@ bin/vawe ship films/hello/page.html
 
 Yes. The renderer seeks the page to each frame time and does not play it, so a busy machine does not drop frames. A virtual clock replaces `Date`, timers and `Math.random`. [Why the same page gives the same frames](/blog/determinism) lists the six sources of drift we fixed. For the capture pipeline, see [render HTML to MP4 with headless Chrome](/blog/render-html-to-mp4).
 
-If you want to know why a page and not a JSON scene file, read [JSON video format vs HTML: a blind test](/blog/html-over-json). The short format of the page is in [the page contract](/blog/page-contract).
+If you want to know why a page and not a JSON scene file, read [JSON video format vs HTML: a blind test](/blog/html-over-json). The short format of the page is in [the page contract](/blog/render-html-to-mp4#the-page-format-vawe-reads).
 
 ## FAQ
+
+**Why does the tool ask questions first?**
+A thin request gives a generic film. The five questions collect the subject, message, proof and ending before the agent writes anything.
 
 **Can Claude make a video from a prompt?**
 Yes, through code. Claude Code writes an HTML page from your prompt and a renderer turns the page into an MP4. Claude does not generate the pixels itself.

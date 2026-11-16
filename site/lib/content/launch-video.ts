@@ -1,12 +1,13 @@
 import { REPO_URL } from "../schema";
-import type { Crumb, Link, Meta, NextBlock, Section } from "./types";
+import { MOVES } from "../moves";
+import type { Crumb, Link, Meta, NextBlock, Para, Section } from "./types";
 
 export const LAUNCH_VIDEO = {
   path: "/launch-video",
   meta: {
     title: "Make a product launch video with code | vawe",
     description:
-      "How Vawe builds a product launch video: real captured UI, not invented mockups, one message per beat, from the site’s own palette and type.",
+      "Make a product launch video from your website URL: vawe captures the real UI, palette and type, and one page moves them. The commands and the rules.",
   } as Meta,
   crumb: { group: "Learn", current: "Launch video" } as Crumb,
   h1: "A product launch video, built from the real site.",
@@ -14,9 +15,12 @@ export const LAUNCH_VIDEO = {
   toc: [
     { href: "#route", label: "The route" },
     { href: "#beats", label: "The beats" },
+    { href: "#steps", label: "The commands" },
+    { href: "#mistake", label: "Three rules" },
     { href: "#moves", label: "The video components" },
     { href: "#invent", label: "What not to invent" },
     { href: "#family", label: "Other video types" },
+    { href: "#components", label: "Components" },
   ] as Link[],
   route: {
     id: "route",
@@ -58,6 +62,44 @@ export const LAUNCH_VIDEO = {
     lead: "A click doing its job, a zoom to one part of the UI, a number proved, the product handed to the brand. Open a video component for its snippet and notes.",
     clips: ["cursor-click", "ui-focus-zoom", "count-up", "ui-strip-away"],
   },
+  steps: {
+    id: "steps",
+    title: "The three commands, run on a real site.",
+    blocks: [
+      {
+        ol: [
+          [{ strong: "Build a kit from the URL. " }, { code: "node scripts/brand/kit.mjs <url> <name>" }, " screenshots each section, reads the dominant colours and finds the icon. On vawe.dev it captured 10 sections and measured the site as dark-first. A white site gets a white film."],
+          [{ strong: "Start from the launch template. " }, { code: "bin/vawe new my-launch --from prompts/brand-launch-from-url.md" }, " asks for the URL, the one-line promise, three to five moments, the platform and length, and music. It allows only the kit and real captures."],
+          [{ strong: "Write the page and render a draft. " }, "Copy the captures you need into ", { code: "films/<name>/assets/" }, ", then run ", { code: "bin/vawe dev films/<name>/page.html" }, ". Our 9\u00a0second test film from two captures drafted in 16\u00a0seconds."],
+        ],
+      },
+    ],
+    cite: "scripts/brand/kit.mjs · prompts/brand-launch-from-url.md",
+  } as Section,
+  mistake: {
+    id: "mistake",
+    title: "The mistake we made, and three rules.",
+    blocks: [
+      { p: ["Our first draft put a large caption over the hero capture, and the capture already held that headline. Two copies overlapped. If the capture says it, do not say it again on top. A tight crop of one small gallery tile also made its label unreadable, so we show the whole gallery and let it settle."] },
+      {
+        ol: [
+          ["Every screen is a crop of a real capture. A feature you did not see on the site is a feature you must not show."],
+          ["Use the kit palette. Do not improve it."],
+          ["Crawl past the homepage. The feature worth showing is often one click past the hero."],
+        ],
+      },
+    ],
+  } as Section,
+  components: {
+    id: "components",
+    title: "Components for product moments and endings.",
+    blocks: [
+      { p: ["Each of these is a video component with a clip: a product doing one thing, or the end of the film on the name."] },
+      {
+        ol: MOVES.filter((m) => m.group === "product-moments" || m.group === "end-a-film").map((m): Para => [{ text: m.title, href: `/video-components/${m.name}` }, `: ${m.use.split(/[:;]/)[0].trim()}.`]),
+      },
+    ],
+  } as Section,
   invent: {
     id: "invent",
     title: "What a launch film may not invent.",
@@ -97,7 +139,6 @@ export const LAUNCH_VIDEO = {
       { href: "/video-components", label: "Every video component, with its clip" },
       { href: "/ai-agents", label: "Let an agent write the film" },
       { href: "/features", label: "What the engine does, with proof" },
-      { href: "/blog/product-launch-video-from-url", label: "Make a launch video from a website URL" },
     ],
   } as NextBlock,
 };

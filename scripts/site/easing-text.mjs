@@ -33,6 +33,11 @@ export const VAWE_TEXT = {
     blurb: 'A fast start, then it passes its mark by about 15 per cent and settles back.',
     avoid: ['Text blocks and anything with more than one item moving: overshoot on many things reads as shaking.', 'Opacity. A value past 1 is clamped, so the overshoot does nothing.'],
   },
+  snap: {
+    blurb: 'A snap: 80 per cent of the travel by a fifth of the move, then a long, soft stop. Fast kinetic type moves this way.',
+    use: ['Kinetic type that lands in 1 to 3 frames, as in fast type films (median move 0.3 s).'],
+    avoid: ['A camera move. A camera takes land under 2 s, and settle or glide at 2 s or more.'],
+  },
   nudge: {
     blurb: 'A fast start, a slight pass of its mark, then it settles.',
     use: ['Every few items of a staggered group, so the row feels alive without each item bouncing.', 'Secondary elements next to a hero that uses pop: the same shape, less of it.'],

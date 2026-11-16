@@ -24,7 +24,7 @@ export const ALT_EVIDENCE = {
     },
     {
       fact: "The whole film format: one page.html, a duration meta and one data-world element per beat.",
-      href: "/blog/page-contract",
+      href: "/blog/render-html-to-mp4#the-page-format-vawe-reads",
       label: "Render HTML to video: the page contract",
     },
   ],

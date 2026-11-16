@@ -100,7 +100,7 @@ The 1:1 frame needed no rule of its own. The font size follows `--vh`, and the t
 
 ## Render every ratio in one command
 
-The docs describe `bin/vawe ship <page> --aspect all`, which writes one file per ratio. We did not run it: `ship` needs an approved draft and makes full-size files. We ran drafts only. The page contract lives in [the page contract](/blog/page-contract), and each ratio is its own reproducible render ([determinism](/blog/determinism)).
+The docs describe `bin/vawe ship <page> --aspect all`, which writes one file per ratio. We did not run it: `ship` needs an approved draft and makes full-size files. We ran drafts only. The page contract lives in [the page contract](/blog/render-html-to-mp4#the-page-format-vawe-reads), and each ratio is its own reproducible render ([determinism](/blog/determinism)).
 
 ## FAQ
 

@@ -2,7 +2,7 @@
 title: "HTML to MP4: render a page with headless Chrome"
 description: "Render an HTML page to MP4 with a 20-line Puppeteer script or with vawe. Both seek every frame, so a busy machine cannot drop one."
 date: 2026-10-16
-updated: 2026-10-16
+updated: 2026-11-17
 section: how-to
 nav: "HTML to MP4"
 topic: rendering
@@ -10,7 +10,7 @@ docs: video-from-code, html-to-mp4-with-claude-code, determinism
 featured: true
 featuredOrder: 1
 tags: "html to mp4, puppeteer, headless chrome, css animation to video, ffmpeg"
-keywords: "render html to mp4, css animation to video, puppeteer record animation, headless chrome video frames, html to video"
+keywords: "html to video format, page contract, render html to mp4, css animation to video, puppeteer record animation, headless chrome video frames, html to video"
 ---
 
 To render an HTML page to MP4, pause the page, set the time, take a screenshot for each frame and join the frames with ffmpeg. This post shows two ways: a Puppeteer script of 20 lines, and one `vawe` command. Both run on your machine. Neither needs a screen recorder.
@@ -120,7 +120,33 @@ Three rules keep a page safe to render:
 2. If you draw with canvas or three.js, define `window.seek(t)` and paint frame `t` as a pure function of `t`.
 3. Do not read the real clock. Do not call `Math.random()` without a seed, unless you use vawe, which seeds it for you.
 
-The full rules are in [the vawe page format](/blog/page-contract). To add sound, read [set a loudness target in code](/blog/audio-as-written). The step list for vawe is in the [quickstart](/docs/quickstart).
+The format is below. To add sound, read [set a loudness target in code](/blog/audio-as-written). The step list for vawe is in the [quickstart](/docs/quickstart).
+
+## The page format vawe reads
+
+| Rule | What the tools get from it |
+|---|---|
+| A film is `films/<name>/page.html` plus its own assets folder, with relative paths only | A film moves as one folder |
+| `<meta name="duration">` in seconds, and an optional `<meta name="fps">` for the frame-table rate | The length. The render rate stays separate: 60 fps for a final, 30 fps for a draft |
+| Time is the seek: CSS keyframes, `element.animate`, or `window.seek(t)` that paints frame `t` as a pure function | Any frame renders in any order |
+| One element per beat with `data-world="<id>"`, in lowercase | The checks and the reviewer find the beats the same way |
+| Every tunable number is a literal: a `[[frame, value]]` table, a keyframe stop or a `:root` custom property | The studio edits those literals in place |
+| `<meta name="message">` and `<meta name="spectacle">` | The one thing to remember, and the second the big moment lands |
+| `<audio>` tags | The mix, read as written (see [audio as written](/blog/audio-as-written)) |
+
+### What the tools read from the page
+
+Twelve draft checks read the DOM from this contract. The list is the `CHECK_TIER` table in `harness/lib/draft-tiers.mjs`: motion, text, worlds, tail, video, sound, contrast, layout, spec, speed, box-motion and objects. The `world-held` check reads the measured `data-world` spans, so it can say that the second scene holds for 4 seconds with nothing moving.
+
+The `vawe frame --world all` command renders one still for each `data-world` element, with a contact sheet. The `vawe new` command writes a starter page with one `data-world` per beat. It fills the metas from `--length`, `--aspect` and `--title`.
+
+![One page.html feeds the renderer, the draft checks, the frames command, the reviewer and the studio.](/blog/page-contract/diagram.webp "One page.html, five readers.")
+
+## How one page fits five aspect ratios
+
+Before any page script runs, the renderer sets `data-aspect` on `<html>`. It also sets `--vw` and `--vh` (pixel lengths) on `:root` and on `window.vawe`. It sets each named ease as `--ease-<name>` on `:root` too, so plain CSS can write `var(--ease-land)`. The document element does not exist at that moment. So `installPageFrame` in `core/engine/page-seek.js` waits with a `MutationObserver` and applies the values when the element appears.
+
+You lay out in CSS for the five aspects and never crop. The [aspect ratio guide](/docs/aspect-ratios) has the details. A brief can name a different length or aspect than the page. That gives an advice line, not a refusal, because the page owns its length.
 
 ## FAQ
 

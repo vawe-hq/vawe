@@ -35,6 +35,8 @@ export default function LaunchVideo() {
 
           <SectionView s={C.route} />
           <SectionView s={C.beats} />
+          <SectionView s={C.steps} />
+          <SectionView s={C.mistake} />
 
           <section className="ifilms" id="moves">
             <h2>{C.moves.title}</h2>
@@ -44,6 +46,7 @@ export default function LaunchVideo() {
 
           <SectionView s={C.invent} />
           <SectionView s={C.family} />
+          <SectionView s={C.components} />
 
           <NextView n={C.next} />
         </main>

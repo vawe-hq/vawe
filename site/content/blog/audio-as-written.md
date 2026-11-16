@@ -85,7 +85,7 @@ We ran it and saw:
 mix as written: -19.9 LUFS, -6.2 dBTP
 ```
 
-The command also writes one PNG of the waveform with a tick for each cue. The audio tags are part of the [page contract](/blog/page-contract), and the [audio docs](/docs/audio) list every attribute. To cut to a real track, read [cut video to the beat with code](/blog/beat).
+The command also writes one PNG of the waveform with a tick for each cue. The audio tags are part of the [page contract](/blog/render-html-to-mp4#the-page-format-vawe-reads), and the [audio docs](/docs/audio) list every attribute. To cut to a real track, read [cut video to the beat with code](/blog/beat).
 
 LUFS tells you that a film is loud enough. It cannot tell you that a cue lands on the action it belongs to.
 

@@ -155,7 +155,7 @@ export default function AiAgents() {
             related={[
               { href: "/video-components", label: "Video components to copy, each with its clip" },
               { href: "/features", label: "What the engine does, with proof" },
-              { href: "/blog/make-video-claude-code", label: "Make an MP4 with Claude Code" },
+              { href: "/blog/can-claude-make-videos", label: "Make an MP4 with Claude Code" },
               { href: "/blog/can-claude-make-videos", label: "Can Claude make videos?" },
               { href: "/agentic-video-editing", label: "Let the agent edit your own clips" },
               { href: "/ai-agents.md", label: "This guide as Markdown" },

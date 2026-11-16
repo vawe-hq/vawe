@@ -85,7 +85,7 @@ export const HYPERFRAMES_ALTERNATIVES = {
       q: "Which is better for an AI agent?",
       a: [
         "Both aim at an agent that writes the file. vawe’s film is one plain HTML page with no private attributes to learn; the rules are in ",
-        { text: "render HTML to video: the page contract", href: "/blog/page-contract" },
+        { text: "render HTML to video: the page contract", href: "/blog/render-html-to-mp4#the-page-format-vawe-reads" },
         ". HyperFrames ships agent skills and a block catalog.",
       ],
     },
@@ -110,7 +110,7 @@ export const HYPERFRAMES_ALTERNATIVES = {
       { href: "/remotion-alternatives", label: "Remotion alternatives, categorized" },
       { href: "/determinism", label: "How vawe keeps renders deterministic" },
       { href: "/ai-agents", label: "How an agent writes and checks a film" },
-      { href: "/blog/page-contract", label: "How vawe renders HTML to video" },
+      { href: "/blog/render-html-to-mp4#the-page-format-vawe-reads", label: "How vawe renders HTML to video" },
       { href: "/blog/programmatic-video-javascript", label: "Six JavaScript video tools compared" },
     ],
   } as NextBlock,

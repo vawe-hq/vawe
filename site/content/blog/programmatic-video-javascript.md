@@ -136,7 +136,7 @@ await browser.close();
 
 Run `node render.mjs page.html 3 30`. We ran it on 2026-10-16. The result was `out.mp4`: 1280 by 720 pixels, 3.0 seconds, 90 frames.
 
-For the vawe version of the same page, with the install steps and a draft command, read [render HTML to MP4 with headless Chrome](/blog/render-html-to-mp4). For the page rules, read [the vawe page format](/blog/page-contract).
+For the vawe version of the same page, with the install steps and a draft command, read [render HTML to MP4 with headless Chrome](/blog/render-html-to-mp4). For the page rules, read [the vawe page format](/blog/render-html-to-mp4#the-page-format-vawe-reads).
 
 ## What we left out
 

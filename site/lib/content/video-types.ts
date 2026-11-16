@@ -188,7 +188,7 @@ bin/vawe dev films/acme-showcase/page.html`,
       " with your product’s URL. To see what a finished film is, read the product launch guide.",
     ],
     primary: { href: REPO_URL, label: "Get vawe on GitHub" },
-    related: [launchLink, explainerLink, { href: "/inspiration/product-ui", label: "Product UI video examples made with AI" }, { href: "/video-components", label: "Every video component, with its clip" }, { href: "/blog/product-launch-video-from-url", label: "Make a product video from a website URL" }],
+    related: [launchLink, explainerLink, { href: "/inspiration/product-ui", label: "Product UI video examples made with AI" }, { href: "/video-components", label: "Every video component, with its clip" }],
   },
 };
 

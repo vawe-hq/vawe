@@ -71,8 +71,6 @@ export const BLOG_PROMPTS: Record<string, string> = {
   "canvas-to-video": FILM("render my canvas animation to an MP4.", "My page: <path to your HTML page>. Draw each frame from the seek time, and seed any random numbers."),
   "threejs-to-mp4": FILM("render my three.js scene to an MP4.", "My page: <path to your HTML page>. Render each frame from window.seek(t), not from a real clock."),
   "svg-animation-to-mp4": FILM("render my SVG animation to an MP4.", "My file: <path to your SVG or HTML page>."),
-  "make-video-claude-code": FILM("make a short video.", "What it is about: <topic, product or message>. Length: <seconds>."),
-  "product-launch-video-from-url": FILM("make a launch video from my product’s website.", "My site: <URL>. Use the real UI, palette and type from the site."),
   "batch-render-videos": FILM("render one video per row of my data.", "My data: <path to your JSON or CSV>. One HTML template, one MP4 per row."),
   "animated-captions-html": FOOTAGE("add animated captions to my video.", "Time every word from the transcript and light each word as it is spoken."),
   "cut-silences-with-an-agent": FOOTAGE("cut the silences out of my video.", "Keep each spoken span, leave a short breath at each cut, and list the cuts."),

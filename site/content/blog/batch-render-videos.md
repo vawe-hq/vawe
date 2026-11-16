@@ -74,7 +74,7 @@ for (const row of rows) {
 }
 ```
 
-The page reads only the JSON block. It reads no clock and no random value, so each file renders the same way as any other vawe page. The rules are in [the page contract](/blog/page-contract).
+The page reads only the JSON block. It reads no clock and no random value, so each file renders the same way as any other vawe page. The rules are in [the page contract](/blog/render-html-to-mp4#the-page-format-vawe-reads).
 
 ## What we saw
 

@@ -14,7 +14,7 @@ hero: /blog/html-over-json/hero.webp
 heroAlt: "Bar chart. The JSON arm took 10.75 minutes and scored 5 and 4.5 from two judges. The HTML arm took 5.9 minutes and scored 8 and 7.5."
 ---
 
-For an agent that writes video, plain HTML beat our own JSON video format on every number we took. Given the same brief, the HTML arm finished in 5.9 minutes against 10.75 and used one render fewer. Two blind judges scored its film 8 and 7.5 against 5 and 4.5. We decided to drop the JSON format two days later and deleted it on 2026-09-30. What replaced it is the [page contract for rendering HTML to video](/blog/page-contract).
+For an agent that writes video, plain HTML beat our own JSON video format on every number we took. Given the same brief, the HTML arm finished in 5.9 minutes against 10.75 and used one render fewer. Two blind judges scored its film 8 and 7.5 against 5 and 4.5. We decided to drop the JSON format two days later and deleted it on 2026-09-30. What replaced it is the [page contract for rendering HTML to video](/blog/render-html-to-mp4#the-page-format-vawe-reads).
 
 The test was one run per arm. Treat it as a strong signal and not as a rate.
 
@@ -64,7 +64,7 @@ Moving the input language to the web did not move the rest. The renderer (`harne
 
 ## When to choose which
 
-Choose a web page when the author is a language model. It already writes HTML, CSS and the Web Animations API well, and a bug in that code is a bug the web has already answered. That is our case. On 2026-09-29 we decided that every film is one HTML page. The house rule we wrote then: if something an agent would naturally write fails, that is a framework bug and not an agent mistake. The result is the small [page contract](/blog/page-contract): a web page with a few agreed `meta` tags and one `data-world` attribute per beat.
+Choose a web page when the author is a language model. It already writes HTML, CSS and the Web Animations API well, and a bug in that code is a bug the web has already answered. That is our case. On 2026-09-29 we decided that every film is one HTML page. The house rule we wrote then: if something an agent would naturally write fails, that is a framework bug and not an agent mistake. The result is the small [page contract](/blog/render-html-to-mp4#the-page-format-vawe-reads): a web page with a few agreed `meta` tags and one `data-world` attribute per beat.
 
 A private format can still make sense when people, not models, author through a UI that writes the file for them. It can also make sense when you need a vocabulary the web cannot express. Test it on a fresh agent before you invest in it, because a blind test is cheaper than a long design review. Count which parts get used. State your sample size: one run per arm tells you where to look, not how big the gap is. We later ran films on a weaker model as well, in [AI agent tooling: design for the weaker model](/blog/weaker-model).
 

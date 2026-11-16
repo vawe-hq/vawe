@@ -195,7 +195,7 @@ paid "Company License":
       { href: "/blog/programmatic-video-javascript", label: "Six JavaScript video tools compared" },
       { href: "/determinism", label: "Why the same page always renders the same frames" },
       { href: "/ai-agents", label: "How an agent writes and checks a film" },
-      { href: "/blog/page-contract", label: "How vawe renders HTML to video" },
+      { href: "/blog/render-html-to-mp4#the-page-format-vawe-reads", label: "How vawe renders HTML to video" },
       { href: "/vs/lottie", label: "vawe vs Lottie" },
     ],
   } as NextBlock,

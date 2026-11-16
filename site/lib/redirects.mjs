@@ -198,12 +198,13 @@ const BLOG_MOVED = {
   "advise-refuse": "weaker-model", "read-load": "weaker-model", "loophole-audit": "weaker-model",
   "new-asks": "one-binary", "run-logs": "one-binary",
   "judge-design": "watch-a-film", "quality-bar": "watch-a-film",
-  ideate: "transitions", "skill-combos": "make-video-claude-code", encode: "fast-drafts",
+  ideate: "transitions", "skill-combos": "can-claude-make-videos", encode: "fast-drafts",
   // 2026-11-16: 0 impressions in 28 days; each now lives in the post that ranks for its topic.
   "page-clock": "determinism", "video-as-code": "programmatic-video-javascript",
+  "make-video-claude-code": "can-claude-make-videos", "page-contract": "render-html-to-mp4",
 };
 // Posts whose facts now live on a site page, not in a post.
-const BLOG_TO_PAGE = { "site-after-json": MOVES, "ten-looks": MOVES, "headless-blocks": MOVES };
+const BLOG_TO_PAGE = { "site-after-json": MOVES, "ten-looks": MOVES, "headless-blocks": MOVES, "product-launch-video-from-url": "/launch-video" };
 const BLOG_MOVED_RULES = [
   ...Object.entries(BLOG_MOVED).flatMap(([old, kept]) => [
     permanent(`/blog/${old}`, `/blog/${kept}`),
