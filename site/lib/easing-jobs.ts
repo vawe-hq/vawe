@@ -203,7 +203,7 @@ export function jobPageBySlug(slug: string): JobPage | null {
     : s.kind === "stream" ? "Streaming text animation: chunk timing and fade"
     : s.kind === "bubble" ? "Send animation: the spring for a small arrival"
     : `Easing for ${s.noun}: curve, duration and what to avoid`;
-  const title = `${h1.length > 58 ? h1.slice(0, h1.lastIndexOf(" ", 58)) : h1} | vawe`;
+  const title = `${h1.length <= 52 ? h1 : `Easing for ${s.noun}: curve and duration`} | vawe`;
 
   const lead =
     ease ? `Use ${ease.name} for ${s.noun}, over ${time}.`

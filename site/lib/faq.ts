@@ -19,7 +19,7 @@ export const FAQ: FaqItem[] = [
   { q: "Where does it run?", a: ["On your machine. The renderer drives Chrome and encodes with ffmpeg, and the studio previews a page live."] },
   { q: "Does it work with my agent?", a: ["Yes. A film is plain HTML, so any coding agent can write one, and vawe ships skills that teach it the loop: write, draft, critique, ship. See ", { text: "vawe for AI agents", href: "/ai-agents" }, "."] },
   { q: "Can it match my brand?", a: ["Yes. A page uses your fonts and colours as CSS, the same way your site does."] },
-  { q: "How is it different from Remotion?", a: ["Remotion builds video from React components under a source-available licence. vawe renders one HTML page under Apache 2.0, with no React and no build step. Both render in headless Chrome. Read ", { text: "vawe vs Remotion", href: "/remotion-alternatives#vs-remotion" }, " or the wider list of ", { text: "Remotion alternatives", href: "/remotion-alternatives" }, "."] },
+  { q: "How is it different from Remotion?", a: ["Remotion builds video from React components under a source-available licence. vawe renders one HTML page under Apache 2.0, with no React and no build step. Both render in headless Chrome. Read ", { text: "vawe vs Remotion", href: "/remotion-alternatives#vs-remotion" }, " or the wider list of ", { text: "Remotion alternatives", href: "/remotion-alternatives" }, ". For hosted video APIs, see ", { text: "Creatomate alternatives", href: "/creatomate-alternatives" }, " and ", { text: "Shotstack alternatives", href: "/shotstack-alternatives" }, "."] },
   factItem("free"),
   factItem("install"),
   factItem("account"),

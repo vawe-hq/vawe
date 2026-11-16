@@ -1,4 +1,4 @@
-import { REPO_URL } from "../schema";
+import { REPO_URL, OWNER } from "../schema";
 import { MOVES } from "../moves";
 import { FACTS } from "./facts";
 import type { Crumb, Link, Meta, NextBlock, Para } from "./types";
@@ -14,7 +14,6 @@ export type AboutSection = {
   filmCaption?: string;
 };
 
-const OWNER = { name: "Vandit Singh", url: "https://github.com/Vandit1604" };
 
 export const ABOUT = {
   path: "/about",

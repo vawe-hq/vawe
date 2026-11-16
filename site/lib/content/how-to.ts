@@ -22,6 +22,9 @@ const HOWTO_NEXT = (cmd: string): NextBlock => ({
   primary: { href: REPO_URL, label: "Get vawe on GitHub" },
   related: [
     { href: "/how-to", label: "All how-to guides" },
+    { href: "/how-to/add-captions-to-video", label: "Add captions to a video" },
+    { href: "/how-to/remove-silences-from-video", label: "Remove silences from a video" },
+    { href: "/how-to/trim-and-join-video-clips", label: "Trim and join clips" },
     AGENTIC,
     { href: "/edit-video-with-claude-code", label: "Edit video with Claude Code" },
   ],

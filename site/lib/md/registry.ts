@@ -1,3 +1,4 @@
+import { BLOG_PROMPTS } from "../prompts";
 import fs from "node:fs";
 import path from "node:path";
 import lastmod from "../lastmod.json";
@@ -64,7 +65,7 @@ const blogPost: Renderer = {
       title: post.title,
       description: post.description,
       updated: post.updated,
-      body: absolutize(post.body),
+      body: BLOG_PROMPTS[slug] ? `## Copy this prompt into your agent\n\n${codeBlock(BLOG_PROMPTS[slug])}\n\n${absolutize(post.body)}` : absolutize(post.body),
       related: relatedPosts(post).map((p) => ({ text: p.title, path: postPath(p.slug) })),
     };
   },

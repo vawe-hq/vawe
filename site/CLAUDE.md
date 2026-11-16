@@ -41,6 +41,18 @@ tag `arsenal-final` and match that register.
 `site/lib/site-pages.json` lists every route; the footer nav and `app/sitemap.ts` both read it, and
 `bin/vawe-dev check seo-surface` fails when it and `app/` disagree. Edit it by hand when you add a page.
 
+## Programmatic pages (pSEO): the safe way
+
+A set of pages made from one template ships only when each page passes `bin/vawe-dev check seo-pseo`
+against a production build (`npm --prefix site run start -- -p 3187`, then `node quality/gates/seo-pseo.mjs --base http://localhost:3187`):
+
+- **Its own data.** Each page carries a measured value or text no sibling has. A page that only swaps a word is a doorway page.
+- **Two hand-written links.** Two pages a person wrote link to it. A gallery, an index or a sibling does not count.
+- **Real demand.** A Search Console query or a clear job names the set. Never a page per search phrase: Google's 2026 guide calls that scaled content abuse.
+- **The words in the server HTML.** AI crawlers run no JavaScript.
+
+Add a new set to `TEMPLATES` in `quality/gates/seo-pseo.mjs` in the same commit. Merge or remove pages that stay under the bar after 6 weeks, with a 308 in `site/lib/redirects.mjs`.
+
 ## Look at it before you say it is done
 
 Do not write a screenshot or link-check script: the verbs do it from the repo root.

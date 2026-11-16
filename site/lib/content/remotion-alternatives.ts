@@ -188,6 +188,8 @@ paid "Company License":
     secondary: { href: REPO_URL, label: "Star vawe on GitHub" },
     related: [
       { href: "/hyperframes-alternatives", label: "HyperFrames alternatives" },
+      { href: "/creatomate-alternatives", label: "Creatomate alternatives, hosted and self-hosted" },
+      { href: "/shotstack-alternatives", label: "Shotstack alternatives, hosted and self-hosted" },
       { href: "/vs/video-use", label: "vawe vs video-use, for editing your own clips" },
       { href: "/blog/claude-code-remotion-or-html", label: "Claude Code with Remotion or plain HTML" },
       { href: "/blog/programmatic-video-javascript", label: "Six JavaScript video tools compared" },

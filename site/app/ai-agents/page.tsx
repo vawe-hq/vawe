@@ -1,3 +1,5 @@
+import { PromptCard } from "../components/PromptCard";
+import { PAGE_PROMPTS } from "../../lib/prompts";
 import { Header, REPO_URL } from "../components/Header";
 import { MoveClips } from "../components/MoveClips";
 import { Next, PageTop, Toc } from "../components/Xp";
@@ -55,6 +57,8 @@ export default function AiAgents() {
               { href: "#faq", label: "Questions" },
             ]} />
           </section>
+
+          <PromptCard prompt={PAGE_PROMPTS["/ai-agents"]} />
 
           <SectionView s={AGENT_STEPS} />
 

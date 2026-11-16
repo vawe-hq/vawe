@@ -1,3 +1,5 @@
+import { PromptCard } from "./PromptCard";
+import { PAGE_PROMPTS } from "../../lib/prompts";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { MoveClips } from "./MoveClips";
@@ -24,6 +26,8 @@ export function VideoTypePage({ C }: { C: Page }) {
             <p>{C.lede}</p>
             <Toc items={C.toc} />
           </section>
+
+          <PromptCard prompt={PAGE_PROMPTS[C.path]} />
 
           <SectionView s={C.contains} />
           <SectionView s={C.timing} />

@@ -12,7 +12,7 @@ hero: /moves/caption-karaoke.hd.webp
 heroAlt: "A caption frame from the caption-karaoke move: white words, with the word being spoken in solid yellow."
 ---
 
-You can make animated captions with plain HTML and CSS: wrap each word in a `<span>`, give each span a start time, and animate the colour with one `@keyframes` rule. A renderer then seeks the page frame by frame and writes an MP4. This post has a page that we rendered, so every line of it ran.
+You can make animated captions with plain HTML and CSS: wrap each word in a `<span>`, give each span a start time, and animate the colour with one `@keyframes` rule. A renderer then seeks the page frame by frame and writes an MP4. This post has a page that we rendered, so every line of it ran. For the steps on your own clip, see [add captions to a video with code](/how-to/add-captions-to-video).
 
 ![A caption frame from the caption-karaoke move: white words, with the word being spoken in solid yellow.](/moves/caption-karaoke.hd.webp)
 
@@ -118,4 +118,4 @@ For your own clips, from `footage/<clip>.words.json`, which `bin/vawe new --foot
 They follow the times you write. Put the voice in an `<audio>` tag, and the film mixes it on the same clock.
 
 **Can I burn in captions on an existing video?**
-This post covers captions in a page that vawe films. It does not burn subtitles into camera footage.
+Yes. Put the clip in the page as a `<video>` with `bin/vawe new <name> --footage <clip>`, and lay the word spans over it. The render bakes them into the MP4. The steps are in [add captions to a video with code](/how-to/add-captions-to-video).

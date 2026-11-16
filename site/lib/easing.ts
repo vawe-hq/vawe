@@ -63,7 +63,7 @@ export const VAWE = EASES.filter((e) => e.kind === "vawe");
 export const CSS = EASES.filter((e) => e.kind === "css");
 export const classicIn = (family: string) => EASES.filter((e) => e.kind === "classic" && e.family === family);
 
-export const EASING_TITLE = "Easing functions: CSS cubic-bezier, linear() and After Effects handles | vawe";
+export const EASING_TITLE = "CSS easing functions: cubic-bezier, linear() and AE eases | vawe";
 export const EASING_DESCRIPTION = `${EASES.length} easing functions as CSS: search, preview, compare and copy cubic-bezier or linear(). ${VAWE.length} are After Effects handles, with a table of which to use for each job.`;
 
 export const PUBLISHED = "2026-10-03";

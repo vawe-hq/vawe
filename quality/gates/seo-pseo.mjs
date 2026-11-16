@@ -6,9 +6,9 @@
 // Run it against a production build (`npm --prefix site run build && npm --prefix site run start`), because
 // the third read is the HTML the server sends. It advises and never fails: every finding is a warning.
 //
-//   1. each template page (/video-components/<name>, /easing/<slug>, /vs/<slug>) has a data point no sibling
+//   1. each template page (/video-components/<name>, /easing/<slug>, /vs/<slug>, /springs/<slug>, /how-to/<slug>, /inspiration/<type>) has a data point no sibling
 //      has, and is linked from at least 2 hand-written pages (a gallery or index page does not count)
-//   2. each hub page (/video-components, /easing, /resources, /blog) has prose outside its cards
+//   2. each hub page (/video-components, /easing, /resources, /blog, /how-to, /springs) has prose outside its cards
 //   3. each route in site/lib/site-pages.json has its main text in the server HTML, and the HTML is
 //      under 2 MB (Googlebot reads the first 2 MB; AI crawlers run no JavaScript)
 //
@@ -38,13 +38,16 @@ const base = (argv[argv.indexOf('--base') + 1] && argv.includes('--base') ? argv
 const MIN_INBOUND = 2;
 const MIN_HUB_PROSE_WORDS = 40;
 const MIN_COPY_SHARE = 0.8;
-const HUBS = ['/video-components', '/easing', '/resources', '/blog'];
+const HUBS = ['/video-components', '/easing', '/resources', '/blog', '/how-to', '/springs'];
 // Galleries and indexes: they link every item, so a link from one says nothing about the item.
-const INDEXES = new Set(['/video-components', '/easing', '/inspiration', '/blog']);
+const INDEXES = new Set(['/video-components', '/easing', '/inspiration', '/blog', '/how-to', '/springs']);
 const TEMPLATES = [
   { id: 'video-components', prefix: '/video-components/' },
   { id: 'easing', prefix: '/easing/' },
   { id: 'vs', prefix: '/vs/' },
+  { id: 'springs', prefix: '/springs/' },
+  { id: 'how-to', prefix: '/how-to/' },
+  { id: 'inspiration', prefix: '/inspiration/' },
 ];
 
 const f = gateFindings();
@@ -93,7 +96,9 @@ await mapLimit(sitePaths, 8, async (p) => {
   html.set(p, r);
 });
 
-const templateOf = (p) => TEMPLATES.find((t) => p.startsWith(t.prefix))?.id ?? null;
+// Group and job pages pick their items by hand, so they count as hand-written, not as template pages.
+const CURATED = ['/video-components/group/', '/easing/for/'];
+const templateOf = (p) => (CURATED.some((c) => p.startsWith(c)) ? null : TEMPLATES.find((t) => p.startsWith(t.prefix))?.id ?? null);
 const isBlogPost = (p) => p.startsWith('/blog/');
 
 // ===== 1. unique data point and hand-written inbound links ======================================
@@ -109,7 +114,27 @@ const moves = json(path.join(SITE_LIB, 'moves.json')).moves;
 const eases = json(path.join(SITE_LIB, 'easing.json')).eases;
 const round = (n) => Math.round(n);
 
+// A page without its own data file is judged by its text: it must say at least MIN_OWN_WORDS words no sibling says.
+const MIN_OWN_WORDS = 30;
+function ownWords(id) {
+  const pages = sitePaths.filter((p) => templateOf(p) === id);
+  const words = new Map(pages.map((p) => [p, new Set(textOf(mainOf(html.get(p)?.text ?? '')).toLowerCase().match(/[a-z][a-z0-9-]{3,}/g) ?? [])]));
+  const seen = new Map();
+  for (const ws of words.values()) for (const w of ws) seen.set(w, (seen.get(w) ?? 0) + 1);
+  return (p) => {
+    const own = [...(words.get(p) ?? [])].filter((w) => seen.get(w) === 1).length;
+    return own >= MIN_OWN_WORDS ? { ok: true } : { ok: false, why: `only ${own} words its siblings do not use (want ${MIN_OWN_WORDS})` };
+  };
+}
+
 const dataPoint = {
+  springs: (() => {
+    const springs = JSON.parse(fs.readFileSync(path.join(SITE_LIB, 'springs.json'), 'utf8')).springs;
+    const same = repeats(springs, (x) => `/springs/${x.slug}`, (x) => [x.zeta, x.ms, x.overshoot].join('|'));
+    return (p) => (same.has(p) ? { ok: false, why: `same damping ratio, settle time and overshoot as ${same.get(p).join(', ')}` } : { ok: true });
+  })(),
+  'how-to': ownWords('how-to'),
+  inspiration: ownWords('inspiration'),
   'video-components': (() => {
     const measured = repeats(moves, (m) => `/video-components/${m.name}`, (m) => JSON.stringify([m.duration, m.eases, m.sound]));
     const snippet = repeats(moves, (m) => `/video-components/${m.name}`, (m) => m.snippet.trim());

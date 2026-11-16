@@ -1,3 +1,5 @@
+import { PromptCard } from "../components/PromptCard";
+import { PAGE_PROMPTS } from "../../lib/prompts";
 import { Header } from "../components/Header";
 import { jsonLdScript, breadcrumbSchema } from "../../lib/schema";
 import { Footer } from "../components/Footer";
@@ -22,6 +24,8 @@ export default function ProgrammaticVideoEditing() {
             <p>{C.lede}</p>
             <Toc items={C.toc} />
           </section>
+
+          <PromptCard prompt={PAGE_PROMPTS[C.path]} />
 
           <section className="iend" id="table">
             <h2 className="h2">{C.table.title}</h2>

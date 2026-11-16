@@ -59,7 +59,7 @@ export const FEATURES = {
   path: "/features",
   meta: {
     title: "vawe features: HTML to video, agent CLI, motion blur",
-    description: `vawe features: an agent writes a film in plain HTML, every command names the next step, ${MOVES.length} video components and ${EASES.length} easing curves, and drafts render in seconds.`,
+    description: `vawe features: an agent writes a film in plain HTML, each command names the next step, ${MOVES.length} video components, ${EASES.length} eases, drafts in seconds.`,
   } as Meta,
   crumb: { group: "Product", current: "Features" } as Crumb,
   h1: "Agents write it. It looks made. It renders fast.",

@@ -17,6 +17,15 @@ export const cluster = (self: string): Section => ({
     {
       ol: [
         ...CLUSTER_LINKS.filter((l) => l.path !== self).map((l) => [...l.item]),
+        [
+          "Task guides: ",
+          { text: "add captions", href: "/how-to/add-captions-to-video" }, ", ",
+          { text: "remove silences", href: "/how-to/remove-silences-from-video" }, ", ",
+          { text: "add text", href: "/how-to/add-text-to-video" }, ", ",
+          { text: "trim and join clips", href: "/how-to/trim-and-join-video-clips" }, ", ",
+          { text: "add music", href: "/how-to/add-music-to-video" }, " and ",
+          { text: "change the speed", href: "/how-to/speed-up-or-slow-down-video" }, ".",
+        ],
         [{ text: "vawe vs video-use", href: "/vs/video-use" }, ": another open-source way to edit clips with a coding agent, and when it is the better choice."],
         [{ text: "vawe vs OpenEdit", href: "/vs/openedit" }, ": an open-source pipeline from VEED that also lets an agent edit clips, and how it differs."],
         [{ text: "How an agent reads footage it cannot watch", href: "/blog/how-an-agent-reads-footage" }, ": what footage.md holds and why the agent cuts on a word end."],

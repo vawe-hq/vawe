@@ -23,6 +23,7 @@ import { SHOTSTACK_ALTERNATIVES } from "../content/shotstack-alternatives";
 import { HOW_TOS, HOW_TO_BY_SLUG, HOW_TO_HUB, howToPath, type HowTo } from "../content/how-to";
 import type { Block, NextBlock, Para, Section, Table } from "../content/types";
 import { FAQ } from "../faq";
+import { PAGE_PROMPTS } from "../prompts";
 import { bareTitle, codeBlock, heading, item, link, table } from "./format";
 import type { Doc, Entry, Renderer } from "./registry";
 
@@ -66,7 +67,8 @@ const qa = (items: { q: string; a: Para | string }[]) => items.map((x) => `${hea
 
 function doc(path: string, title: string, meta: { description: string }, body: (string | undefined | false)[], next?: NextBlock): Doc {
   const n = next && nextOf(next);
-  return { title, description: meta.description, updated: dates[path], body: join([...body, n?.body]), related: n?.related };
+  const prompt = PAGE_PROMPTS[path] && join([heading(2, "Copy this prompt into your agent"), codeBlock(PAGE_PROMPTS[path])]);
+  return { title, description: meta.description, updated: dates[path], body: join([body[0], prompt, ...body.slice(1), n?.body]), related: n?.related };
 }
 
 const entry = (path: string, meta: { title: string; description: string }, kind: Entry["kind"] = "page"): Entry => ({ path, title: bareTitle(meta.title), description: meta.description, kind, full: true });

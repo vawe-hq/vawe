@@ -18,6 +18,8 @@ export const ORG_REF = { "@type": "Organization", "@id": ORG_ID, name: "vawe", u
 
 // Apache-2.0, no paid tier: the licence and repo URL below are read off package.json rather than
 // retyped, so they cannot drift from the one the repo actually ships under.
+export const OWNER = { name: "Vandit Singh", url: "https://github.com/Vandit1604" };
+
 export function organizationSchema() {
   return {
     "@context": "https://schema.org",
@@ -130,7 +132,7 @@ export function blogPostingSchema(opts: {
     articleSection: opts.section,
     keywords: opts.keywords.join(", "),
     inLanguage: "en",
-    author: org,
+    author: { "@type": "Person", name: OWNER.name, url: OWNER.url, worksFor: org },
     publisher: { ...org, logo: { "@type": "ImageObject", url: `${SITE_URL}/assets/favicon-512.png` } },
     isPartOf: { "@type": "Blog", name: "vawe blog", url: `${SITE_URL}/blog` },
   };

@@ -1,7 +1,7 @@
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { pageMetadata } from "../components/seo";
-import { jsonLdScript, techArticleSchema } from "../../lib/schema";
+import { breadcrumbSchema, jsonLdScript, techArticleSchema } from "../../lib/schema";
 import { Clip } from "../components/Clip";
 import { EaseCurve } from "../components/EaseCurve";
 import { Icon } from "../components/Icon";
@@ -71,6 +71,7 @@ export default function Problems() {
       <Header />
       <div className="wrap">
         <main id="content" className="ipage xp" tabIndex={-1}>
+          <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(breadcrumbSchema([{ name: "vawe", url: "/" }, { name: C.crumb.current, url: C.path }]))} />
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={jsonLdScript(

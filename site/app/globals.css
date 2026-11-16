@@ -316,3 +316,12 @@ a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{o
 .ls-top > h1{font-size:var(--fs-h1);font-weight:var(--fw-head);letter-spacing:var(--track-display);line-height:var(--lh-display);max-width:18ch}
 @media (max-width:900px){ .ls-3{grid-template-columns:1fr 1fr} }
 @media (max-width:640px){ .ls-3,.ls-2{grid-template-columns:minmax(0,1fr)} .ls{padding-top:80px} .ls-top{padding-top:var(--sp-7)} }
+
+/* =========================================================
+   Copy-paste prompt card (PromptCard.tsx): on every page that lists steps
+   ========================================================= */
+.pcard{margin-top:var(--sp-6);padding:var(--sp-5);background:var(--raised);border:1px solid var(--line);border-radius:var(--r-in)}
+.pcard-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--sp-3)}
+.pcard-head h2{margin:0;font-size:var(--fs-h3)}
+.pcard-lead{margin:var(--sp-3) 0 0;color:var(--ink-2);font-size:var(--fs-ui)}
+.pcard-text{margin:var(--sp-4) 0 0;padding:var(--sp-4);max-height:20em;overflow:auto;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-in);font-family:var(--font-mono),monospace;font-size:var(--fs-code);line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}

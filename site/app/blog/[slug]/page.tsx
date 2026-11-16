@@ -1,3 +1,6 @@
+import { PromptCard } from "../../components/PromptCard";
+import { BLOG_PROMPTS } from "../../../lib/prompts";
+import { OWNER } from "../../../lib/schema";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header, DOCS_URL, REPO_URL, VaweMark } from "../../components/Header";
@@ -78,6 +81,7 @@ export default async function PostPage({ params }: Params) {
               <p className="bp-dek">{smart(post.description)}</p>
               <p className="meta bp-meta">
                 {post.no ? <span>No. {String(post.no).padStart(2, "0")}</span> : null}
+                <span>By <Link href="/about">{OWNER.name}</Link></span>
                 <span>{post.minutes} min read</span>
                 {updatedLabel(post) ? <span>Updated {updatedLabel(post)}</span> : null}
               </p>
@@ -114,6 +118,7 @@ export default async function PostPage({ params }: Params) {
                   <img src={post.hero.src} alt={post.hero.alt} width={post.hero.width} height={post.hero.height} loading="lazy" decoding="async" />
                 </figure>
               ) : null}
+              <PromptCard prompt={BLOG_PROMPTS[post.slug]} />
               <div className="bp-prose" dangerouslySetInnerHTML={{ __html: post.html }} />
             </div>
           </div>

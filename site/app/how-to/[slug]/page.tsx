@@ -1,3 +1,5 @@
+import { PromptCard } from "../../components/PromptCard";
+import { PAGE_PROMPTS } from "../../../lib/prompts";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Header } from "../../components/Header";
@@ -51,6 +53,8 @@ export default async function HowTo({ params }: { params: Promise<{ slug: string
             <h1>{h.h1}</h1>
             <p><RichText p={h.lede} /></p>
           </section>
+
+          <PromptCard prompt={PAGE_PROMPTS[`/how-to/${h.slug}`]} />
 
           <SectionView s={h.steps} />
           <SectionView s={h.wrong} />

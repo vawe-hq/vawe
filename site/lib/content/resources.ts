@@ -6,6 +6,7 @@ import { EASES } from "../easing";
 import { SPRINGS } from "../springs";
 import { MOVES } from "../moves";
 import { INSPIRATION, INSPIRATION_PATH } from "../inspiration";
+import { INSPIRATION_TYPE_PAGES, typePath } from "./inspiration-types";
 import { allPosts } from "../blog";
 import { RIVALS } from "./vs";
 import type { Crumb, Meta } from "./types";
@@ -70,6 +71,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
         meta: `${INSPIRATION.length}${NBSP}videos`,
         tile: "films",
       },
+      ...INSPIRATION_TYPE_PAGES.map((c): Item => ({ href: typePath(c.id), title: c.title.replace(/ \| vawe$/, ""), line: c.description, icon: "play", meta: "examples", tile: "films" })),
       {
         href: "/features",
         title: "Features",

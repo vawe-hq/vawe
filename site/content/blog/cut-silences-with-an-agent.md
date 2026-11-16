@@ -10,7 +10,7 @@ tags: "remove silences from video, ai video editing, cut silence, agentic video 
 keywords: "remove silences from video ai agent, cut silence from video automatically, remove pauses from video, ai jump cut, claude code video editing"
 ---
 
-To remove silences from a video with an AI agent, the agent reads the word times in the clip’s transcript, finds each gap longer than 0.5 seconds, and keeps only the spans that hold speech. Each kept span becomes one trimmed clip in a page that [vawe](https://github.com/vawe-hq/vawe) renders to MP4. This post walks through the steps.
+To remove silences from a video with an AI agent, the agent reads the word times in the clip’s transcript, finds each gap longer than 0.5 seconds, and keeps only the spans that hold speech. Each kept span becomes one trimmed clip in a page that [vawe](https://github.com/vawe-hq/vawe) renders to MP4. This post walks through the steps. For the short version of the steps, see [remove silences from a video](/how-to/remove-silences-from-video).
 
 ## Where the gaps come from
 
