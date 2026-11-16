@@ -193,7 +193,7 @@ export function pickFrames(cutTimes, holds, beats, dur, budget) {
   return picked.sort((a, b) => a.t - b.t);
 }
 // ── grids: 3x3, <=9 panels, 1568px long edge ────────────────────────────────────────────────────
-export function renderGrids(video, outDir, chosen, { width, height, dur, fps }) {
+export function renderGrids(video, outDir, chosen, { width, height, dur, fps }, prefix = 'grid') {
   const GRID_CELLS = 9;
   const longEdge = 1568;
   const tileW = Math.floor(longEdge / 3);
@@ -208,7 +208,7 @@ export function renderGrids(video, outDir, chosen, { width, height, dur, fps }) 
       out], out, `grid cell ${i}`);
     return out;
   });
-  const gridPaths = tileInGrids(cellFiles, outDir, 'grid', tileW, tileH, GRID_CELLS);
+  const gridPaths = tileInGrids(cellFiles, outDir, prefix, tileW, tileH, GRID_CELLS);
   for (const f of cellFiles) fs.rmSync(f, { force: true });
   return gridPaths;
 }

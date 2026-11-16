@@ -110,12 +110,12 @@ test('one owner decides what an aspect is and how its file name reads', () => {
   assert.throws(() => resolveFrame(PAGE, { aspect: 'wide' }), /unknown aspect "wide" is not a W:H ratio/);
 });
 
-test('--out of a page still must be a PNG: a .jpg would hold PNG bytes under the wrong name', () => {
+test('--out of a still must be a PNG or a folder: a .jpg would hold PNG bytes under the wrong name', () => {
   const out = path.resolve('out/still/aspect-probe-jpg.jpg');
   fs.rmSync(out, { force: true });
   const r = vawe('--out', out);
   assert.notEqual(r.status, 0);
-  assert.match(r.stderr, /a page still is a PNG: --out aspect-probe-jpg\.jpg must end in \.png/);
+  assert.match(r.stderr, /a frame is a PNG: --out aspect-probe-jpg\.jpg must end in \.png, or name a folder/);
   assert.equal(fs.existsSync(out), false);
 });
 

@@ -13,6 +13,7 @@ import { ONION_FRAMES, ONION_SPAN, onionProblem } from '../media/see/onion-math.
 import { ZOOM_SCALE, zoomProblem } from '../media/see/zoom-math.mjs';
 import { VELOCITY_SPAN, velocityProblem } from '../media/see/velocity-math.mjs';
 import { filmFile } from '../media/see/input.mjs';
+import { outProblem } from '../lib/out-target.mjs';
 import { looksProblem } from '../lib/looks.mjs';
 import { SAY, nextStep } from '../live/stage-say.mjs';
 
@@ -148,7 +149,7 @@ function requireFiles(v0, [input]) {
 function stepsOf(v0, [input]) {
   const v = withVs(v0);
   const mode = modeOf(v);
-  const problem = modifierProblem(v) ?? outsideMode(v, mode);
+  const problem = modifierProblem(v) ?? outsideMode(v, mode) ?? (['board', 'directions'].includes(mode) ? null : outProblem(v.out));
   if (problem) throw new UsageError(problem);
   if (mode === 'moment') return STEPS.strip({ ...v, at: v.moment }, input);
   if (mode === 'cuts') return STEPS.strip(v, input);
@@ -202,7 +203,8 @@ looks and boards:
   --board                   HTML board, a card per world. --all every advice line, --page
   --directions              the directions board, A, B, C side by side, to show a person
 
-all but --world: --out path. A flag outside its mode gets a one-line error.
+--out (every mode but --world): a path ending in .png is that file (several grids: name-01.png, name-02.png); any other path is a folder.
+  --board and --directions: --out file.html. A flag outside its mode gets a one-line error.
 example: vawe frame films/my-launch/page.html --world all   |   vawe frame films/my-launch/page.html --cuts`;
 
 const FLAGS = [

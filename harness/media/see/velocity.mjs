@@ -6,6 +6,7 @@ import { sampleBoxTracks } from '../../lib/box-track.mjs';
 import { openPage, resolveFrame } from '../render-page.mjs';
 import { die } from './core.mjs';
 import { stripWindow } from './strip-math.mjs';
+import { outFile } from '../../lib/out-target.mjs';
 import { GRAPH_H, GRAPH_W, LINE_COLOURS, velocitySvg } from './velocity-graph.mjs';
 import { analyseTrack, moveScore, sampleTimes, summaryLines, topMovers, VELOCITY_SPAN, velocityProblem, visiblePoints } from './velocity-math.mjs';
 import { resolveDuration } from '../page-duration.mjs';
@@ -51,9 +52,8 @@ export async function runVelocity(pagePath, opts) {
       peak: a.pos.moves ? { t: a.pos.peakAt, v: a.pos.peakSpeed } : null,
       rel: a.scale.moves ? a.rel : null,
     }));
-    const outDir = path.resolve(opts.out ?? path.join('out', 'velocity'));
-    fs.mkdirSync(outDir, { recursive: true });
-    const out = path.join(outDir, `${path.basename(pagePath, '.html') === 'page' ? path.basename(path.dirname(pagePath)) : path.basename(pagePath, '.html')}-velocity-${opts.at.toFixed(2)}.png`);
+    const out = outFile(opts.out, path.join('out', 'velocity', `${path.basename(pagePath, '.html') === 'page' ? path.basename(path.dirname(pagePath)) : path.basename(pagePath, '.html')}-velocity-${opts.at.toFixed(2)}.png`));
+    fs.mkdirSync(path.dirname(out), { recursive: true });
     await page.setViewport({ width: GRAPH_W, height: GRAPH_H });
     await page.setContent(`<body style="margin:0">${velocitySvg({ from, to, series })}</body>`);
     await page.screenshot({ path: out, type: 'png' });

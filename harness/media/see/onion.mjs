@@ -8,6 +8,7 @@ import { die, probeVideo } from './core.mjs';
 import { ONION_FRAMES, ONION_SPAN, isLightGround, onionGraph, onionProblem, onionTimes } from './onion-math.mjs';
 import { resolveInput } from './input.mjs';
 import { stripWindow } from './strip-math.mjs';
+import { outFile } from '../../lib/out-target.mjs';
 
 const FRAME_GAP_S = 0.03;
 
@@ -21,9 +22,8 @@ export function makeOnion(found, opts) {
   const { width, height, dur, fps } = probeVideo(found.video);
   const { from, to } = stripWindow(opts.at, opts.span, dur);
   const times = onionTimes(from, Math.min(to, dur - Math.max(FRAME_GAP_S, 1.5 / fps)), opts.n);
-  const outDir = path.resolve(opts.out ?? path.join('out', 'onion', found.name));
-  fs.mkdirSync(outDir, { recursive: true });
-  const out = path.join(outDir, `onion-${opts.at.toFixed(2)}-n${opts.n}.png`);
+  const out = outFile(opts.out, path.join('out', 'onion', found.name, `onion-${opts.at.toFixed(2)}-n${opts.n}.png`));
+  fs.mkdirSync(path.dirname(out), { recursive: true });
   const inputs = times.flatMap((t) => ['-ss', t.toFixed(3), '-i', found.video]);
   ffmpegOrDie(['-v', 'error', '-y', ...inputs, '-filter_complex', onionGraph(times, width, height, isLightGround(meanGrey(found.video, times.at(-1)))), '-map', '[out]', '-frames:v', '1', out], out, 'onion');
   return { out, times };

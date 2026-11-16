@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { paramsFilm } from '../lib/page-params.mjs';
+import { outFile } from '../lib/out-target.mjs';
 
 const ROW_H = 360;
 /** `--at cuts`: the middle of each world change of ours, from the last full draft's measured data-world spans. */
@@ -145,7 +146,7 @@ async function main() {
   for (const [name, f] of [[page ? '--page' : '<ours.mp4>', page || ours], ['--ref', ref]]) if (f && !fs.existsSync(f)) die(`no such file for ${name}: ${f}`);
   const source = page || ours;
   const times = flag('--at') === CUTS ? await (await import('./see/strip.mjs')).cutSeconds(source) : parseAt(flag('--at'));
-  const out = path.resolve(flag('--out') || compareOut(source));
+  const out = outFile(flag('--out'), compareOut(source));
   fs.mkdirSync(path.dirname(out), { recursive: true });
   if (page) await comparePage({ page, ref, times, out });
   else await compareFrames({ ours, ref, times, out, from: Number(flag('--from')) || 0 });

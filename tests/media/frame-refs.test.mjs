@@ -86,3 +86,21 @@ test('every cell of a 30 fps grid shows its own frame', () => {
   assert.deepEqual(shown, Array.from({ length: 18 }, (_, i) => 36 + i));
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test('--out is a file for a .png path and a folder for any other path, in every mode', () => {
+  const { dir, refs } = makeRefs();
+  const file = path.join(dir, 'm01.png');
+  const m = run(refs, [ID, '--moment', '1', '--out', file], dir);
+  assert.equal(m.status, 0, m.stderr + m.stdout);
+  assert.ok(fs.statSync(file).isFile(), 'm01.png is a file, not a folder');
+  const folder = path.join(dir, 'grids');
+  const g = run(refs, [ID, '--moment', '1', '--out', folder], dir);
+  assert.equal(g.status, 0, g.stderr + g.stdout);
+  assert.ok(fs.statSync(folder).isDirectory());
+  const into = path.join(dir, 'stills');
+  const s = run(refs, [ID, '--at', '1', '--out', into], dir);
+  assert.equal(s.status, 0, s.stderr + s.stdout);
+  assert.ok(fs.statSync(into).isDirectory());
+  assert.equal(fs.readdirSync(into).filter((n) => n.endsWith('.png')).length, 1);
+  fs.rmSync(dir, { recursive: true, force: true });
+});

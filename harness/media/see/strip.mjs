@@ -5,6 +5,7 @@ import { computeEnergy, die, HOLD_FLOOR, probeVideo } from './core.mjs';
 import { runShot } from './compare.mjs';
 import { cutHolds, energyLines, holdLine, holdsSummary, motionLines, motionRead, stripFpsProblem, stripWindow, transitionLine, windowNote } from './strip-math.mjs';
 import { resolveInput } from './input.mjs';
+import { numbered, outTarget } from '../../lib/out-target.mjs';
 
 /** The seconds of the cuts of a page or mp4, for `vawe frame --vs --at cuts`. */
 export async function cutSeconds(input) {
@@ -12,9 +13,9 @@ export async function cutSeconds(input) {
   return (await cuts()).map((c) => +c.at.toFixed(2));
 }
 
-function stripOne(video, outRoot, energy, { at, span, fps }, dur) {
+function stripOne(video, outRoot, energy, { at, span, fps, file }, dur) {
   const { from, to } = stripWindow(at, span, dur);
-  const { gridPaths } = runShot(video, outRoot, from, to, fps, { energy, quiet: true });
+  const { gridPaths } = runShot(video, outRoot, from, to, fps, { energy, quiet: true, file });
   return { from, to, note: windowNote(at, span, { from, to }, dur), gridPaths, read: motionRead(energy, from, to, HOLD_FLOOR) };
 }
 
@@ -36,17 +37,18 @@ export async function runStrip(input, opts) {
   const fpsProblem = stripFpsProblem(opts.fps, sourceFps);
   if (fpsProblem) die(fpsProblem);
   const energy = computeEnergy(found.video);
-  const outRoot = path.resolve(opts.out ?? path.join('out', 'strip', found.name));
+  const target = outTarget(opts.out);
+  const outRoot = target?.dir ?? path.resolve(path.join('out', 'strip', found.name));
   const common = { span: opts.span, fps: opts.fps };
   if (!opts.cuts) {
-    printStrip(`strip of ${found.video} at ${opts.at.toFixed(2)} s`, stripOne(found.video, outRoot, energy, { at: opts.at, ...common }, dur), opts.fps, { compact: false, energy });
+    printStrip(`strip of ${found.video} at ${opts.at.toFixed(2)} s`, stripOne(found.video, outRoot, energy, { at: opts.at, ...common, file: target?.file }, dur), opts.fps, { compact: false, energy });
     return;
   }
   const cuts = await found.holdCuts();
   console.log(`${cuts.length} cut${cuts.length === 1 ? '' : 's'} in ${found.video}, one strip each (${opts.span} s centred on the cut)`);
   const holds = cutHolds(energy, cuts, HOLD_FLOOR);
   for (const [i, c] of cuts.entries()) {
-    printStrip(`${i + 1}. ${c.from} to ${c.to}, cut at ${c.at.toFixed(2)} s`, stripOne(found.video, outRoot, energy, { at: c.at, ...common }, dur), opts.fps, { compact: true, energy });
+    printStrip(`${i + 1}. ${c.from} to ${c.to}, cut at ${c.at.toFixed(2)} s`, stripOne(found.video, outRoot, energy, { at: c.at, ...common, file: target?.file && numbered(target.file, i + 1, cuts.length) }, dur), opts.fps, { compact: true, energy });
     console.log(`  ${holdLine(holds[i])}`);
     const change = transitionLine(c);
     if (change) console.log(`  ${change}`);

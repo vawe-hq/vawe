@@ -8,6 +8,7 @@ import { spawnSync } from 'node:child_process';
 import { openPage, seekAll, resolveFrame, settle, readPageMeta } from './render-page.mjs';
 import { clampToLastFrame, probe } from './see-views.mjs';
 import { isUrl } from '../lib/url.mjs';
+import { outFile } from '../lib/out-target.mjs';
 import { frameSeek, stillArgs, stillPath, stillProblem, sizeProblem } from './see/still-math.mjs';
 import { resolveDuration } from './page-duration.mjs';
 
@@ -58,8 +59,7 @@ async function main(argv) {
   const problem = stillProblem({ source, at, size });
   if (problem) die(problem);
   if (!isUrl(source) && !fs.existsSync(source)) die(`no such file: ${source}`);
-  const out = path.resolve(flag('--out') || stillPath(source, at, size));
-  if (source.endsWith('.html') && path.extname(out) !== '.png') die(`a page still is a PNG: --out ${path.basename(out)} must end in .png`);
+  const out = outFile(flag('--out'), stillPath(source, at, size));
   fs.mkdirSync(path.dirname(out), { recursive: true });
   let got;
   try { got = source.endsWith('.html') ? await pageStill(source, Number(at), out, { size }) : videoStill(source, Number(at), out); } catch (e) { die(e.message); }

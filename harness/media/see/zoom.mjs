@@ -6,6 +6,7 @@ import { drawtext, ffmpegOrDie } from '../../lib/scratch.mjs';
 import { die, probeVideo, stackImages } from './core.mjs';
 import { frameRgb, lumaOf } from './frame.mjs';
 import { resolveInput } from './input.mjs';
+import { outFile } from '../../lib/out-target.mjs';
 import { autoBox, commonBox, FRAME_H, FRAME_W, parseBox, ZOOM_SCALE, zoomProblem } from './zoom-math.mjs';
 
 async function film(input, label) {
@@ -45,11 +46,10 @@ async function runZoom(input, opts) {
   const boxes = opts.auto ? autoBoxes(a, b, at, atB) : { a: parseBox(opts.box), b: parseBox(opts.box), note: '' };
   if (!boxes.a || (b && !boxes.b)) die(`no bright edge in ${boxes.a ? b.video : a.video} at ${boxes.a ? atB : at} s: give --box x,y,w,h`);
   const box = boxes.a;
-  const outFile = opts.out?.endsWith('.png') ? path.resolve(opts.out) : null;
-  const outDir = outFile ? path.dirname(outFile) : path.resolve(opts.out ?? path.join('out', 'zoom', a.name));
-  fs.mkdirSync(outDir, { recursive: true });
   const stem = `zoom-${at.toFixed(2)}-${box.x}_${box.y}_${box.w}x${box.h}x${opts.scale}${b ? `-vs-${b.name}` : ''}`.replace(/[^\w.+-]/g, '_');
-  const out = outFile ?? path.join(outDir, `${stem}.png`);
+  const out = outFile(opts.out, path.join('out', 'zoom', a.name, `${stem}.png`));
+  const outDir = path.dirname(out);
+  fs.mkdirSync(outDir, { recursive: true });
   const fileA = path.join(outDir, `.${stem}-a.png`);
   zoomCell(a, at, box, opts.scale, fileA);
   if (b) {

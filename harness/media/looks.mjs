@@ -11,6 +11,7 @@ import { tile, parseAt } from './compare-frames.mjs';
 import { insideRoot, REPO_ROOT } from '../lib/render-harness.mjs';
 import { lookOverride } from '../../core/surfaces/lens.js';
 import { AS_IS, looksOf } from '../lib/looks.mjs';
+import { numbered, outTarget } from '../lib/out-target.mjs';
 
 const TILE_H = 360;
 const LABEL_H = 36;
@@ -65,7 +66,8 @@ function parseArgs(argv) {
 async function main(argv) {
   const { page, times, names, out } = parseArgs(argv);
   if (!pageSourceMatches(page, USES_LENS)) die(`${page} does not use the lens (core/surfaces/lens.js), and the looks are lens options: film the screen with lens() first (prompts/moves/lens.md)`);
-  const dir = path.resolve(out || path.join('out', `looks-${path.basename(path.dirname(page))}`));
+  const target = outTarget(out) ?? outTarget(path.join('out', `looks-${path.basename(path.dirname(page))}`));
+  const dir = target.dir;
   fs.mkdirSync(dir, { recursive: true });
   const work = fs.mkdtempSync(path.join(fs.realpathSync(dir), '.looks-'));
   const frame = resolveFrame(page);
@@ -74,7 +76,7 @@ async function main(argv) {
     for (const name of [AS_IS, ...names]) shots.set(name, await shootLook(page, frame, name, times, work));
     for (const [i, t] of times.entries()) {
       const tiles = [...shots].map(([name, pngs]) => { const file = path.join(work, `tile-${name}-${t}.png`); labelled(pngs[i], name, file); return file; });
-      const grid = path.join(dir, `looks-${t}s.png`);
+      const grid = target.file ? numbered(target.file, `${t}s`, times.length) : path.join(dir, `looks-${t}s.png`);
       tile(tiles, grid);
       console.log(`looks: ${t}s  ${grid}`);
     }
