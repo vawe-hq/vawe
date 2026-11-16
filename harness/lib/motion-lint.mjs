@@ -79,6 +79,20 @@ const MIN_GAP_S = 0.002;
 const KEYWORDS = new Set(['linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out']);
 const onKeywords = (r) => [r.easing, ...r.kfEasings].every((e) => KEYWORDS.has(e));
 const isLinear = (r) => [r.easing, ...r.kfEasings].every((e) => e === 'linear');
+const BAKED_STOPS_MIN = 5;
+const numbers = (stop) => Object.entries(stop).filter(([k]) => k !== 'offset').flatMap(([, v]) => String(v).match(/-?\d*\.?\d+/g) ?? []).map(Number);
+
+// Sampled keyframes carry their own curve: more than 4 stops whose speed between stops is not constant (offset step against value step).
+function bakedCurve(r) {
+  const stops = r.stops ?? [];
+  if (stops.length < BAKED_STOPS_MIN) return false;
+  const speeds = stops.slice(1).map((b, i) => {
+    const a = stops[i];
+    const [va, vb] = [numbers(a), numbers(b)];
+    return vb.reduce((sum, v, k) => sum + Math.abs(v - (va[k] ?? 0)), 0) / ((b.offset - a.offset) || 1);
+  });
+  return Math.max(...speeds) - Math.min(...speeds) > 1e-6 * Math.max(1, ...speeds);
+}
 const s2 = (x) => x.toFixed(2);
 
 /** An exit that runs as long as or longer than its entrance, per element (rule exits-shorter). Decorative elements and sampled runs under two samples are not measured. */
@@ -125,7 +139,7 @@ export function tightStagger(records) {
     .filter((ds) => ds.length).map((ds) => Math.min(...ds)).sort((a, b) => a - b);
   const runs = [];
   starts.slice(1).forEach((t, i) => {
-    const gap = t - starts[i];
+    const gap = Math.round((t - starts[i]) * 1000) / 1000;
     if (gap < MIN_GAP_S || gap >= floor) return;
     const run = runs.at(-1);
     if (run && run.last === starts[i]) Object.assign(run, { last: t, n: run.n + 1, gaps: [...run.gaps, gap] });
@@ -153,7 +167,7 @@ export function easeFix(r) {
 
 /** A move longer than 0.3 s on linear easing, or on a default CSS keyword (ease, ease-in-out) with no curve of its own (rule named-eases). */
 export function linearMove(records) {
-  return records.filter((r) => moves(r) && r.duration > LINEAR_LIMIT && onKeywords(r)).map((r) => {
+  return records.filter((r) => moves(r) && r.duration > LINEAR_LIMIT && onKeywords(r) && !bakedCurve(r)).map((r) => {
     const linear = isLinear(r);
     return { code: linear ? 'linear-move' : 'default-ease', rule: 'named-eases', at: r.delay,
       what: `${r.label} moves ${moveProps(r).join(',')} for ${s2(r.duration)} s on ${linear ? 'linear' : `the CSS keyword ${[r.easing, ...r.kfEasings].find((e) => e !== 'linear')}`} easing`,

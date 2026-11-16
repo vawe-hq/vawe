@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mergeRecords, motionLint, exitLength, groupLanding, linearMove, easeFix, seamRepeat, oneBand, durationSize, moveDirection, unwaived, lintLines } from '../../harness/lib/motion-lint.mjs';
+import { mergeRecords, motionLint, exitLength, groupLanding, tightStagger, linearMove, easeFix, seamRepeat, oneBand, durationSize, moveDirection, unwaived, lintLines } from '../../harness/lib/motion-lint.mjs';
 
 const rec = (o) => ({ target: 0, label: 'h1 "Hi"', id: '', props: ['opacity'], delay: 0, duration: 0.5, easing: 'linear',
   kfEasings: ['ease', 'ease'], opacity: null, from: '', fullFrame: false, ...o });
@@ -28,6 +28,22 @@ test('linear easing on a move over 0.3 s is flagged; a per-keyframe curve or a s
   assert.deepEqual(linearMove([rec({ ...move, duration: 0.2 })]), []);
   assert.deepEqual(linearMove([rec({ ...move, duration: 0.8, kfEasings: ['linear(0, 0.5, 1)', 'linear'] })]), []);
   assert.deepEqual(linearMove([rec({ props: ['color'], kfEasings: ['linear'], duration: 0.8 })]), []);
+});
+
+test('sampled keyframes with linear easing are not a linear move unless their steps are constant', () => {
+  const sampled = (value) => Array.from({ length: 30 }, (_, i) => ({ offset: i / 29, translate: `${value(i / 29)}px 0px` }));
+  const base = { props: ['translate'], kfEasings: ['linear', 'linear'], duration: 0.8 };
+  assert.deepEqual(linearMove([rec({ ...base, stops: sampled((u) => 100 * (1 - (1 - u) ** 3)) })]), []);
+  assert.equal(linearMove([rec({ ...base, stops: sampled((u) => 100 * u) })]).length, 1);
+  assert.equal(linearMove([rec({ ...base, stops: [{ offset: 0, translate: '0px 0px' }, { offset: 1, translate: '100px 0px' }] })]).length, 1);
+  assert.equal(linearMove([rec(base)]).length, 1);
+});
+
+test('two entrances 30 ms apart are at the stagger floor, whatever the float error of their seconds', () => {
+  const pair = (delay) => [rec({ target: 0, opacity: [0, 1], delay, duration: 0.4 }), rec({ target: 1, opacity: [0, 1], delay: delay + 0.03, duration: 0.4 })];
+  assert.deepEqual(tightStagger(pair(2)), []);
+  assert.deepEqual(tightStagger(pair(12.4)), []);
+  assert.equal(tightStagger([rec({ target: 0, opacity: [0, 1], delay: 1, duration: 0.4 }), rec({ target: 1, opacity: [0, 1], delay: 1.02, duration: 0.4 })]).length, 1);
 });
 
 test('a default CSS keyword on a move over 0.3 s points at the EASE names; a custom curve does not', () => {
