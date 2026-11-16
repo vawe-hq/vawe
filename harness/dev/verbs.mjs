@@ -93,6 +93,12 @@ export const DEV_VERBS = [
     build: () => testSteps(),
   },
   {
+    name: 'harness-bench', summary: 'how well an agent follows the harness on its first draft: 3 fixed prompts, one headless session each; counts from the run log, the dev report and the stream; writes quality/baselines/harness-bench.json',
+    flags: [], raw: true,
+    example: 'vawe-dev harness-bench --variant base   |   vawe-dev harness-bench --variant plugin --plugin <dir>   |   vawe-dev harness-bench --report',
+    build: (_v, args = []) => [{ script: 'harness/dev/harness-bench.mjs', args }],
+  },
+  {
     name: 'runs', summary: 'where a film\'s time went (per stage and verb, slot wait), what failed (by cause) and the draft series; or, with --all, one row per film of the last 30 days',
     positional: [{ name: 'film', help: 'film name or films/<name>/page.html' }],
     flags: [
