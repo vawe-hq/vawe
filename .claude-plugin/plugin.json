@@ -1,0 +1,17 @@
+{
+  "name": "vawe-agent",
+  "displayName": "vawe",
+  "version": "2.0.0",
+  "description": "Make a film with vawe through checked tools: the vawe agent, the vawe MCP server, a hook that blocks hand-made film writes, and the vawe skills.",
+  "author": { "name": "Vandit Singh", "url": "https://vawe.dev" },
+  "homepage": "https://vawe.dev",
+  "repository": "https://github.com/vawe-hq/vawe",
+  "license": "Apache-2.0",
+  "keywords": ["video", "motion-graphics", "html-to-video", "agent"],
+  "mcpServers": {
+    "vawe": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/vawe", "mcp"]
+    }
+  }
+}

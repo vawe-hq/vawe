@@ -48,7 +48,7 @@ jobs:
             || { git init -q -b main out && git -C out remote add origin git@github.com:vawe-hq/skills.git; }
           rsync -a --delete skills/ out/skills/
           mkdir -p out/.claude-plugin
-          cp .claude-plugin/marketplace.json out/.claude-plugin/marketplace.json
+          jq '.plugins |= map(select(.source == "./skills"))' .claude-plugin/marketplace.json > out/.claude-plugin/marketplace.json
           cp LICENSE out/LICENSE
           cp .github/skills-repo/README.md out/README.md
           rsync -a --delete .github/skills-repo/assets/ out/assets/

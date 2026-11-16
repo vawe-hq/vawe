@@ -161,6 +161,16 @@ finds the seven ways a seeked CSS animation breaks without an error. More: [vawe
   ```
 
   The first line works for any agent the `skills` CLI supports. The last two are for Claude Code.
+- The Claude Code plugin `vawe-agent` goes further than skills: the `vawe` agent has no shell and no file
+  writer, only the `vawe` MCP tools (status, new film, rules, write page, frame, draft, look, critique)
+  plus Read, Grep and Glob. A hook denies a hand-made write to `films/` and a raw `ffmpeg` or Chrome
+  call, and names the tool to use. Only the person approves a film (`/vawe-agent:approve`). Install from
+  this repository, then run `/vawe <the ask>`:
+
+  ```bash
+  claude plugin marketplace add vawe-hq/vawe
+  claude plugin install vawe-agent@vawe-skills
+  ```
   [vawe-hq/skills](https://github.com/vawe-hq/skills) is a small copy of `skills/` that a workflow
   keeps in sync, so an install does not download this repository.
 - Ask your agent for a film in plain words. It runs `bin/vawe new <name> --request "<the ask>"` and

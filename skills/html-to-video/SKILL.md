@@ -19,6 +19,13 @@ npm install
 bin/vawe new <name> --request "<the ask>"   # also checks Node, ffmpeg and Chrome and prints the install line for each missing tool
 ```
 
+In Claude Code, the `vawe-agent` plugin adds a `vawe` agent that can only use the vawe tools (no shell, no file writer) and a hook that denies hand-made writes to `films/` and raw `ffmpeg` or Chrome calls. Install it, then run `/vawe <the ask>`. Only the person approves a film.
+
+```bash
+claude plugin marketplace add vawe-hq/vawe
+claude plugin install vawe-agent@vawe-skills
+```
+
 ## Make a video
 
 ```bash

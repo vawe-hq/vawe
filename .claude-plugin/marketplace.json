@@ -31,6 +31,24 @@
         "./vawe-critique",
         "./vawe-reference"
       ]
+    },
+    {
+      "name": "vawe-agent",
+      "source": "./",
+      "description": "The vawe agent and its checked tools: an MCP server for each step of a film, a hook that blocks hand-made film writes and raw ffmpeg or Chrome, a /vawe command and the vawe skills. Needs a vawe checkout or package with Node 22 and ffmpeg.",
+      "author": {
+        "name": "Vandit Singh"
+      },
+      "homepage": "https://vawe.dev",
+      "repository": "https://github.com/vawe-hq/vawe",
+      "license": "Apache-2.0",
+      "keywords": [
+        "video",
+        "motion-graphics",
+        "html-to-video",
+        "agent",
+        "mcp"
+      ]
     }
   ]
 }
