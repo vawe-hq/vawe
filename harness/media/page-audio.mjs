@@ -7,6 +7,8 @@
 //                                                        palette voices air and swoosh-long)
 //   <audio data-synth="tap" data-on="world:s4" data-at="0.1"></audio>  (data-on: data-at counts from the first
 //                                                        second world s4 shows; needs the page's seek)
+//   <audio src="hit.mp3" data-on="land:#can"></audio>   (data-on start:, land: or leave: <selector>: the second that element's
+//                                                        first move starts, first reaches its rest box, or its last move starts)
 //   <audio src="hit.wav" data-trim="0.2" data-trim-end="0.9"></audio>   (play seconds 0.2 to 0.9 of the file; a 8 ms fade
 //                                                        at each cut avoids a click)
 //   <audio src="vo.wav" data-role="vo"></audio>          (ducks music -18 dB while it plays)
@@ -26,6 +28,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { playableOf } from '../lib/audio-view.mjs';
 import { resolveDuration } from './page-duration.mjs';
+import { MOTION_ON, startOnMotion } from './audio-on-motion.mjs';
 import { balanceLines } from '../lib/cue-balance.mjs';
 import { spectralChange, BED_RATE } from '../lib/bed-motion.mjs';
 import { decodeMono } from '../lib/audio-onsets.mjs';
@@ -121,7 +124,8 @@ export async function readPageAudio(page, { pagePath, spans, duration } = {}) {
     if (!fs.existsSync(file)) problems.push(`${where}: src="${src}" resolved to ${file}, which does not exist`);
     return [{ ...t, src: file, gain: t.gain ?? 0, gainSet: t.gain !== null, defaultGain: 0 }];
   });
-  problems.push(...await startOnWorlds(page, specs, duration, spans));
+  problems.push(...await startOnWorlds(page, specs.filter((s) => !MOTION_ON.test(s.on ?? '')), duration, spans));
+  problems.push(...await startOnMotion(page, specs));
   if (problems.length) throw new Error(problems.join('\n'), { cause: { problems } });
   for (const s of specs) s.role ||= 'sfx';
   return { specs, loudness: raw.loudness, duration };
@@ -144,7 +148,7 @@ function clipSpec({ src, muted, ...t }, pageUrl, pagePath, problems) {
 /** Moves each data-on="world:<id>" spec to the second world <id> first shows, plus its data-at. Returns the problems. Pure but for the `at` it sets. */
 export function startOnSpans(specs, spans) {
   return specs.filter((s) => s.on).flatMap((s) => {
-    if (!/^world:\S+$/.test(s.on)) return [`<audio> at ${s.at} s: data-on="${s.on}" is not world:<id>`];
+    if (!/^world:\S+$/.test(s.on)) return [`<audio> at ${s.at} s: data-on="${s.on}" is not world:<id>, start:<selector>, land:<selector> or leave:<selector>`];
     const span = spans.find((w) => w.id === s.on.slice(6));
     if (span?.start == null) return [`<audio> data-on="${s.on}": no world shows with that id (worlds: ${spans.map((w) => w.id).join(' ')})`];
     s.at += span.start;

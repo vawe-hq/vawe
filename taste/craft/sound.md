@@ -39,12 +39,14 @@ Audio is `<audio>` tags in the page, never played live, mixed offline by `harnes
 (`AGENTS.md` keeps the essentials).
 
 ```html
-<audio src="assets/click.wav" data-at="1.2"></audio>                                        <!-- a recorded effect -->
+<audio src="assets/click.wav" data-on="land:#card"></audio>                                <!-- a recorded effect on the frame #card lands -->
 <audio data-synth="pluck" data-at="2.4"></audio>                                            <!-- a synthesized cue -->
 <audio data-synth="impact" data-at="7.8" data-gain="-4"></audio>
 <audio src="assets/vo.wav" data-role="vo" data-at="0.5"></audio>                            <!-- ducks a music track -18 dB -->
 ```
 
+- `data-on="start:<sel>"`, `land:<sel>` or `leave:<sel>` puts the cue on that element's move (start, first contact with its rest pose,
+  start of its last move) and follows it when the motion is retimed; `data-at` is then an offset. `world:<id>` counts from a scene's first frame.
 - Attributes: `data-at` (s), `data-gain` (dB), `data-fade-in`, `data-fade-out`, `data-trim`
   and `data-trim-end` (play seconds trim to trim-end of the file; an 8 ms fade at each cut),  `data-duck` (dB), `data-role`. An unknown voice or a missing file fails the render with the list.
 - `data-gain` is absolute dB and replaces the voice default: leave it off unless you move one cue on purpose.

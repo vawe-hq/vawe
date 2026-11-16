@@ -40,11 +40,14 @@ A film that uses the lens (`core/surfaces/lens.js`, `prompts/moves/lens.md`; eve
 ```html
 <meta name="message" content="zero fees">    <!-- the one thing to remember -->
 <meta name="spectacle" content="6.2">        <!-- the second of the one big moment; quiet before it -->
-<audio src="assets/click.wav" data-at="0.4"></audio>   <!-- a recorded effect; a loop src only if the user gives a track -->
+<audio src="assets/click.wav" data-on="land:#can"></audio>   <!-- a recorded effect on the frame #can lands; a loop src only if the user gives a track -->
+<audio src="assets/close.wav" data-on="leave:#can" data-at="-0.03"></audio>   <!-- its exit, one frame early -->
 <audio data-synth="pluck" data-at="0.85"></audio>   <!-- a quiet tick on one key word, default gain -->
 <audio data-synth="swell" data-at="1.66"></audio>   <!-- the one soft swell, ends on the cut -->
 <audio src="assets/vo.wav" data-role="vo" data-at="1.0"></audio>
 ```
+
+Tie each effect to its action with `data-on="start:<selector>"`, `land:` (the first frame the element reaches its rest pose, an overshoot included) or `leave:` (its last move starts); `data-at` is then an offset. The cue moves with the motion when you retime it, so it never drifts off its action. A typed second (`data-at` alone) is for a cue that has no element.
 
 `data-trim` and `data-trim-end` cut a clip to the part you want, so there is no need for ffmpeg. `bin/vawe sound <track> --cuts <page>` gives the beat grid, the hits and each cut's frame offset for a track the user gave.
 

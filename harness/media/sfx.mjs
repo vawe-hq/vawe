@@ -54,7 +54,7 @@ function main(argv) {
   const made = durationOf(out);
   const rel = path.relative(film, out);
   console.log(`✓ ${out}: ${made.toFixed(2)} s, peak ${peakOf(out, 'anull').toFixed(1)} dBFS, filter ${filter}`);
-  console.log(`<audio src="${rel}" data-at=""></audio>`);
+  console.log(`<audio src="${rel}" data-on="land:#<id of the element it sounds for>"></audio>   (start: or leave: for its start or exit; data-at alone for a second with no element)`);
 }
 
 main(process.argv.slice(2));
