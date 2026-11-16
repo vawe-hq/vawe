@@ -2,14 +2,14 @@
 // `vawe frame <page> --world all`: one still of each data-world element alone, before any motion is written.
 //   node harness/media/frames.mjs <page.html> [--full] [--zoom] [--world <id>[,<id>]]
 // Writes out/<film>-frames/<id>.png, the artboard sheet out/<film>-frames.png and films/<film>/frames.html, then prints the
-// absolute path of each PNG and the still-frame layout rules each world fires. The still is at the middle of the world's visible span
-// (the first second inside it where the world shows); the other worlds are hidden.
+// absolute path of each PNG and the still-frame layout rules each world fires. The still is at the world's data-key second, else at its
+// most settled second (least movement, ambient moves left out); the other worlds are hidden.
 // frames.html zooms into <id>-full.png when it exists: --zoom shoots them in the same session (about 5 s more), --full leaves them behind.
 // --full: full-size stills out/<film>-frames/<id>-full.png, no sheet or frames.html. --world: only those worlds, no sheet or frames.html.
 import fs from 'node:fs';
 import path from 'node:path';
 import { openPage, seekAll, settle, resolveFrame, readPageMeta } from './render-page.mjs';
-import { sampleWorlds, stillCandidates, worldShowsNow, readWorldAnimations } from './world-sample.mjs';
+import { sampleWorlds, stillPlan, worldShowsNow, readWorldKeys, readWorldQuiet } from './world-sample.mjs';
 import { sampleLayout } from './draft-check.mjs';
 import { artboardCaption, cutSpans } from '../lib/artboard.mjs';
 import { writeArtboardSheet } from './artboard-sheet.mjs';
@@ -25,16 +25,15 @@ const die = (m) => { console.error(`error: ${m}`); process.exit(2); };
 const hideOthers = (id) => `[data-world]:not([data-world="${id}"]) { display: none !important; }`;
 const noSeek = async () => {};
 
-/** Seeks to the first candidate second at which the world shows (the others are hidden); returns that second, or the first candidate when none does. */
-async function seekToShown(page, span, anims) {
-  const times = stillCandidates(span, anims);
-  for (const t of times) {
-    await seekAll(page, t * 1000);
-    if (await worldShowsNow(page, span.id)) return t;
+/** Seeks to the first planned second at which the world shows (the others are hidden); returns { t, why } of it, or of the first when none does. */
+async function seekToShown(page, span, plan) {
+  for (const pick of plan) {
+    await seekAll(page, pick.t * 1000);
+    if (await worldShowsNow(page, span.id)) return pick;
   }
-  console.error(`frames: world ${span.id} shows at none of ${times.join(', ')} s; its still may be blank`);
-  await seekAll(page, times[0] * 1000);
-  return times[0];
+  console.error(`frames: world ${span.id} shows at none of ${plan.map((p) => p.t).join(', ')} s; its still may be blank`);
+  await seekAll(page, plan[0].t * 1000);
+  return plan[0];
 }
 
 /** Screenshots the page at its own size (scale 1) and puts the viewport back; the layout does not change, only the pixels. */
@@ -48,7 +47,7 @@ async function shootFullSize(page, out) {
 /** Shoots the wanted worlds of the page (all when `ids` is empty); returns [{ id, at, png, fullPng, fired }] (fullPng only with `zoom`) in page order. */
 export async function shootWorlds(opened, pagePath, stills, { ids, suffix, zoom, layout = true }) {
   const dur = await resolveDuration(pagePath);
-  const anims = await readWorldAnimations(opened.page);
+  const keys = await readWorldKeys(opened.page);
   const found = await sampleWorlds(opened.page, dur, (ms) => opened.page.evaluate((t) => window.__pageSeek(t / 1000), ms));
   if (!found.length) die(`${pagePath} has no data-world element: give each beat one, for example <section data-world="s1">`);
   let spans;
@@ -58,7 +57,8 @@ export async function shootWorlds(opened, pagePath, stills, { ids, suffix, zoom,
   const shots = [];
   for (const span of spans) {
     const style = await opened.page.addStyleTag({ content: hideOthers(span.id) });
-    const at = await seekToShown(opened.page, span, anims);
+    const quiet = keys[span.id] == null ? await readWorldQuiet(opened.page, span, (t) => seekAll(opened.page, t * 1000)) : null;
+    const { t: at, why } = await seekToShown(opened.page, span, stillPlan(span, { key: keys[span.id], quiet }));
     const png = path.join(stills, `${span.id}${suffix}.png`);
     await opened.page.screenshot({ path: png });
     const fullPng = zoom ? await shootFullSize(opened.page, path.join(stills, `${span.id}-full.png`)) : undefined;
@@ -68,7 +68,7 @@ export async function shootWorlds(opened, pagePath, stills, { ids, suffix, zoom,
       fired = firedRules(unwaived(layoutLint(sampled, { named }), authoring), [], []);
     }
     await style.evaluate((el) => el.remove());
-    shots.push({ id: span.id, start: span.start, end: span.end, at, png, fullPng, fired });
+    shots.push({ id: span.id, start: span.start, end: span.end, at, why, png, fullPng, fired });
   }
   return shots;
 }
@@ -104,7 +104,7 @@ async function main(argv) {
   }
   const partial = full || ids.length > 0;
   const head = `${shots.length} worlds: ${shots.map((s) => `${s.id} @${s.at}s`).join(', ')}`;
-  const paths = shots.map((s) => `  ${s.id}  ${s.png}`);
+  const paths = shots.map((s) => `  ${s.id}  ${s.png}  (still @${s.at}s: ${s.why})`);
   const rules = worldLines(shots, firedLines, { starter: isStarterPage(fs.readFileSync(abs, 'utf8')) });
   const done = () => `time: ${((Date.now() - t0) / 1000).toFixed(1)} s`;
   if (partial) {

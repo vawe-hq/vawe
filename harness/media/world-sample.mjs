@@ -133,3 +133,62 @@ export function stillCandidates(span, anims = []) {
 
 /** True when world `id` shows on the page as it is now. */
 export const worldShowsNow = async (page, id) => (await readWorlds(page)).some((w) => w.id === id && w.visible);
+
+const AMBIENT_SHARE = 0.9;
+const MOTION_EPS = 0.5;
+const MOTION_STEPS_MAX = 40;
+const MOTION_STEP_S = 0.1;
+
+const distance = (a, b) => a.reduce((sum, v, i) => sum + Math.abs(v - b[i]), 0);
+
+/**
+ * The second where the world is most settled, from samples [{ t, boxes }] on an even grid (boxes: [x, y, w, h, opacity] of each element, the same
+ * elements at every sample): the least movement in the steps on both sides of it, ties to the second nearest the middle. An element that moves in
+ * at least AMBIENT_SHARE of the steps (a camera drift, a type-on) is an ambient move and is left out. Returns { t, motion }. Pure.
+ */
+export function quietestSecond(samples) {
+  const steps = samples.slice(1).map((s, i) => s.boxes.map((b, e) => distance(b, samples[i].boxes[e])));
+  const ambient = samples[0].boxes.map((_, e) => steps.filter((d) => d[e] > MOTION_EPS).length >= AMBIENT_SHARE * steps.length);
+  const moved = steps.map((d) => d.reduce((sum, v, e) => sum + (ambient[e] ? 0 : v), 0));
+  const middle = (samples[0].t + samples.at(-1).t) / 2;
+  const scored = samples.map((s, i) => ({ t: s.t, motion: (moved[i - 1] ?? 0) + (moved[i] ?? 0) }));
+  const nearer = (c, best) => Math.abs(c.t - middle) < Math.abs(best.t - middle);
+  return scored.reduce((best, c) => (c.motion < best.motion - 1e-9 || (Math.abs(c.motion - best.motion) <= 1e-9 && nearer(c, best)) ? c : best));
+}
+
+/** The seconds to try for one world's still, best first, each with why: the page's data-key, the quietest second, then points inside the span. Pure. */
+export function stillPlan(span, { key = null, quiet = null } = {}) {
+  if (!span || span.start == null) return [{ t: 0, why: 'the page never shows it' }];
+  const spread = STILL_FRACTIONS.map((f) => ({ t: +(span.start + (span.end - span.start) * f).toFixed(3), why: 'the middle of its span' }));
+  const picks = [];
+  if (key != null) picks.push({ t: key, why: 'pinned by data-key' });
+  if (quiet) picks.push({ t: +quiet.t.toFixed(3), why: `quietest: ${quiet.motion.toFixed(1)} px of motion around it, ambient moves left out` });
+  return [...picks, ...spread];
+}
+
+/** { id: seconds } for each [data-world] element that has a data-key attribute holding a number. */
+export const readWorldKeys = (page) => page.evaluate(() => Object.fromEntries([...document.querySelectorAll('[data-world][data-key]')]
+  .map((el) => [el.dataset.world, parseFloat(el.dataset.key)]).filter(([, t]) => Number.isFinite(t))));
+
+// Runs inside the page: [x, y, w, h, opacity] of the first 80 elements inside the world.
+function worldBoxes(id) {
+  return [...document.querySelectorAll(`[data-world="${id}"] *`)].slice(0, 80).map((n) => {
+    const r = n.getBoundingClientRect();
+    return [r.x, r.y, r.width, r.height, Number(getComputedStyle(n).opacity) * 100];
+  });
+}
+
+/** Samples the world's boxes across its span with `seek(seconds)`; returns quietestSecond of them, or null for a span under three steps. */
+export async function readWorldQuiet(page, span, seek) {
+  const step = Math.max(MOTION_STEP_S, (span.end - span.start) / MOTION_STEPS_MAX);
+  const times = [];
+  for (let t = span.start + step / 2; t < span.end - step / 2; t += step) times.push(+t.toFixed(3));
+  if (times.length < 3) return null;
+  const samples = [];
+  for (const t of times) {
+    await seek(t);
+    samples.push({ t, boxes: await page.evaluate(`(${worldBoxes.toString()})(${JSON.stringify(span.id)})`) });
+  }
+  const n = Math.min(...samples.map((s) => s.boxes.length));
+  return quietestSecond(samples.map((s) => ({ t: s.t, boxes: s.boxes.slice(0, n) })));
+}

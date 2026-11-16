@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { worldLines, parseFramesArgs, selectWorlds, isStarterPage } from '../../harness/lib/frames-page.mjs';
-import { stillCandidates } from '../../harness/media/world-sample.mjs';
+import { stillCandidates, quietestSecond, stillPlan } from '../../harness/media/world-sample.mjs';
 
 test('parseFramesArgs reads the page, --full and --world as a comma list or repeated', () => {
   assert.deepEqual(parseFramesArgs(['p.html']), { page: 'p.html', full: false, zoom: false, worlds: [] });
@@ -38,6 +38,31 @@ test('stillCandidates puts the still after the world entrances end, and ignores 
   assert.equal(stillCandidates(span, anims)[0], 4.63);
   assert.equal(stillCandidates(span, [])[0], 3);
   assert.equal(stillCandidates(span, [{ world: 'b', id: 'enter', start: 5.7, end: 5.98 }])[0], 3);
+});
+
+const still = (t, ...boxes) => ({ t, boxes });
+
+test('quietestSecond picks the quiet second nearest the middle, not a moving one', () => {
+  const xs = [0, 20, 40, 60, 80, 100, 100, 100, 100];
+  const samples = xs.map((x, t) => still(t, [x, 0, 10, 10, 1], [5, 5, 10, 10, 1]));
+  assert.equal(quietestSecond(samples).t, 6);
+});
+
+test('quietestSecond leaves out an element that moves through the whole span (a camera drift)', () => {
+  const drift = (t) => [t * 3, 0, 10, 10, 1];
+  const samples = [0, 1, 2, 3, 4, 5, 6].map((t) => still(t, drift(t), [t < 2 ? t * 50 : 100, 0, 10, 10, 1]));
+  assert.equal(quietestSecond(samples).t, 3);
+});
+
+test('stillPlan puts a data-key second first, then the quietest second, then the spread of the span', () => {
+  const span = { id: 'a', start: 2, end: 6 };
+  const [pinned, ...rest] = stillPlan(span, { key: 4.2, quiet: { t: 3, motion: 0 } });
+  assert.deepEqual(pinned, { t: 4.2, why: 'pinned by data-key' });
+  assert.equal(rest[0].t, 3);
+  assert.match(rest[0].why, /^quietest/);
+  assert.equal(stillPlan(span, { quiet: { t: 3, motion: 1.5 } })[0].t, 3);
+  assert.equal(stillPlan(span)[0].t, 4);
+  assert.deepEqual(stillPlan({ start: null, end: null }), [{ t: 0, why: 'the page never shows it' }]);
 });
 
 test('the untouched starter page is named as the starter, not as clean; a written page is not', async () => {
