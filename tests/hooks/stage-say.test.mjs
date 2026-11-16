@@ -347,3 +347,30 @@ test('after a vawe verb a subagent hears the stage line once per change; a paren
   assert.match(call('a3', 'export VAWE_AGENT=f && VAWE_MODEL=m bin/vawe frame films/f/page.html'), /next:/);
   assert.equal(afterToolSay({ session_id: 's1', agent_id: 'a4', tool_input: { command: 'bin/vawe refs list' } }, null, root), null);
 });
+
+test('after the world frames render, a film with an empty Ideas and Board names the Ideas fill and frame --board, never dev', () => {
+  const { root, page } = film('<section data-world="s1"></section>');
+  const dir = path.join(root, 'films', 'f');
+  const rows = [1, 2, 3, 4].map((n) => `| ~/.vawe/refs/frames/a/s${n}.png | ground |`).join('\n');
+  const moves = '| move taken | ref | at s |\n|---|---|---|\n| whip | a | 1 |\n| push | a | 2 |\n| wipe | a | 3 |\n';
+  fs.writeFileSync(path.join(dir, 'brief.md'), `## Taken from\n\n| frame | take |\n|---|---|\n${rows}\n\n${moves}\n## Ideas\n\n## Board\n`);
+  fs.writeFileSync(path.join(dir, 'DESIGN.md'), 'Skill builder: a: x\nSkill type: b: x\nSkill colour: c: x\nSkipped depth: flat film\nSkill frame: v: x\n');
+  fs.writeFileSync(path.join(root, 'out', 'f-frames.png'), '');
+  const s = nextStep(page, root);
+  assert.equal(s.stage, 'ideas');
+  assert.match(s.next, /Ideas/);
+  assert.match(s.next, /bin\/vawe frame films\/f\/page\.html --board/);
+  assert.doesNotMatch(s.next, /bin\/vawe dev/);
+});
+
+test('after a verb on one film the stage line names that film, not the film edited most recently', () => {
+  const { root, page } = film('<section data-world="s1"></section>', '## Ideas\n\n## Board\n');
+  fs.mkdirSync(path.join(root, 'films', 'g'));
+  const other = path.join(root, 'films', 'g', 'page.html');
+  fs.writeFileSync(other, '<section data-world="s1"></section>');
+  fs.writeFileSync(path.join(root, 'films', 'g', 'brief.md'), IDEAS + '## Board\n');
+  const say = (command, agent = 'a1') => afterToolSay({ session_id: 's9', agent_id: agent, tool_input: { command } }, other, root);
+  assert.match(say('bin/vawe frame films/f/page.html --world all'), /^vawe: f: /);
+  assert.match(say(`bin/vawe frame ${page} --world all`, 'a2'), /^vawe: f: /);
+  assert.match(say('bin/vawe refs list'), /^vawe: g: /);
+});

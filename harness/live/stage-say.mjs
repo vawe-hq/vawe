@@ -233,11 +233,20 @@ export function sessionOf(input) {
 const VAWE_VERB = /(?:^|[;&|(])\s*(?:\w+=\S*\s+)*(?:\S*\/)?vawe\s+[a-z]/;
 const HELP_ONLY = /\s(?:--help|-h)(?:\s|$)/;
 
-/** What the PostToolUse hook says after a Bash call that ran a vawe verb: the film's stage line when it changed since this agent last saw it, else null. A subagent gets no UserPromptSubmit, so this is how its stage reaches it. */
+const COMMAND_FILM = /films\/(?:examples\/)?[^/\s'"]+\/(?:page\.html|ch\/[^/\s'"]+\.html)/;
+
+/** The page a vawe command names (films/<name>/page.html, relative or absolute) when it exists under `root`, else null. */
+export function commandPage(cmd, root) {
+  const rel = COMMAND_FILM.exec(cmd)?.[0];
+  return rel && fs.existsSync(path.join(root, rel)) ? path.join(root, rel) : null;
+}
+
+/** What the PostToolUse hook says after a Bash call that ran a vawe verb: the stage line of the film the command names (else the film edited most recently) when it changed since this agent last saw it, else null. A subagent gets no UserPromptSubmit, so this is how its stage reaches it. */
 export function afterToolSay(input, page, root) {
   const cmd = input.tool_input?.command ?? '';
-  if (!page || !VAWE_VERB.test(cmd) || HELP_ONLY.test(cmd)) return null;
-  const s = nextStep(page, root);
+  const target = commandPage(cmd, root) ?? page;
+  if (!target || !VAWE_VERB.test(cmd) || HELP_ONLY.test(cmd)) return null;
+  const s = nextStep(target, root);
   const sessionId = input.session_id ?? null;
   const agent = input.agent_id ?? null;
   if (nextSeen(s.name, { next: s.next, why: s.why }, { root, sessionId, agent })) return null;
