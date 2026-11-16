@@ -18,22 +18,22 @@ test('the smallest film in AGENTS.md has no finding', () => {
 
 test('setTimeout in a line comment, a block comment, an html comment or a css comment is not a timer', () => {
   for (const script of ['// setTimeout(go, 100)', '/* setTimeout(go, 100) */', 'const a = 1; // setTimeout(go, 100)']) {
-    assert.deepEqual(codes(contractCheck(page(script)), 'block'), [], script);
+    assert.deepEqual(codes(contractCheck(page(script)), 'advise'), [], script);
   }
-  assert.deepEqual(codes(contractCheck(page('', { extra: '<!-- setTimeout(go, 100) -->\n<style>/* Math.random() */</style>\n' })), 'block'), []);
+  assert.deepEqual(codes(contractCheck(page('', { extra: '<!-- setTimeout(go, 100) -->\n<style>/* Math.random() */</style>\n' })), 'advise'), []);
 });
 
-test('setTimeout in code is a block at its own line', () => {
+test('setTimeout in code advises at its own line', () => {
   const found = contractCheck(page('const a = 1;\n\nsetTimeout(go, 100);')).filter((f) => f.code === 'timer');
   assert.equal(found.length, 1);
-  assert.equal(found[0].severity, 'block');
+  assert.equal(found[0].severity, 'advise');
   assert.equal(found[0].line, 7);
   assert.match(found[0].fix, /keyframe|animate|window\.seek/);
 });
 
 test('a // inside a string does not hide the code after it', () => {
   const found = contractCheck(page('const u = "http://a.test/x"; setInterval(go, 9);'));
-  assert.deepEqual(codes(found, 'block'), ['timer']);
+  assert.deepEqual(codes(found, 'advise'), ['timer']);
 });
 
 test('withoutComments keeps every offset and line', () => {
@@ -45,19 +45,19 @@ test('withoutComments keeps every offset and line', () => {
   assert.match(out, /x\(\);\s+y\(\);/);
 });
 
-test('a seeded random helper is fine and Math.random is a block', () => {
+test('a seeded random helper is fine and Math.random advises', () => {
   const seeded = 'function rng(seed) { let a = seed; return () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; }; }\nconst rand = rng(7); const x = rand();';
-  assert.deepEqual(codes(contractCheck(page(seeded)), 'block'), []);
+  assert.deepEqual(codes(contractCheck(page(seeded)), 'advise'), []);
   const raw = contractCheck(page('const x = Math.random();')).filter((f) => f.code === 'unseeded-random');
   assert.equal(raw.length, 1);
-  assert.equal(raw[0].severity, 'block');
+  assert.equal(raw[0].severity, 'advise');
   assert.match(raw[0].fix, /rng/);
-  assert.deepEqual(codes(contractCheck(page(`${seeded}\nMath.random = rng(1);\nconst y = Math.random();`)), 'block'), []);
+  assert.deepEqual(codes(contractCheck(page(`${seeded}\nMath.random = rng(1);\nconst y = Math.random();`)), 'advise'), []);
 });
 
-test('a live clock is a block: Date.now, performance.now, requestAnimationFrame', () => {
+test('a live clock advises: Date.now, performance.now, requestAnimationFrame', () => {
   for (const call of ['Date.now()', 'performance.now()', 'requestAnimationFrame(tick)']) {
-    assert.deepEqual(codes(contractCheck(page(`const t = ${call};`)), 'block'), ['live-clock'], call);
+    assert.deepEqual(codes(contractCheck(page(`const t = ${call};`)), 'advise'), ['live-clock'], call);
   }
 });
 
@@ -65,11 +65,11 @@ test('a vetted waiver drops the finding; a generic or empty reason does not', ()
   const waive = (why) => `<script type="application/json" id="authoring">${JSON.stringify({ allow: ['timer'], _why: { timer: why } })}</script>\n`;
   const code = 'setTimeout(go, 100);';
   const ok = contractCheck(page(code, { extra: waive('world hello: one timer at 0.5 s drifts 3 ms, the seek moves it to a frame') }));
-  assert.deepEqual(codes(ok, 'block'), []);
-  assert.deepEqual(codes(contractCheck(page(code, { extra: waive('intentional') })), 'block'), ['timer']);
-  assert.deepEqual(codes(contractCheck(page(code, { extra: waive('') })), 'block'), ['timer']);
+  assert.deepEqual(codes(ok, 'advise'), []);
+  assert.deepEqual(codes(contractCheck(page(code, { extra: waive('intentional') })), 'advise'), ['timer']);
+  assert.deepEqual(codes(contractCheck(page(code, { extra: waive('') })), 'advise'), ['timer']);
   const scoped = JSON.stringify({ allow: ['timer@9-10'], _why: { 'timer@9-10': 'world hello: one timer at 9.5 s drifts 3 ms' } });
-  assert.deepEqual(codes(contractCheck(page(code, { extra: `<script type="application/json" id="authoring">${scoped}</script>\n` })), 'block'), ['timer']);
+  assert.deepEqual(codes(contractCheck(page(code, { extra: `<script type="application/json" id="authoring">${scoped}</script>\n` })), 'advise'), ['timer']);
 });
 
 test('the duration meta: missing and zero block, a number and auto pass', () => {
@@ -102,8 +102,8 @@ test('an absolute path blocks and a relative one passes; a missing local file on
   assert.deepEqual(contractCheck(html), []);
 });
 
-test('everything that is not the contract only advises, and blocks come first', () => {
+test('everything that is not the contract only advises, and the engine clock covers timers and random', () => {
   const found = contractCheck(page('const x = Math.random();', { head: '<meta name="duration" content="3">\n', extra: '<style>.a { transition: opacity 1s }</style>\n' }));
-  assert.deepEqual(found.map((f) => `${f.severity}:${f.code}`), ['block:unseeded-random', 'advise:message-meta', 'advise:css-transition']);
+  assert.deepEqual(found.map((f) => `${f.severity}:${f.code}`), ['advise:message-meta', 'advise:unseeded-random', 'advise:css-transition']);
   for (const f of found) assert.ok(f.message && f.fix, f.code);
 });
