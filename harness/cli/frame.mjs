@@ -12,6 +12,7 @@ import { stillProblem } from '../media/see/still-math.mjs';
 import { ONION_FRAMES, ONION_SPAN, onionProblem } from '../media/see/onion-math.mjs';
 import { ZOOM_SCALE, zoomProblem } from '../media/see/zoom-math.mjs';
 import { VELOCITY_SPAN, velocityProblem } from '../media/see/velocity-math.mjs';
+import { filmFile } from '../media/see/input.mjs';
 import { looksProblem } from '../lib/looks.mjs';
 import { SAY, nextStep } from '../live/stage-say.mjs';
 
@@ -133,13 +134,15 @@ function modifierProblem(v) {
   return null;
 }
 
+const filmOf = (input) => filmFile(input) ?? input;
+
 /** Throws a UsageError when a file the call names is missing; a reference id or a cut of an mp4 is not checked here. */
 function requireFiles(v0, [input]) {
   const v = withVs(v0);
   const mode = modeOf(v);
-  const found = ['cuts', 'moment', 'crop'].includes(mode) || (mode === 'still' && isUrl(input)) || fs.existsSync(input);
+  const found = ['cuts', 'moment', 'crop'].includes(mode) || (mode === 'still' && isUrl(input)) || fs.existsSync(filmOf(input));
   if (!found) throw new ExitError(EXIT.IO, `no such ${mode === 'sheet' ? 'page, mp4 or folder' : mode === 'still' ? 'page or mp4' : 'page'}: ${input}`);
-  if (mode === 'sheet' && v.vs && !fs.existsSync(v.vs)) throw new ExitError(EXIT.IO, `no such file for --vs: ${v.vs}`);
+  if (mode === 'sheet' && v.vs && !fs.existsSync(filmOf(v.vs))) throw new ExitError(EXIT.IO, `no such file for --vs: ${v.vs}`);
 }
 
 function stepsOf(v0, [input]) {
@@ -151,7 +154,7 @@ function stepsOf(v0, [input]) {
   if (mode === 'cuts') return STEPS.strip(v, input);
   if (mode === 'crop') return STEPS.zoom(v, input);
   if (mode === 'world') return STEPS.world({ ...v, zoom: v.sharp, world: v.world.filter((w) => w !== 'all') }, input);
-  return STEPS[mode](v, input);
+  return STEPS[mode]({ ...v, vs: v.vs && filmOf(v.vs) }, filmOf(input));
 }
 
 const FRAME_NEXT = {

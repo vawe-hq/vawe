@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { isUrl } from '../../lib/url.mjs';
 import { refsDir, refSharpVideo, refShots, refTransitions } from '../../lib/refs.mjs';
 import { lastDraft } from '../../lib/runlog.mjs';
 import { die } from './core.mjs';
@@ -15,6 +16,12 @@ export async function resolveInput(input) {
   return { ...found, holdCuts: async () => withTransitions(await found.cuts(), changes()) };
 }
 
+/** The file a film input names: a page, a URL or an existing file as given, else the mp4 of a reference id (null when there is none). The one place an id is read. */
+export function filmFile(input) {
+  if (input.endsWith('.html') || isUrl(input) || fs.existsSync(input)) return input;
+  return refSharpVideo(refsDir(), input);
+}
+
 async function locate(input) {
   if (input.endsWith('.html')) {
     if (!fs.existsSync(input)) die(`no such page: ${input}`);
@@ -28,7 +35,7 @@ async function locate(input) {
     const name = filmNameOf(input);
     return { video: input, name, cuts: () => filmCuts(name, null) };
   }
-  const video = refSharpVideo(refsDir(), input);
+  const video = filmFile(input);
   if (!video) die(`${input} is not a file, a page or a reference film id (bin/vawe refs list)`);
   return { video, name: input, refId: input, cuts: () => refCuts(input) };
 }
