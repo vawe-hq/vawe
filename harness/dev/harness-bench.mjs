@@ -104,14 +104,17 @@ export const agentPrompt = (prompt, film) => `Make this film with vawe, in a fil
 
 /** The `claude` argv of one session. The plugin variant adds the plugin folder (--plugin-dir) or the MCP config (--mcp-config). */
 export function claudeArgs({ prompt, film, variant, plugin, mcpConfig, model }) {
-  const args = ['-p', agentPrompt(prompt, film), '--output-format', 'stream-json', '--verbose',
-    '--permission-mode', 'acceptEdits', '--allowedTools', 'Bash,Read,Write,Edit,MultiEdit,Glob,Grep,Skill'];
-  if (model) args.push('--model', model);
+  const allowed = ['Bash', 'Read', 'Write', 'Edit', 'MultiEdit', 'Glob', 'Grep', 'Skill', 'Agent'];
   if (variant === 'plugin') {
     if (!plugin && !mcpConfig) throw new Error('--variant plugin needs --plugin <dir> or --mcp-config <file>');
-    if (plugin) args.push('--plugin-dir', plugin);
-    if (mcpConfig) args.push('--mcp-config', mcpConfig);
+    // A headless session denies an MCP tool that --allowedTools does not name; a plugin server's tools are mcp__plugin_<plugin>_<server>__*.
+    allowed.push(plugin ? 'mcp__plugin_vawe-agent_vawe' : 'mcp__vawe');
   }
+  const args = ['-p', agentPrompt(prompt, film), '--output-format', 'stream-json', '--verbose',
+    '--permission-mode', 'acceptEdits', '--allowedTools', allowed.join(',')];
+  if (model) args.push('--model', model);
+  if (plugin && variant === 'plugin') args.push('--plugin-dir', plugin);
+  if (mcpConfig && variant === 'plugin') args.push('--mcp-config', mcpConfig);
   return args;
 }
 
