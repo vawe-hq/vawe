@@ -115,6 +115,38 @@ vawe ships the same effects as copyable files in the [video components library](
 
 To time one word at a time to a voice, see [animated captions in HTML](/blog/animated-captions-html).
 
+## Text components with a clip
+
+Each of these is a vawe video component: a short clip, the CSS and one markdown file an agent copies.
+
+- [Caret typing](/video-components/caret-typing): A command, a prompt, a name typed in.
+- [Split-flap resolve](/video-components/flap-resolve): A name or number is decided.
+- [Word swap slot](/video-components/word-swap-slot): One word in a held sentence rolls through 3 or 4 values and lands.
+- [Blur word cascade](/video-components/blur-word-cascade): Copy resolves word by word from blur with a slight rise.
+- [Text as mask](/video-components/text-as-mask): The type is a window onto a rich picture.
+- [Outline fill](/video-components/outline-fill): One hero word arrives as an outline, letter by letter, then an accent floods each letter from its baseline on the beat.
+- [Strikethrough replace](/video-components/strikethrough-replace): An old word or price is struck through by a tilted line drawn left to right, it dims and shrinks, and the new value rises in beside it character by character.
+- [Grid stagger wave](/video-components/grid-stagger-wave): A title arrives with many things around it.
+- [Text scramble decode](/video-components/text-scramble-decode): A name or codename is revealed as a lookup.
+- [Ticker takeover](/video-components/ticker-takeover): A line with a cycling word is replaced by the answer.
+- [Anchor cycle](/video-components/anchor-cycle): One phrase stays pinned while a tape beside it is hard-cut through eight words, slow then fast, and holds on the last.
+- [Lower third](/video-components/lower-third): A person is on screen.
+- [Liquid displace](/video-components/liquid-displace): A title arrives bent by moving water and settles to sharp type.
+- [Echo trail](/video-components/echo-trail): One element flies in and stops on a beat.
+- [Caption karaoke](/video-components/caption-karaoke): A spoken line runs as captions.
+- [Caption editorial](/video-components/caption-editorial): Editorial captions.
+- [Text on path](/video-components/text-on-path): A line of words rides an SVG path with startOffset set from the seek time, front word first, and settles readable on the curve.
+- [Vertical cut reveal](/video-components/vertical-cut-reveal): A line arrives hard-edged.
+- [Letter swap](/video-components/letter-swap): A word or label rolls letter by letter.
+- [Letter 3D swap](/video-components/letter-3d-swap): A lowercase line turns over as boxes.
+- [Word colour sweep](/video-components/word-sweep): The accent runs word by word in reading order and stays on the target word.
+- [Weight morph](/video-components/weight-morph): One word gets heavier on a real variable-font axis.
+- [Marker highlight](/video-components/marker-highlight): A highlighter bar wipes behind one phrase and the text flips dark for contrast.
+- [Underline draw](/video-components/underline-draw): A line draws under the key word, left to right, fast in and slow out.
+- [Bracket callout](/video-components/bracket-callout): Corner brackets fly in and snap onto a word or a UI part with a small overshoot.
+- [Spotlight dim](/video-components/spotlight-dim): The frame dims around one target.
+- [Hand drawn notes](/video-components/hand-drawn-notes): A person's margin notes.
+
 ## FAQ
 
 **How do I animate text letter by letter in CSS?**

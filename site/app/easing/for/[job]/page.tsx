@@ -9,6 +9,7 @@ import { CopyCode } from "../../../video-components/[name]/CopyCode";
 import { MoveClips } from "../../../components/MoveClips";
 import { Next, Toc } from "../../../components/Xp";
 import { moveByName } from "../../../../lib/moves";
+import { EASES } from "../../../../lib/easing";
 import { CurveChart } from "../../Charts";
 import { Code } from "../../Code";
 import { CopyBtn } from "../../CopyBtn";
@@ -19,6 +20,23 @@ import "../../easing.css";
 import "../jobs.css";
 
 type Params = { params: Promise<{ job: string }> };
+
+function ClassicNear({ slugs }: { slugs: string[] }) {
+  const near = EASES.filter((e) => e.kind === "classic" && e.nearestVawe && slugs.includes(e.nearestVawe.slug));
+  if (!near.length) return null;
+  return (
+    <p className="ez-note">
+      Closest classic eases, if your library only has the Penner names:{" "}
+      {near.map((e, i) => (
+        <span key={e.slug}>
+          {i > 0 && ", "}
+          <Link href={`/easing/${e.slug}`}>{e.name}</Link>
+        </span>
+      ))}
+      .
+    </p>
+  );
+}
 
 export const dynamicParams = false;
 
@@ -123,6 +141,7 @@ export default async function JobPage({ params }: Params) {
                 <figcaption className="ez-cap">{p.ease.name}: progress against time. Dashed is linear.</figcaption>
               </figure>
             ) : null}
+            {p.ease ? <ClassicNear slugs={[p.ease.slug, ...p.also.map((x) => x.slug)]} /> : null}
             {p.kind === "bubble" ? <p className="ez-note">A spring has no cubic-bezier form, so the linear() string follows it. For an item that moves more than 20&nbsp;px, see <Link href="/easing/for/notification-pop">the pop page</Link>.</p> : null}
           </section>
 

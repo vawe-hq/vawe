@@ -299,6 +299,23 @@ Each name is two After Effects keyframe handles. A handle has an influence (how 
 
 Why names? Our video components and the agents that wrote them used to type `cubic-bezier` numbers by hand. Short pops landed too hard, exits ran as long as entrances, and two components that should feel alike used unrelated curves. An agent that sees `EASE.launch` chooses better than one that sees four floats, because the name carries the purpose.
 
+## The classic eases, by family
+
+The Penner eases most libraries ship. The percent is how far through the time each curve reaches half its travel: lower means a faster start. Each name opens its page with the cubic-bezier or linear() value.
+
+| Family | In | Out | In-out |
+| --- | --- | --- | --- |
+| sine | [`easeInSine`](/easing/ease-in-sine), half at 67% | [`easeOutSine`](/easing/ease-out-sine), half at 33% | [`easeInOutSine`](/easing/ease-in-out-sine), half at 50% |
+| quad | [`easeInQuad`](/easing/ease-in-quad), half at 71% | [`easeOutQuad`](/easing/ease-out-quad), half at 29% | [`easeInOutQuad`](/easing/ease-in-out-quad), half at 50% |
+| cubic | [`easeInCubic`](/easing/ease-in-cubic), half at 79% | [`easeOutCubic`](/easing/ease-out-cubic), half at 21% | [`easeInOutCubic`](/easing/ease-in-out-cubic), half at 50% |
+| quart | [`easeInQuart`](/easing/ease-in-quart), half at 84% | [`easeOutQuart`](/easing/ease-out-quart), half at 16% | [`easeInOutQuart`](/easing/ease-in-out-quart), half at 50% |
+| quint | [`easeInQuint`](/easing/ease-in-quint), half at 87% | [`easeOutQuint`](/easing/ease-out-quint), half at 13% | [`easeInOutQuint`](/easing/ease-in-out-quint), half at 50% |
+| expo | [`easeInExpo`](/easing/ease-in-expo), half at 90% | [`easeOutExpo`](/easing/ease-out-expo), half at 10% | [`easeInOutExpo`](/easing/ease-in-out-expo), half at 50% |
+| circ | [`easeInCirc`](/easing/ease-in-circ), half at 87% | [`easeOutCirc`](/easing/ease-out-circ), half at 13% | [`easeInOutCirc`](/easing/ease-in-out-circ), half at 50% |
+| back | [`easeInBack`](/easing/ease-in-back), half at 87% | [`easeOutBack`](/easing/ease-out-back), half at 13% | [`easeInOutBack`](/easing/ease-in-out-back), half at 50% |
+| elastic | [`easeInElastic`](/easing/ease-in-elastic), half at 96% | [`easeOutElastic`](/easing/ease-out-elastic), half at 4% | [`easeInOutElastic`](/easing/ease-in-out-elastic), half at 50% |
+| bounce | [`easeInBounce`](/easing/ease-in-bounce), half at 74% | [`easeOutBounce`](/easing/ease-out-bounce), half at 26% | [`easeInOutBounce`](/easing/ease-in-out-bounce), half at 50% |
+
 ## Match speed across a cut with ramp()
 
 `ramp()` is a speed ramp across a cut. The outgoing element accelerates into the cut. The incoming element leaves the cut at the same speed and slows down. So the velocity matches on both sides, which is the part people get wrong by eye. See [the speed-ramp video component](/video-components/speed-ramp), and read [motion graphics transitions](/blog/transitions) for other ways to carry motion over a seam.
@@ -327,6 +344,40 @@ el.animate([{ transform: "scale(0)" }, { transform: "scale(1)" }],
 ```
 
 Here `k` is the stiffness and `d` is the damping. A higher `d` removes the bounce. We ran this in headless Chrome with `k` 220 and `d` 12. The easing string is 319 characters, and the scale peaks at 1.248 before it settles at 1. The four springs in `core/motion/springs.js` settle in 0.43 s (snappy), 0.71 s (default), 1.34 s (heavy) and 1.04 s (playful). Only snappy (1.015) and playful (1.249) overshoot by more than 0.1 percent. This sample starts at `scale(0)` to show the spring, which rule 1 forbids for an entrance in a film: start at 0.9 to 0.97.
+
+The five CSS keywords reach half their travel at these points: [`ease`](/easing/ease) 29%; [`ease-in`](/easing/ease-in) 66%; [`ease-out`](/easing/ease-out) 34%; [`ease-in-out`](/easing/ease-in-out) 50%; [`linear`](/easing/linear) 50%. `ease-in-out` and `linear` both reach half at 50%, but `ease-in-out` starts and ends slow.
+
+## Spring presets from each library
+
+The same spring math, run on each library's own preset values. Settle is the time to stay within the threshold of the end. Each name opens its page with the CSS linear() string.
+
+| Preset | Library | Settle | Overshoot |
+| --- | --- | --- | --- |
+| [vawe snappy](/springs/vawe-snappy) | vawe house springs | 425 ms | 1.5% |
+| [vawe default](/springs/vawe-default) | vawe house springs | 705 ms | 0% |
+| [vawe heavy](/springs/vawe-heavy) | vawe house springs | 1345 ms | 0% |
+| [vawe playful](/springs/vawe-playful) | vawe house springs | 1040 ms | 24.9% |
+| [react-spring default](/springs/react-spring-default) | react-spring | 705 ms | 0% |
+| [react-spring gentle](/springs/react-spring-gentle) | react-spring | 945 ms | 7.4% |
+| [react-spring wobbly](/springs/react-spring-wobbly) | react-spring | 1140 ms | 20.8% |
+| [react-spring stiff](/springs/react-spring-stiff) | react-spring | 715 ms | 5% |
+| [react-spring slow](/springs/react-spring-slow) | react-spring | 1375 ms | 0% |
+| [react-spring molasses](/springs/react-spring-molasses) | react-spring | 2915 ms | 0% |
+| [Motion default spring](/springs/motion-default) | Motion (Framer Motion) | 1275 ms | 16.3% |
+| [Motion x, y and rotate default](/springs/motion-transform) | Motion (Framer Motion) | 565 ms | 12% |
+| [Motion scale default](/springs/motion-scale) | Motion (Framer Motion) | 445 ms | 7.3% |
+| [SwiftUI spring()](/springs/swiftui-spring) | SwiftUI | 690 ms | 1% |
+| [SwiftUI .smooth](/springs/swiftui-smooth) | SwiftUI | 735 ms | 0% |
+| [SwiftUI .snappy](/springs/swiftui-snappy) | SwiftUI | 700 ms | 0.6% |
+| [SwiftUI .bouncy](/springs/swiftui-bouncy) | SwiftUI | 820 ms | 4.6% |
+| [Compose spring() default](/springs/compose-no-bouncy-medium) | Jetpack Compose | 240 ms | 0% |
+| [Compose NoBouncy with StiffnessMediumLow](/springs/compose-no-bouncy-medium-low) | Jetpack Compose | 465 ms | 0% |
+| [Compose MediumBouncy with StiffnessLow](/springs/compose-medium-bouncy-low) | Jetpack Compose | 900 ms | 16.3% |
+| [Compose HighBouncy with StiffnessMediumLow](/springs/compose-high-bouncy-medium-low) | Jetpack Compose | 1655 ms | 52.7% |
+| [Material 3 Expressive fast spatial](/springs/material-expressive-fast-spatial) | Material 3 | 360 ms | 9.5% |
+| [Material 3 Expressive default spatial](/springs/material-expressive-default-spatial) | Material 3 | 435 ms | 1.5% |
+| [Material 3 Expressive slow spatial](/springs/material-expressive-slow-spatial) | Material 3 | 600 ms | 1.5% |
+| [Material 3 Standard default spatial](/springs/material-standard-default-spatial) | Material 3 | 320 ms | 0.2% |
 
 ## The 45 easing pages
 

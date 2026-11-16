@@ -127,6 +127,38 @@ See the clips on their video component pages: [swipe-continues](/video-component
 
 A model with no guidance writes the most typical idea first. For a beat that says "the AI is thinking", that idea is a spinner. Rule 4 uses verbalized sampling: ask for several ideas, each with a stated probability that a model would give it. The typical answer then shows up as the typical answer, and you can choose around it. The method ships today. The test that would show whether it helps is only planned, and we have no result.
 
+## Transition components with a clip
+
+Each family above has components you can copy. Each one is a short clip, the CSS and one markdown file.
+
+- [Cut on motion](/video-components/cut-on-motion): A moving shape carries the eye across a hard cut into a new scene.
+- [Push with directional blur](/video-components/push-blur): A panel pushes in with a directional blur that follows its speed, set per frame.
+- [Exits faster than entrances](/video-components/exit-fast): The pair every beat needs.
+- [Chain beats](/video-components/chain-beats): Beats overlap.
+- [Whip pan](/video-components/whip-pan): The next shot is to the side.
+- [Iris wipe](/video-components/iris-wipe): A circle closes on the click or mark the eye is on and uncovers the next scene.
+- [Stack cover](/video-components/stack-cover): The next panel slides over the last one.
+- [Split reveal](/video-components/split-reveal): The frame opens like doors onto the next shot.
+- [Slice shift](/video-components/slice-shift): Horizontal bands slide off in alternation, staggered with seeded jitter and speed blur, and uncover the next shot.
+- [Type fill transition](/video-components/type-fill-transition): A word scales into one letter until its stem is the whole frame.
+- [Colour block wipe](/video-components/color-block-wipe): A solid brand-colour block sweeps across the cut with a slanted, blurred leading edge.
+- [Zoom through](/video-components/zoom-through): The camera dives into a UI part until it fills the frame and the next shot comes out of it, with real zoom blur from stacked exposures.
+- [Speed ramp freeze](/video-components/speed-ramp-freeze): A beat needs weight before a change.
+- [Speed ramp](/video-components/speed-ramp): Both sides of a cut move the same way.
+- [Liquid wipe](/video-components/liquid-wipe): A gooey organic edge floods the frame onto the next shot.
+- [Grid tile flip](/video-components/grid-tile-flip): A wall of tiles flips in a wave to the next shot.
+- [Luma matte dissolve](/video-components/luma-matte-dissolve): The next shot arrives through its own brightness.
+- [Smear stretch](/video-components/smear-stretch): An elastic cut.
+- [Shape morph wipe](/video-components/shape-morph-wipe): The next shot grows out of a shape on screen.
+- [Spin transition](/video-components/spin-transition): A 90 degree camera roll carries the cut.
+- [Light leak transition](/video-components/light-leak-transition): Two shots meet through warmth.
+- [Type match cut](/video-components/type-match-cut): One word grows in shot A and holds its place while the frame cuts around it.
+- [Cursor spotlight](/video-components/cursor-spotlight): A click opens the next screen.
+- [Toggle horizon](/video-components/toggle-horizon): A setting switches the world.
+- [Progress timeline](/video-components/progress-timeline): A bar ends and the result opens in an editor.
+- [Avatar world](/video-components/avatar-world): A person or brand is the way in.
+- [Glow record](/video-components/glow-record): An alert becomes a live state.
+
 ## FAQ
 
 **What are the main types of video transitions?**

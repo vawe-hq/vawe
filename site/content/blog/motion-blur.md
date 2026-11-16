@@ -115,6 +115,27 @@ We have not measured the quality cost of the cap of 16. The minutes estimate com
 
 The [smear stretch](/video-components/smear-stretch) video component is a fast motion to try this on. For the command-line options, see the [CLI docs](/docs/cli). The loop that spends these subframes is in [speed up Puppeteer screenshots](/blog/fast-drafts).
 
+## Camera moves that need the blur
+
+These video components move the camera fast enough that motion blur decides how they read.
+
+- [UI focus zoom](/video-components/ui-focus-zoom): Zoom onto one part of a captured UI.
+- [Caret follow](/video-components/caret-follow): The camera trails the typing caret on a soft spring, so a long line stays readable at close range.
+- [Pull back reveal](/video-components/pull-back-reveal): Open tight on a detail and pull back to the whole.
+- [Parallax dive](/video-components/parallax-dive): The camera flies forward through layers at real depths.
+- [Exposure flash](/video-components/exposure-flash): A cut on a screen film reads as over-exposure.
+- [Lens](/video-components/lens): A screen filmed as a real object.
+- [Camera moves](/video-components/camera-moves): A whole world as one wrapper.
+- [Depth resolve](/video-components/depth-resolve): Far words small and soft resolve as the camera arrives.
+- [Scale through](/video-components/scale-through): Fly into a plain element and its colour is the next world, in Web Animations only.
+- [Direction wipe](/video-components/direction-wipe): A mask edge moves the way the last move went and reveals the next beat.
+- [Arrival spring](/video-components/arrival-spring): EASE.nudge on one arrival in three, EASE.pop on the one that matters (nudgeEvery).
+- [Rack focus](/video-components/rack-focus): Focus moves from one depth layer to another.
+- [Drift hold](/video-components/drift-hold): The line holds still while only the ground drifts, so a held frame never sits dead.
+- [Gradient mesh field](/video-components/gradient-mesh-field): A title sits on a living ground.
+- [Pan stations](/video-components/pan-stations): Several steps or features as one continuous place.
+- [Crash zoom](/video-components/crash-zoom): One detail hits on a beat.
+
 ## FAQ
 
 **Can CSS do real motion blur on a video?**

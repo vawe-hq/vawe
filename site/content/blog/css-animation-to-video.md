@@ -92,6 +92,8 @@ We wrote one page with three animations. A CSS keyframe moves a bar. A SMIL `<an
 </script>
 ```
 
+The page uses `ease-in-out`. Each CSS keyword has a page with its curve and the cubic-bezier value: [`ease`](/easing/ease), [`ease-in`](/easing/ease-in), [`ease-out`](/easing/ease-out), [`ease-in-out`](/easing/ease-in-out) and [`linear`](/easing/linear).
+
 We ran the script on this page. The MP4 has 90 frames, 1280 by 720 pixels, and is 20 KB. The WebM is 23 KB. The run took 5.7 seconds for the MP4 and 6.8 seconds for the WebM. We compared the bar, the SVG circle and the canvas circle at 0.5 s and at 1.5 s, and all three had moved.
 
 <figure>

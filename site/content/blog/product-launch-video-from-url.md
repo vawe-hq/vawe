@@ -72,6 +72,42 @@ We also tried to crop the gallery capture to one tile at a time. The tiles are s
 
 The page that explains the route is [launch video](/launch-video). To show one feature at a time, see [product showcase videos](/product-showcase-video); for a topic with nothing to sell, see [explainer videos](/explainer-video). The kit step is in the [brand reflection guide](/docs/brand-reflection). To see what render and draft do, read [render HTML to MP4 with headless Chrome](/blog/render-html-to-mp4).
 
+## Components for product moments and endings
+
+These video components show a product doing one thing, or end the film on the name. Each has a clip.
+
+- [Logo sting](/video-components/logo-sting): A short logo hit.
+- [Wordmark cascade](/video-components/wordmark-cascade): The name is the last beat.
+- [Mark trace](/video-components/mark-trace): A line mark draws itself with a riding tip, thickens to its final weight, then an accent bar runs the finished mark.
+- [Shape trace morph](/video-components/shape-trace-morph): A brand mark is built like a shape layer.
+- [Calm lockup](/video-components/calm-lockup): The quiet ending.
+- [CTA pop](/video-components/cta-pop): The call to action pops in under its line on the overshoot curve, the one accent, and the arrow leans to invite the click.
+- [Thanks sweep](/video-components/thanks-sweep): A closing line sweeps in on a soft mask edge with an accent bar riding the edge, then drifts.
+- [UI strip away](/video-components/ui-strip-away): The last beat hands the product to the brand.
+- [Logo wall](/video-components/logo-wall): The proof beat before the call to action.
+- [CTA morph press](/video-components/cta-morph-press): The close moves from brand to action.
+- [Clip expand from a point](/video-components/clip-expand): A panel or capture grows out of one point the eye is already on.
+- [Cursor click](/video-components/cursor-click): A cursor travels a bowed path to a control, the control lights and dips on the press, the label rolls to its result, the cursor leaves.
+- [Count up](/video-components/count-up): A number is the proof.
+- [Card assemble](/video-components/card-assemble): A UI card builds.
+- [Notification pop](/video-components/notification-pop): A banner drops in on the overshoot curve, icon then text, holds a second and leaves faster than it came.
+- [Chart build](/video-components/chart-build): Gridlines draw, bars rise in sequence, the newest bar turns accent and its value tag pops on it.
+- [Before and after wipe](/video-components/before-after-wipe): The claim is a change.
+- [Skeleton reveal](/video-components/skeleton-reveal): Grey blocks in the shape of the content shimmer under one moving light, then each region resolves into real content, 200 ms apart.
+- [AI stream response](/video-components/ai-stream-response): A typed prompt is sent up into the thread, a status line shines, then the answer streams in 1 to 3 word chunks with a caret on the newest chunk.
+- [Overwhelm collapse](/video-components/overwhelm-collapse): The problem turns to the fix.
+- [Success check](/video-components/success-check): A button resolves into a drawn check.
+- [Integration hub](/video-components/integration-hub): The "works with your tools" beat.
+- [Device tilt stage](/video-components/device-tilt-stage): The product as an object.
+- [Command palette summon](/video-components/command-palette-summon): The keyboard-first beat.
+- [Gooey filter](/video-components/gooey-filter): A tab, pill or panel must melt into the next.
+- [Agent progress](/video-components/agent-progress): An AI agent works through steps.
+- [Panel live sync](/video-components/panel-live-sync): An edit and its result in one frame.
+- [Terminal run](/video-components/terminal-run): A coding agent works in a real Claude Code terminal.
+- [Approval gate](/video-components/approval-gate): The agent asks before it acts.
+- [Model picker](/video-components/model-picker): A model choice.
+- [Diff card](/video-components/diff-card): Code review as proof.
+
 ## FAQ
 
 **Can I make a product launch video from a website URL?**

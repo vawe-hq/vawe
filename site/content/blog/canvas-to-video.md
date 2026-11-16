@@ -123,6 +123,24 @@ A simulation, such as colliding particles, has frames that depend on the last on
 
 WebGL and three.js work the same way: pose the scene from `t` and render one frame. See [three.js to MP4](/blog/threejs-to-mp4) for a full page, and [three.js and canvas](/docs/three-and-canvas) in the docs. For CSS and SVG, where the browser can seek the animation itself, read [CSS animation to video](/blog/css-animation-to-video). To draw many particles from an image, there is [image points](/blog/image-points).
 
+## Grounds and generative components
+
+These video components draw a ground or a generative field, the kind of work this post renders.
+
+- [Aurora drift](/video-components/aurora-drift): Three soft bands of light hang from the top of the frame and fold slowly in one shader while the copy sits low.
+- [Grain field](/video-components/grain-field): A quiet printed or filmic frame breathes.
+- [Halftone field](/video-components/halftone-field): A physical or retro frame gets a 45 degree dot screen whose dot size waves across the frame while every dot stays in its cell.
+- [Ink warp](/video-components/ink-warp): A rich liquid ground for short large copy.
+- [Dot grid wave](/video-components/dot-grid-wave): A clean product or data frame gets a plain SVG dot grid with one travelling wave of scale and brightness, weaker behind the copy.
+- [Light pool](/video-components/light-pool): A matte held frame gets one soft pool of light that wanders on a seeded path, plain CSS with no shader.
+- [Marquee along path](/video-components/marquee-along-path): Tiles ride one SVG path forever at an even gap, turned with the curve, rolling z-index, 8 percent of the path per second.
+- [Simple marquee](/video-components/simple-marquee): Three rows of tiles slide for a whole beat, left, right, left, each row four copies that wrap by one set width at 8 percent per second.
+- [Circling elements](/video-components/circling-elements): Eight upright tiles orbit one point on a 120 px radius, one linear turn in 10 s.
+- [CSS box](/video-components/css-box): A 200 px cube of bold type turns to another face on a stiff overdamped spring (stiffness 100, damping 30, no overshoot) under perspective 600.
+- [Pixelate SVG filter](/video-components/pixelate-svg-filter): A photo breaks into square blocks that grow and shrink with one number, size = x / 30 through a convolve, tile and dilate SVG filter.
+- [Photo particles](/video-components/photo-particles): A real photo (filaments, veins, scales) is sampled into 120 000 lit, coloured points that gather from a seeded scatter over 1.5 s and then breathe, filmed through the lens with the film-halation look.
+- [Media between text](/video-components/media-between-text): A picture grows from zero width inside a line of type on a 0.4 s critical spring and closes on a 0.3 s tween, the words part and wrap.
+
 ## FAQ
 
 **How do I export a canvas animation to MP4?**
