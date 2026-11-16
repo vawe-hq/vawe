@@ -193,6 +193,13 @@ export const refVideo =(dir, id) => ['mp4', 'webm'].map((e) => path.join(dir, `$
 /** The video to look at for film `id`: the 1080p copy in hd/ when there is one, else the downloaded video; undefined when neither exists. */
 export const refSharpVideo = (dir, id) => [path.join(dir, 'hd', `${id}.mp4`)].find(fs.existsSync) ?? refVideo(dir, id);
 
+/** The id of the reference film an mp4 path is, when the file sits in the references folder (or its hd folder); else null. Pure. */
+export function refIdOfFile(dir, file) {
+  const folder = path.dirname(path.resolve(file));
+  const inside = [path.resolve(dir), path.join(path.resolve(dir), 'hd')].includes(folder);
+  return inside && /\.(mp4|webm)$/.test(file) ? path.basename(file).replace(/\.(mp4|webm)$/, '') : null;
+}
+
 const readSpec = (dir, id) => {
   const file = path.join(dir, 'spec', id, 'spec.json');
   return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : {};

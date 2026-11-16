@@ -104,3 +104,12 @@ test('--out is a file for a .png path and a folder for any other path, in every 
   assert.equal(fs.readdirSync(into).filter((n) => n.endsWith('.png')).length, 1);
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test('--cuts of a reference mp4 path uses the measured cuts of its spec', () => {
+  const { dir, refs, mp4 } = makeRefs();
+  const r = run(refs, [mp4, '--cuts', '--span', '0.5', '--fps', '8', '--out', path.join(dir, 'cuts')], dir);
+  assert.equal(r.status, 0, r.stderr + r.stdout);
+  assert.match(r.stdout, /2 cuts in /);
+  assert.match(r.stdout, /1\. shot 1 to shot 2, cut at 1\.00 s/);
+  fs.rmSync(dir, { recursive: true, force: true });
+});

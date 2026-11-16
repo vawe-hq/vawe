@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { isUrl } from '../../lib/url.mjs';
-import { refsDir, refSharpVideo, refShots, refTransitions } from '../../lib/refs.mjs';
+import { refIdOfFile, refsDir, refSharpVideo, refShots, refTransitions } from '../../lib/refs.mjs';
 import { lastDraft } from '../../lib/runlog.mjs';
 import { die } from './core.mjs';
 import { filmNameOf, shotCuts, withTransitions, worldCuts } from './strip-math.mjs';
@@ -33,7 +33,8 @@ async function locate(input) {
   }
   if (fs.existsSync(input)) {
     const name = filmNameOf(input);
-    return { video: input, name, cuts: () => filmCuts(name, null) };
+    const refId = refIdOfFile(refsDir(), input);
+    return { video: input, name, ...(refId ? { refId, cuts: () => refCuts(refId) } : { cuts: () => filmCuts(name, null) }) };
   }
   const video = filmFile(input);
   if (!video) die(`${input} is not a file, a page or a reference film id (bin/vawe refs list)`);
