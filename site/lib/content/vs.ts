@@ -31,7 +31,7 @@ export const VAWE_SOURCES: Source[] = [
   { label: "vawe LICENSE", url: "https://github.com/vawe-hq/vawe/blob/main/LICENSE" },
 ];
 
-export const RIVALS: Rival[] = [
+const ALL_RIVALS: Rival[] = [
   {
     slug: "remotion",
     name: "Remotion",
@@ -104,7 +104,7 @@ export const RIVALS: Rival[] = [
     ],
     related: [
       { href: "/remotion-alternatives", label: "Remotion alternatives, categorized" },
-      { href: "/vs/hyperframes", label: "vawe vs HyperFrames" },
+      { href: "/hyperframes-alternatives#vs-hyperframes", label: "vawe vs HyperFrames" },
       { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },
     ],
   },
@@ -175,7 +175,7 @@ export const RIVALS: Rival[] = [
     ],
     related: [
       { href: "/hyperframes-alternatives", label: "HyperFrames alternatives" },
-      { href: "/vs/remotion", label: "vawe vs Remotion" },
+      { href: "/remotion-alternatives#vs-remotion", label: "vawe vs Remotion" },
       { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },
       { href: "/determinism", label: "How vawe keeps renders deterministic" },
     ],
@@ -243,7 +243,7 @@ export const RIVALS: Rival[] = [
       { label: "Motion Canvas releases", url: "https://github.com/motion-canvas/motion-canvas/releases" },
     ],
     related: [
-      { href: "/vs/remotion", label: "vawe vs Remotion" },
+      { href: "/remotion-alternatives#vs-remotion", label: "vawe vs Remotion" },
       { href: "/vs/lottie", label: "vawe vs Lottie" },
     ],
   },
@@ -314,8 +314,8 @@ export const RIVALS: Rival[] = [
       { label: "LottieFiles export help", url: "https://help.lottiefiles.com/hc/en-us/articles/29062996652057-troubleshooting-exporting-lottie-animations-as-gif-or-mp4-files" },
     ],
     related: [
-      { href: "/vs/motion-canvas", label: "vawe vs Motion Canvas" },
-      { href: "/vs/remotion", label: "vawe vs Remotion" },
+      { href: "/hyperframes-alternatives#vs-motion-canvas", label: "vawe vs Motion Canvas" },
+      { href: "/remotion-alternatives#vs-remotion", label: "vawe vs Remotion" },
     ],
   },
   {
@@ -388,8 +388,8 @@ export const RIVALS: Rival[] = [
     ],
     related: [
       { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },
-      { href: "/vs/motion-canvas", label: "vawe vs Motion Canvas" },
-      { href: "/vs/remotion", label: "vawe vs Remotion" },
+      { href: "/hyperframes-alternatives#vs-motion-canvas", label: "vawe vs Motion Canvas" },
+      { href: "/remotion-alternatives#vs-remotion", label: "vawe vs Remotion" },
     ],
   },
   {
@@ -458,7 +458,7 @@ export const RIVALS: Rival[] = [
     related: [
       { href: "/agentic-video-editing", label: "Agentic video editing with vawe" },
       { href: "/edit-video-with-claude-code", label: "Edit video with Claude Code" },
-      { href: "/vs/hyperframes", label: "vawe vs HyperFrames" },
+      { href: "/hyperframes-alternatives#vs-hyperframes", label: "vawe vs HyperFrames" },
     ],
   },
   {
@@ -526,7 +526,20 @@ export const RIVALS: Rival[] = [
   },
 ];
 
+// Merged into an alternatives page: each /vs page had 0 impressions in 6 weeks, the alternatives page 10 to 11.
+export const MERGED_RIVALS: Record<string, string> = {
+  remotion: "/remotion-alternatives",
+  revideo: "/remotion-alternatives",
+  hyperframes: "/hyperframes-alternatives",
+  "motion-canvas": "/hyperframes-alternatives",
+};
+export const RIVALS = ALL_RIVALS.filter((r) => !MERGED_RIVALS[r.slug]);
 export const RIVAL_BY_SLUG = Object.fromEntries(RIVALS.map((r) => [r.slug, r]));
+export const headToHead = (slug: string): Rival => {
+  const r = ALL_RIVALS.find((x) => x.slug === slug);
+  if (!r || !MERGED_RIVALS[slug]) throw new Error(`no merged rival "${slug}"`);
+  return r;
+};
 
 export const MARK_LABEL: Record<Mark, string> = { yes: "Yes", no: "No", partial: "Partly" };
 

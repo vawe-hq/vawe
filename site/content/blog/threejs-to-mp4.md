@@ -9,6 +9,8 @@ topic: how-to
 docs: three-and-canvas, time-and-seek
 tags: "three.js, threejs to mp4, webgl, headless chrome, vawe"
 keywords: "three js to mp4, render three js animation to video, threejs record video frame by frame, webgl headless chrome render, three js animation to video"
+featured: true
+featuredOrder: 2
 ---
 
 You have a three.js scene and you want an MP4 file. Do not record the screen. Write one function, `window.seek(t)`, that poses the scene for time `t` and renders one frame. A headless browser then calls it for each frame, and ffmpeg joins the screenshots.
@@ -108,4 +110,4 @@ Only with a seed. vawe seeds `Math.random` from the seek time. In plain Puppetee
 **Will two machines give the same pixels?**
 Not always. A different GPU or Chrome version can change the pixels. On one machine, the same page gave the same frames in our tests.
 
-For the full list of drift causes, read [headless Chrome screenshots differ between runs](/blog/determinism). For the clock that vawe replaces, read [seed Math.random and freeze Date.now](/blog/page-clock).
+For the full list of drift causes, read [headless Chrome screenshots differ between runs](/blog/determinism). For the clock that vawe replaces, read [seed Math.random and freeze Date.now](/blog/determinism#1-replace-the-page-clock-before-the-page-scripts-run).

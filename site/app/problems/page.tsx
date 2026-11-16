@@ -7,6 +7,7 @@ import { EaseCurve } from "../components/EaseCurve";
 import { Icon } from "../components/Icon";
 import { PageTop, Toc } from "../components/Xp";
 import { NextView, RichText } from "../components/RichText";
+import { ROADMAP } from "../../lib/content/roadmap";
 import { MOVES, clip } from "../../lib/moves";
 import { OPEN, PROBLEMS_PAGE as C, SOLVED, STATUS_LABEL, VISUALS, type Problem } from "../../lib/content/problems";
 import "../components/intent.css";
@@ -107,6 +108,28 @@ export default function Problems() {
                 <ProblemCard key={p.id} p={p} />
               ))}
             </ol>
+          </section>
+
+          <section className="sgroup" aria-labelledby="roadmap">
+            <h2 id="roadmap">{ROADMAP.h1}</h2>
+            <p>{ROADMAP.lede}</p>
+            <div className="cols">
+              {ROADMAP.columns.map((c, n) => (
+                <section className="col" key={c.title} data-now={n === 0 || undefined} aria-labelledby={`r-${c.title}`}>
+                  <h3 id={`r-${c.title}`}>{c.title}</h3>
+                  <p>{c.lead}</p>
+                  <ul>
+                    {c.items.map((i) => (
+                      <li key={i.name}>
+                        <strong>{i.name}</strong>
+                        <span>{i.note}</span>
+                        <a href={`#p${i.problem}`}>Problem {i.problem}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
           </section>
 
           <NextView n={C.next} />

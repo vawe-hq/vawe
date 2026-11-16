@@ -113,7 +113,7 @@ The flag is documented in `core/engine/page-api.js`. It is only an optimisation,
 
 You can call `Math.random()` in a vawe page. A virtual clock replaces it, and it restarts from the seek time on every seek. The same `t` gives the same numbers. That works for a draw that calls it inside `window.seek`.
 
-A seeded generator that you make once, as in our page, is the plainer choice. It does not depend on the clock, so the page also behaves the same in a browser tab. The [page clock post](/blog/page-clock) explains the clock, and [why the same page gives the same frames](/blog/determinism) lists what drifts when you do not control it.
+A seeded generator that you make once, as in our page, is the plainer choice. It does not depend on the clock, so the page also behaves the same in a browser tab. The [page clock post](/blog/determinism#1-replace-the-page-clock-before-the-page-scripts-run) explains the clock, and [why the same page gives the same frames](/blog/determinism) lists what drifts when you do not control it.
 
 ## When the state is real
 

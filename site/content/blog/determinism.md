@@ -2,14 +2,14 @@
 title: "Headless Chrome screenshots differ between runs: 6 fixes"
 description: "Two renders of one page gave 70 of 216 different frames. Six causes of pixel drift in headless Chrome, the fix for each, and a test."
 date: 2026-10-10
-updated: 2026-10-16
+updated: 2026-11-16
 section: rendering
 topic: determinism
 docs: determinism, time-and-seek
 featured: true
 featuredOrder: 3
 tags: "determinism, headless chrome, puppeteer, svg filter, gpu compositing"
-keywords: "deterministic rendering, headless chrome screenshots differ, puppeteer screenshot different each time, repeatable rendering, svg filter gpu"
+keywords: "deterministic rendering, headless chrome screenshots differ, mock date.now puppeteer, math random seed javascript, virtual clock javascript, puppeteer screenshot different each time, repeatable rendering, svg filter gpu"
 hero: /blog/determinism/hero.webp
 heroAlt: "Bar chart of frames that differed between two renders: 70 of 216 in a shared Chrome, 1 of 1296 with a Chrome per lane, 0 of 648 with software compositing, 117 of 154 for a downscaled WebGL page."
 ---
@@ -37,9 +37,53 @@ Every row renders one page twice and counts the frames that differ.
 
 The renderer seeks the page to a time, takes a screenshot and moves on. So each frame must depend only on its time. But pages call `Date.now()`, `setTimeout` and `Math.random()`, and those depend on when the page runs.
 
-We do not ban these calls. Agents write them without thinking, and a ban would break the pages they write. A virtual clock of 75 lines runs before any page script. It makes the calls follow the seek time, and it seeds `Math.random` from that time. The full list is in [freeze Date.now and seed Math.random](/blog/page-clock).
+We do not ban these calls. Agents write them without thinking, and a ban would break the pages they write. The other option, to run the page in real time and record it, makes every render as long as the film and ties the frames to how busy the machine is.
 
-To test it, render a page that reads `Date.now`, `performance.now` and `Math.random` twice. Compare the frame hashes.
+So a virtual clock runs before any page script: `core/engine/page-clock.js` in vawe, 75 lines of JavaScript. Every frame is then a pure function of `t`, the film time in seconds.
+
+| API | What the page sees |
+|---|---|
+| `Date`, `performance.now` | Film time in milliseconds |
+| `requestAnimationFrame` | Callbacks queue up and flush once per `set(t)`, with film time |
+| `setTimeout`, `setInterval` | They fire when `set(t)` passes their due time, earliest first, at most 1,000 per seek |
+| `Math.random` | A mulberry32 generator, reseeded from `t` on every `set(t)` |
+| `window.__pageClock.real` | The real timers, kept for the renderer |
+| `pending()` | The count of animation-frame callbacks and timers that still wait |
+
+Seed `Math.random` from the time, not from a counter. A counter depends on how many calls came before, which depends on what you rendered first. The clock keys on fractional seconds, not frame numbers, because subframe [motion blur](/blog/motion-blur) and 59.94 fps masters seek between frames.
+
+### Freeze Date.now and seed Math.random in Puppeteer
+
+Inject the clock with `evaluateOnNewDocument`, so it runs before any page script. A script that loads later would already hold the real functions. Save this as `clock.mjs` in a checkout of vawe:
+
+```js
+import puppeteer from 'puppeteer';
+import { installPageClock } from './core/engine/page-clock.js';
+
+const browser = await puppeteer.launch();
+const page = await browser.newPage();
+await page.evaluateOnNewDocument(`(${installPageClock})()`);
+await page.goto('data:text/html,<script>window.read=()=>JSON.stringify([Date.now(),performance.now(),Math.random().toFixed(6)])</script>');
+const at = async (t) => { await page.evaluate((s) => window.__pageClock.set(s), t); return page.evaluate(() => window.read()); };
+console.log(await at(4.2));
+console.log(await at(1));
+console.log(await at(4.2));
+await browser.close();
+```
+
+On our machine it printed:
+
+```
+[4200,4200,"0.192236"]
+[1000,1000,"0.813430"]
+[4200,4200,"0.192236"]
+```
+
+The first and third lines match, even though a seek to 1 s came between them.
+
+![Six boxes in order: set the clock, call window.seek, seek animations, run onFrame hooks, settle, screenshot.](/blog/page-clock/diagram.webp "The order of one seek.")
+
+To test it, render a page that reads `Date.now`, `performance.now` and `Math.random` twice. Compare the frame hashes. Our test is `tests/media/render-page-determinism.test.mjs`: it renders each fixture twice and checks that the renders match, that there are five frames, and that the frames are not all the same, which proves the page moved with the seek.
 
 ## 2. Freeze the document timeline, then seek every animation
 
@@ -97,7 +141,7 @@ In vawe, most checks only advise. Determinism is one of the few that refuse a re
 
 Two rules sit under the whole list. First, name the cause before you pick a fix. For the filter case the cause was the compositor, and no change to the page would have helped. Second, never take a value that affects pixels from the machine. The number of workers is one example.
 
-For when byte-identical output decides which tool you pick, read [when determinism matters](/when-determinism-matters). For the tool comparison, read [Remotion alternatives](/remotion-alternatives).
+For when byte-identical output decides which tool you pick, read [when determinism matters](/determinism#when-it-matters). For the tool comparison, read [Remotion alternatives](/remotion-alternatives).
 
 ## FAQ
 
@@ -106,6 +150,12 @@ The usual causes are a real clock, a running animation, GPU compositing and tab 
 
 **How do I make headless Chrome deterministic?**
 Replace `Date`, timers and `Math.random` before the page loads. Set the animation playback rate to 0 and seek each animation. Composite SVG filters in software. Emulate focus on every page.
+
+**How do I mock Date.now in Puppeteer?**
+Inject a script with `page.evaluateOnNewDocument` that replaces `Date`, `performance.now` and the timers before the page loads. Drive the clock from your own `set(t)` call, not from the real time.
+
+**How do I seed Math.random in a page?**
+Replace `Math.random` with a seeded generator such as mulberry32, and reseed it from the seek time. A time seed gives the same sequence for the same frame, whatever order you render in.
 
 **Does software compositing cost much?**
 In our drafts it made a render about 2.5 times slower. We use it only for pages that draw an SVG filter, and always for finals.

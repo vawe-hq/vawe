@@ -172,9 +172,9 @@ export const COMPARE_REMOTION_HYPERFRAMES = {
     primary: { href: "/docs/html-to-mp4-with-claude-code", label: "HTML to MP4 with Claude Code" },
     secondary: { href: REPO_URL, label: "Star vawe on GitHub" },
     related: [
-      { href: "/vs/remotion", label: "vawe vs Remotion" },
-      { href: "/vs/hyperframes", label: "vawe vs HyperFrames" },
-      { href: "/vs/revideo", label: "vawe vs Revideo" },
+      { href: "/remotion-alternatives#vs-remotion", label: "vawe vs Remotion" },
+      { href: "/hyperframes-alternatives#vs-hyperframes", label: "vawe vs HyperFrames" },
+      { href: "/remotion-alternatives#vs-revideo", label: "vawe vs Revideo" },
       { href: "/blog/claude-code-remotion-or-html", label: "Claude Code with Remotion or plain HTML" },
       { href: "/remotion-alternatives", label: "Remotion alternatives, by category" },
       { href: "/determinism", label: "How vawe keeps renders deterministic" },

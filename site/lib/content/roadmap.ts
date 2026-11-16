@@ -1,20 +1,9 @@
-import { REPO_URL } from "../schema";
-import type { Crumb, Meta, NextBlock, Para } from "./types";
-
 export type RoadmapItem = { name: string; note: string; problem: number };
 export type RoadmapColumn = { title: string; lead: string; items: RoadmapItem[] };
 
 export const ROADMAP = {
-  path: "/roadmap",
-  meta: {
-    title: "vawe · roadmap: now, next, later",
-    description:
-      "What vawe works on now, next and later: render reliability, a pairwise judge, motion-shape measures and faster final capture. Each item links to the problem it addresses.",
-  } as Meta,
-  crumb: { group: "Project", current: "Roadmap" } as Crumb,
   h1: "Roadmap: now, next, later.",
   lede: "The order of work on vawe. There are no dates: Now comes before Next, and Next before Later. Each item links to the problem it addresses.",
-  note: ["The reasons are on ", { text: "the problems page", href: "/problems" }, "."] as Para,
   columns: [
     {
       title: "Now",
@@ -47,10 +36,4 @@ export const ROADMAP = {
       ],
     },
   ] as RoadmapColumn[],
-  next: {
-    title: "Follow the work.",
-    lead: ["vawe is open source under Apache-2.0, runs on your machine, needs no account and has no per-render fee. Open an issue if a problem here costs you a film."],
-    primary: { href: REPO_URL, label: "vawe on GitHub" },
-    secondary: { href: "/problems", label: "Read the problems" },
-  } as NextBlock,
 };

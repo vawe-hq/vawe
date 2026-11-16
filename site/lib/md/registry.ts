@@ -12,6 +12,7 @@ import {
   LIBRARIES as SPRING_LIBS, SPRINGS, SPRINGS_DESCRIPTION, SPRINGS_TITLE, THRESHOLD_PERCENT, characterOf, cssText, pageDescription as springDescription, pageTitle as springTitle, springBySlug, springsIn, summary as springSummary, vaweCode, waapi as springWaapi,
   type Spring,
 } from "../springs";
+import { INSPIRATION_TYPE_PAGES, lessonUrl, postsOfType, typePage, typePath } from "../content/inspiration-types";
 import { INSPIRATION, INSPIRATION_DESCRIPTION, INSPIRATION_PATH, INSPIRATION_TITLE, PROMPTS_PATH, titleOf } from "../inspiration";
 import { MOVES_DESCRIPTION, MOVES_TITLE, GROUPS, MOVES, JOBS as MOVE_JOBS, groupLabel, moveByName } from "../moves";
 import { moveSeoDescription, relatedMoves } from "../move-seo";
@@ -272,6 +273,25 @@ const inspirationIndex: Renderer = {
   }),
 };
 
+const inspirationType: Renderer = {
+  entries: () => INSPIRATION_TYPE_PAGES.map((c) => page(typePath(c.id), c.title, c.description)),
+  render: ({ type }) => {
+    const c = typePage(type);
+    if (!c) return null;
+    return {
+      title: c.title,
+      description: c.description,
+      updated: dates[INSPIRATION_PATH],
+      body: [
+        ...c.intro,
+        `## What to take from them\n\n${c.lessons.map((l) => `- ${l.text} (${lessonUrl(l.file)})`).join("\n")}`,
+        `## The posts\n\n${postsOfType(c.id).map((p) => item(titleOf(p), p.url, `by @${p.creator.handle}`)).join("\n")}`,
+      ].join("\n\n"),
+      related: [c.vawe, ...c.also].map((l) => ({ text: l.label, path: l.href })),
+    };
+  },
+};
+
 const agentsPage: Renderer = {
   entries: () => [page("/ai-agents", "AI agent video generation with vawe", AGENTS_DESCRIPTION)],
   render: () => {
@@ -292,6 +312,7 @@ const RENDERERS: Record<string, Renderer> = {
   "/springs": springsIndex,
   "/springs/[slug]": springItem,
   "/inspiration": inspirationIndex,
+  "/inspiration/[type]": inspirationType,
   "/ai-agents": agentsPage,
   ...CONTENT_RENDERERS,
 };

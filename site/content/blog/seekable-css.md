@@ -83,7 +83,7 @@ Do not add a global rule such as `* { animation: none; transition: none }`. Our 
 
 ### 4. Wait for fonts, and fail loudly
 
-`awaitFonts` waits until every face in `document.fonts` finishes loading, including faces that start loading during the wait. If a face is still loading after 10 seconds, the render fails and names the family. A screenshot with a fallback font is a silent wrong answer, so we make it a loud error. The wait uses the real timer, because the [virtual clock](/blog/page-clock) owns `setTimeout`.
+`awaitFonts` waits until every face in `document.fonts` finishes loading, including faces that start loading during the wait. If a face is still loading after 10 seconds, the render fails and names the family. A screenshot with a fallback font is a silent wrong answer, so we make it a loud error. The wait uses the real timer, because the [virtual clock](/blog/determinism#1-replace-the-page-clock-before-the-page-scripts-run) owns `setTimeout`.
 
 ## The order inside one seek
 

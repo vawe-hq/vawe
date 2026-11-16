@@ -102,13 +102,6 @@ export const PAGES = {
     lay: { f: 0.95, vy: 0.42, camY: 0.32, pageEnd: 1.6, pageW: 0.5, vx: 0.74, gates: [2.6, 4, 6.2, 9.5], figZ: 1.9, figH: 0.075 },
     loop: (p) => ({ run: p }),
   },
-  '/when-determinism-matters': {
-    scene: 'strip', ink: 'b',
-    h: 'When determinism matters.',
-    sub: 'Byte-identical frames are checkable.<br>They are rarely why you pick an engine.',
-    lay: { f: 1.05, vy: 0.42, camY: 0.26, pageEnd: 1.3, pageW: 0.45, vx: 0.8, gates: [3.4], figZ: 2.0, figH: 0.08 },
-    loop: (p) => ({ run: p }),
-  },
   '/ai-agents': {
     scene: 'stair', ink: 'a',
     h: 'Let an agent write the video.',
@@ -175,20 +168,6 @@ export const PAGES = {
     },
     loop: (p) => ({ twinkle: 1 + 0.35 * Math.sin(4 * Math.PI * p) }),
   },
-  '/roadmap': {
-    scene: 'lanes', ink: 'b',
-    h: 'Roadmap: now, next, later.',
-    sub: 'The order of work on vawe, with no dates.<br>Each item links to its problem.',
-    lay: {
-      f: 0.95, vx: 0.7, vy: 0.46, figZ: 1.6,
-      towers: [
-        { o: [0.45, -0.35], q: [1, -1], zn: 1, zf: 2.0 },
-        { o: [0.55, 0.35], q: [1, 1], zn: 1, zf: 3.0 },
-        { o: [-0.85, 1.0], q: [-1, 1], zn: 1, zf: 2.4 },
-      ],
-    },
-    loop: (p) => ({ play: p }),
-  },
 };
 
 // The video-type pages reuse a sibling's scene with their own words; no loop, so no og:video.
@@ -213,6 +192,21 @@ PAGES['/edit-video-with-claude-code'] = {
   ...BLOG_STILL, ink: 'a',
   h: 'Edit video with Claude Code.',
   sub: 'A folder of clips in,<br>an MP4 out.',
+};
+PAGES['/creatomate-alternatives'] = {
+  ...PAGES['/remotion-alternatives'], ink: 'b', loop: undefined,
+  h: 'Creatomate alternatives.',
+  sub: 'Hosted video APIs, or an engine<br>you run yourself.',
+};
+PAGES['/shotstack-alternatives'] = {
+  ...PAGES['/hyperframes-alternatives'], ink: 'a', loop: undefined,
+  h: 'Shotstack alternatives.',
+  sub: 'Hosted video APIs, or an engine<br>you run yourself.',
+};
+PAGES['/how-to'] = {
+  ...BLOG_STILL, ink: 'b',
+  h: 'How to edit video with code.',
+  sub: 'One guide per task: captions,<br>silences, titles, trims, music, speed.',
 };
 PAGES['/programmatic-video-editing'] = {
   ...BLOG_STILL, ink: 'a',

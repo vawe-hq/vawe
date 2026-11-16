@@ -5,9 +5,11 @@ import { pageMetadata } from "../components/seo";
 import { PageTop, Toc } from "../components/Xp";
 import { NextView, TableView } from "../components/RichText";
 import { AltEvidence } from "../components/AltEvidence";
+import { HeadToHead } from "../components/HeadToHead";
+import { headToHead } from "../../lib/content/vs";
+import "../components/study.css";
 import { HYPERFRAMES_ALTERNATIVES as C } from "../../lib/content/hyperframes-alternatives";
 import "../components/intent.css";
-import "../components/study.css";
 
 export const metadata = pageMetadata({ ...C.meta, path: C.path });
 
@@ -47,6 +49,9 @@ export default function HyperframesAlternatives() {
           </ul>
 
           <AltEvidence faq={C.faq} />
+
+          <HeadToHead r={headToHead("hyperframes")} />
+          <HeadToHead r={headToHead("motion-canvas")} />
 
           <section className="tfacts" id="stay">
             <h2>{C.stay.title}</h2>

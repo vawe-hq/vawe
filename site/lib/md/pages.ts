@@ -17,8 +17,10 @@ import { ROADMAP } from "../content/roadmap";
 import { COMPARE_REMOTION_HYPERFRAMES as COMPARE } from "../content/compare";
 import { GROUP_PAGES, groupFacts, groupMetaDescription, groupMetaTitle, groupPage, groupPath } from "../content/move-groups";
 import { MOVES, moveByName } from "../moves";
-import { RIVALS, RIVAL_BY_SLUG, VAWE_SOURCES, vsPage, type Rival } from "../content/vs";
-import { WHEN_DETERMINISM } from "../content/when-determinism-matters";
+import { RIVALS, RIVAL_BY_SLUG, VAWE_SOURCES, headToHead, vsPage, type Rival } from "../content/vs";
+import { CREATOMATE_ALTERNATIVES } from "../content/creatomate-alternatives";
+import { SHOTSTACK_ALTERNATIVES } from "../content/shotstack-alternatives";
+import { HOW_TOS, HOW_TO_BY_SLUG, HOW_TO_HUB, howToPath, type HowTo } from "../content/how-to";
 import type { Block, NextBlock, Para, Section, Table } from "../content/types";
 import { FAQ } from "../faq";
 import { bareTitle, codeBlock, heading, item, link, table } from "./format";
@@ -143,7 +145,6 @@ const sectionPage = (c: { path: string; meta: { title: string; description: stri
   single(c.path, c.meta, () => doc(c.path, c.h1, c.meta, [c.lede, ...c.sections.map((s) => section(s))], c.next));
 
 const determinism = sectionPage(DETERMINISM);
-const whenDeterminism = sectionPage(WHEN_DETERMINISM);
 
 function problem(p: Problem) {
   return join([heading(3, `${p.id}. ${p.title} (${STATUS_LABEL[p.status]})`), `Why it is hard: ${p.why}`, `Where vawe stands: ${p.does}`, `${p.figure}: ${p.figureLabel}`]);
@@ -159,15 +160,10 @@ const problems = single(PROBLEMS_PAGE.path, PROBLEMS_PAGE.meta, () =>
     heading(2, PROBLEMS_PAGE.open.title),
     PROBLEMS_PAGE.open.lead,
     ...OPEN.map(problem),
-  ], PROBLEMS_PAGE.next),
-);
-
-const roadmap = single(ROADMAP.path, ROADMAP.meta, () =>
-  doc(ROADMAP.path, ROADMAP.h1, ROADMAP.meta, [
+    heading(2, ROADMAP.h1),
     ROADMAP.lede,
-    inline(ROADMAP.note),
-    ...ROADMAP.columns.map((c) => join([heading(2, c.title), c.lead, c.items.map((i) => `- ${i.name}: ${i.note} (problem ${i.problem})`).join("\n")])),
-  ], ROADMAP.next),
+    ...ROADMAP.columns.map((c) => join([heading(3, c.title), c.lead, c.items.map((i) => `- ${i.name}: ${i.note} (problem ${i.problem})`).join("\n")])),
+  ], PROBLEMS_PAGE.next),
 );
 
 const launchVideo = single(LAUNCH_VIDEO.path, LAUNCH_VIDEO.meta, () =>
@@ -248,6 +244,23 @@ const evidence = join([
   ALT_EVIDENCE.items.map((e) => `- ${e.fact} ${link(e.label, e.href)}`).join("\n"),
 ]);
 
+function headToHeadMd(r: Rival) {
+  return join([
+    heading(2, `vawe vs ${r.name}`),
+    r.intro,
+    r.what,
+    table(["feature", r.name, "vawe"], r.rows.map((x) => [x.feature, x.them, x.vawe])),
+    heading(3, `Choose ${r.name} when`),
+    r.chooseThem.map((x) => `- ${x}`).join("\n"),
+    heading(3, "Choose vawe when"),
+    r.choosevawe.map((x) => `- ${x}`).join("\n"),
+    heading(3, `Where ${r.name} is stronger`),
+    r.stronger.map((x) => `- ${x}`).join("\n"),
+    qa(r.faq),
+    `Sources, read ${r.read}: ${r.sources.map((x) => link(x.label, x.url)).join(", ")}`,
+  ]);
+}
+
 const remotionAlternatives = single(REMOTION_ALTERNATIVES.path, REMOTION_ALTERNATIVES.meta, () => {
   const r = REMOTION_ALTERNATIVES;
   return doc(r.path, r.h1, r.meta, [
@@ -260,6 +273,8 @@ const remotionAlternatives = single(REMOTION_ALTERNATIVES.path, REMOTION_ALTERNA
     section(r.revideo),
     section(r.json2video),
     section(r.creatomate),
+    headToHeadMd(headToHead("remotion")),
+    headToHeadMd(headToHead("revideo")),
     evidence,
     heading(2, ALT_EVIDENCE.faqTitle),
     qa(r.faq),
@@ -278,6 +293,8 @@ const hyperframesAlternatives = single(HYPERFRAMES_ALTERNATIVES.path, HYPERFRAME
     evidence,
     heading(2, ALT_EVIDENCE.faqTitle),
     qa(h.faq),
+    headToHeadMd(headToHead("hyperframes")),
+    headToHeadMd(headToHead("motion-canvas")),
     join([heading(2, h.stay.title), h.stay.body, h.stay.sources.map((s) => item(s.label, s.href)).join("\n")]),
   ], h.next);
 });
@@ -368,15 +385,55 @@ const moveGroups: Renderer = {
   render: ({ group }) => groupDoc(group),
 };
 
+function altDoc(a: typeof CREATOMATE_ALTERNATIVES | typeof SHOTSTACK_ALTERNATIVES, rival: Section) {
+  return doc(a.path, a.h1, a.meta, [
+    a.lede,
+    a.note,
+    join([heading(2, a.table.title), a.table.lead, tableOf(a.table.data)]),
+    section(a.shapes),
+    section(rival),
+    section(a.json2video),
+    section(a.engines),
+    section(a.stay),
+    evidence,
+    heading(2, ALT_EVIDENCE.faqTitle),
+    qa(a.faq),
+    section(a.notCompared),
+  ], a.next);
+}
+
+const creatomateAlternatives = single(CREATOMATE_ALTERNATIVES.path, CREATOMATE_ALTERNATIVES.meta, () => altDoc(CREATOMATE_ALTERNATIVES, CREATOMATE_ALTERNATIVES.shotstack));
+const shotstackAlternatives = single(SHOTSTACK_ALTERNATIVES.path, SHOTSTACK_ALTERNATIVES.meta, () => altDoc(SHOTSTACK_ALTERNATIVES, SHOTSTACK_ALTERNATIVES.creatomate));
+
+const howToHub = single(HOW_TO_HUB.path, HOW_TO_HUB.meta, () =>
+  doc(HOW_TO_HUB.path, HOW_TO_HUB.h1, HOW_TO_HUB.meta, [HOW_TO_HUB.lede, section(HOW_TO_HUB.tasks), section(HOW_TO_HUB.how)], HOW_TO_HUB.next),
+);
+
+function howToDoc(h: HowTo): Doc {
+  return doc(howToPath(h.slug), h.h1, h.meta, [
+    inline(h.lede),
+    section(h.steps),
+    h.moves && join([heading(2, h.moves.title), h.moves.lead, h.moves.clips.map((name) => item(name, `/video-components/${name}`)).join("\n")]),
+    section(h.wrong),
+    section(h.more),
+  ].filter((x): x is string => Boolean(x)), h.next);
+}
+
+const howTo: Renderer = {
+  entries: () => HOW_TOS.map((h) => entry(howToPath(h.slug), { title: h.meta.title, description: h.meta.description }, "item")),
+  render: ({ slug }) => {
+    const h = HOW_TO_BY_SLUG[slug];
+    return h ? howToDoc(h) : null;
+  },
+};
+
 export const CONTENT_RENDERERS: Record<string, Renderer> = {
   "/": home,
   "/features": features,
   "/resources": resources,
   "/about": about,
   "/determinism": determinism,
-  "/when-determinism-matters": whenDeterminism,
   "/problems": problems,
-  "/roadmap": roadmap,
   "/launch-video": launchVideo,
   [AGENTIC_EDITING.path]: agenticEditing,
   [EDIT_WITH_CLAUDE_CODE.path]: editWithClaudeCode,
@@ -386,6 +443,10 @@ export const CONTENT_RENDERERS: Record<string, Renderer> = {
   [EXPLAINER.path]: videoType(EXPLAINER),
   "/remotion-alternatives": remotionAlternatives,
   "/hyperframes-alternatives": hyperframesAlternatives,
+  [CREATOMATE_ALTERNATIVES.path]: creatomateAlternatives,
+  [SHOTSTACK_ALTERNATIVES.path]: shotstackAlternatives,
+  [HOW_TO_HUB.path]: howToHub,
+  "/how-to/[slug]": howTo,
   "/vs/[slug]": vs,
   "/compare/[slug]": compare,
   "/video-components/group/[group]": moveGroups,

@@ -6,6 +6,7 @@ import { Next, PageTop } from "../components/Xp";
 import { breadcrumbSchema, jsonLdScript } from "../../lib/schema";
 import { inspirationSchema } from "../../lib/schema-content";
 import { INSPIRATION, INSPIRATION_DESCRIPTION, INSPIRATION_PAGE, INSPIRATION_PATH, INSPIRATION_TITLE, INSPIRATION_TYPES, titleOf } from "../../lib/inspiration";
+import { INSPIRATION_TYPE_PAGES, typePath } from "../../lib/content/inspiration-types";
 import { InspirationWall } from "./InspirationWall";
 import "./inspiration.css";
 
@@ -35,6 +36,11 @@ export default function Inspiration() {
             <PageTop group="Learn" current="Inspiration" />
             <h1>Motion video inspiration</h1>
             <p className="in-lede">Made with Claude and other AI, from posts on X.</p>
+            <nav className="in-types" aria-label="Video types">
+              {INSPIRATION_TYPE_PAGES.map((t) => (
+                <a key={t.id} href={typePath(t.id)}>{t.noun} examples</a>
+              ))}
+            </nav>
           </InspirationWall>
           <noscript>
             <h2>More posts</h2>

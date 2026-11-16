@@ -60,7 +60,7 @@ We ran this in headless Chrome with Puppeteer. The opacity was "1" at the end, a
 
 ## What the framework keeps either way
 
-Moving the input language to the web did not move the rest. The renderer (`harness/media/render-page.mjs`), the quality checks, the scoring agent and the harness stay ours. Two changes made the web side complete before the switch. The renderer seeks CSS animations, transitions and Web Animations instead of killing them (2026-09-27). A page can drive real WebGL with its own `vawe.onFrame`, with no new attribute language (2026-09-28). The renderer makes time a seek instead of a clock, as the [virtual clock reference](/blog/page-clock) shows.
+Moving the input language to the web did not move the rest. The renderer (`harness/media/render-page.mjs`), the quality checks, the scoring agent and the harness stay ours. Two changes made the web side complete before the switch. The renderer seeks CSS animations, transitions and Web Animations instead of killing them (2026-09-27). A page can drive real WebGL with its own `vawe.onFrame`, with no new attribute language (2026-09-28). The renderer makes time a seek instead of a clock, as the [virtual clock reference](/blog/determinism#1-replace-the-page-clock-before-the-page-scripts-run) shows.
 
 ## When to choose which
 

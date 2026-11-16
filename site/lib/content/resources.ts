@@ -116,7 +116,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
       { href: "/springs", title: "Spring presets", line: `${SPRINGS.length} spring presets from react-spring, Motion, SwiftUI and Compose as CSS linear(), with the numbers.`, icon: "curve", meta: `${SPRINGS.length}${NBSP}springs` },
       { href: "/docs/recipes", title: "Recipes", line: "Chains of video components for common short films, with the traps at each seam.", icon: "list", meta: "recipes" },
       { href: "/determinism", title: "Determinism", line: "Why the same page gives the same frames, and how a test proves it.", icon: "book", meta: "essay" },
-      { href: "/when-determinism-matters", title: "When determinism matters", line: "When byte-identical output decides the engine, and when it does not.", icon: "book", meta: "essay" },
+      { href: "/how-to", title: "How-to guides", line: "One guide per editing task: captions, silences, titles, trims, music and speed.", icon: "book", meta: "guides" },
       { href: "/launch-video", title: "Launch videos", line: "A product launch film built from captured UI, one message per beat.", icon: "play", meta: "guide" },
       { href: "/product-showcase-video", title: "Product showcase videos", line: "A feature tour of the real product: four screens, one camera, about 20\u00a0seconds.", icon: "play", meta: "guide" },
       { href: "/explainer-video", title: "Explainer videos", line: "Facts first, then one idea per scene, 9\u00a0seconds to 3\u00a0minutes.", icon: "play", meta: "guide" },
@@ -143,7 +143,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
     tile: "project",
     items: [
       { href: "/problems", title: "Hard problems", line: "Thirteen problems in agent-made video: seven solved with numbers, six open.", icon: "alert", meta: "problems" },
-      { href: "/roadmap", title: "Roadmap", line: "What is in work now, next and later.", icon: "map", meta: "now, next, later" },
+      { href: "/problems#roadmap", title: "Roadmap", line: "What is in work now, next and later.", icon: "map", meta: "now, next, later" },
       { href: REPO_URL, title: "GitHub", line: "The source, Apache 2.0, and the issue tracker.", icon: "github", meta: "Apache-2.0", external: true },
     ],
   },

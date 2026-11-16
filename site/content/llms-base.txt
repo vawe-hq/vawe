@@ -18,12 +18,13 @@ A Vawe film is one HTML page (CSS, Web Animations, SVG, canvas or three.js). The
 - [springs](https://vawe.dev/springs): Spring animation presets from react-spring, Motion, SwiftUI, Compose, Material 3 and vawe as CSS linear(), each with stiffness, damping, settle time and overshoot. Every preset is listed under Spring presets below.
 - [about](https://vawe.dev/about): What vawe is, why a film is one HTML page, how it is built (Apache-2.0, public since 2026-09-16), its five rules, who makes it and how to help.
 - [determinism](https://vawe.dev/determinism): A page seeked, never played: the same page produces the same frames on every render, in any order. How Vawe makes that true and how it checks it.
-- [problems](https://vawe.dev/problems): The hard problems in agent-made motion graphics, solved and open, with the measured result for each.
-- [roadmap](https://vawe.dev/roadmap): What vawe works on now, next and later, each item linked to its problem.
+- [problems](https://vawe.dev/problems): The hard problems in agent-made motion graphics, solved and open, with the measured result for each, and the roadmap.
 - [ai-agents](https://vawe.dev/ai-agents): An agent writes the film as one HTML page, one command renders and checks it, and a fresh session judges the result.
 - [remotion-alternatives](https://vawe.dev/remotion-alternatives): "Remotion alternative" returns two different products: a hosted JSON video API, or a self-hosted rendering engine. What Remotion's own license requires, what Vawe and HyperFrames give away free, and where a hosted API fits instead. Read 2026-09-19.
-- [when-determinism-matters](https://vawe.dev/when-determinism-matters): Byte-identical rendering is a real property, not a universal one. When it decides which engine to pick, and when a human editing a timeline by eye makes it beside the point.
 - [hyperframes-alternatives](https://vawe.dev/hyperframes-alternatives): HyperFrames is HeyGen's self-hosted, Apache-2.0, agent-facing rendering engine, the closest peer Vawe has. Both compose from HTML, timed and made deterministic in different ways. Read 2026-09-19.
+- [creatomate-alternatives](https://vawe.dev/creatomate-alternatives): Creatomate alternatives: hosted video APIs and self-hosted engines, with prices read from each pricing page.
+- [shotstack-alternatives](https://vawe.dev/shotstack-alternatives): Shotstack alternatives: hosted video APIs and self-hosted engines, with prices read from each pricing page.
+- [how-to](https://vawe.dev/how-to): One guide per video editing task with code: captions, silences, titles, trim and join, music and speed.
 - [launch-video](https://vawe.dev/launch-video): How Vawe builds a product launch video: real captured UI, not invented mockups, one message per beat, from the site's own palette and type.
 - [product-showcase-video](https://vawe.dev/product-showcase-video): A product showcase video shows the real product doing real things, one feature per beat. The beats, the timing, the vawe commands to make one, and examples.
 - [explainer-video](https://vawe.dev/explainer-video): An explainer video teaches one topic with visuals that build on screen and sells nothing. The facts list, the scenes, the timing, the vawe commands to make one, and examples.

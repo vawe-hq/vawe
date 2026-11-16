@@ -107,7 +107,7 @@ The stall test renders the page once with no stall to learn its capture time. It
 
 We did not measure the time that the fixes save. We know the cost before: 49 minutes in one session, and a 97% film that would now resume. We also have no count of how often the watchdog fires. The render summary lists any retried slices, and we have not summed them.
 
-For the page rules that make a retry safe, see [the virtual clock](/blog/page-clock). The [troubleshooting docs](/docs/troubleshooting) list the usual causes of a stall.
+For the page rules that make a retry safe, see [the virtual clock](/blog/determinism#1-replace-the-page-clock-before-the-page-scripts-run). The [troubleshooting docs](/docs/troubleshooting) list the usual causes of a stall.
 
 ## FAQ
 

@@ -54,7 +54,7 @@ We did not add a manifest. A second file that describes the first is a second so
 
 The renderer never lets the page run on its own clock. It sets the time and takes a picture. CSS keyframes and Web Animations seek through their `currentTime`. A page can add `window.seek(t)` for canvas or three.js work.
 
-A virtual clock owns `Date`, `requestAnimationFrame`, timers and `Math.random`. A page that calls them still paints the same frame twice. The [virtual clock reference](/blog/page-clock) lists what it replaces, and the [determinism checklist](/blog/determinism) covers the other causes of drift.
+A virtual clock owns `Date`, `requestAnimationFrame`, timers and `Math.random`. A page that calls them still paints the same frame twice. The [virtual clock reference](/blog/determinism#1-replace-the-page-clock-before-the-page-scripts-run) lists what it replaces, and the [determinism checklist](/blog/determinism) covers the other causes of drift.
 
 ## How one page fits five aspect ratios
 

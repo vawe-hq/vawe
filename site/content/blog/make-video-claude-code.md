@@ -7,8 +7,6 @@ section: how-to
 nav: "Video with Claude Code"
 topic: agents
 docs: html-to-mp4-with-claude-code, quickstart, agents
-featured: true
-featuredOrder: 2
 tags: "claude code, ai agent video, html to mp4, vawe, agents"
 keywords: "make a video with claude code, claude code generate video, ai agent makes videos, coding agent video skill, html to video"
 ---

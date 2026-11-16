@@ -46,7 +46,7 @@ const CASES = [
   { path: "/easing/land", kind: "page", canonical: `${SITE}/easing/land` },
   { path: "/easing/ease-in-back", kind: "page", canonical: `${SITE}/easing/ease-in-back` },
   { path: "/blog", kind: "page", canonical: `${SITE}/blog` },
-  { path: "/vs/remotion", kind: "page", canonical: `${SITE}/vs/remotion` },
+  { path: "/vs/lottie", kind: "page", canonical: `${SITE}/vs/lottie` },
   { path: "/resources", kind: "page", canonical: `${SITE}/resources` },
   { path: "/about", kind: "page", canonical: `${SITE}/about` },
   { path: "/video-components/", kind: "redirect", to: `${SITE}/video-components` },

@@ -88,5 +88,5 @@ Every proven video component is one markdown file with the CSS and Web Animation
 ## More
 
 - Docs: https://vawe.dev/docs (quickstart: https://vawe.dev/docs/quickstart, page contract: https://vawe.dev/docs/the-page, CLI: https://vawe.dev/docs/cli)
-- Compare: https://vawe.dev/vs/remotion, https://vawe.dev/vs/hyperframes, https://vawe.dev/vs/motion-canvas, https://vawe.dev/vs/lottie
+- Compare: https://vawe.dev/remotion-alternatives, https://vawe.dev/hyperframes-alternatives, https://vawe.dev/creatomate-alternatives, https://vawe.dev/vs/lottie
 - Why the draft equals the final: https://vawe.dev/determinism

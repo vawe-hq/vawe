@@ -39,6 +39,12 @@ Sound: a short noise tick at each tear, and a low thud on a lock (aberration pea
   A source with a `depth` input (below) blurs by each pixel's own depth instead of the tilted plane.
 - `palette`: brightness through 2 to 8 colour stops (`PALETTES.thermal phosphor amber navy paper mono cyanotype`).
   `keepColor` leaves saturated marks (a red lock box) in their own colour.
+- `riso`: a stencil print. Each pixel is split into 1 to 4 spot `inks` (`RISO_INKS.pink blue yellow teal red green
+  orange purple black`) by optical density, so a solid ink or an overprint of two comes back as itself. Each ink
+  prints as a halftone dot screen: `cell` px, its own `angles` entry, its own register `offset` [x, y] in px (a
+  function of t moves a plate). Inks multiply on `paper`; `mottle` varies each dot, `fibre` marks the paper.
+  `amount` 0 by default; the `riso` look turns it on. Paint the page in the ink colours with
+  `mix-blend-mode: multiply` for overlaps, then let the lens make the dots.
 - Light is linear from the first tap to the last pass. `grid` is a panel mask on the screen plane: a soft
   dot per subpixel (`layout` stripe, triad or dot, `softness`), the same shape per channel so the
   average colour stays untinted. It follows the plane (period changes with zoom and tilt), fades out of

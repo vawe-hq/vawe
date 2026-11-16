@@ -126,7 +126,7 @@ export const ABOUT = {
   next: {
     title: "What is next",
     lead: ["The roadmap lists what is in work now, what comes next and what is later. Each item links to the problem it addresses."],
-    primary: { href: "/roadmap", label: "Read the roadmap" },
+    primary: { href: "/problems#roadmap", label: "Read the roadmap" },
     secondary: { href: REPO_URL, label: "vawe on GitHub" },
   } as NextBlock,
 };

@@ -202,3 +202,9 @@
   .btn.in-sm{min-height:36px}
 }
 @media (prefers-reduced-motion:reduce){ .in-buf,.in-tile.is-skel::before{animation:none} }
+.in-about{max-width:var(--measure);padding-block:var(--sp-7) var(--sp-5)}
+.in-about h2{font-size:var(--fs-h3);font-weight:var(--fw-head);margin-block:var(--sp-5) var(--sp-2)}
+.in-about p,.in-about li{color:var(--muted);margin-top:var(--sp-2)}
+.in-about ol{padding-left:var(--sp-5)}
+.in-about code{font-family:var(--font-mono),monospace;font-size:var(--fs-code)}
+.in-types{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-3);margin-top:var(--sp-3);color:var(--muted)}

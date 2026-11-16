@@ -176,14 +176,15 @@ export const PROBLEMS_PAGE = {
   h1: "The hard problems in agent-made motion graphics.",
   lede: `An agent can write a page of HTML in a minute. Turning that page into a film that looks designed is the hard part. These are the ${PROBLEMS.length} problems vawe works on, with the measured result for each. ${SOLVED.length} are solved. ${OPEN.length} are still open. The acceptance table has 17 rows: 16 are measured by code and 1 by the judge.`,
   note: [
-    "The plan for the open problems is on the ",
-    { text: "roadmap", href: "/roadmap" },
-    ". Numbers come from vawe’s own runs and tests. vawe runs on your machine, needs no account and has no per-render fee.",
+    "The plan for the open problems is in ",
+    { text: "the roadmap", href: "#roadmap" },
+    " at the end. Numbers come from vawe’s own runs and tests. vawe runs on your machine, needs no account and has no per-render fee.",
   ] as Para,
   tocLabel: "Jump to",
   toc: [
     { href: "#solved", label: `Solved (${SOLVED.length})` },
     { href: "#open", label: `Still solving (${OPEN.length})` },
+    { href: "#roadmap", label: "Roadmap" },
   ] as Link[],
   solved: { title: "Solved", lead: "Each of these has a mechanism in the engine and a measured result." },
   open: { title: "Still solving", lead: "These are open. Each entry says what is known and what is not." },
@@ -192,12 +193,11 @@ export const PROBLEMS_PAGE = {
     title: "See the engine at work.",
     lead: ["Every video component in the library uses the eases from problem 4. The determinism page shows the clock from problem 1."],
     primary: { href: "/video-components", label: `Browse the ${MOVES.length} video components` },
-    secondary: { href: "/roadmap", label: "Read the roadmap" },
+    secondary: { href: REPO_URL, label: "Follow the work on GitHub" },
     related: [
       { href: "/determinism", label: "Why the same page renders the same frames" },
       { href: "/ai-agents", label: "How an agent writes and checks a film" },
-      { href: "/vs/remotion", label: "vawe vs Remotion" },
-      { href: REPO_URL, label: "Star vawe on GitHub" },
+      { href: "/remotion-alternatives#vs-remotion", label: "vawe vs Remotion" },
     ],
   } as NextBlock,
 };

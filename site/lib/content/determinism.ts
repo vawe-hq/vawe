@@ -3,18 +3,19 @@ import type { Crumb, Link, Meta, NextBlock, Section } from "./types";
 export const DETERMINISM = {
   path: "/determinism",
   meta: {
-    title: "Deterministic video rendering from HTML | vawe",
+    title: "Deterministic video rendering from HTML: how and when it matters",
     description:
-      "A Vawe film is a page seeked to each frame’s time, never played: the same page produces the same frames on every render, in any order. How Vawe makes that true, how it checks it, and why that lets a render split into parallel slices.",
+      "The same HTML page renders the same frames every time, in any order. How vawe does it, the test that checks it, and when determinism matters for video.",
   } as Meta,
   crumb: { group: "Learn", current: "Determinism" } as Crumb,
   h1: "Same page in. Same frames out.",
-  lede: "A Vawe film is an HTML page that the renderer seeks to each frame’s time. Ask for the frame at 4.2 seconds twice, in any order, and it comes back the same. The clock is replaced before the page runs, and a test renders pages twice and compares every frame.",
+  lede: "A vawe film is an HTML page that the renderer seeks to each frame’s time. Ask for the frame at 4.2 seconds twice, in any order, and it comes back the same. The clock is replaced before the page runs, and a test renders pages twice and compares every frame.",
   toc: [
     { href: "#clock", label: "The fake clock" },
     { href: "#test", label: "The test" },
     { href: "#slices", label: "Parallel slices" },
     { href: "#rates", label: "60 and 30 fps" },
+    { href: "#when-it-matters", label: "When it matters" },
   ] as Link[],
   sections: [
     {
@@ -109,16 +110,43 @@ assert frames differ over t`,
       ],
       cite: "harness/cli/verbs.mjs · harness/media/render-page.mjs",
     },
+    {
+      id: "when-it-matters",
+      title: "When it matters, and when it does not.",
+      blocks: [
+        { p: ["Determinism matters when nobody looks at every frame. Then the guarantee has to come from the renderer."] },
+        {
+          ol: [
+            [{ strong: "An agent approves a draft." }, " The final render must show the same moments as the draft it approved."],
+            [{ strong: "One template makes many ad variants." }, " The shared background must be the same in every variant."],
+            [{ strong: "A render is split across machines or workers." }, " Frame 4000 from one worker must match frame 4000 from another."],
+            [{ strong: "A pipeline checks for regressions." }, " Two renders of the same input are diffed, and any pixel change is a bug. Without determinism every diff is noise, and people stop trusting the check."],
+          ],
+        },
+        {
+          p: [
+            "It matters less when a person is the last step. A person who watches and approves one edit is already the check. Live compositing has no second render to match. A generative model that makes variation on purpose solves a different problem.",
+          ],
+        },
+        {
+          p: [
+            "A headless browser does not give determinism for free. A real clock, an unseeded random call or a fetch in the middle of a render breaks it. So an engine that promises it must state its rules. HyperFrames publishes its own rules: integer frame time, no system timers, no unseeded random and no fetch during a render. vawe makes the same promise with a virtual clock instead of a ban.",
+          ],
+        },
+      ],
+      cite: "hyperframes.heygen.com/concepts/determinism · read 2026-09-19",
+    },
   ] as Section[],
   next: {
-    title: "When this decides the engine",
-    lead: ["Byte-identical output matters most where nobody looks at every frame."],
-    primary: { href: "/when-determinism-matters", label: "When determinism matters" },
+    title: "The causes of drift, measured.",
+    lead: ["Two renders of one page once gave 70 of 216 different frames. The post lists each cause and its fix."],
+    primary: { href: "/blog/determinism", label: "Headless Chrome screenshots differ: the fixes" },
     related: [
       { href: "/ai-agents", label: "How an agent writes the page" },
       { href: "/features", label: "What else the engine decides" },
       { href: "/blog/seekable-css", label: "Seek CSS animations frame by frame" },
-      { href: "/blog/page-clock", label: "Seed Math.random and freeze Date.now" },
+      { href: "/remotion-alternatives", label: "Remotion alternatives, categorized" },
+      { href: "/hyperframes-alternatives#vs-hyperframes", label: "vawe vs HyperFrames" },
     ],
   } as NextBlock,
 };

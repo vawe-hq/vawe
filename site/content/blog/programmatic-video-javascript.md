@@ -2,16 +2,43 @@
 title: "Programmatic video: 6 JavaScript tools compared"
 description: "Remotion, Revideo, Motion Canvas, HyperFrames, vawe and ffmpeg scripts compared on language, determinism, agent use, license and hosting."
 date: 2026-10-19
-updated: 2026-10-19
+updated: 2026-11-16
 section: how-to
 nav: "Programmatic video"
 topic: how-to
 docs: video-from-code, faq
 tags: "programmatic video, javascript, remotion, revideo, motion canvas, hyperframes"
-keywords: "programmatic video javascript, video from code, create video in node.js, remotion vs revideo, programmatic video generation"
+keywords: "programmatic video javascript, video as code, video editing as code, code to video, video from code, create video in node.js, remotion vs revideo, programmatic video generation"
 ---
 
 To make programmatic video in JavaScript, you write code that describes each frame, and a renderer turns the frames into an MP4. Six tools do this in different ways: Remotion, Revideo, Motion Canvas, HyperFrames, vawe, and a plain Puppeteer and ffmpeg script. This post compares them and says when each one is the better pick.
+
+## Video as code: three approaches
+
+Video as code means a film is a text file, and a program turns the file into a video. You change the text, run the program and get a new video. The same file gives the same video, you keep it in version control, and you review a change as a diff. The tools fall into three approaches.
+
+**1. A command line that edits.** You describe the edit as a command, usually ffmpeg. This one makes a 3-second title that fades in on a dark background:
+
+```bash
+ffmpeg -y -f lavfi -i "color=c=0x0b0d12:s=1280x720:d=3:r=30" \
+  -vf "drawtext=text='one page, one film':fontcolor=white:fontsize=64:x=(w-text_w)/2:y=(h-text_h)/2:alpha='min(1,max(0,(t-0.4)/0.6))'" \
+  -pix_fmt yuv420p out.mp4
+```
+
+With ffmpeg 8.0 it wrote a 1280 by 720 file, 90 frames and 10.9 KB, in about half a second. It needs no browser. It gets hard to read once the edit has more than a few layers, because each effect is a filter string.
+
+**2. Components that draw one frame.** You write a function of the frame number, and the tool calls it for every frame. Remotion does this with React, and Manim does it for math scenes in Python. You get a full language, and you write the animation with the framework's helpers.
+
+**3. A web page that the renderer seeks.** You write one HTML page with CSS animation. A headless browser sets the time, takes a screenshot, moves on, and ffmpeg joins the frames. HyperFrames and vawe work this way. The risk is the clock: a page that reads `Date.now()` or `Math.random()` can change between runs unless the renderer replaces the clock.
+
+| Need | Approach |
+|---|---|
+| Cut, trim or join existing footage | 1 |
+| Typed components and a React team | 2 |
+| Motion graphics from web skills, or from an AI coding agent | 3 |
+| Many variants from one data file | 2 or 3, see [batch render videos from one HTML template](/blog/batch-render-videos) |
+
+Do not use video as code for one video made once from complex footage: a timeline editor is faster. It also gives little when the film is camera footage cut by feel, or when nobody on the team reads code.
 
 ## How we compared
 
@@ -57,10 +84,10 @@ Read 2026-10-16 for Remotion, Revideo, Motion Canvas and HyperFrames. Sources: t
 
 ## When each tool is the better pick
 
-- Remotion: pick it if your team writes React and wants video in the same model. It also fits you if you need to render many videos in parallel on AWS Lambda. Check the license first if your company has more than 3 employees. More in [vawe vs Remotion](/vs/remotion) and [Remotion alternatives](/remotion-alternatives).
-- Revideo: pick it if you want TypeScript scenes and a render API you can host yourself, under MIT. More in [vawe vs Revideo](/vs/revideo).
-- Motion Canvas: pick it for vector animation and diagrams with a live editor. Its docs describe it as a tool to make informative vector animations and sync them with voice-overs. Its default output is an image sequence, and an FFmpeg exporter makes a video. The docs call the exporter relatively new. More in [vawe vs Motion Canvas](/vs/motion-canvas).
-- HyperFrames: pick it if you want a block catalog, a Studio editor, or cloud rendering. More in [vawe vs HyperFrames](/vs/hyperframes) and [HyperFrames alternatives](/hyperframes-alternatives).
+- Remotion: pick it if your team writes React and wants video in the same model. It also fits you if you need to render many videos in parallel on AWS Lambda. Check the license first if your company has more than 3 employees. More in [vawe vs Remotion](/remotion-alternatives#vs-remotion) and [Remotion alternatives](/remotion-alternatives).
+- Revideo: pick it if you want TypeScript scenes and a render API you can host yourself, under MIT. More in [vawe vs Revideo](/remotion-alternatives#vs-revideo).
+- Motion Canvas: pick it for vector animation and diagrams with a live editor. Its docs describe it as a tool to make informative vector animations and sync them with voice-overs. Its default output is an image sequence, and an FFmpeg exporter makes a video. The docs call the exporter relatively new. More in [vawe vs Motion Canvas](/hyperframes-alternatives#vs-motion-canvas).
+- HyperFrames: pick it if you want a block catalog, a Studio editor, or cloud rendering. More in [vawe vs HyperFrames](/hyperframes-alternatives#vs-hyperframes) and [HyperFrames alternatives](/hyperframes-alternatives).
 - vawe: pick it if you want ordinary web code to keep working. It has no new model to learn and no company-size limit in its license. Pick another tool if you need cloud rendering or a timeline editor.
 - Puppeteer and ffmpeg: pick it for a short, simple page that uses only CSS animation. It has no dependency beyond Chrome and ffmpeg.
 
@@ -118,11 +145,17 @@ For the vawe version of the same page, with the install steps and a draft comman
 - Motion Canvas hosting and agent support. We found no statement on the pages we read.
 - Price. Remotion lists prices for company licenses, but we did not verify them today, so we give none.
 
-For when byte-identical output decides the choice, read [when determinism matters](/when-determinism-matters).
+For when byte-identical output decides the choice, read [when determinism matters](/determinism#when-it-matters).
 
 If you are choosing a tool for an AI agent to drive, read [Claude Code with Remotion or plain HTML](/blog/claude-code-remotion-or-html).
 
 ## FAQ
+
+**What is video as code?**
+A film is a text file, and a program renders it to a video file. The text file is the source and the video is the output.
+
+**Is video as code the same as programmatic video?**
+Nearly. Programmatic video means a program makes the video. Video as code adds the idea that the source lives in files you keep and review like software.
 
 **Can I make a video with JavaScript only?**
 Yes. Write the frames as code, render them in headless Chrome or a canvas, and encode with ffmpeg. Each tool above does some form of this.

@@ -113,7 +113,7 @@ export const PROGRAMMATIC_EDITING = {
     related: [
       { href: "/agentic-video-editing", label: "Agentic video editing" },
       { href: "/remotion-alternatives", label: "Remotion alternatives" },
-      { href: "/vs/remotion", label: "vawe vs Remotion" },
+      { href: "/remotion-alternatives#vs-remotion", label: "vawe vs Remotion" },
       { href: "/vs/openedit", label: "vawe vs OpenEdit" },
     ],
   } as NextBlock,

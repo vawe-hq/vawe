@@ -5,6 +5,9 @@ import { pageMetadata } from "../components/seo";
 import { PageTop, Toc } from "../components/Xp";
 import { NextView, SectionView, TableView } from "../components/RichText";
 import { AltEvidence } from "../components/AltEvidence";
+import { HeadToHead } from "../components/HeadToHead";
+import { headToHead } from "../../lib/content/vs";
+import "../components/study.css";
 import { REMOTION_ALTERNATIVES as C } from "../../lib/content/remotion-alternatives";
 import "../components/intent.css";
 
@@ -46,6 +49,9 @@ export default function RemotionAlternatives() {
           <SectionView s={C.revideo} />
           <SectionView s={C.json2video} />
           <SectionView s={C.creatomate} />
+
+          <HeadToHead r={headToHead("remotion")} />
+          <HeadToHead r={headToHead("revideo")} />
 
           <AltEvidence faq={C.faq} />
 

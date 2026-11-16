@@ -18,6 +18,8 @@ export const REMOTION_ALTERNATIVES = {
     { href: "#shapes", label: "Two shapes" },
     { href: "#license", label: "Remotion’s license" },
     { href: "#revideo", label: "Revideo" },
+    { href: "#vs-remotion", label: "vawe vs Remotion" },
+    { href: "#vs-revideo", label: "vawe vs Revideo" },
     { href: "#creatomate", label: "Creatomate" },
     { href: "#faq", label: "Questions" },
   ] as Link[],
@@ -89,10 +91,10 @@ paid "Company License":
     blocks: [
       {
         p: [
-          "vawe ships under Apache-2.0 with no company-size clause and no paid tier. A film is one HTML page. HyperFrames (HeyGen) is also Apache-2.0 and composes from HTML with data attributes. Each has its own side-by-side page: ",
-          { text: "vawe vs Remotion", href: "/vs/remotion" },
-          " and ",
-          { text: "vawe vs HyperFrames", href: "/vs/hyperframes" },
+          "vawe ships under Apache-2.0 with no company-size clause and no paid tier. A film is one HTML page. HyperFrames (HeyGen) is also Apache-2.0 and composes from HTML with data attributes. The side-by-side tables are ",
+          { text: "vawe vs Remotion", href: "#vs-remotion" },
+          " below and ",
+          { text: "vawe vs HyperFrames", href: "/hyperframes-alternatives#vs-hyperframes" },
           ". For all three at once, see ",
           { text: "Remotion vs HyperFrames vs vawe", href: "/compare/remotion-vs-hyperframes" },
           ".",
@@ -110,7 +112,7 @@ paid "Company License":
           "Revideo describes itself as a rendering engine for creating videos in code. A scene is a TypeScript generator function; ",
           { code: "renderVideo()" },
           " or a render endpoint makes the file, and renders can be split across workers or run on serverless platforms such as Google Cloud Run. The repository is MIT-licensed and was not archived on 2026-11-03: the last commit on main was dated 2026-07-15, and the latest tag was v0.11.0. Its README calls it the engine behind Midrender, and the old docs address now redirects to the Midrender site. See ",
-          { text: "vawe vs Revideo", href: "/vs/revideo" },
+          { text: "vawe vs Revideo", href: "#vs-revideo" },
           ".",
         ],
       },
@@ -134,11 +136,11 @@ paid "Company License":
     blocks: [
       {
         p: [
-          "JSON2Video’s public pricing page offers a free plan (600 credits, no card required), then subscriptions starting at $16.95/month for 3,000 credits and up to 50 minutes of rendered output, rising to $99.95/month for 30,000 credits. It is a reasonable choice for a team that wants zero infrastructure and does not need a custom effect vocabulary: the tradeoff is a running bill per minute rendered, and no self-hosting option on that page.",
+          "JSON2Video’s pricing page charges 1 credit per second of video. The free plan gives 600 credits with a watermark. Paid plans run from Hobby at $16.63 a month (billed yearly) to Professional at $49.95 and Startup at $99.95 a month, and a video can be up to 30\u00a0minutes long. It is a reasonable choice for a team that wants zero infrastructure and does not need a custom effect vocabulary: the tradeoff is a running bill per minute rendered, and no self-hosting option on that page.",
         ],
       },
     ],
-    cite: "json2video.com/pricing · read 2026-09-19",
+    cite: "json2video.com/pricing · read 2026-11-16",
   } as Section,
   faq: [
     {
@@ -181,20 +183,18 @@ paid "Company License":
     ],
   } as Section,
   next: {
-    title: "Compare vawe with one tool.",
-    primary: { href: "/vs/remotion", label: "vawe vs Remotion" },
+    title: "Compare vawe with more tools.",
+    primary: { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },
     secondary: { href: REPO_URL, label: "Star vawe on GitHub" },
     related: [
       { href: "/hyperframes-alternatives", label: "HyperFrames alternatives" },
-      { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },
-      { href: "/vs/revideo", label: "vawe vs Revideo" },
       { href: "/vs/video-use", label: "vawe vs video-use, for editing your own clips" },
       { href: "/blog/claude-code-remotion-or-html", label: "Claude Code with Remotion or plain HTML" },
       { href: "/blog/programmatic-video-javascript", label: "Six JavaScript video tools compared" },
       { href: "/determinism", label: "Why the same page always renders the same frames" },
       { href: "/ai-agents", label: "How an agent writes and checks a film" },
-      { href: "/when-determinism-matters", label: "When determinism is the reason to pick an engine" },
       { href: "/blog/page-contract", label: "How vawe renders HTML to video" },
+      { href: "/vs/lottie", label: "vawe vs Lottie" },
     ],
   } as NextBlock,
 };

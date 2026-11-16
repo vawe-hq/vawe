@@ -81,7 +81,7 @@ Counts are powers of two, and the renderer run-length encodes them before captur
 
 ## When a subframe skips its screenshot
 
-After a seek, the page reports whether anything still pending can change the pixels: timers, animation frame callbacks, canvas, video or SMIL. If nothing can, two subframes with the same animation state paint the same pixels. The second one reuses the first capture. A held frame costs one screenshot, however many subframes it asks for. The pending count comes from the [virtual clock](/blog/page-clock), which owns timers and `requestAnimationFrame`.
+After a seek, the page reports whether anything still pending can change the pixels: timers, animation frame callbacks, canvas, video or SMIL. If nothing can, two subframes with the same animation state paint the same pixels. The second one reuses the first capture. A held frame costs one screenshot, however many subframes it asks for. The pending count comes from the [virtual clock](/blog/determinism#1-replace-the-page-clock-before-the-page-scripts-run), which owns timers and `requestAnimationFrame`.
 
 ## What a cap of 16 or 32 costs
 

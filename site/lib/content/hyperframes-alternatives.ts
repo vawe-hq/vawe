@@ -11,12 +11,14 @@ export const HYPERFRAMES_ALTERNATIVES = {
   } as Meta,
   crumb: { group: "Compare", current: "HyperFrames alternatives" } as Crumb,
   h1: "HyperFrames alternatives.",
-  lede: "HyperFrames is HeyGen’s open-source framework that turns HTML, CSS and seekable animations into MP4. People look for an alternative for an authoring model, a determinism rule or a different job. Four tools are worth a look. Each has its own comparison page.",
-  note: "Read 2026-10-03.",
+  lede: "HyperFrames is HeyGen’s open-source framework that turns HTML, CSS and seekable animations into MP4. People look for an alternative for an authoring model, a determinism rule or a different job. Four tools are worth a look. The two closest, vawe and Motion Canvas, are compared side by side further down.",
+  note: "Read 2026-10-03. The side-by-side sections were read 2026-11-03.",
   toc: [
     { href: "#table", label: "The table" },
     { href: "#alternatives", label: "Four alternatives" },
     { href: "#faq", label: "Questions" },
+    { href: "#vs-hyperframes", label: "vawe vs HyperFrames" },
+    { href: "#vs-motion-canvas", label: "vawe vs Motion Canvas" },
     { href: "#stay", label: "Stay on HyperFrames" },
   ] as Link[],
   table: {
@@ -35,20 +37,20 @@ export const HYPERFRAMES_ALTERNATIVES = {
   alternatives: [
     {
       name: "vawe",
-      href: "/vs/hyperframes",
-      cta: "vawe vs HyperFrames",
+      href: "#vs-hyperframes",
+      cta: "vawe vs HyperFrames, side by side",
       body: "The closest peer. Both are Apache-2.0, both drive headless Chrome, and both aim at an agent that writes the file. vawe takes timing from CSS keyframes, element.animate() or a seek(t) function, and replaces Date, timers and Math.random with versions that follow the seek. HyperFrames forbids those calls instead.",
     },
     {
       name: "Remotion",
-      href: "/vs/remotion",
+      href: "/remotion-alternatives#vs-remotion",
       cta: "vawe vs Remotion",
       body: "Video from React components, with a Studio editor and distributed rendering on AWS Lambda and Cloud Run. Its licence is free up to 3 employees in a for-profit company. It publishes Agent Skills for coding agents.",
     },
     {
       name: "Motion Canvas",
-      href: "/vs/motion-canvas",
-      cta: "vawe vs Motion Canvas",
+      href: "#vs-motion-canvas",
+      cta: "vawe vs Motion Canvas, side by side",
       body: "A TypeScript library for vector animation, written as generator functions, with a real-time editor. MIT licence. It fits diagram and explainer animation synced to a voice-over.",
     },
     {
@@ -67,7 +69,7 @@ export const HYPERFRAMES_ALTERNATIVES = {
         ", timers and ",
         { code: "Math.random" },
         " in a composition. vawe lets a page call them and replaces them with versions that follow the seek; ",
-        { text: "the virtual clock reference", href: "/blog/page-clock" },
+        { text: "the virtual clock section", href: "/blog/determinism#1-replace-the-page-clock-before-the-page-scripts-run" },
         " lists what it owns.",
       ],
     },
@@ -84,7 +86,7 @@ export const HYPERFRAMES_ALTERNATIVES = {
       a: [
         "Both aim at an agent that writes the file. vawe’s film is one plain HTML page with no private attributes to learn; the rules are in ",
         { text: "render HTML to video: the page contract", href: "/blog/page-contract" },
-        ". HyperFrames ships 21 agent skills and a block catalog.",
+        ". HyperFrames ships agent skills and a block catalog.",
       ],
     },
     {
@@ -94,15 +96,15 @@ export const HYPERFRAMES_ALTERNATIVES = {
   ] as QA[],
   stay: {
     title: "When to stay on HyperFrames.",
-    body: "HyperFrames has a Studio browser editor, a catalog of reusable blocks, 21 agent skills, and cloud rendering on Lambda, Cloud Run and HeyGen. If you want those, stay. The HyperFrames comparison page lists them with sources.",
+    body: "HyperFrames has a Studio browser editor, a catalog of reusable blocks, agent skills, and cloud rendering on Lambda, Cloud Run and HeyGen. If you want those, stay. The side-by-side section above lists them with sources.",
     sources: [
       { href: "https://github.com/heygen-com/hyperframes", label: "HyperFrames README" },
       { href: "https://hyperframes.heygen.com/introduction", label: "HyperFrames introduction" },
     ] as Link[],
   },
   next: {
-    title: "Compare vawe with HyperFrames.",
-    primary: { href: "/vs/hyperframes", label: "vawe vs HyperFrames" },
+    title: "Compare more tools.",
+    primary: { href: "/compare/remotion-vs-hyperframes", label: "Remotion vs HyperFrames vs vawe" },
     secondary: { href: REPO_URL, label: "Star vawe on GitHub" },
     related: [
       { href: "/remotion-alternatives", label: "Remotion alternatives, categorized" },

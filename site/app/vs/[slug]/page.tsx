@@ -1,30 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Header, VaweMark } from "../../components/Header";
-import { Icon } from "../../components/Icon";
+import { Header } from "../../components/Header";
+import { ChooseLists, RivalTable } from "../../components/HeadToHead";
 import { PageTop, Sources, Toc } from "../../components/Xp";
 import { NextView } from "../../components/RichText";
 import { Footer } from "../../components/Footer";
 import { pageMetadata } from "../../components/seo";
 import { jsonLdScript, breadcrumbSchema } from "../../../lib/schema";
-import { MARK_LABEL, RIVALS, RIVAL_BY_SLUG, VAWE_SOURCES, vsPage, type Mark } from "../../../lib/content/vs";
+import { RIVALS, RIVAL_BY_SLUG, VAWE_SOURCES, vsPage } from "../../../lib/content/vs";
 import "../../components/intent.css";
 import "../../components/study.css";
 
 export const dynamicParams = false;
-
-function Cell({ text, mark, vawe }: { text: string; mark?: Mark; vawe?: boolean }) {
-  return (
-    <td className={vawe ? "is-vawe" : undefined}>
-      {mark && (
-        <span className={`mk mk-${mark}`}>
-          <Icon name={mark === "yes" ? "check" : mark === "no" ? "x" : "minus"} size={14} label={MARK_LABEL[mark]} />
-        </span>
-      )}
-      {text}
-    </td>
-  );
-}
 
 export function generateStaticParams() {
   return RIVALS.map((r) => ({ slug: r.slug }));
@@ -66,24 +53,9 @@ export default async function Vs({ params }: { params: Promise<{ slug: string }>
             <Toc items={c.toc} />
           </section>
 
-          <section className="tldr" id="choose" aria-label={c.chooseLabel}>
-            <div>
-              <h2>{c.chooseThem}</h2>
-              <ul>
-                {r.chooseThem.map((t) => (
-                  <li key={t}>{t}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h2>{c.choosevawe}</h2>
-              <ul>
-                {r.choosevawe.map((t) => (
-                  <li key={t}>{t}</li>
-                ))}
-              </ul>
-            </div>
-          </section>
+          <div id="choose">
+            <ChooseLists r={r} />
+          </div>
 
           <section className="tfacts">
             <h2>{c.what}</h2>
@@ -92,31 +64,7 @@ export default async function Vs({ params }: { params: Promise<{ slug: string }>
 
           <section className="iend" aria-labelledby="table">
             <h2 className="h2" id="table">{c.table.title}</h2>
-            <div className="itable-wrap">
-              <table className="itable">
-                <thead>
-                  <tr>
-                    <th scope="col">{c.table.feature}</th>
-                    <th scope="col">
-                      {r.name}
-                    </th>
-                    <th scope="col" className="is-vawe">
-                      <VaweMark className="glyph-sm" />
-                      vawe
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {r.rows.map((row) => (
-                    <tr key={row.feature}>
-                      <td>{row.feature}</td>
-                      <Cell text={row.them} mark={row.t} />
-                      <Cell text={row.vawe} mark={row.v} vawe />
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <RivalTable r={r} />
           </section>
 
           <section className="tfacts" id="stronger">

@@ -6,6 +6,7 @@ const CLUSTER_LINKS = [
   { path: "/agentic-video-editing", item: [{ text: "Agentic video editing", href: "/agentic-video-editing" }, ": how an agent reads footage it cannot watch, and what an edit can and cannot do."] },
   { path: "/programmatic-video-editing", item: [{ text: "Edit video with code", href: "/programmatic-video-editing" }, ": ffmpeg, MoviePy, Editly, Remotion and vawe compared, with sources."] },
   { path: "/screen-recording-to-demo-video", item: [{ text: "Turn a screen recording into a demo video", href: "/screen-recording-to-demo-video" }, ": trim the dead time, speed up the waits, add titles and captions."] },
+  { path: "/how-to", item: [{ text: "How-to guides", href: "/how-to" }, ": one guide per task, from captions and silences to music and speed."] },
 ] as const;
 
 // The cluster list for one page: every sibling but the page itself.

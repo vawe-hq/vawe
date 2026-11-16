@@ -199,6 +199,8 @@ const BLOG_MOVED = {
   "new-asks": "one-binary", "run-logs": "one-binary",
   "judge-design": "watch-a-film", "quality-bar": "watch-a-film",
   ideate: "transitions", "skill-combos": "make-video-claude-code", encode: "fast-drafts",
+  // 2026-11-16: 0 impressions in 28 days; each now lives in the post that ranks for its topic.
+  "page-clock": "determinism", "video-as-code": "programmatic-video-javascript",
 };
 // Posts whose facts now live on a site page, not in a post.
 const BLOG_TO_PAGE = { "site-after-json": MOVES, "ten-looks": MOVES, "headless-blocks": MOVES };
@@ -210,7 +212,19 @@ const BLOG_MOVED_RULES = [
   ...Object.entries(BLOG_TO_PAGE).flatMap(([old, to]) => [permanent(`/blog/${old}`, to), permanent(`/blog/${old}.md`, to)]),
 ];
 
+// Pages merged into a stronger page on 2026-11-16 (0 or 1 impressions in 28 days). The anchor opens the merged section.
+const MERGED_PAGES = {
+  "/vs/remotion": "/remotion-alternatives#vs-remotion",
+  "/vs/revideo": "/remotion-alternatives#vs-revideo",
+  "/vs/hyperframes": "/hyperframes-alternatives#vs-hyperframes",
+  "/vs/motion-canvas": "/hyperframes-alternatives#vs-motion-canvas",
+  "/when-determinism-matters": "/determinism#when-it-matters",
+  "/roadmap": "/problems#roadmap",
+};
+const MERGED_PAGE_RULES = Object.entries(MERGED_PAGES).flatMap(([old, to]) => [permanent(old, to), permanent(`${old}.md`, to.replace(/#.*/, ".md"))]);
+
 export const LEGACY_REDIRECTS = [
+  ...MERGED_PAGE_RULES,
   ...BLOG_MOVED_RULES,
   ...effectRules(),
   ...blockRules(),
