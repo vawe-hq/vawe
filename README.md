@@ -35,6 +35,17 @@ or [llms.txt](https://vawe.dev/llms.txt).
 ## Quickstart
 
 ```bash
+npx vawe new my-film --request "a 10 second title card"
+npx vawe dev films/my-film/page.html
+```
+
+Needs Node 22+ and ffmpeg on PATH. The film goes in `films/` and the mp4 in `out/`, in the folder you run it
+from. The first render fetches Chrome once (about 150 MB). `npx vawe --help` lists the verbs. In the docs, read
+`bin/vawe` as `npx vawe`.
+
+From source, for work on vawe itself:
+
+```bash
 git clone https://github.com/vawe-hq/vawe.git && cd vawe
 npm install                                  # Node 22+; ffmpeg must be on PATH
 npx puppeteer browsers install chrome        # bin/vawe-dev doctor prints this and every other missing tool
@@ -127,7 +138,7 @@ finds the seven ways a seeked CSS animation breaks without an error. More: [vawe
   docs. Claude Code reads `CLAUDE.md`, which points to `AGENTS.md`.
 - `skills/` holds the skills an agent loads per stage: `html-to-video` (start here), `vawe-brief`,
   `vawe-page`, `vawe-critique`, `vawe-transitions`, `vawe-reference`. Any agent can read a
-  `SKILL.md`. The skills run inside a vawe checkout (see Quickstart). Install them in two ways:
+  `SKILL.md`. The skills call the `vawe` command: `npx vawe` works anywhere, `bin/vawe` in a checkout. Install them in two ways:
 
   ```bash
   npx skills add vawe-hq/skills

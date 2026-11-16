@@ -115,13 +115,14 @@ export function pageRoot(abs) {
 
 /**
  * How a page outside this checkout is served: { prefix, dir, url }, the URL folder the page keeps, the real folder behind it and the page's URL path.
- * A page in a git checkout keeps its path in that checkout, so its `../../core/` is this checkout's core/; a page in no repo is served at the root of its own folder.
+ * A page in a vawe checkout keeps its path in that checkout, so its `../../core/` is this checkout's core/; a page in no vawe checkout is served at the root of its own folder.
  */
 export function pageMount(abs) {
   const real = fs.realpathSync(abs);
   const dir = path.dirname(real);
   let top = null;
   try { top = execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() || null; } catch { /* no repo */ }
+  if (top && !fs.existsSync(path.join(top, 'core', 'engine'))) top = null;
   const prefix = top ? path.relative(top, dir).split(path.sep).join('/') : '';
   return { prefix, dir, url: `${prefix ? `${prefix}/` : ''}${path.basename(real)}` };
 }

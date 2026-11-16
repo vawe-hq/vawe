@@ -1,7 +1,6 @@
 // `vawe frame`: every picture of a film. One mode flag picks the owner script; the steps come from the builders below.
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { UsageError } from './parse.mjs';
 import { EXIT, ExitError } from '../lib/exit-codes.mjs';
 import { opt, needsPage, pageName } from './helpers.mjs';
@@ -17,7 +16,8 @@ import { outProblem } from '../lib/out-target.mjs';
 import { looksProblem } from '../lib/looks.mjs';
 import { SAY, nextStep } from '../live/stage-say.mjs';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+import { WORK } from '../lib/workspace.mjs';
+const ROOT = WORK;
 
 /** The compare-frames step of a sheet with a reference: a page is seeked, an mp4 is read; the reference is always beside it. */
 function versus(v, input) {

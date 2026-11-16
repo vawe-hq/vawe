@@ -6,6 +6,35 @@
   "bin": {
     "vawe": "bin/vawe"
   },
+  "files": [
+    "bin/vawe",
+    "bin/vawe-dev",
+    "core",
+    "harness",
+    "prompts",
+    "taste",
+    "guides",
+    "skills",
+    "themes",
+    "generators",
+    "films/examples",
+    ".puppeteerrc.cjs",
+    "assets/README-LICENCE.md",
+    "assets/vendor",
+    "assets/icons",
+    "assets/flags",
+    "assets/geo",
+    "assets/globe",
+    "assets/cutouts",
+    "assets/lottie",
+    "assets/brand-art",
+    "assets/music",
+    "assets/fonts",
+    "!assets/fonts/**/*.woff2",
+    "!assets/fonts/**/*.woff",
+    "LICENSE",
+    "NOTICE"
+  ],
   "scripts": {
     "setup:audio": "node generators/media/audio-bake.mjs",
     "postinstall": "node harness/dev/doctor.mjs --quiet || exit 0"
@@ -14,7 +43,6 @@
     "acorn": "^8.18.0",
     "fontkit": "^2.0.4",
     "oxlint": "^1.80.0",
-    "puppeteer": "^25.16.0",
     "three": "^0.185.1",
     "wawoff2": "^2.0.1"
   },
@@ -41,9 +69,8 @@
     "ai-agent",
     "remotion-alternative"
   ],
-  "optionalDependencies": {
-    "ffmpeg-static": "^5.2.0"
-  },
   "//oxlint-note": "Code-quality enforcement: complexity, function length, nesting depth. Rust, so a whole-repo sweep runs in under a second and a single-file check is instant. That speed is what lets it run on every file WRITE (harness/live/code-quality.mjs) rather than only at push, which is the difference between a rule that shapes code and a rule that scolds after the fact. A comment key must stay at the ROOT of this file: npm parses every key inside devDependencies as a package name, and a `//name` entry there breaks `npm install` outright.",
-  "private": true
+  "dependencies": {
+    "puppeteer": "^25.16.0"
+  }
 }

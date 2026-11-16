@@ -191,7 +191,20 @@ export async function loadPuppeteer() {
   const pin = createRequire(import.meta.url)(path.join(REPO_ROOT, '.puppeteerrc.cjs'));
   process.env.PUPPETEER_CHROME_VERSION ??= pin.chrome.version;
   process.env.PUPPETEER_CHROME_HEADLESS_SHELL_VERSION ??= pin['chrome-headless-shell'].version;
-  return (await import('puppeteer')).default;
+  const puppeteer = (await import('puppeteer')).default;
+  await installPinnedChrome(puppeteer);
+  return puppeteer;
+}
+
+// An installed package (npx vawe) has only puppeteer's default Chrome, never the pinned one: the first render fetches it, once, into puppeteer's cache. VAWE_NO_CHROME_INSTALL=1 turns it off.
+async function installPinnedChrome(puppeteer) {
+  if (process.env.VAWE_NO_CHROME_INSTALL) return;
+  const have = await puppeteer.executablePath();
+  if (have && fs.existsSync(have)) return;
+  const pkgFile = createRequire(import.meta.url).resolve('puppeteer/package.json');
+  const bin = path.resolve(path.dirname(pkgFile), JSON.parse(fs.readFileSync(pkgFile, 'utf8')).bin);
+  console.error(`vawe: Chrome ${process.env.PUPPETEER_CHROME_VERSION} is not installed: fetching it once (about 150 MB), then rendering`);
+  spawnSync(process.execPath, [bin, 'browsers', 'install', 'chrome'], { cwd: REPO_ROOT, stdio: ['ignore', 2, 2] });
 }
 
 /** launchPage({ width, height, scale, args }) → { browser, page, close } */

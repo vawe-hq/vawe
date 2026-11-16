@@ -4,7 +4,6 @@
 //   node harness/live/dev-warn.mjs <page.html>
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { readBrief } from '../lib/brief-tables.mjs';
 import { planFindings, planLines } from '../lib/plan-findings.mjs';
 import { attractorProblems } from '../lib/directions.mjs';
@@ -19,7 +18,8 @@ import { nextStep, isTestPage, filmDirOf, SAY } from './stage-say.mjs';
 import { planStatusLines } from './plan-status.mjs';
 import { readPlan } from '../media/plan-read.mjs';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+import { WORK } from '../lib/workspace.mjs';
+const ROOT = WORK;
 const read = (p) => { try { return fs.readFileSync(p, 'utf8'); } catch { return null; } };
 const mtime = (p) => { try { return fs.statSync(p).mtimeMs; } catch { return 0; } };
 

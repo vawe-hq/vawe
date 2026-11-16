@@ -21,6 +21,7 @@ import { readPlanFindings, loadOpened } from './plan-read.mjs';
 import { planLines } from '../lib/plan-findings.mjs';
 import { storyboardHtml } from '../lib/storyboard-html.mjs';
 import { resolveDuration } from './page-duration.mjs';
+import { WORK } from '../lib/workspace.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const die = (m) => { console.error(`error: ${m}`); process.exit(2); };
@@ -34,7 +35,7 @@ export function fontFaceCss(dir = path.join(ROOT, 'assets', 'fonts')) {
 }
 
 /** The page.html of the film a draft is named after: films/<key>, films/examples/<key> or films/*\/<key> under `root`. Null when none. */
-export function pageOfFilm(key, root = ROOT) {
+export function pageOfFilm(key, root = WORK) {
   const films = path.join(root, 'films');
   const direct = [path.join(films, key, 'page.html'), path.join(films, 'examples', key, 'page.html')].find((p) => fs.existsSync(p));
   if (direct) return direct;

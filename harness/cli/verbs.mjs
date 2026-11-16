@@ -2,7 +2,6 @@
 // build() returns the steps to run in order; a step is { script, args, env }.
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { UsageError } from './parse.mjs';
 import { opt, pageName, PAGE, ASPECT, ASPECT_FLAG, PARAM } from './helpers.mjs';
 import { FRAME } from './frame.mjs';
@@ -21,7 +20,8 @@ import { SAY, WAIT_WORK, nextStep } from '../live/stage-say.mjs';
 import { critiqueProblem, critiqueCommand, critiqueFreshCommand } from '../lib/critique-gate.mjs';
 export { commitsBehind } from '../lib/stale-checkout.mjs';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+import { WORK } from '../lib/workspace.mjs';
+const ROOT = WORK;
 // Chrome on macOS prints these to stderr on every launch; they mean nothing for a render.
 const CHROME_NOISE = [/task_policy_set/, /CVDisplayLinkCreateWithCGDisplay/];
 

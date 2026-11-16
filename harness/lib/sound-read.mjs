@@ -9,6 +9,7 @@ import { attackTimes } from './ref-measure/audio-attack.mjs';
 import { decodeMono } from './audio-onsets.mjs';
 import { classifyHit } from './sound-class.mjs';
 import { measureFile } from './loudness.mjs';
+import { WORK } from './workspace.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const RATE = 22050;
@@ -109,7 +110,7 @@ const codeHash = () => sha(...CODE.map((f) => fs.readFileSync(path.join(ROOT, f)
  */
 export function readSound(file, { cache = true } = {}) {
   const key = sha(fs.readFileSync(file), codeHash());
-  const kept = path.join(ROOT, 'out', 'sound-cache', `${key}.json`);
+  const kept = path.join(WORK, 'out', 'sound-cache', `${key}.json`);
   if (cache && fs.existsSync(kept)) return JSON.parse(fs.readFileSync(kept, 'utf8'));
   const decoded = decodeMono(file, RATE, { minSeconds: 0.02 });
   if (!decoded.samples) throw new Error(`${file} has no audio to read: ${decoded.error}`);

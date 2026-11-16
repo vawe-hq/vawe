@@ -576,10 +576,10 @@ function pageOf({ edit, route, length, questions, aspect, title, face }) {
  * Writes the film folder; returns { page, route, template, length, answered } (route is null when --from chose the template).
  * When a required detail is unanswered and `defaults` is off it writes nothing and returns { asked }.
  */
-export function newFilm(name, { from, fromUrl, siteWhere, footage, root, length, aspect, title, request, details = {}, defaults = false }) {
+export function newFilm(name, { from, fromUrl, siteWhere, footage, root, work = root, length, aspect, title, request, details = {}, defaults = false }) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) throw new UsageError(`film name "${name}" must be lowercase letters, digits and dashes`);
-  const dir = path.join(root, 'films', name);
-  if (fs.existsSync(path.join(dir, 'page.html'))) throw new UsageError(`${path.relative(root, dir)}/page.html already exists`);
+  const dir = path.join(work, 'films', name);
+  if (fs.existsSync(path.join(dir, 'page.html'))) throw new UsageError(`${path.relative(work, dir)}/page.html already exists`);
   const format = askedFormat(details, request);
   length ??= format.length;
   aspect ??= format.aspect;
@@ -606,7 +606,7 @@ export function newFilm(name, { from, fromUrl, siteWhere, footage, root, length,
   if (title !== undefined) answers.title = title;
   const sections = parseSections(markdown);
   const measured = measuredSections({ name, request, title, length: pageLength, beats, face, reference: sections.some((s) => s.name === 'swap'), details, answered });
-  const variety = varietyFor(recentFromDisk(root, name), namesBrandKit([request, title, ...Object.values(details)].join(' ')));
+  const variety = varietyFor(recentFromDisk(work, name), namesBrandKit([request, title, ...Object.values(details)].join(' ')));
   fs.writeFileSync(path.join(dir, 'brief.md'), briefText(name, path.relative(root, template), questions, sections, answers, measured, route?.recipe, variety, edit));
   fs.writeFileSync(path.join(dir, 'page.html'), html);
   return { variety, page: `films/${name}/page.html`, route, title, ranges: dialRanges(), guesses: measured.guesses, defaulted: defaults ? open.map((d) => d.key) : [], template: path.relative(root, template), length: pageLength, answered: [...answered] };

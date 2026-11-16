@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { CHROME_FIX } from '../lib/doctor-hint.mjs';
 import { missingHooks, hookAdvice } from '../lib/hook-check.mjs';
 
+process.env.VAWE_NO_CHROME_INSTALL = '1';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const quiet = process.argv.includes('--quiet');
 const asJson = process.argv.includes('--json');
