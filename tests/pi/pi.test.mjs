@@ -14,7 +14,7 @@ function fakePi() {
   return { tools, handlers, registerTool: (t) => tools.push(t), on: (name, fn) => { handlers[name] = fn; } };
 }
 
-test('the extension registers the twelve vawe tools with their schemas', async () => {
+test('the extension registers every vawe tool with their schemas', async () => {
   const pi = fakePi();
   await vawePi(pi);
   assert.deepEqual(pi.tools.map((t) => t.name).sort(), [...VAWE_TOOLS].sort());

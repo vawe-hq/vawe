@@ -13,7 +13,7 @@ export const AGENT_TOOLS = [...VAWE_TOOLS, 'read'];
 
 export const AGENT_HELP = `vawe agent [--model <id>] ["<the ask>"]
 
-A chat session that makes a film only through the vawe tools. It has the twelve vawe tools and read.
+A chat session that makes a film only through the vawe tools. It has the vawe tools and read.
 It has no shell, no file writer and no editor.
 
 Needs the pi SDK: npm install ${PI_PACKAGE}@${PI_VERSION}

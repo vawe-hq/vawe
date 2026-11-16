@@ -9,7 +9,7 @@ export const PI_VERSION = '1.5.2';
 
 export const VAWE_TOOLS = [
   'vawe_status', 'vawe_new_film', 'vawe_read_rules', 'vawe_write_page', 'vawe_edit_page', 'vawe_frame',
-  'vawe_render_draft', 'vawe_look', 'vawe_critique', 'vawe_ship', 'vawe_write_doc', 'vawe_edit_doc',
+  'vawe_render_draft', 'vawe_look', 'vawe_critique', 'vawe_ship', 'vawe_write_doc', 'vawe_edit_doc', 'vawe_wait',
 ];
 
 // pi names its built-in tools in lower case with `path`; the guard speaks Claude Code's names with `file_path`.
@@ -33,7 +33,7 @@ async function connectVawe(work) {
   return client;
 }
 
-/** Registers the twelve vawe tools on `pi`, each calling the MCP server in this process. Returns the client so a host can close it. */
+/** Registers the vawe tools on `pi`, each calling the MCP server in this process. Returns the client so a host can close it. */
 export async function registerVaweTools(pi, { work } = {}) {
   const client = await connectVawe(work);
   const { tools } = await client.listTools();
