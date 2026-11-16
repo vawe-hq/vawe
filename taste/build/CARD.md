@@ -153,7 +153,7 @@ A hold keeps life through a part that moves inside the frame: a line typing, a c
 Take every curve from the EASE names (exact linear()), not from a CSS keyword and not from a hand-fitted cubic-bezier. The CSS keywords ease, ease-out and ease-in-out are not a default for everything.
 
 - Limit: a move longer than 0.3 s is not on linear or on a bare CSS keyword with no curve of its own; one to two eases per scene
-- Range: EASE.land, landSoft, settle, swap, glide, carry, leave, launch, pop, nudge; sampled springs with 8 or more stops; vary eases like font weights (repeated like elements may take vary), and two layers moving in one beat differ in duration or offset
+- Range: EASE.land, landSoft, settle, swap, glide, carry, leave, launch, pop, nudge, snap; sampled springs with 8 or more stops; vary eases like font weights (repeated like elements may take vary), and two layers moving in one beat differ in duration or offset
 - Judge: Is any move on a bare keyword or a hand-fitted bezier? Does frame 1 jump? How many eases does each scene use, and do two layers in one beat move in lockstep?
 
 ### overshoot

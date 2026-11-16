@@ -124,7 +124,7 @@ versions of the same call: they return `{ keyframes, timing }` and touch no elem
 | `ramp` / `rampSpecs` / `rampSpeeds` | `kind` scaleOut, scaleIn, x, y; `duration` 0.45 s (out 40%, in 60%); amounts: scale 0.3 out and 0.4 in, x and y 40 and 60 per cent; `blur` 6 px, `fade` 0.5 |
 | `focus` / `focusSpecs` | `at` 0, `blur` 10 px, `scale` 1, `opacity` 1, duration cinematic, `ease` settle |
 | `keys` / `keysSpec` | `[[t, value, handle?], ...]`, at least two keys, times rising; no handle is linear |
-| `EASE`, `EASE_HANDLES`, `easeFn(name)` | land, landSoft, settle, swap, glide, carry, leave, launch, pop, nudge; `easeFn` is the same curve as a function of u in 0..1 |
+| `EASE`, `EASE_HANDLES`, `easeFn(name)` | land, landSoft, settle, swap, glide, carry, leave, launch, pop, nudge, snap; `easeFn` is the same curve as a function of u in 0..1 |
 
 ### Microinteraction numbers (product demos)
 

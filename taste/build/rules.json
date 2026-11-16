@@ -263,7 +263,7 @@
   "file": "taste/rules/named-eases.md",
   "instead": "swap the keyword or bezier for EASE.land (entrance), EASE.launch (exit) or EASE.carry (move), at most 2 eases per scene (taste/craft/motion-craft.md). The /easing pages may show the nearest bezier as a reference only. Pick the scene ease from the signature (a punchy brand tightens durations and stagger, a calm one stretches them; set it once as :root custom properties).",
   "dial": "ease",
-  "range": "EASE.land, landSoft, settle, swap, glide, carry, leave, launch, pop, nudge; sampled springs with 8 or more stops; vary eases like font weights (repeated like elements may take vary), and two layers moving in one beat differ in duration or offset"
+  "range": "EASE.land, landSoft, settle, swap, glide, carry, leave, launch, pop, nudge, snap; sampled springs with 8 or more stops; vary eases like font weights (repeated like elements may take vary), and two layers moving in one beat differ in duration or offset"
  },
  "one-hero-motion": {
   "file": "taste/rules/one-hero-motion.md",
