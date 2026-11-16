@@ -7,7 +7,7 @@ import { effectBox } from './one-images.mjs';
 import { zoomCell } from './zoom.mjs';
 
 const ZOOM = 8;
-const HALF_W = 960;
+const PAIR_H = 540;
 const RELATIVE = [0.2, 0.5, 0.8];
 
 /** The moments to pair: `--at` (b at `--at-b` or the same second), else the first flash of each and three relative positions. */
@@ -21,7 +21,7 @@ export function pairMoments(a, b, opts) {
 }
 
 function half(video, t, file) {
-  ffmpegOrDie(['-v', 'error', '-y', '-ss', Math.max(0, t).toFixed(3), '-i', video, '-frames:v', '1', '-vf', `scale=${HALF_W}:-2`, file], file, 'pair frame');
+  ffmpegOrDie(['-v', 'error', '-y', '-ss', Math.max(0, t).toFixed(3), '-i', video, '-frames:v', '1', '-vf', `scale=-2:${PAIR_H}`, file], file, 'pair frame');
 }
 
 /** Writes the pair images of every moment into `root/pairs` and returns [{ label, ta, tb, frames, zoom }]. */
