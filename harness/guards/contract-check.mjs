@@ -8,6 +8,7 @@ import { metaOf } from '../lib/page-meta.mjs';
 import { authoringOfHtml } from '../lib/motion-stamp.mjs';
 import { isWaived } from '../lib/waivers.mjs';
 import { easeFindings } from './ease-names.mjs';
+import { holdFindings } from './hold-estimate.mjs';
 
 const BLANK = (m) => m.replace(/[^\n]/g, ' ');
 
@@ -97,6 +98,6 @@ const waived = (findings, authoring) => findings.filter((f) => !isWaived(authori
 export function contractCheck(html, { filmDir = null } = {}) {
   const authoring = authoringOfHtml(html);
   const code = withoutComments(html);
-  const all = [...metaFindings(html), ...worldFindings(html), ...trapFindings(code, authoring), ...easeFindings(code), ...assetFindings(code, filmDir)];
+  const all = [...metaFindings(html), ...worldFindings(html), ...trapFindings(code, authoring), ...easeFindings(code), ...holdFindings(code), ...assetFindings(code, filmDir)];
   return waived(all, authoring).sort((a, b) => Number(b.severity === 'block') - Number(a.severity === 'block'));
 }

@@ -58,7 +58,7 @@
   "lines": [
    {
     "rule": "readable-hold",
-    "text": "take a line off screen when it is read plus 1.5 s, not hold it for the beat"
+    "text": "hold a line of 4 or more words 0.6 s per word once settled (a 4 word line 2.4 s), fewer words max(1.2 s, words / 3), and take it off when read plus 1.5 s, not hold it for the beat"
    },
    {
     "rule": "text-breathing",

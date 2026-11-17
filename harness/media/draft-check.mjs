@@ -53,7 +53,7 @@ export function sheetTileDiffs(mp4) {
 
 // Runs inside the page. { lines, blocks }: lines is one { text, fontPx, family, weight, box, rects?, world?, color, opacity, block, chrome? } per visible text
 // node (fontPx includes ancestor transform scale; rects is the box of each wrapped line when the text wraps; world is its data-world;
-// block is the document-order index of its nearest block-level ancestor, the element a reader sees as one line, the same at every sample); blocks is the joined visible text of each element that holds
+// block is the document-order index of its nearest block-level ancestor, the element a reader sees as one line, the same at every sample; glued is set when no space separates it from the text node before it in the same block, so per-letter spans are one word); blocks is the joined visible text of each element that holds
 // two or more such nodes, so a word split into per-letter spans reads as one text. Text inside `decorative` is left out, and text inside `chrome` is
 // flagged, only when it is texture by measure (`texture`: a cap height under capFrac, the same words repeatsMin times on the page, or a data-texture
 // attribute of reasonMin characters); any other marked text is read as copy. `hidden` counts the marked nodes: { total, marked, reads, sample }.
@@ -91,9 +91,11 @@ export function visibleLines(decorative, chrome, lineage = false, texture = { ca
     return name && name !== 'none' ? `vt:${name}` : null;
   };
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let before = null;
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     const text = node.nodeValue.replace(/\s+/g, ' ').trim();
     const el = node.parentElement;
+    const prev = before; before = { raw: node.nodeValue, el };
     if (!text || !el || /^(SCRIPT|STYLE|NOSCRIPT|TITLE)$/.test(el.tagName) || (el.closest(decorative) && isTexture(node))) continue;
     const cs = getComputedStyle(el);
     const clipped = cs.webkitBackgroundClip === 'text' || cs.backgroundClip === 'text';
@@ -118,7 +120,9 @@ export function visibleLines(decorative, chrome, lineage = false, texture = { ca
     const rects = [...range.getClientRects()].filter((q) => q.width > 0 && q.height > 0).map((q) => [q.x, q.y, q.width, q.height]);
     const world = el.closest('[data-world]')?.dataset.world;
     const source = lineage ? sourceOf(el) : null;
-    out.push({ text, fontPx, family: cs.fontFamily, weight: cs.fontWeight, box: [r.x, r.y, r.width, r.height], color: cs.color, opacity, block: blockOf(el),
+    const block = blockOf(el);
+    const glued = Boolean(prev && prev.el && blockOf(prev.el) === block && !/\s$/.test(prev.raw) && !/^\s/.test(node.nodeValue));
+    out.push({ text, fontPx, family: cs.fontFamily, weight: cs.fontWeight, box: [r.x, r.y, r.width, r.height], color: cs.color, opacity, block, ...(glued ? { glued } : {}),
       ...(rects.length > 1 ? { rects } : {}), ...(world ? { world } : {}), ...(el.closest(chrome) && isTexture(node) ? { chrome: true } : {}), ...(el.closest('[data-ui]') ? { ui: true } : {}),
       ...(lineage ? { own: docOrder.get(el), up: ancestorsOf(el), ...(source ? { source } : {}) } : {}) });
     for (let a = el; a && a !== document.documentElement; a = a.parentElement) {

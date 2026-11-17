@@ -13,7 +13,7 @@ status: active
 scored: yes
 numbers: {"hold_floor_s":1.2,"prose_s_per_word":0.6,"short_words_per_s":3,"prose_min_words":4,"ceiling_s":5,"hold_ref_p90_s":2.8,"read_margin_s":1.5}
 digest: Read lines: cap height 6 percent of the frame or more (UI that is the subject, in data-ui: 3 percent), held max(1.2 s, words / 3); prose words x 0.6 s. Add hold, never slow the move.
-print-storyboard: take a line off screen when it is read plus 1.5 s, not hold it for the beat
+print-storyboard: hold a line of 4 or more words 0.6 s per word once settled (a 4 word line 2.4 s), fewer words max(1.2 s, words / 3), and take it off when read plus 1.5 s, not hold it for the beat
 craft: typography
 ---
 

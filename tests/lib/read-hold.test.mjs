@@ -87,3 +87,37 @@ test('two elements that type different text never join into one track', () => {
   const s = [two('A', 'B'), two('AB', 'BC'), two('ABC', 'BCD')].map((x, i) => ({ ...x, t: 0.25 + i * 0.25 }));
   assert.deepEqual(probeTracks([...s, rows(1)], { step: 0.25, frameH: 600 }).map((t) => t.text).sort(), ['ABC', 'BCD']);
 });
+
+const frame = { step: 0.5, frameH: 600 };
+const at2 = (t, lines) => ({ t, lines: lines.map((l) => ({ box, ...l })) });
+const letters = (block, word) => [...word].map((text, i) => ({ text, block, ...(i ? { glued: true } : {}) }));
+
+test('a word split into letter spans is one word: "before" and "lunch" held 2.5 s are no problem', () => {
+  const held = [1.25, 1.75, 2.25, 2.75, 3.25].map((t) => at2(t, [...letters(54, 'before'), ...letters(78, 'lunch')]));
+  assert.deepEqual(readHoldProblems(probeTracks([at2(0.25, []), ...held, at2(3.75, [])], frame)), []);
+});
+
+test('letter spans that arrive over more than half a second are still one line, named as the word', () => {
+  const spread = (t, n) => at2(t, letters(5, 'backlit').slice(0, n));
+  const tracks = probeTracks([at2(0.25, []), spread(0.75, 2), spread(1.25, 5), spread(1.75, 7), spread(2.25, 7), at2(2.75, [])], frame);
+  const [problem] = readHoldProblems(tracks);
+  assert.equal(problem.text, 'backlit');
+  assert.equal(problem.n, 1);
+});
+
+test('lines of two worlds that follow each other are not rows of one list', () => {
+  const samples = [at2(0.25, []), at2(0.75, [{ text: 'it', block: 1 }]), at2(1.25, [{ text: 'before', block: 2 }]), at2(1.75, [{ text: 'before', block: 2 }]), at2(2.25, [{ text: 'before', block: 2 }]), at2(2.75, [])];
+  const [problem] = readHoldProblems(probeTracks(samples, frame));
+  assert.equal(problem.text, 'it');
+  assert.equal(problem.rows, 1);
+});
+
+test('a counter that ticks through numbers is looked at, not read', () => {
+  const ticks = ['11:52', '11:53', '11:54', '11:55'].map((text, i) => at2(0.75 + i * 0.5, [{ text, block: 9 }]));
+  assert.deepEqual(readHoldProblems(probeTracks([at2(0.25, []), ...ticks, at2(2.75, [])], frame)), []);
+});
+
+test('a lone full stop is not a word: "Ship it before ." is three words', () => {
+  const held = [0.75, 1.25, 1.75].map((t) => at2(t, ['Ship', 'it', 'before', '.'].map((text) => ({ text, block: 3 }))));
+  assert.deepEqual(readHoldProblems(probeTracks([at2(0.25, []), ...held, at2(2.25, [])], frame)), []);
+});

@@ -21,18 +21,31 @@ export function rowsNeed(needs) {
   return Math.max(longest, Math.min(longest + (needs.length - 1) * HOLD_RULE.perExtraRow, HOLD_RULE.ceiling));
 }
 
-const wordCount = (text) => text.split(/\s+/).filter(Boolean).length;
+const wordCount = (text) => text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
 const together = (a, b) => Math.abs(a.tIn - b.tIn) <= SAME_TIME && Math.abs(a.tSettled - b.tSettled) <= SAME_TIME;
+const onScreenTogether = (a, b) => together(a, b) && Math.min(a.tOut, b.tOut) > Math.max(a.tSettled, b.tSettled);
+const hasLetter = (text) => /\p{L}/u.test(text);
+const COUNTER_VALUES = 3; // a block that shows this many different numbers in turn is a ticking counter
+
+// A ticking counter or clock shows a new number every step: looked at, not read (taste/rules/readable-hold.md).
+const counterBlocks = (tracks) => {
+  const numbers = new Map();
+  for (const w of tracks) if (w.block != null && !hasLetter(w.text)) numbers.set(w.block, (numbers.get(w.block) ?? 0) + 1);
+  return new Set([...numbers].filter(([, n]) => n >= COUNTER_VALUES).map(([block]) => block));
+};
 
 // A line is one element's text: the tracks of one block that arrive and settle together. A track with no block is a line of its own.
 function linesOf(tracks) {
-  const shown = tracks.filter((w) => w.sizeSettled >= MIN_TEXT_H && w.tOut - w.tIn > 0.3).sort((a, b) => a.tIn - b.tIn);
+  const counters = counterBlocks(tracks);
+  const shown = tracks.filter((w) => w.sizeSettled >= MIN_TEXT_H && w.tOut - w.tIn > 0.3 && !counters.has(w.block)).sort((a, b) => a.tIn - b.tIn);
   const lines = [];
   for (const w of shown) {
-    const line = w.block == null ? null : lines.find((x) => x.block === w.block && together(x, w));
+    const same = w.block == null ? [] : lines.filter((x) => x.block === w.block);
+    const line = w.glued ? same.at(-1) : same.find((x) => together(x, w));
     if (line) line.tracks.push(w); else lines.push({ block: w.block, tIn: w.tIn, tSettled: w.tSettled, tracks: [w] });
   }
-  return lines.map((l) => ({ ...l, text: l.tracks.map((w) => w.text).join(' '), n: l.tracks.reduce((s, w) => s + wordCount(w.text), 0),
+  const words = (l) => l.tracks.reduce((s, w, i) => s + Math.max(0, wordCount(w.text) - (w.glued && i ? 1 : 0)), 0);
+  return lines.map((l) => ({ ...l, text: l.tracks.map((w, i) => (i && w.glued ? '' : i ? ' ' : '') + w.text).join(''), n: words(l),
     tSettled: Math.max(...l.tracks.map((w) => w.tSettled)), tOut: Math.min(...l.tracks.map((w) => w.tOut)) }));
 }
 
@@ -40,7 +53,7 @@ function linesOf(tracks) {
 function groupsOf(tracks) {
   const lines = linesOf(tracks);
   return lines.map((l) => {
-    const rows = lines.filter((x) => together(x, l));
+    const rows = lines.filter((x) => onScreenTogether(x, l));
     return { text: l.text, n: l.n, tSettled: l.tSettled, tOut: l.tOut, hold: l.tOut - l.tSettled, rows: rows.length, need: rowsNeed(rows.map((x) => lineNeed(x.n))) };
   });
 }
@@ -56,7 +69,7 @@ export function screenLines(tracks) {
     if (same) Object.assign(same, { n: same.n + l.n, text: `${same.text} ${l.text}`, tOut: Math.max(same.tOut, l.tOut), tSettled: Math.max(same.tSettled, l.tSettled) });
     else merged.push({ block: l.block, text: l.text, n: l.n, tIn: l.tIn, tSettled: l.tSettled, tOut: l.tOut });
   }
-  return merged.map((l) => ({ text: l.text, n: l.n, tIn: l.tIn, tOut: l.tOut, need: rowsNeed(merged.filter((x) => together(x, l)).map((x) => lineNeed(x.n))) }));
+  return merged.map((l) => ({ text: l.text, n: l.n, tIn: l.tIn, tOut: l.tOut, need: rowsNeed(merged.filter((x) => onScreenTogether(x, l)).map((x) => lineNeed(x.n))) }));
 }
 
 /** Group the tracks of one element into a line, then compare each line's still time to its read time. Rows that arrive together share the longest row's time plus a word's time per extra row. A line that leaves before its settle time has no hold to measure. Pure. */
@@ -78,7 +91,7 @@ export function probeTracks(samples, { step, frameH }, words = []) {
   const close = (key) => {
     const r = open.get(key);
     open.delete(key);
-    tracks.push({ text: r.text, block: r.block, sizeSettled: r.h / frameH, tIn: r.tIn, tSettled: r.tSettled, tOut: r.tOut });
+    tracks.push({ text: r.text, block: r.block, glued: r.glued, sizeSettled: r.h / frameH, tIn: r.tIn, tSettled: r.tSettled, tOut: r.tOut });
   };
   const keyOf = (l) => `${l.block ?? l.text}|${l.text}`;
   for (const { t, lines } of samples) {
@@ -95,7 +108,7 @@ export function probeTracks(samples, { step, frameH }, words = []) {
         const typed = [...open].find(([k, x]) => x.block === block && !now.has(k) && text.length > x.text.length && text.startsWith(x.text));
         if (typed) { open.delete(typed[0]); r = Object.assign(typed[1], { text, changedAt: Math.max(0, t - step / 2) }); }
       }
-      r ??= { text, block, h: l.box[3], tIn: Math.max(0, t - step / 2), changedAt: Math.max(0, t - step / 2) };
+      r ??= { text, block, glued: Boolean(l.glued), h: l.box[3], tIn: Math.max(0, t - step / 2), changedAt: Math.max(0, t - step / 2) };
       const spec = words.find((w) => typeof w.settle === 'number' && text.toLowerCase().includes(w.text.toLowerCase()));
       r.tSettled = Math.max(r.tIn, spec ? spec.settle : r.changedAt);
       r.tOut = t + step / 2;
