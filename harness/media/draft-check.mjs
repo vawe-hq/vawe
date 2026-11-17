@@ -82,11 +82,10 @@ export function visibleLines(decorative, chrome, lineage = false, texture = { ca
   const hidden = { total: textNodes.length, marked: textNodes.filter(marked).length, reads: reading.length, sample: [...new Set(reading.map((n) => n.nodeValue.replace(/\s+/g, ' ').trim()))].slice(0, 3) };
   const owners = new Map();
   const docOrder = new Map([...document.getElementsByTagName('*')].map((e, i) => [e, i]));
-  const blockOf = (el) => {
-    let b = el;
-    while (b !== document.body && /^(inline|contents)/.test(getComputedStyle(b).display)) b = b.parentElement;
-    return docOrder.get(b);
-  };
+  // A flex row that does not wrap shows its items on one line, though the browser makes each item a block.
+  const oneRow = (el) => { const s = el && el !== document.body && getComputedStyle(el); return Boolean(s) && /flex$/.test(s.display) && s.flexDirection.startsWith('row') && s.flexWrap === 'nowrap'; };
+  const inLine = (b) => b !== document.body && (/^(inline|contents)/.test(getComputedStyle(b).display) || oneRow(b.parentElement));
+  const blockOf = (el) => { let b = el; while (inLine(b)) b = b.parentElement; return docOrder.get(b); };
   const ancestorsOf = (el) => { const up = []; for (let a = el; a && a !== document.documentElement; a = a.parentElement) up.push(docOrder.get(a)); return up; };
   const sourceOf = (el) => {
     const name = getComputedStyle(el).viewTransitionName;
@@ -109,10 +108,7 @@ export function visibleLines(decorative, chrome, lineage = false, texture = { ca
       const s = getComputedStyle(n);
       if (s.display === 'none') { opacity = 0; break; }
       opacity *= Number(s.opacity);
-      if (s.transform !== 'none') {
-        const m = new DOMMatrix(s.transform);
-        scale *= Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) || 1;
-      }
+      if (s.transform !== 'none') { const m = new DOMMatrix(s.transform); scale *= Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) || 1; }
     }
     const range = document.createRange();
     range.selectNodeContents(node);
@@ -124,7 +120,8 @@ export function visibleLines(decorative, chrome, lineage = false, texture = { ca
     const world = el.closest('[data-world]')?.dataset.world;
     const source = lineage ? sourceOf(el) : null;
     const block = blockOf(el);
-    const glued = Boolean(prev && prev.el && blockOf(prev.el) === block && !/\s$/.test(prev.raw) && !/^\s/.test(node.nodeValue));
+    before.right = r.right;
+    const glued = Boolean(prev && prev.el && blockOf(prev.el) === block && (prev.right == null || r.left - prev.right < 0.25 * fontPx) && !/\s$/.test(prev.raw) && !/^\s/.test(node.nodeValue));
     out.push({ text, fontPx, family: cs.fontFamily, weight: cs.fontWeight, box: [r.x, r.y, r.width, r.height], color: cs.color, opacity, block, ...(glued ? { glued } : {}),
       ...(rects.length > 1 ? { rects } : {}), ...(world ? { world } : {}), ...(el.closest(chrome) && isTexture(node) ? { chrome: true } : {}), ...(el.closest('[data-ui]') ? { ui: true } : {}),
       ...(lineage ? { own: docOrder.get(el), up: ancestorsOf(el), ...(source ? { source } : {}) } : {}) });

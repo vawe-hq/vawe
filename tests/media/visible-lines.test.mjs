@@ -30,6 +30,22 @@ test('a line keeps its block id when lines before it come and go, wrapped text l
   } finally { await opened.close(); }
 });
 
+test('a flex row is one line: tilted letters that touch are glued into one word, spaced items share the line but stay separate words', async () => {
+  const fixture = 'tests/fixtures/pages/flex-letters.html';
+  const opened = await openPage(fixture, resolveFrame(fixture, {}));
+  try {
+    await opened.page.goto(opened.url, { waitUntil: 'load' });
+    await settle(opened.page);
+    const { lines } = await opened.page.evaluate(visibleLines, DECORATIVE, CHROME, false, TEXTURE);
+    const [s, h, i, p] = ['S', 'H', 'I', 'P'].map((t) => lines.find((l) => l.text === t));
+    assert.equal(new Set([s, h, i, p].map((l) => l.block)).size, 1);
+    assert.deepEqual([s, h, i, p].map((l) => Boolean(l.glued)), [false, true, true, true]);
+    const [home, pricing] = ['Home', 'Pricing'].map((t) => lines.find((l) => l.text === t));
+    assert.equal(home.block, pricing.block);
+    assert.equal(pricing.glued, undefined);
+  } finally { await opened.close(); }
+});
+
 test('texture by measure is not probed and chrome texture is flagged; hidden text that reads as copy is probed and counted; split letters join into one text', async () => {
   const opened = await openPage(PAGE, resolveFrame(PAGE, {}));
   try {
