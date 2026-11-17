@@ -178,7 +178,7 @@ export function digestText(rules, attractors) {
 export function stepsJson(rules) {
   const steps = {};
   for (const [step, title] of Object.entries(PRINT_STEPS)) {
-    const lines = rules.filter((r) => r.prints[step]).map((r) => ({ rule: r.id, text: r.prints[step] }));
+    const lines = rules.filter((r) => r.prints[step]).map((r) => ({ rule: r.id, text: r.prints[step], ...(r.craft ? { craft: r.craft } : {}) }));
     steps[step] = { title, lines };
   }
   return `${JSON.stringify(steps, null, 1)}\n`;

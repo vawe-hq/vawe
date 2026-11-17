@@ -12,14 +12,16 @@ const STAGE_STEPS = {
   draft: 'motion', motion: 'motion', critique: 'check', judge: 'check', approve: 'check', ship: 'check',
 };
 
+// A rule belongs to the topics of its craft doc; a rule whose craft is no topic's (story, direction) is matched by its words.
 const TOPICS = {
-  type: { doc: 'taste/craft/typography.md', match: /type|font|text|cap height|word|line|glyph/ },
-  colour: { doc: 'taste/craft/color.md', match: /colou?r|accent|palette|gradient|ground|hue|contrast/ },
-  motion: { doc: 'taste/craft/motion-craft.md', match: /ease|enter|exit|move|motion|spring|stagger|overshoot|speed|hold|physics/ },
-  cuts: { doc: 'taste/craft/transitions.md', match: /cut|seam|crossfade|world|eye|handoff|wipe/ },
-  sound: { doc: 'taste/craft/sound.md', match: /sound|cue|voice|loud|peak|audio/ },
-  layout: { doc: 'taste/craft/layout.md', match: /layout|frame|focal|space|align/ },
+  type: { doc: 'taste/craft/typography.md', crafts: ['typography'], match: /type|font|text|cap height|word|line|glyph/ },
+  colour: { doc: 'taste/craft/color.md', crafts: ['color'], match: /colou?r|accent|palette|gradient|ground|hue|contrast/ },
+  motion: { doc: 'taste/craft/motion-craft.md', crafts: ['motion-craft', 'after-effects-techniques'], match: /ease|enter|exit|move|motion|spring|stagger|overshoot|speed|hold|physics/ },
+  cuts: { doc: 'taste/craft/transitions.md', crafts: ['transitions', 'film-structure'], match: /cut|seam|crossfade|world|eye|handoff|wipe|scene/ },
+  sound: { doc: 'taste/craft/sound.md', crafts: ['sound'], match: /sound|cue|voice|loud|peak|audio/ },
+  layout: { doc: 'taste/craft/layout.md', crafts: ['layout', 'imagery', 'surfaces', 'density'], match: /layout|frame|focal|space|align/ },
 };
+const TOPIC_CRAFTS = new Set(Object.values(TOPICS).flatMap((t) => t.crafts));
 
 /** The step the hook prints a taste card for at `stage`, or undefined. */
 export const stepOf = (stage) => HOOK_STEPS[stage];
@@ -38,9 +40,10 @@ export function tasteFor(stage, topic = null) {
   if (topic == null) return own.map(lineOf);
   const t = TOPICS[topic];
   if (!t) throw new Error(`tasteFor: no topic "${topic}"; valid: ${TASTE_TOPICS.join(' ')}`);
-  const fits = (l) => t.match.test(`${l.rule} ${l.text}`.toLowerCase());
+  const fits = (l) => (TOPIC_CRAFTS.has(l.craft) ? t.crafts.includes(l.craft) : t.match.test(`${l.rule} ${l.text}`.toLowerCase()));
   const all = Object.values(TASTE_STEPS).flatMap((s) => s.lines);
   const seen = new Set();
-  const picked = [...own.filter(fits), ...all.filter(fits)].filter((l) => !seen.has(l.rule) && seen.add(l.rule));
+  const byCraft = (l) => (t.crafts.includes(l.craft) ? 0 : 1);
+  const picked = [...own.filter(fits), ...all.filter(fits)].filter((l) => !seen.has(l.rule) && seen.add(l.rule)).sort((a, b) => byCraft(a) - byCraft(b));
   return [...picked.map(lineOf), `read ${t.doc}`];
 }
