@@ -1,6 +1,6 @@
-// node tests/hooks/no-emdash-live.test.mjs
+// node tests/hooks/post-edit-emdash.test.mjs
 //
-// harness/live/no-emdash-live.mjs, fed exactly as Claude Code's PostToolUse feeds a Write or Edit
+// harness/live/post-edit.mjs, fed exactly as Claude Code's PostToolUse feeds a Write or Edit
 // (stdin JSON carrying tool_input, stderr on exit 2). An em dash in a file the pre-push scan cannot
 // reach (renderer/, outside its SCOPE list) is reported; the same character in a file pre-push already
 // scans (harness/), or inside an allowlisted vendored path, is silent either way.
@@ -14,7 +14,7 @@ import assert from 'node:assert';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, '../..');
-const HOOK = join(here, '../../harness/live', 'no-emdash-live.mjs');
+const HOOK = join(here, '../../harness/live', 'post-edit.mjs');
 const EM = String.fromCharCode(0x2014);
 
 const run = (payload) => {

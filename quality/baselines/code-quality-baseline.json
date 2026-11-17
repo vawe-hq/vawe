@@ -11,7 +11,7 @@
  "harness/media/kie.mjs::unicorn(no-invalid-fetch-options)": 1,
  "harness/media/kie.mjs::complexity": 2,
  "quality/gates/code-quality.mjs::no-sparse-arrays": 1,
- "harness/live/code-quality.mjs::no-sparse-arrays": 1,
+ "harness/live/post-edit.mjs::no-sparse-arrays": 1,
  "harness/dev/sync-worktree.mjs::max-depth": 1,
  "quality/gates/seo-surface.mjs::max-depth": 2,
  "harness/media/see/ocr.mjs::unicorn(no-useless-spread)": 1,

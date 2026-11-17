@@ -14,7 +14,7 @@ node harness/dev/no-emdash.mjs >/dev/null 2>&1 || { node harness/dev/no-emdash.m
 
 for f in $(printf '%s\n' "$staged" | grep -E '\.(js|mjs)$' | grep -v '^site/'); do
   node --check "$f" || fail=1
-  printf '{"tool_input":{"file_path":"%s"}}' "$PWD/$f" | node harness/live/code-quality.mjs || fail=1
+  printf '{"tool_input":{"file_path":"%s"}}' "$PWD/$f" | node harness/live/post-edit.mjs || fail=1
 done
 
 docs="$(printf '%s\n' "$staged" | grep -E '\.md$' | grep -vE '^site/')"

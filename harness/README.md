@@ -15,7 +15,7 @@ list below. A script none of those reaches is dead: delete it.
 | `media/` | the renderer (`render-page.mjs`, `page-audio.mjs`), the views (`see.mjs`, `see/`, `see-views.mjs`), `still.mjs` (one full-size PNG of a page or mp4), `storyboard.mjs` (one self-contained HTML board of a page or draft: a card per world, the handoffs, a rhythm strip; its data is `lib/storyboard.mjs`, its page `lib/storyboard-html.mjs`), the reference measures (`ref-spec.mjs`, `render-spec.mjs`) |
 | `lib/` | shared helpers: the gate table (`check-gate.mjs`), the render harness, run logs, judge codes |
 | `dev/` | the `vawe-dev` verb table, git hooks' helpers (`no-emdash.mjs`, `push-guard.mjs`), `e2e.mjs`, `bench.mjs`, worktree tools |
-| `live/` | Claude Code hooks: `stage-say.mjs` (next command), `verb-hint.mjs` (names the verb for a hand-made screenshot, link check or contact sheet), `code-quality.mjs`, `no-emdash-live.mjs`, `no-blanket-git.mjs`, `log-read.mjs`, `shell-env.mjs` (see Hooks below) |
+| `live/` | Claude Code hooks: `stage-say.mjs` (next command), `verb-hint.mjs` (names the verb for a hand-made screenshot, link check or contact sheet), `post-edit.mjs` (the code-shape ratchet and the em dash scan, one PostToolUse hook on Write|Edit), `no-blanket-git.mjs`, `log-read.mjs`, `shell-env.mjs` (see Hooks below) |
 
 ## Hooks
 

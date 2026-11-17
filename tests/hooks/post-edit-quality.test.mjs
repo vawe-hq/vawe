@@ -1,6 +1,6 @@
-// node tests/hooks/code-quality.test.mjs
+// node tests/hooks/post-edit-quality.test.mjs
 //
-// harness/live/code-quality.mjs, fed exactly as Claude Code's PostToolUse feeds it (stdin JSON, stderr
+// harness/live/post-edit.mjs, fed exactly as Claude Code's PostToolUse feeds it (stdin JSON, stderr
 // on exit 2). The two cases the hook exists for: a no-op edit on a file that already carries debt
 // stays silent (the ratchet compares against quality/baselines/code-quality-baseline.json, not zero),
 // and a real new complexity finding is still reported. A scratch fixture is used and registered in the
@@ -16,7 +16,7 @@ import assert from 'node:assert';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, '../..');
-const HOOK = join(here, '../../harness/live', 'code-quality.mjs');
+const HOOK = join(here, '../../harness/live', 'post-edit.mjs');
 const BASELINE = path.join(ROOT, 'quality/baselines/code-quality-baseline.json');
 // joined, not written: vawe-dev check doc-refs reads every .mjs path a file names and requires it to exist
 const REL = ['harness/live/test/.zz-code-quality-probe', 'mjs'].join('.');

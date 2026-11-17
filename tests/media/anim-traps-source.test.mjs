@@ -8,11 +8,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pageTraps } from '../../quality/gates/anim-traps.mjs';
 
-const found = (src, opts) => {
-  const out = [];
-  pageTraps(src, (what, where, fix) => out.push({ what, where, fix }), opts);
-  return out;
-};
+const found = (src, opts) => pageTraps(src, opts).map((t) => ({ what: t.message, where: t.where, fix: t.fix }));
 const module_ = (body) => `<script type="module">${body}</script>`;
 
 test('an absolute or local-server path in a film names the attribute and the fix', () => {

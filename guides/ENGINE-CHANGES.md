@@ -71,7 +71,7 @@ still warns (`harness/live/plan-status.mjs`).
 ## Engineering rules
 
 Code the next agent can read once and change safely. The code-quality hook
-(`harness/live/code-quality.mjs`) enforces the numbers on every edit; the rest is review.
+(`harness/live/post-edit.mjs`) enforces the numbers on every edit; the rest is review.
 
 - **One function, one job.** A function that decodes, measures and writes is three functions. Hook
   limits: 60 lines per function, 6 parameters, depth 4; a file over about 400 lines is split by concern.

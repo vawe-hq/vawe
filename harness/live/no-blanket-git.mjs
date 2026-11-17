@@ -25,6 +25,12 @@ const RAW_BANNED = [
    ONLY_PERSON],
 ];
 
+const COMMIT_HEREDOC = /(\bgit\s+commit\b[^\n]*<<-?\s*['"]?(\w+)['"]?[^\n]*\n)[\s\S]*?^[ \t]*\2[ \t]*$/gm;
+const MESSAGE_ARG = /(?:-m|--message)(?:\s+|=)(?:"(?:[^"\\]|\\.)*"|'[^']*')/g;
+
+// The text of a commit message is prose, not a command: a message that says "approve" is no approval.
+const withoutCommitMessages = (cmd) => (/\bgit\s+commit\b/.test(cmd) ? cmd.replace(COMMIT_HEREDOC, '$1').replace(MESSAGE_ARG, ' ') : cmd);
+
 const commandsIn = (cmd) => cmd
   .replace(/<<-?\s*['"]?(\w+)['"]?[\s\S]*?^\s*\1\s*$/gm, ' ')  // heredoc bodies
   .replace(/'[^']*'/g, "''")                                   // single-quoted literals
@@ -53,7 +59,8 @@ process.stdin.on('end', () => {
     process.exit(2);
   }
   if (APPROVE_FILE.test(file)) refuse('writing an approval file', ONLY_PERSON);
-  for (const [test, name, why] of RAW_BANNED) if (test(cmd)) refuse(name, why);
+  const unmessaged = withoutCommitMessages(cmd);
+  for (const [test, name, why] of RAW_BANNED) if (test(unmessaged)) refuse(name, why);
   const parts = commandsIn(cmd);
   for (const [re, name, why] of BANNED) {
     if (parts.some((p) => re.test(p))) refuse(name, why);

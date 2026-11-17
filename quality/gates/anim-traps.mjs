@@ -40,6 +40,9 @@ import { pageAuthoring } from '../../harness/lib/motion-stamp.mjs';
 import { isWaived } from '../../harness/lib/waivers.mjs';
 import { runMotionCollector, motionLint, unwaived, lintLines } from '../../harness/lib/motion-lint.mjs';
 import { resolveDuration, DurationError } from '../../harness/media/page-duration.mjs';
+import { pageTraps } from '../../harness/lib/page-traps.mjs';
+
+export { pageTraps };
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const argv = process.argv.slice(2);
@@ -146,70 +149,6 @@ function unevenSegmentEasing(add) {
   }
 }
 
-// traps 7-11: a hand-authored BARE page (vawe.onFrame + plain three.js, harness/media/render-page.mjs)
-// hitting the same non-determinism this file's own header rules out for a scene layer, plus one wiring
-// mistake (a WebGL canvas that never redraws). Source-level, not DOM-level: these read the page's own
-// <script> text rather than booting it, since the thing being checked (did the author reach for a
-// live clock or an unseeded RNG) is a fact about the CODE, not about one frame's rendered DOM.
-const ABSOLUTE_PATH = /^(?:\/|file:|~\/|[A-Za-z]:[\\/]|https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]))/;
-const AWAITED_BY_RENDERER = /fetch\s*\(|document\.fonts\.(?:ready|load)|\.decode\s*\(\s*\)/;
-
-function moduleScripts(src) {
-  return [...src.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].filter((m) => /\btype\s*=\s*["']module["']/i.test(m[1])).map((m) => m[2]);
-}
-
-// Each `await` at brace, paren and bracket depth 0 of a script body, with the rest of its statement.
-function topLevelAwaits(code) {
-  const text = code.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, ' ').replace(/(["'`])(?:\\.|(?!\1)[^\\\n])*\1/g, '""');
-  const found = [];
-  let depth = 0;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if ('{(['.includes(c)) depth++;
-    else if ('})]'.includes(c)) depth--;
-    else if (depth === 0 && text.startsWith('await', i) && !/[\w$.]/.test(text[i - 1] || ' ') && /[\s(]/.test(text[i + 5] || ' '))
-      found.push(text.slice(i, i + 80).split(/[;\n]/)[0]);
-  }
-  return found;
-}
-
-// Rules the page source breaks: a path that is not relative, a unit calc, an await the renderer does not wait for.
-function sourceTraps(src, add, isFilm) {
-  for (const m of isFilm ? src.matchAll(/\b(src|href|poster)\s*=\s*["']\s*([^"']+)["']|url\(\s*["']?([^"')]+)/gi) : []) {
-    const ref = (m[2] || m[3] || '').trim();
-    if (ABSOLUTE_PATH.test(ref) && !ref.startsWith('//')) add(`${m[1] ? `${m[1]}="${ref}"` : `url(${ref})`} is an absolute or local-server path`, m[1] || 'url()', 'use a path relative to the page (assets/name.png) and keep the file in films/<name>/assets/: an absolute path breaks on any other machine');
-  }
-  if (/\bcalc\([^)]*\bvar\(--v[wh]\)\s*\*\s*-?[\d.]+px|\b[\d.]+px\s*\*\s*var\(--v[wh]\)/.test(src))
-    add('a calc() multiplies --vw/--vh by a number with px', 'style', '--vw and --vh already hold a unit (1920px): write calc(var(--vh) * 0.11), never * 0.11px');
-  for (const code of moduleScripts(src))
-    for (const line of topLevelAwaits(code).filter((l) => !AWAITED_BY_RENDERER.test(l)))
-      add(`module-level "${line.trim()}"`, 'script', 'the renderer waits only for an image decode, a fetch and document.fonts.ready, so frame 0 paints before your vawe.onFrame exists: await only those, or register the hook first and await inside it');
-}
-
-export function pageTraps(src, add, { film = false } = {}) {
-  sourceTraps(src, add, film);
-  const has = (re) => re.test(src);
-  if (has(/requestAnimationFrame\s*\(/))
-    add('page uses requestAnimationFrame', 'script', 'drive motion from vawe.onFrame((t) => {...}) instead: the render clock seeks CSS/WAAPI/SMIL and calls every onFrame hook with film time t; a live rAF loop never runs under headless capture and makes the frame depend on wall-clock timing');
-  if (has(/new\s+THREE\.Clock\b/) || has(/\.getDelta\s*\(/))
-    add('page uses THREE.Clock', 'script', 'pose every object from the t argument vawe.onFrame((t) => {...}) hands you, never from an accumulated delta: renderFrame(n) must stay a pure function of n');
-  if (has(/\bperformance\.now\s*\(/))
-    add('page reads performance.now()', 'script', 'use the t argument vawe.onFrame((t) => {...}) already hands you');
-  if (has(/\bDate\.now\s*\(/))
-    add('page reads Date.now()', 'script', 'use the t argument vawe.onFrame((t) => {...}) already hands you');
-  if (has(/\bMath\.random\s*\(/))
-    add('page calls unseeded Math.random()', 'script', 'seed a small PRNG (the rng(seed) shape in core/motion/springs.js) so the same seed rebuilds the identical scene across render orders and re-renders');
-  if (has(/\bset(?:Timeout|Interval)\s*\(/))
-    add('page uses setTimeout/setInterval', 'script', 'the render clock fires a timer only when a seek passes its due time, so a timer that starts motion or changes state lands on the frame after its delay, never mid-frame: put the change in a keyframe table or an element.animate() delay, or compute it from t in window.seek(t)');
-  if (has(/(^|[\s;{"'])transition(-property)?\s*:\s*(?!none\b)[^;}]*/m))
-    add('page uses a CSS transition for motion', 'style', 'a transition starts from a class or style change and runs on its own start time, so a seek cannot place it at t: use @keyframes or element.animate() (both are seeked), or set the value directly from t in window.seek(t)');
-  const webgl = has(/WebGLRenderer/);
-  if (webgl && !has(/preserveDrawingBuffer/))
-    add('a WebGLRenderer is built without preserveDrawingBuffer', 'script', 'pass {preserveDrawingBuffer:true}, or the capture (a screenshot taken after the draw call) can read a blank/cleared buffer depending on the browser\'s own swap timing');
-  if (webgl && !has(/\.onFrame\s*\(/))
-    add('page draws WebGL but registers no onFrame hook', 'script', 'call vawe.onFrame((t) => { renderer.render(scene, camera); }) so the render clock actually redraws the canvas each frame; otherwise the capture reads whatever the canvas happened to hold from page load');
-}
-
 // trap 7: a later-created animation on the same element+property genuinely OVERLAPS an earlier one's
 // ACTIVE window (both playing at once), not merely its fill. WAAPI composites later-registered
 // animations on top for the whole overlap regardless of fill:forwards on either side, so a per-letter
@@ -270,7 +209,7 @@ async function checkPage(absFile) {
     const motion = await runMotionCollector(page);
     const findings = await runTrapChecker(page, durMs);
     for (const e of unmeasured) findings.push({ what: 'the auto length cannot be measured', where: '<meta name="duration">', fix: e.fix });
-    pageTraps(fs.readFileSync(absFile, 'utf8'), (what, where, fix) => findings.push({ what, where, fix }), { film: /^films\//.test(relFile) });
+    for (const t of pageTraps(fs.readFileSync(absFile, 'utf8'), { film: /^films\//.test(relFile) })) findings.push({ what: t.message, where: t.where, fix: t.fix });
     const authoring = pageAuthoring(absFile);
     const waived = isWaived(authoring, 'anim-traps');
     return { file: relFile, findings, waived, motion: lintLines(unwaived(motionLint(motion), authoring)) };

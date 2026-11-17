@@ -50,5 +50,11 @@
   ["VAWE_UNATTENDED=1 bin/vawe ship films/f/page.html", true, "ship that skips both OKs"],
   ["export VAWE_UNATTENDED=1", true, "the variable exported for a later ship"],
   ["env VAWE_UNATTENDED=1 bin/vawe ship films/f/page.html", true, "through env"],
-  ["bin/vawe wait films/f/page.html", false, "wait is not ship"]
+  ["bin/vawe wait films/f/page.html", false, "wait is not ship"],
+  ["git commit -m \"fix: approve flow in vawe approve docs\"", false, "the word approve in a commit message"],
+  ["git commit -m 'vawe-dev approve is refused for agents'", false, "a vawe approve line in a single-quoted message"],
+  ["git commit -m \"$(cat <<'EOF'\nthe .approved file is now read\nvawe approve stays human\nEOF\n)\"", false, "approve words in a heredoc commit message"],
+  ["git commit -F - <<'MSG'\nVAWE_UNATTENDED= is gone\nMSG", false, "a banned word in a heredoc commit body"],
+  ["git commit -m \"fix\" && bin/vawe approve films/f/page.html", true, "an approve after a commit is still refused"],
+  ["git commit -m \"x\"; echo '{}' > out/f.approved", true, "an approval file written after a commit is still refused"]
 ]

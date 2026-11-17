@@ -1,29 +1,13 @@
 // The page contract check (AGENTS.md, Hard rules). A finding of severity 'block' breaks a render: a duration meta, a data-world on each beat,
-// relative paths. A hand-written ease advises with the named one to use (ease-names.mjs). Timers, clocks and Math.random advise: core/engine/page-clock.js already makes them a pure function of t. The source traps are quality/gates/anim-traps.mjs
+// relative paths. A hand-written ease advises with the named one to use (ease-names.mjs). Timers, clocks and Math.random advise: core/engine/page-clock.js already makes them a pure function of t. The source traps are harness/lib/page-traps.mjs
 // pageTraps, run on the page with its comments blanked; a declared, vetted waiver (harness/lib/waivers.mjs) drops a finding.
 import fs from 'node:fs';
 import path from 'node:path';
-import { pageTraps } from '../../quality/gates/anim-traps.mjs';
+import { pageTraps } from '../lib/page-traps.mjs';
 import { metaOf } from '../lib/page-meta.mjs';
 import { authoringOfHtml } from '../lib/motion-stamp.mjs';
 import { isWaived } from '../lib/waivers.mjs';
 import { easeFindings } from './ease-names.mjs';
-
-// What a pageTraps finding is: its code, severity and the source text that shows where it is.
-const TRAPS = [
-  { re: /^page uses requestAnimationFrame/, code: 'live-clock', severity: 'advise', find: /requestAnimationFrame\s*\(/ },
-  { re: /^page uses THREE\.Clock/, code: 'live-clock', severity: 'advise', find: /new\s+THREE\.Clock\b|\.getDelta\s*\(/ },
-  { re: /^page reads performance\.now/, code: 'live-clock', severity: 'advise', find: /\bperformance\.now\s*\(/ },
-  { re: /^page reads Date\.now/, code: 'live-clock', severity: 'advise', find: /\bDate\.now\s*\(/ },
-  { re: /^page calls unseeded Math\.random/, code: 'unseeded-random', severity: 'advise', find: /\bMath\.random\s*\(/ },
-  { re: /^page uses setTimeout/, code: 'timer', severity: 'advise', find: /\bset(?:Timeout|Interval)\s*\(/ },
-  { re: /is an absolute or local-server path$/, code: 'absolute-path', severity: 'block', find: /\b(?:src|href|poster)\s*=\s*["']\s*(?:\/(?!\/)|file:|~\/|[A-Za-z]:[\\/]|https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]))|url\(\s*["']?(?:\/(?!\/)|file:|https?:\/\/(?:localhost|127\.))/ },
-  { re: /^page uses a CSS transition/, code: 'css-transition', severity: 'advise', find: /(^|[\s;{"'])transition(-property)?\s*:/m },
-  { re: /^a WebGLRenderer is built without/, code: 'webgl-buffer', severity: 'advise', find: /WebGLRenderer/ },
-  { re: /^page draws WebGL but registers no onFrame/, code: 'webgl-no-onframe', severity: 'advise', find: /WebGLRenderer/ },
-  { re: /^a calc\(\) multiplies/, code: 'unit-calc', severity: 'advise', find: /\bcalc\(/ },
-  { re: /^module-level/, code: 'module-await', severity: 'advise', find: /\bawait\b/ },
-];
 
 const BLANK = (m) => m.replace(/[^\n]/g, ' ');
 
@@ -55,21 +39,19 @@ function lineCommentsBlanked(code) {
   return out;
 }
 
+const lineAt = (text, index) => text.slice(0, index).split('\n').length;
 const lineOf = (text, re) => {
   const at = text.search(re);
-  return at < 0 ? null : text.slice(0, at).split('\n').length;
+  return at < 0 ? null : lineAt(text, at);
 };
 
 // A page that reassigns Math.random to its own PRNG is seeded; the engine's page clock reseeds it too.
 const seededRandom = (code) => /\bMath\.random\s*=[^=]/.test(code);
 
 function trapFindings(code, authoring) {
-  const found = [];
-  pageTraps(code, (what, where, fix) => found.push({ what, where, fix }), { film: true });
-  return found.map((f) => {
-    const trap = TRAPS.find((t) => t.re.test(f.what));
-    return { code: trap?.code ?? 'trap', severity: trap?.severity ?? 'advise', line: trap ? lineOf(code, trap.find) : null, message: f.what, fix: f.fix };
-  }).filter((f) => !(f.code === 'unseeded-random' && seededRandom(code)) && !isWaived(authoring, f.code, null) && !isWaived(authoring, 'anim-traps', null));
+  return pageTraps(code, { film: true })
+    .map((t) => ({ code: t.code, severity: t.severity, line: lineAt(code, t.index), message: t.message, fix: t.fix }))
+    .filter((f) => !(f.code === 'unseeded-random' && seededRandom(code)) && !isWaived(authoring, f.code, null) && !isWaived(authoring, 'anim-traps', null));
 }
 
 function metaFindings(html) {
