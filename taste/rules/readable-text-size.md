@@ -12,7 +12,7 @@ prevents: judge1: 50 px tagline, fix 64 to 72 px. judge2: "about 4% of frame hei
 status: active
 scored: yes
 numbers: {"cap_height_pct":6,"chrome_cap_height_pct":2.5,"ui_cap_height_pct":3,"held_min_s":0.5,"texture_cap_pct_max":2,"texture_repeats_min":3,"texture_reason_min_chars":12,"texture_share_max_pct":50}
-print-frames: set a read line at a 6% cap height (UI that is the subject, in data-ui: 3%) and hold it max(1.2 s, words/3), not a small tagline that flashes by
+print-frames: set a read line at a 6% cap height (UI that is the subject, in data-ui: 3%) and hold it 0.6 s a word from 4 words (a 4 word tagline 2.4 s), fewer words max(1.2 s, words/3), not a small tagline that flashes by
 craft: typography
 ---
 

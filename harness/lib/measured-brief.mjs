@@ -108,7 +108,7 @@ export const ACCEPTANCE = [
   ['text cap height', '6% or more'],
   ['text contrast', '4.5:1 or more'],
   ['text collisions', '0'],
-  ['read hold per line', 'max(1.2 s, words/3 s) or more'],
+  ['read hold per line', '0.6 s a word from 4 words, else max(1.2 s, words/3 s)'],
   ['exits shorter than entrances', 'all'],
   ['word cap height and position vs spec', 'within 1% of frame'],
   ['cuts vs spec', 'within 1 frame'],

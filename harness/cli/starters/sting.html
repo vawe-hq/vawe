@@ -43,10 +43,10 @@ worlds.forEach((world, i) => {
 // the lockup sits above the grounds, so its ink flips with them: even worlds are --ink
 worlds.slice(1).forEach((_, k) => $('.lockup').animate([{ color: k % 2 ? 'var(--ink)' : 'var(--ground)' }], { delay: (beat(k + 2) - 0.03) * 1000, duration: 1, fill: 'forwards' }));
 
-// s1, the quiet beat: the mark lands alone; it turns a quarter from the spectacle to the last frame
+// s1, the quiet beat: the mark lands alone and keeps turning slowly (quiet is slow, never frozen: rule live-hold); it turns to a quarter by the last frame
 enter($('.mark'), { at: 0.05, from: 'calc(var(--vw) * -0.1) 0', scale: 0.7, ease: 'land' });
 const settle = (beat(2) + REVEAL + 0.1) / end;
-$('.mark').animate([{ rotate: '-60deg', offset: 0, easing: EASE.land }, { rotate: '0deg', offset: 0.9 / end }, { rotate: '0deg', offset: settle, easing: EASE.land }, { rotate: '90deg', offset: 1 }], { duration: end * 1000, fill: 'both' });
+$('.mark').animate([{ rotate: '-60deg', offset: 0, easing: EASE.land }, { rotate: '0deg', offset: 0.9 / end, easing: EASE.glide }, { rotate: '20deg', offset: settle, easing: EASE.land }, { rotate: '90deg', offset: 1 }], { duration: end * 1000, fill: 'both' });
 // the spectacle: the lockup opens out and the word slides from behind the mark
 const shift = ($('.word').getBoundingClientRect().width + parseFloat(getComputedStyle($('.row')).columnGap)) / 2;
 const open = { delay: beat(2) * 1000, duration: REVEAL * 1000, fill: 'both' };
@@ -56,6 +56,7 @@ $('.word').animate([{ clipPath: 'inset(-0.3em 100% -0.3em 0)' }, { clipPath: 'in
 // the slide finishes a little after the clip, so the word settles in two steps
 $('.word').animate([{ translate: '-1em 0' }, { translate: '0 0' }], { ...open, duration: (REVEAL + 0.12) * 1000, easing: EASE.land });
 $('.word').animate([{ opacity: 0 }, { opacity: 1 }], { ...open, duration: 100, easing: 'linear' });
+// a longer line needs more read time before the last frame: 0.6 s a word from 4 words (taste/rules/readable-hold.md), so enter it earlier, never later
 enter($('.line'), { at: beat(2) + 0.8, band: 'professional', from: '0 0.4em' });
 </script>
 </head>
