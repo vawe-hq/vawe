@@ -24,10 +24,18 @@ export const findable = (text) => String(text).replace(/[^\p{L}\p{N}]/gu, '').le
 /** The Words texts that spec checks skip, for the note. Pure. */
 export const skippedWords = (words) => words.filter((w) => !findable(w.text)).map((w) => w.text);
 
-/** The seconds to sample: { text: the settle times, boxes: every frame of the film when objects are named }. Pure. */
-export function specTimes({ words = [], objects = [] }, dur, fps = FPS) {
-  const settles = [...new Set(words.filter((w) => findable(w.text) && has(w.settle)).map((w) => round(w.settle)))].sort((a, b) => a - b);
-  return { text: settles, boxes: objects.length ? Array.from({ length: Math.floor(dur * fps + 1e-9) + 1 }, (_, k) => round(k / fps)) : [] };
+/** The seconds to sample the objects: every frame of the film when objects are named. Pure. */
+export function specTimes({ objects = [] }, dur, fps = FPS) {
+  return { boxes: objects.length ? Array.from({ length: Math.floor(dur * fps + 1e-9) + 1 }, (_, k) => round(k / fps)) : [] };
+}
+
+/** The seconds to sample the words: each word's measured settle, the first moment its box holds still. Pure. */
+export const settleTimes = (words, times) => [...new Set(words.flatMap((w, i) => (findable(w.text) && has(times[i]?.settle) ? [round(times[i].settle)] : [])))].sort((a, b) => a - b);
+
+/** The Words texts the layout check cannot measure: { unseen: never on screen, moving: never holds still }. Pure. */
+export function unmeasuredWords(words, times) {
+  const listed = (keep) => words.filter((w, i) => findable(w.text) && times[i] && keep(times[i])).map((w) => w.text);
+  return { unseen: listed((t) => !has(t.appear)), moving: listed((t) => has(t.appear) && !has(t.settle)) };
 }
 
 /**
@@ -57,38 +65,56 @@ export async function runStart(on, hint, { dur, fps = FPS }) {
   return null;
 }
 
-/** The line a spec word is on: an exact line, else the shortest line or block (a whole element's text) that holds the word, spaces ignored. */
-export function lineFor(sample, text) {
+const INSIDE_MIN_CHARS = 4;
+const shortest = (list) => list.sort((a, b) => a.text.length - b.text.length)[0] ?? null;
+const wordIn = (haystack, key) => new RegExp(`(^|[^\\p{L}\\p{N}])${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^\\p{L}\\p{N}])`, 'u').test(haystack);
+
+/**
+ * The line a spec word is on, best first: an exact line; an element whose whole text is the word (spaces ignored, so a word split
+ * into letter spans); then, unless `whole`, the shortest line or block that holds the word as a word; then, for a key of 4 or more
+ * characters, as a substring. A two-letter word is never found inside another word.
+ */
+export function lineFor(sample, text, { whole = false } = {}) {
   const lines = sample?.lines ?? [];
   const exact = lines.find((l) => norm(l.text) === norm(text));
   if (exact) return exact;
   const key = squash(text);
-  return [...(sample?.blocks ?? []), ...lines].filter((l) => squash(l.text).includes(key)).sort((a, b) => a.text.length - b.text.length)[0] ?? null;
+  const all = [...(sample?.blocks ?? []), ...lines];
+  const alone = shortest(all.filter((l) => squash(l.text) === key));
+  if (alone || whole) return alone;
+  return shortest(all.filter((l) => wordIn(norm(l.text), norm(text)))) ?? (key.length >= INSIDE_MIN_CHARS ? shortest(all.filter((l) => squash(l.text).includes(key))) : null);
 }
 
 const sampleAt = (samples, t) => samples.find((s) => Math.abs(s.t - t) < 1e-6);
 
-const boxAtRest = (a, b, { frameW, frameH }) => Math.abs(a[0] - b[0]) <= REST_SHARE * frameW && Math.abs(a[1] - b[1]) <= REST_SHARE * frameH
+const boxInFrame = (b, { frameW, frameH }) => b[0] >= -REST_SHARE * frameW && b[1] >= -REST_SHARE * frameH && b[0] + b[2] <= (1 + REST_SHARE) * frameW && b[1] + b[3] <= (1 + REST_SHARE) * frameH;
+
+const boxAtRest =(a, b, { frameW, frameH }) => Math.abs(a[0] - b[0]) <= REST_SHARE * frameW && Math.abs(a[1] - b[1]) <= REST_SHARE * frameH
   && Math.abs(a[2] - b[2]) <= REST_SHARE * frameW && Math.abs(a[3] - b[3]) <= REST_SHARE * frameH;
 
 const check = (label, spec, got, unit, of = null) => ({ label, spec, got, dev: got === null ? Infinity : Math.abs(got - spec), unit, ...(of ? { of } : {}) });
 
 /**
- * Per spec word, when its text first shows (appear) and when its box stops moving (settle), measured around the
- * spec times. `linesAt(t)` is the async text probe { lines, blocks } of one seek. { appear, settle }, null where
- * the word was not found or has no spec time.
+ * Per spec word, when its text first shows (appear) and when its box stops moving (settle), measured from the film, near the
+ * spec appear time when there is one. `linesAt(t)` is the async text probe { lines, blocks } of one seek. { appear, settle, whole }:
+ * null where the word is never on screen or never holds still; `whole` is true when an element holds exactly that text, which is
+ * then the one measured (a footer line that merely contains the word is not).
  */
 export async function wordTimes(word, linesAt, { dur, frame }) {
   if (!findable(word.text)) return { appear: null, settle: null };
-  const seen = async (t) => lineFor(await linesAt(t), word.text);
   const span = { dur };
-  const appear = has(word.appear) ? await runStart(async (t) => Boolean(await seen(t)), word.appear, span) : null;
-  if (!has(word.settle)) return { appear, settle: null };
-  const restAt = await firstRest(seen, appear ?? 0, { dur, frame });
-  if (restAt === null) return { appear, settle: null };
-  const ref = await seen(Math.min(dur, restAt + REST_LOOK_S));
+  const hint = has(word.appear) ? word.appear : 0;
+  const firstShown = (whole) => runStart(async (t) => Boolean(lineFor(await linesAt(t), word.text, { whole })), hint, span);
+  const wholeAt = await firstShown(true);
+  const whole = wholeAt !== null;
+  const appear = whole ? wholeAt : await firstShown(false);
+  if (appear === null) return { appear: null, settle: null, whole };
+  const seen = async (t) => { const l = lineFor(await linesAt(t), word.text, { whole }); return l && boxInFrame(l.box, frame) ? l : null; };
+  const restAt = await firstRest(seen, appear, { dur, frame });
+  const ref = restAt === null ? null : await seen(Math.min(dur, restAt + REST_LOOK_S));
+  if (!ref) return { appear, settle: null, whole };
   const settle = await runStart(async (t) => { const l = await seen(t); return Boolean(l) && boxAtRest(l.box, ref.box, frame); }, restAt, span);
-  return { appear, settle };
+  return { appear, settle, whole };
 }
 
 /** The first coarse frame time from `from` where the word's box holds still for REST_LOOK_S, so settle never depends on the brief's value. */
@@ -100,17 +126,33 @@ async function firstRest(seen, from, { dur, frame, fps = FPS }) {
   return null;
 }
 
-/** Per spec word: the first time its text shows vs `appear s` (from `times`, wordTimes per word), then cap height, x and y at `settle s`. Pure. */
+const X_ANCHORS = [['left', 0], ['centre', 0.5], ['right', 1]];
+const Y_ANCHORS = [['top', 0], ['middle', 0.5], ['bottom', 1]];
+
+/** Of a box's start, centre and end (px, in a frame `total` px long), the one nearest `spec` percent: { value, name } in percent. Pure. */
+function nearestAnchor(spec, start, size, total, anchors) {
+  const at = anchors.map(([name, f]) => ({ name, value: ((start + f * size) * 100) / total }));
+  return at.reduce((a, b) => (Math.abs(b.value - spec) < Math.abs(a.value - spec) ? b : a));
+}
+
+/**
+ * Per spec word: the first time its text shows vs `appear s` (from `times`, wordTimes per word), then cap height, x and y at the
+ * word's measured settle. x is the left, centre or right of the text box and y its top, middle or bottom, whichever is nearest the
+ * spec. A word never on screen or never at rest has no layout checks (unmeasuredWords lists it). Pure.
+ */
 export function wordChecks(words, samples, { frameW, frameH }, times = []) {
   const out = [];
   words.forEach((w, i) => {
     if (!findable(w.text)) return;
     if (has(w.appear)) out.push(check(`"${w.text}" appears`, w.appear, times[i]?.appear ?? null, 's'));
-    if (!has(w.settle)) return;
-    const line = lineFor(sampleAt(samples, round(w.settle)), w.text);
-    const got = line && { cap: (RULES.capOfFont * line.fontPx * 100) / frameH, x: (line.box[0] * 100) / frameW, y: (line.box[1] * 100) / frameH };
-    for (const [key, name] of [['cap', 'cap height'], ['x', 'x'], ['y', 'y']]) {
-      if (has(w[key])) out.push(check(`"${w.text}" ${name} at ${w.settle} s`, w[key], got ? got[key] : null, '%'));
+    const t = times[i]?.settle;
+    if (!has(t)) return;
+    const line = lineFor(sampleAt(samples, round(t)), w.text, { whole: times[i].whole });
+    const add = (key, name, got) => has(w[key]) && out.push(check(`"${w.text}" ${name} at ${round(t)} s`, w[key], got, '%'));
+    add('cap', 'cap height', line ? (RULES.capOfFont * line.fontPx * 100) / frameH : null);
+    for (const [key, anchors, at, total] of [['x', X_ANCHORS, [0, 2], frameW], ['y', Y_ANCHORS, [1, 3], frameH]]) {
+      const near = line && has(w[key]) ? nearestAnchor(w[key], line.box[at[0]], line.box[at[1]], total, anchors) : null;
+      add(key, near ? `${key} (${near.name})` : key, near ? near.value : null);
     }
   });
   return out;

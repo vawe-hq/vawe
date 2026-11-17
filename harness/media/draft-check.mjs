@@ -7,7 +7,7 @@ import { sampleTimes, settledSamples, DECORATIVE, CHROME, TEXTURE } from '../lib
 import { draftLowContrast, shownAndHidden } from '../lib/text-contrast.mjs';
 import { readHolds } from '../lib/worlds.mjs';
 import { sheetFps, tileProblems, TILE_W } from '../lib/sheet-tiles.mjs';
-import { specTimes, wordTimes, objectChecks } from '../lib/spec-conformance.mjs';
+import { specTimes, settleTimes, wordTimes, objectChecks } from '../lib/spec-conformance.mjs';
 import { sampleBoxTracks } from '../lib/box-track.mjs';
 import { frameMotion } from './motion-curve.mjs';
 import { decodeGray } from './see/frame.mjs';
@@ -376,11 +376,10 @@ export async function sampleSpec(page, tables, seek, dur, { objects = true } = {
   const [frameW, frameH] = await page.evaluate(() => [innerWidth, innerHeight]);
   const frame = { frameW, frameH };
   const linesAt = async (t) => { await seek(t * 1000); return page.evaluate(visibleLines, DECORATIVE, CHROME, false, TEXTURE); };
-  const times = specTimes(tables, dur);
-  const samples = [];
-  for (const t of times.text) samples.push({ t, ...(await linesAt(t)) });
   const wordTimesOf = [];
   for (const w of tables.words) wordTimesOf.push(await wordTimes(w, linesAt, { dur, frame }));
+  const samples = [];
+  for (const t of settleTimes(tables.words, wordTimesOf)) samples.push({ t, ...(await linesAt(t)) });
   return { samples, times: wordTimesOf, objects: objects ? await sampleObjects(page, tables, frame, dur) : null, frameW, frameH };
 }
 

@@ -51,6 +51,16 @@ test('spec rows take the worst deviation against the brief target', () => {
   assert.match(row.detail[0], /"b" x at 2 s: spec 10.0%, film 12.3%/);
 });
 
+test('spec rows name the words they could not measure and stay green for the rest; with none measurable they say why', () => {
+  const rule = [{ metric: 'word cap height and position vs spec', target: 'within 1% of frame' }];
+  const ok = [{ label: '"a" x (centre) at 1 s', spec: 50, got: 50, dev: 0, unit: '%' }];
+  const [some] = buildRows(rule, { layout: ok, layoutSkipped: { unseen: ['b'], moving: [] } });
+  assert.equal(some.status, 'ok');
+  assert.equal(some.measured, '0.0% (not measured: "b" never on screen)');
+  const [none] = buildRows(rule, { layout: [], layoutSkipped: { unseen: ['b'], moving: ['c'] } });
+  assert.match(none.measured, /no Words text measurable: "b" never on screen, "c" never at rest in the frame/);
+});
+
 test('a row the final cannot measure keeps the draft value, marked', () => {
   const carry = [{ metric: 'text collisions', status: 'ok', measured: '0', detail: [] }];
   const [row] = buildRows([{ metric: 'text collisions', target: '0' }], {}, { carry });

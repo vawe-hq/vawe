@@ -101,7 +101,11 @@ const ROWS = {
     return done(!m.readHold.length, `${m.readHold.length ? `${m.readHold.length} line(s) short` : 'all long enough'}${unmeasured}`, m.readHold.slice(0, SHOW).map((p) => `"${p.text.slice(0, 40)}" holds ${p.hold.toFixed(2)} s, needs ${p.need.toFixed(2)} s`));
   },
   'exits shorter than entrances': (m) => (m.exits ? done(!m.exits.length, m.exits.length ? `${m.exits.length} too long` : 'all', m.exits.slice(0, SHOW).map((e) => `${e.at.toFixed(2)} s: ${e.what}`)) : skip('no motion probe')),
-  'word cap height and position vs spec': (m, pass) => deviationRow(m.layout, pass, 'no spec', (d) => `${d.toFixed(1)}%`, 'set the font size and box to the Words table, or change the table', m.guessed?.words),
+  'word cap height and position vs spec': (m, pass) => {
+    const left = m.layoutSkipped ? [...m.layoutSkipped.unseen.map((t) => `"${t}" never on screen`), ...m.layoutSkipped.moving.map((t) => `"${t}" never at rest in the frame`)] : [];
+    const out = deviationRow(m.layout, pass, left.length ? `no Words text measurable: ${left.slice(0, SHOW).join(', ')}` : 'no spec', (d) => `${d.toFixed(1)}%`, 'set the font size and box to the Words table, or change the table', m.guessed?.words);
+    return out.skip || !left.length ? out : { ...out, measured: `${out.measured} (not measured: ${left.slice(0, SHOW).join(', ')}${left.length > SHOW ? `, ${left.length - SHOW} more` : ''})` };
+  },
   'cuts vs spec': (m, pass) => deviationRow(m.cuts, pass, m.hasShots ? 'no hard cut near a shot start' : 'no spec', (d) => `${d.toFixed(1)} frames`, 'land the cut on the Shots boundary, or change the table'),
   loudness: (m, pass) => (m.lufs == null ? skip('no audio in the video') : done(pass(m.lufs), `${m.lufs.toFixed(1)} LUFS`, pass(m.lufs) ? [] : [loudnessFix({ I: m.lufs, TP: m.peak ?? -Infinity, cues: m.cues })])),
   peak: (m, pass) => (m.peak == null ? skip('no audio in the video') : done(pass(m.peak), `${m.peak.toFixed(1)} dBFS`, pass(m.peak) ? [] : [`lower data-gain on ${loudestCue(m.cues)} by ${Math.ceil(m.peak - PEAK_DBFS)} dB`])),

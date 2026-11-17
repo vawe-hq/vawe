@@ -14,7 +14,7 @@ import { tailTiles } from '../lib/sheet-tiles.mjs';
 import { heldTextRuns } from '../lib/draft-check.mjs';
 import { textCollisions } from '../lib/text-collision.mjs';
 import { readHoldProblems, readHoldUnmeasured, probeTracks } from '../lib/read-hold.mjs';
-import { wordChecks, cutChecks, cutSpans as cutSpansOf, measuredSpec } from '../lib/spec-conformance.mjs';
+import { wordChecks, unmeasuredWords, cutChecks, cutSpans as cutSpansOf, measuredSpec } from '../lib/spec-conformance.mjs';
 import { buildRows, withHistory, tableLines, allMeasuredGreen, acceptanceCounts } from '../lib/acceptance.mjs';
 import { syncSpec } from '../lib/spec-sync.mjs';
 import { pageLook, writeLook, firstFamily } from '../lib/page-look.mjs';
@@ -56,6 +56,7 @@ function pageMeasures({ probe, findings, authoring }, tables) {
     readHoldUnmeasured: readHoldUnmeasured(tracks),
     exits: findings.filter((f) => f.code === 'exit-length').map((f) => ({ at: f.at, what: f.what })),
     layout: wordResult && wordResult.filter((c) => !c.label.endsWith('appears')),
+    layoutSkipped: spec && tables.words.length ? unmeasuredWords(tables.words, spec.times) : null,
     measuredSpec: spec || probe.worlds?.length ? measuredSpec(tables.words, spec?.times ?? [], spec?.objects ?? [], probe.worlds ?? spec?.worlds ?? []) : null,
   };
 }

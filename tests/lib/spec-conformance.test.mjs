@@ -1,15 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { specTimes, runStart, lineFor, findable, skippedWords, wordTimes, wordChecks, objectChecks, measuredSpec, cutChecks, cutSpans, checkLines, APPEAR_TOL_S, LAYOUT_TOL_PCT } from '../../harness/lib/spec-conformance.mjs';
+import { specTimes, settleTimes, unmeasuredWords, runStart, lineFor, findable, skippedWords, wordTimes, wordChecks, objectChecks, measuredSpec, cutChecks, cutSpans, checkLines, APPEAR_TOL_S, LAYOUT_TOL_PCT } from '../../harness/lib/spec-conformance.mjs';
 
 const frame = { frameW: 1000, frameH: 500 };
 const word = { text: 'Ship it', appear: 1, settle: 1.5, cap: 8, x: 10, y: 40 };
 const FRAME_S = 1 / 30;
 
-test('specTimes: the settle times, and every frame of the film only when objects are named', () => {
-  const t = specTimes({ words: [word, { text: 'x', settle: 2 }], objects: [] }, 2);
-  assert.deepEqual(t.text, [1.5]);
-  assert.deepEqual(t.boxes, []);
+test('specTimes: every frame of the film, only when objects are named', () => {
+  assert.deepEqual(specTimes({ objects: [] }, 2).boxes, []);
   const o = specTimes({ words: [], objects: [{ in: 1 }] }, 1);
   assert.equal(o.boxes.length, 31);
   assert.equal(o.boxes[30], 1);
@@ -52,7 +50,7 @@ test('findable: a word under 2 letters or only punctuation is skipped with a not
   assert.ok(findable('Go') && findable('v2') && !findable('.') && !findable('A') && !findable('...') && !findable(' - '));
   assert.deepEqual(skippedWords([{ text: 'Go' }, { text: '.' }, { text: 'a' }]), ['.', 'a']);
   assert.deepEqual(wordChecks([{ text: '.', appear: 1 }], [], frame, [{ appear: null }]), []);
-  assert.deepEqual(specTimes({ words: [{ text: '.', settle: 1 }] }, 3).text, []);
+  assert.deepEqual(settleTimes([{ text: '.' }], [{ appear: 1, settle: 1 }]), []);
 });
 
 // a word whose letters are separate spans: every letter must show before the word counts
@@ -83,22 +81,70 @@ test('wordTimes: settle is the same whatever the brief says, so a synced brief n
 test('wordChecks: appear time from the measure, then cap height and position at settle', () => {
   // 1% of a 500 px frame is 5 px; fontPx 57.14 gives cap 0.7 * 57.14 / 500 = 8%
   const samples = [{ t: 1.5, lines: [{ text: 'Ship it', fontPx: 57.14, box: [100, 200, 300, 60] }] }];
-  const checks = wordChecks([word], samples, frame, [{ appear: 1.03 }]);
-  assert.deepEqual(checks.map((c) => [c.label, +c.dev.toFixed(2)]), [['"Ship it" appears', 0.03], ['"Ship it" cap height at 1.5 s', 0], ['"Ship it" x at 1.5 s', 0], ['"Ship it" y at 1.5 s', 0]]);
+  const checks = wordChecks([word], samples, frame, [{ appear: 1.03, settle: 1.5 }]);
+  assert.deepEqual(checks.map((c) => [c.label, +c.dev.toFixed(2)]), [['"Ship it" appears', 0.03], ['"Ship it" cap height at 1.5 s', 0], ['"Ship it" x (left) at 1.5 s', 0], ['"Ship it" y (top) at 1.5 s', 0]]);
   assert.deepEqual(checkLines(checks, APPEAR_TOL_S), []);
 });
 
 test('wordChecks: late text and a wrong size are named with spec and film values', () => {
   const samples = [{ t: 1.5, lines: [{ text: 'Ship it', fontPx: 35, box: [150, 200, 300, 60] }] }];
-  const checks = wordChecks([word], samples, frame, [{ appear: 1.2 }]);
+  const checks = wordChecks([word], samples, frame, [{ appear: 1.2, settle: 1.5 }]);
   const lines = [...checkLines(checks.filter((c) => c.unit === 's'), APPEAR_TOL_S), ...checkLines(checks.filter((c) => c.unit === '%'), LAYOUT_TOL_PCT)];
-  assert.deepEqual(lines, ['"Ship it" appears: spec 1.00 s, film 1.20 s', '"Ship it" cap height at 1.5 s: spec 8.0%, film 4.9%', '"Ship it" x at 1.5 s: spec 10.0%, film 15.0%']);
+  assert.deepEqual(lines, ['"Ship it" appears: spec 1.00 s, film 1.20 s', '"Ship it" cap height at 1.5 s: spec 8.0%, film 4.9%', '"Ship it" x (left) at 1.5 s: spec 10.0%, film 15.0%']);
 });
 
-test('wordChecks: a word that never shows is not found, not silently fine', () => {
-  const checks = wordChecks([word], [{ t: 1.5, lines: [] }], frame, [{ appear: null }]);
-  assert.ok(checks.every((c) => c.dev === Infinity));
+test('wordChecks: a word that never shows is not found, and has no layout checks to fail', () => {
+  const checks = wordChecks([word], [], frame, [{ appear: null, settle: null }]);
+  assert.deepEqual(checks.map((c) => c.label), ['"Ship it" appears']);
   assert.match(checkLines(checks, APPEAR_TOL_S)[0], /not found within the sampled window/);
+  assert.deepEqual(unmeasuredWords([word, { text: 'Go' }], [{ appear: null, settle: null }, { appear: 1, settle: null }]), { unseen: ['Ship it'], moving: ['Go'] });
+});
+
+// bench title-sting: a centred 1920x1080 title written as x 50, y 44, cap 16 (its left edge is 28.8%, its top 28.3%)
+const centred = { t: 0.97, lines: [], blocks: [{ text: 'Ember', fontPx: 259.2, box: [553, 306, 814, 324] }] };
+const ember = { text: 'Ember', appear: 0.5, cap: 16, x: 50, y: 44 };
+
+test('wordChecks: x and y name the nearest of left, centre, right and top, middle, bottom, so a centred word written as 50 passes', () => {
+  const checks = wordChecks([ember], [centred], { frameW: 1920, frameH: 1080 }, [{ appear: 0.53, settle: 0.97, whole: true }]);
+  assert.deepEqual(checks.filter((c) => c.unit === '%').map((c) => [c.label, c.dev <= LAYOUT_TOL_PCT]), [['"Ember" cap height at 0.97 s', true], ['"Ember" x (centre) at 0.97 s', true], ['"Ember" y (middle) at 0.97 s', true]]);
+});
+
+test('wordChecks: a word really off its spec stays out on every edge', () => {
+  const checks = wordChecks([{ ...ember, x: 60 }], [centred], { frameW: 1920, frameH: 1080 }, [{ appear: 0.53, settle: 0.97, whole: true }]);
+  assert.deepEqual(checkLines(checks.filter((c) => c.unit === '%'), LAYOUT_TOL_PCT), ['"Ember" x (centre) at 0.97 s: spec 60.0%, film 50.0%']);
+});
+
+test('settleTimes: one sample per distinct measured settle, none for a word that never rests', () => {
+  assert.deepEqual(settleTimes([word, { text: 'Go now' }, { text: 'Hi there' }, { text: 'Gone' }], [{ settle: 2.4 }, { settle: 1.1 }, { settle: 2.4 }, { settle: null }]), [1.1, 2.4]);
+});
+
+test('lineFor: a short word is never found inside another word, and prefers the element that holds only it', () => {
+  const sample = { lines: [{ text: 'Ship', box: [0, 0, 1, 1] }, { text: 'marlo.studio', box: [0, 0, 1, 1] }, { text: 'Marlo', box: [0, 0, 1, 1] }], blocks: [] };
+  assert.equal(lineFor(sample, 'it'), null);
+  assert.equal(lineFor({ lines: [{ text: 'Ship it before lunch.' }], blocks: [] }, 'it').text, 'Ship it before lunch.');
+  assert.equal(lineFor({ lines: [{ text: 'marlo.studio' }, { text: 'Marlo' }] }, 'marlo').text, 'Marlo');
+  assert.equal(lineFor({ lines: [{ text: 'marlo.studio' }] }, 'marlo').text, 'marlo.studio');
+  assert.equal(lineFor({ lines: [{ text: 'marlo.studio' }] }, 'marlo', { whole: true }), null);
+});
+
+test('wordTimes: the word is measured on the element that holds only it, not on a line that merely contains it', async () => {
+  const linesAt = async (t) => ({ lines: [{ text: 'marlo.studio', fontPx: 12, box: [10, 460, 100, 14] }, ...(t >= 2 ? [{ text: 'Marlo', fontPx: 100, box: [200, 100, 400, 120] }] : [])], blocks: [] });
+  const got = await wordTimes({ text: 'marlo', appear: 0.2 }, linesAt, { dur: 5, frame });
+  assert.ok(Math.abs(got.appear - 2) <= FRAME_S && got.whole, JSON.stringify(got));
+  assert.ok(got.settle >= got.appear && got.settle < 2.5, JSON.stringify(got));
+});
+
+test('wordTimes: a word parked half out of the frame is not at rest until it is fully inside', async () => {
+  const linesAt = async (t) => ({ lines: [{ text: 'Ship it', fontPx: 40, box: [100, t < 2 ? 470 : 200, 300, 60] }], blocks: [] });
+  const { appear, settle } = await wordTimes({ text: 'Ship it' }, linesAt, { dur: 5, frame });
+  assert.equal(appear, 0);
+  assert.ok(settle >= 2 - FRAME_S, `settle ${settle}`);
+});
+
+test('wordTimes: a word with no times in the brief is still measured', async () => {
+  const linesAt = async (t) => ({ lines: t >= 1 ? [{ text: 'Ship it', fontPx: 40, box: [100, 200, 300, 60] }] : [], blocks: [] });
+  const got = await wordTimes({ text: 'Ship it' }, linesAt, { dur: 5, frame });
+  assert.ok(Math.abs(got.appear - 1) <= FRAME_S && got.settle >= got.appear && got.settle < 1.5, JSON.stringify(got));
 });
 
 // a dense box track: one box per frame of a 4 s film
