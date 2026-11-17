@@ -152,7 +152,11 @@ export async function countFirstDraft({ rows: streamRows, runs = [], devMd = nul
   const refusals = runs.filter((r) => r.cmd === 'verb' && r.refused).length;
   const errorLines = linesOf(devMd, /^error: /).length;
   const devRun = runs.findLast((r) => r.cmd === 'dev' && !r.failed);
-  const filmWrites = calls.filter((c) => FILM_WRITERS.has(c.name) && !mcpIds.has(c.id)).flatMap((c) => c.writes.map((w) => `${c.name}:${w.film}/${w.what}`));
+  const handWrites = calls.filter((c) => FILM_WRITERS.has(c.name) && !mcpIds.has(c.id));
+  const blocked = (c) => c.flags?.exitFail || c.flags?.hook;
+  const listOf = (cs) => cs.flatMap((c) => c.writes.map((w) => `${c.name}:${w.film}/${w.what}`));
+  const filmWrites = listOf(handWrites.filter((c) => !blocked(c)));
+  const blockedWrites = listOf(handWrites.filter(blocked));
 
   return {
     draft: Boolean(draft),
@@ -163,6 +167,7 @@ export async function countFirstDraft({ rows: streamRows, runs = [], devMd = nul
     rulesFired: Array.isArray(devRun?.rules_fired) ? devRun.rules_fired.length : null,
     acceptance: acceptanceOf(devMd) ?? devRun?.acceptance ?? null,
     rawFilmWrites: filmWrites.length, rawFilmWriteList: filmWrites,
+    blockedFilmWrites: blockedWrites.length, blockedFilmWriteList: blockedWrites,
     rawMedia: calls.flatMap((c) => c.raw.filter((id) => RAW_MEDIA.has(id))).length,
     verbCalls: events.filter((e) => !e.help && e.call <= cutIndex).length,
     toolCalls: calls.length,
@@ -228,6 +233,7 @@ const COUNTS = [
   ['acceptance green', (r) => r.acceptance?.green ?? null],
   ['acceptance measured', (r) => r.acceptance?.measured ?? null],
   ['raw film writes', (r) => r.rawFilmWrites],
+  ['blocked film writes', (r) => r.blockedFilmWrites],
   ['raw ffmpeg or chrome', (r) => r.rawMedia],
   ['vawe verb calls', (r) => r.verbCalls],
   ['tool calls', (r) => r.toolCalls],
@@ -249,9 +255,12 @@ export function readBaseline(file = BASELINE) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return {}; }
 }
 
-/** Adds one result under baseline[variant][commit]; the same commit again replaces its entry. */
+/** Adds runs under baseline[variant][commit]; a prompt run again replaces its own run and keeps the other prompts of that commit. */
 export function record(baseline, { variant, commit, runs, at }) {
-  return { ...baseline, [variant]: { ...(baseline[variant] ?? {}), [commit]: { at, summary: summarise(runs), runs } } };
+  const fresh = new Set(runs.map((r) => r.prompt));
+  const kept = (baseline[variant]?.[commit]?.runs ?? []).filter((r) => !fresh.has(r.prompt));
+  const all = [...kept, ...runs];
+  return { ...baseline, [variant]: { ...(baseline[variant] ?? {}), [commit]: { at, summary: summarise(all), runs: all } } };
 }
 
 const latest = (entries) => Object.entries(entries ?? {}).sort((a, b) => String(a[1].at).localeCompare(String(b[1].at))).at(-1);

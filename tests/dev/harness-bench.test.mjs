@@ -134,3 +134,21 @@ test('record keys by variant then commit, and the table needs both variants', ()
   assert.match(sideBySide(both), /contract findings\s+3\s+0/);
   assert.equal(summarise([])['contract findings'], null);
 });
+
+test('a rerun of one prompt keeps the other prompts of the same commit', async () => {
+  const { record } = await import('../../harness/dev/harness-bench.mjs');
+  const run = (prompt, green) => ({ prompt, draft: true, acceptance: { green, measured: 10 } });
+  let b = record({}, { variant: 'base', commit: 'c1', runs: [run('a', 5), run('b', 6)], at: 't1' });
+  b = record(b, { variant: 'base', commit: 'c1', runs: [run('b', 9)], at: 't2' });
+  assert.deepEqual(b.base.c1.runs.map((r) => [r.prompt, r.acceptance.green]), [['a', 5], ['b', 9]]);
+});
+
+test('a hand write the hook blocked counts as blocked, not as a write', async () => {
+  const { countFirstDraft } = await import('../../harness/dev/harness-bench.mjs');
+  const use = (id) => ({ type: 'assistant', message: { content: [{ type: 'tool_use', id, name: 'Edit', input: { file_path: '/r/films/x/brief.md', old_string: 'a', new_string: 'b' } }] } });
+  const res = (id, text, isError) => ({ type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: id, content: text, is_error: isError }] } });
+  const rows = [use('t1'), res('t1', 'PreToolUse:Edit hook error: blocked: a hand-made write to films/x/ (brief)', true), use('t2'), res('t2', 'ok', false)];
+  const r = await countFirstDraft({ rows });
+  assert.equal(r.blockedFilmWrites, 1);
+  assert.equal(r.rawFilmWrites, 1);
+});
