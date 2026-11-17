@@ -1,5 +1,5 @@
 {
-  "name": "vawe",
+  "name": "@vawe/cli",
   "version": "2.0.0",
   "type": "module",
   "description": "Open-source HTML to video: deterministic motion graphics as code for developers and AI agents. One HTML page in, one video out. Renders frame-by-frame in Chrome, encodes with ffmpeg.",
@@ -57,6 +57,9 @@
     "node": ">=22"
   },
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vawe-hq/vawe.git"

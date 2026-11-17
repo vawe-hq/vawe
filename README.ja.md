@@ -38,12 +38,13 @@ Remotion、HyperFrames、Motion Canvas の無料の代替になります。コ�
 ## クイックスタート
 
 ```bash
+npm install @vawe/cli
 npx vawe new my-film --request "a 10 second title card"
 npx vawe dev films/my-film/page.html
 ```
 
 Node 22 以上と、PATH 上の ffmpeg が必要です。映像は `films/` に、mp4 は `out/` に、コマンドを実行したフォルダの中に作られます。
-最初のレンダリングで Chrome を一度だけ取得します（約 150 MB）。`npx vawe --help` でサブコマンドの一覧が出ます。
+最初のレンダリングで Chrome を一度だけ取得します（約 150 MB）。パッケージ名は `@vawe/cli`、コマンド名は `vawe` です。`npx vawe --help` でサブコマンドの一覧が出ます。
 ドキュメント中の `bin/vawe` は `npx vawe` と読み替えてください。
 
 ソースから実行する場合（vawe 自体の開発用）:

@@ -37,12 +37,13 @@ vawe 是一个开源的 HTML 转视频框架，用于智能体原生的动态图
 ## 快速开始
 
 ```bash
+npm install @vawe/cli
 npx vawe new my-film --request "a 10 second title card"
 npx vawe dev films/my-film/page.html
 ```
 
 需要 Node 22+，并且 ffmpeg 在 PATH 中。影片放在 `films/`，mp4 放在 `out/`，都在你运行命令的目录下。
-第一次渲染会下载一次 Chrome（约 150 MB）。`npx vawe --help` 会列出所有子命令。文档里的 `bin/vawe`
+第一次渲染会下载一次 Chrome（约 150 MB）。包名是 `@vawe/cli`，命令是 `vawe`。`npx vawe --help` 会列出所有子命令。文档里的 `bin/vawe`
 请读作 `npx vawe`。
 
 从源码运行（用于开发 vawe 本身）：

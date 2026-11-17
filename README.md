@@ -37,12 +37,13 @@ or [llms.txt](https://vawe.dev/llms.txt).
 ## Quickstart
 
 ```bash
+npm install @vawe/cli
 npx vawe new my-film --request "a 10 second title card"
 npx vawe dev films/my-film/page.html
 ```
 
 Needs Node 22+ and ffmpeg on PATH. The film goes in `films/` and the mp4 in `out/`, in the folder you run it
-from. The first render fetches Chrome once (about 150 MB). `npx vawe --help` lists the verbs. In the docs, read
+from. The first render fetches Chrome once (about 150 MB). The package is `@vawe/cli`; its command is `vawe`. `npx vawe --help` lists the verbs. In the docs, read
 `bin/vawe` as `npx vawe`.
 
 From source, for work on vawe itself:
