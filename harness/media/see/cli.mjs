@@ -163,7 +163,7 @@ export async function dispatchStrip(input, flag, argv) {
   for (const bin of ['ffprobe', 'ffmpeg']) {
     if (spawnSync(bin, ['-version'], { encoding: 'utf8' }).error) die(`${bin} is not on PATH`);
   }
-  const opts = { cuts: argv.includes('--cuts'), at: flag('--moment', undefined), span: Number(flag('--span', STRIP_SPAN)), fps: Number(flag('--fps', STRIP_FPS)), out: flag('--out', undefined) };
+  const opts = { cuts: argv.includes('--cuts'), at: flag('--moment', undefined), span: Number(flag('--span', STRIP_SPAN)), fps: Number(flag('--fps', STRIP_FPS)), out: flag('--out', undefined), limit: argv.includes('--limit') ? Number(flag('--limit', undefined)) : undefined };
   const problem = stripProblem(opts);
   if (problem) die(problem);
   const { runStrip } = await import('./strip.mjs');

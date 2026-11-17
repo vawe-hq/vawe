@@ -66,9 +66,9 @@ export const STEPS = {
     }
     const span = v.span ?? STRIP_SPAN;
     const fps = v.fps ?? STRIP_FPS;
-    const problem = stripProblem({ at: v.at, cuts: v.cuts, span, fps });
+    const problem = stripProblem({ at: v.at, cuts: v.cuts, span, fps, limit: v.limit });
     if (problem) throw new UsageError(problem);
-    return [{ script: 'harness/media/see.mjs', args: [film, ...(v.cuts ? ['--cuts'] : ['--moment', v.at]), '--span', String(span), '--fps', String(fps), ...opt('--out', v.out)] }];
+    return [{ script: 'harness/media/see.mjs', args: [film, ...(v.cuts ? ['--cuts'] : ['--moment', v.at]), '--span', String(span), '--fps', String(fps), ...(v.limit === undefined ? [] : ['--limit', String(v.limit)]), ...opt('--out', v.out)] }];
   },
   zoom(v, film) {
     const scale = v.scale ?? ZOOM_SCALE;
@@ -92,7 +92,7 @@ const ONLY = {
   labels: ['sheet'], cols: ['sheet'], from: ['sheet'], sheet: ['sheet'],
   size: ['still'],
   aspect: ['still', 'sheet'], param: ['still', 'sheet'],
-  span: ['moment', 'cuts'], fps: ['moment', 'cuts'],
+  span: ['moment', 'cuts'], fps: ['moment', 'cuts'], limit: ['cuts'],
   onion: ['moment'], velocity: ['moment'],
   full: ['world'], sharp: ['world'],
   scale: ['crop'], only: ['looks'], page: ['board'], all: ['board'],
@@ -194,7 +194,7 @@ one frame or a sheet (no mode flag):
   --vs ref.mp4 --at 2.5,3   the reference left, yours right, same seconds
 key states and cuts:
   --world all | s3,s5       a still of each world's key state. --full full size, --sharp
-  --cuts                    one grid per cut
+  --cuts                    one grid per cut. --limit n keeps n cuts spread over the film
 a move (a page needs a draft: run vawe dev first):
   --moment 8.4              frames through that second. --span (default ${STRIP_SPAN} s), --fps (default ${STRIP_FPS})
   --moment 8.4 --onion      one blended image of the path. --span default ${ONION_SPAN} s, --n
@@ -217,7 +217,7 @@ const FLAGS = [
   { name: 'looks', type: 'bool' }, { name: 'board', type: 'bool' }, { name: 'directions', type: 'bool' },
   { name: 'out', type: 'path' }, { name: 'aspect', type: 'string' }, { name: 'param', type: 'string', repeat: true }, { name: 'size', type: 'string' },
   { name: 'labels', type: 'bool' }, { name: 'cols', type: 'number' }, { name: 'from', type: 'number' },
-  { name: 'span', type: 'number' }, { name: 'fps', type: 'number' }, { name: 'n', type: 'number' }, { name: 'sel', type: 'string' }, { name: 'ids', type: 'string' },
+  { name: 'span', type: 'number' }, { name: 'fps', type: 'number' }, { name: 'limit', type: 'number' }, { name: 'n', type: 'number' }, { name: 'sel', type: 'string' }, { name: 'ids', type: 'string' },
   { name: 'full', type: 'bool' }, { name: 'sharp', type: 'bool' }, { name: 'scale', type: 'number' }, { name: 'only', type: 'string' },
   { name: 'page', type: 'path' }, { name: 'all', type: 'bool' },
 ];

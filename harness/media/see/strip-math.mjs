@@ -11,13 +11,22 @@ const SAMPLE_S = 0.1;
 const round = (n) => +n.toFixed(3);
 
 /** The first problem in the arguments of strip, or null. Pure. */
-export function stripProblem({ at, cuts, span, fps }) {
+export function stripProblem({ at, cuts, span, fps, limit }) {
   if (cuts && at !== undefined) return 'give --at <s> or --cuts, not both';
+  if (limit !== undefined && !(Number.isInteger(limit) && limit > 0)) return '--limit takes a whole number of cuts, 1 or more';
+  if (limit !== undefined && !cuts) return '--limit needs --cuts';
   if (!cuts && at === undefined) return 'missing --at <s> (the moment to look at) or --cuts (one strip per world change or shot cut)';
   if (!cuts && atProblem(at)) return atProblem(at);
   if (!(span > 0)) return '--span must be more than 0 seconds';
   if (!(fps > 0)) return '--fps must be more than 0 (0.5 is one frame every 2 s)';
   return null;
+}
+
+/** The indexes of `limit` items spread evenly over `count` (first and last kept); every index when `limit` is not under `count`. Pure. */
+export function spreadIndexes(count, limit) {
+  if (!(limit < count)) return Array.from({ length: count }, (_, i) => i);
+  if (limit === 1) return [Math.floor((count - 1) / 2)];
+  return Array.from({ length: limit }, (_, i) => Math.round((i * (count - 1)) / (limit - 1)));
 }
 
 /** The problem with asking for `fps` frames per second from a source that has `sourceFps`, or null. Pure. */

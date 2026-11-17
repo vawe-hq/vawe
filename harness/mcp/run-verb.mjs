@@ -7,6 +7,20 @@ import { ENGINE, WORK } from '../lib/workspace.mjs';
 
 const MAX_OUTPUT = 3000;
 const LIMIT_MS = 30 * 60 * 1000;
+const running = new Set();
+
+// A verb runs child scripts (see.mjs, ffmpeg); killing bin/vawe alone leaves them running and slowing every later call.
+function killGroup(child) {
+  try { process.kill(-child.pid, 'SIGTERM'); } catch { /* the group already exited */ }
+}
+
+/** Ends every verb still running, with its child scripts: for the server's exit. */
+export function killRunning() {
+  for (const child of running) killGroup(child);
+  running.clear();
+}
+
+process.on('exit', killRunning);
 
 /** The result bin/vawe wrote: { ok, verb, reason, next (a step, harness/lib/next-step.mjs), images, files, exitCode }, or null when it wrote none (killed, or died before the end). */
 export function readResult(file) {
@@ -27,13 +41,16 @@ export function runVerb(args, { work = WORK, env = process.env } = {}) {
       cwd: work,
       env: { ...env, VAWE_AGENT: env.VAWE_AGENT || 'mcp', VAWE_RESULT: file },
       stdio: ['ignore', 'pipe', 'pipe'],
+      detached: true,
     });
+    running.add(child);
     let text = '';
     child.stdout.on('data', (d) => { text += d; });
     child.stderr.on('data', (d) => { text += d; });
-    const timer = setTimeout(() => child.kill('SIGTERM'), LIMIT_MS);
+    const timer = setTimeout(() => killGroup(child), LIMIT_MS);
     child.on('close', (code, signal) => {
       clearTimeout(timer);
+      running.delete(child);
       const result = readResult(file);
       fs.rmSync(dir, { recursive: true, force: true });
       resolve({

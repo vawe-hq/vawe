@@ -27,6 +27,8 @@ const MAX_LOOKS = 4;
 const MAX_TASTE = 8;
 const MODES = ['world', 'board', 'cuts', 'moment', 'directions'];
 const REF_ACTIONS = ['list', 'frames', 'cuts'];
+// A reference can have 24 or more cuts: each grid costs about 1,600 image tokens and 2 s of ffmpeg.
+const REF_CUTS_LIMIT = 8;
 const SPEC_TABLES = ['Shots', 'Words', 'Objects'];
 
 const paths = (name, work) => ({ dir: path.join(work, 'films', name), page: path.join(work, 'films', name, 'page.html'), rel: `films/${name}/page.html` });
@@ -233,7 +235,7 @@ async function look({ film, t }, work) {
 
 async function refs({ action, id }, work) {
   if (action === 'cuts' && !id) return reply({ ok: false, findings: [finding('missing-id', 'action cuts needs id, the reference film id')], next: 'call again with id, from vawe_refs list' });
-  const args = action === 'cuts' ? ['frame', id, '--cuts'] : ['refs', action, ...(id ? [id] : [])];
+  const args = action === 'cuts' ? ['frame', id, '--cuts', '--limit', String(REF_CUTS_LIMIT)] : ['refs', action, ...(id ? [id] : [])];
   return viaVerb(args, work);
 }
 
@@ -326,6 +328,8 @@ export function createServer({ work = WORK, runUiSkills = spawnUiSkills } = {}) 
 
 /** Serves MCP over stdio until the client closes it. */
 export async function serve(options) {
+  for (const signal of ['SIGTERM', 'SIGINT', 'SIGHUP']) process.on(signal, () => process.exit(0));
+  process.stdin.on('end', () => process.exit(0));
   await createServer(options).connect(new StdioServerTransport());
 }
 

@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
-import { stripProblem, stripFpsProblem, stripWindow, worldCuts, shotCuts, motionRead, motionLines, energyLines, filmNameOf, holdBefore, holdLine, holdsSummary, withTransitions, cutHolds, transitionLine } from '../../harness/media/see/strip-math.mjs';
+import { spreadIndexes, stripProblem, stripFpsProblem, stripWindow, worldCuts, shotCuts, motionRead, motionLines, energyLines, filmNameOf, holdBefore, holdLine, holdsSummary, withTransitions, cutHolds, transitionLine } from '../../harness/media/see/strip-math.mjs';
 import { videoTransitions } from '../../harness/media/see/transitions.mjs';
 import { computeEnergy } from '../../harness/media/see/core.mjs';
 import { captureEtaMs, firstCapture } from '../../harness/lib/ship-status.mjs';
@@ -237,4 +237,21 @@ test('a page input reads the draft the last dev wrote, wherever --out put it', a
     process.chdir(cwd);
     fs.rmSync(root, { recursive: true, force: true });
   }
+});
+
+test('spreadIndexes keeps the first and last cut and spreads the rest; every cut when the limit is not under the count', () => {
+  assert.deepEqual(spreadIndexes(24, 8), [0, 3, 7, 10, 13, 16, 20, 23]);
+  assert.deepEqual(spreadIndexes(5, 8), [0, 1, 2, 3, 4]);
+  assert.deepEqual(spreadIndexes(5, 5), [0, 1, 2, 3, 4]);
+  assert.deepEqual(spreadIndexes(5, undefined), [0, 1, 2, 3, 4]);
+  assert.deepEqual(spreadIndexes(5, 1), [2]);
+  assert.deepEqual(spreadIndexes(0, 3), []);
+});
+
+test('stripProblem: --limit is a whole number of 1 or more and needs --cuts', () => {
+  assert.equal(stripProblem({ cuts: true, span: 1, fps: 8, limit: 8 }), null);
+  assert.match(stripProblem({ cuts: true, span: 1, fps: 8, limit: 0 }), /whole number/);
+  assert.match(stripProblem({ cuts: true, span: 1, fps: 8, limit: 2.5 }), /whole number/);
+  assert.match(stripProblem({ cuts: true, span: 1, fps: 8, limit: NaN }), /whole number/);
+  assert.match(stripProblem({ at: '2', span: 1, fps: 8, limit: 3 }), /needs --cuts/);
 });

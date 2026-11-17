@@ -3,7 +3,7 @@
 import path from 'node:path';
 import { computeEnergy, die, HOLD_FLOOR, probeVideo } from './core.mjs';
 import { runShot } from './compare.mjs';
-import { cutHolds, energyLines, holdLine, holdsSummary, motionLines, motionRead, stripFpsProblem, stripWindow, transitionLine, windowNote } from './strip-math.mjs';
+import { cutHolds, energyLines, holdLine, holdsSummary, motionLines, motionRead, spreadIndexes, stripFpsProblem, stripWindow, transitionLine, windowNote } from './strip-math.mjs';
 import { resolveInput } from './input.mjs';
 import { numbered, outTarget } from '../../lib/out-target.mjs';
 
@@ -45,10 +45,13 @@ export async function runStrip(input, opts) {
     return;
   }
   const cuts = await found.holdCuts();
-  console.log(`${cuts.length} cut${cuts.length === 1 ? '' : 's'} in ${found.video}, one strip each (${opts.span} s centred on the cut)`);
+  const kept = spreadIndexes(cuts.length, opts.limit);
+  const keptNote = kept.length < cuts.length ? `; ${kept.length} kept, spread over the film (--limit ${opts.limit})` : '';
+  console.log(`${cuts.length} cut${cuts.length === 1 ? '' : 's'} in ${found.video}, one strip each (${opts.span} s centred on the cut)${keptNote}`);
   const holds = cutHolds(energy, cuts, HOLD_FLOOR);
-  for (const [i, c] of cuts.entries()) {
-    printStrip(`${i + 1}. ${c.from} to ${c.to}, cut at ${c.at.toFixed(2)} s`, stripOne(found.video, outRoot, energy, { at: c.at, ...common, file: target?.file && numbered(target.file, i + 1, cuts.length) }, dur), opts.fps, { compact: true, energy });
+  for (const [n, i] of kept.entries()) {
+    const c = cuts[i];
+    printStrip(`${i + 1}. ${c.from} to ${c.to}, cut at ${c.at.toFixed(2)} s`, stripOne(found.video, outRoot, energy, { at: c.at, ...common, file: target?.file && numbered(target.file, n + 1, kept.length) }, dur), opts.fps, { compact: true, energy });
     console.log(`  ${holdLine(holds[i])}`);
     const change = transitionLine(c);
     if (change) console.log(`  ${change}`);
