@@ -102,13 +102,21 @@ export function heldTextRuns(samples, { step, frameH }, rules = RULES) {
   return [...kept.values()];
 }
 
+const smallTextRuns = (samples, ctx, rules) => heldTextRuns(samples, ctx, rules).filter((r) => r.cap < floorOf(r, rules)).sort((a, b) => a.cap - b.cap);
+
+/** One { kind, at, measured, fix } per text textProblems names, for out/<film>.checks.json. Pure. */
+export function textItems(samples, ctx, rules = ctx.rules ?? RULES) {
+  return smallTextRuns(samples, ctx, rules).map((r) => {
+    const floor = +(floorOf(r, rules) * 100).toFixed(1);
+    return { kind: 'cap-height', at: r.t, measured: `"${r.key}" at ${r.t.toFixed(1)} s has cap height ${(r.cap * 100).toFixed(1)}% of frame (needs ${floor}%)`, fix: `raise the font size until the cap height reaches ${floor}%` };
+  });
+}
+
 export const floorOf = (run, rules) => (run.chrome ? rules.chromeCapFrac : run.ui ? rules.uiCapFrac : rules.capFrac);
 
 /** The held text lines under their cap floor (`capFrac`; `uiCapFrac` inside data-ui; `chromeCapFrac` inside data-chrome), smallest first, each as a problem line. `ctx.rules` (a film's declared scales, harness/lib/design-decls.mjs) replaces `rules`. */
 export function textProblems(samples, ctx, rules = ctx.rules ?? RULES) {
-  return heldTextRuns(samples, ctx, rules)
-    .filter((r) => r.cap < floorOf(r, rules))
-    .sort((a, b) => a.cap - b.cap)
+  return smallTextRuns(samples, ctx, rules)
     .map((r) => `text "${r.key}" at ${r.t.toFixed(1)} s: cap height ${(r.cap * 100).toFixed(1)}% of frame (rule readable-text-size asks ${+(floorOf(r, rules) * 100).toFixed(1)}%)`);
 }
 

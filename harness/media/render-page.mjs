@@ -64,21 +64,21 @@ import { sampleTail } from './tail-sample.mjs';
 import { tailMoving } from '../lib/tail-motion.mjs';
 import { sampleLens } from './lens-probe.mjs';
 import { lensLines } from '../lib/lens-advice.mjs';
-import { sampleText, sampleTextMotion, sampleLayout, sampleContrast, sampleSpec, sampleObjects, reviveObjects, readVideo, videoProblems } from './draft-check.mjs';
+import { sampleText, sampleTextMotion, sampleLayout, sampleContrast, sampleSpec, sampleObjects, reviveObjects, readVideo, videoFindings } from './draft-check.mjs';
 import { parseBriefTables, readBrief, dropGuesses } from '../lib/brief-tables.mjs';
 import { createChecks, timeLine } from '../lib/check-runner.mjs';
 import { MODES } from '../lib/draft-tiers.mjs';
 import { redLine, summaryLine, fullTable } from '../lib/acceptance.mjs';
 import { draftAcceptance, videoMeasures } from './acceptance-run.mjs';
 import { readDecls, rulesWith } from '../lib/design-decls.mjs';
-import { RULES, textProblems, frameUnitLines, hiddenTextLines, soundLine, soundSummary, briefLine, mergeProblems, draftAdvice, draftCheckLines, layoutTimes, NOTE_LINES } from '../lib/draft-check.mjs';
+import { RULES, textProblems, textItems, frameUnitLines, hiddenTextLines, soundLine, soundSummary, briefLine, mergeProblems, draftAdvice, draftCheckLines, layoutTimes, NOTE_LINES } from '../lib/draft-check.mjs';
 import { probeLayoutLint, namedText } from '../lib/layout-lint.mjs';
 import { directionsLines } from '../lib/directions.mjs';
 import { recipeEchoLines } from '../lib/recipe-echo.mjs';
 import { metaOf } from '../lib/page-meta.mjs';
 import { resolveLength, autoDuration, DurationError, statedLength, lockPageLength } from './page-duration.mjs';
 import { lengthLines } from '../lib/length-line.mjs';
-import { boardChecks, boardFilled, spectacleOf, lockedSpectacle, moveRows } from '../lib/board.mjs';
+import { boardFindings, planItem, boardFilled, spectacleOf, lockedSpectacle, moveRows } from '../lib/board.mjs';
 import { handoffAdvice } from '../lib/handoffs.mjs';
 import { ideasAdvice } from '../lib/ideas.mjs';
 import { slideshowTells, slideshowLines } from '../lib/slideshow.mjs';
@@ -106,7 +106,7 @@ import { adviceBlock, errorLine } from '../lib/advice.mjs';
 import { EXIT, ExitError, exitCodeOf, fail } from '../lib/exit-codes.mjs';
 import { edgeTravelDeltas } from '../lib/edge-travel.mjs';
 import { textCollisionLines } from '../lib/text-collision.mjs';
-import { contrastLines, unwaivedContrast } from '../lib/text-contrast.mjs';
+import { contrastLines, contrastItems, unwaivedContrast } from '../lib/text-contrast.mjs';
 import { peakLine } from '../lib/peak-limit.mjs';
 import { balanceLines } from '../lib/cue-balance.mjs';
 import { bedLine } from '../lib/bed-motion.mjs';
@@ -1108,11 +1108,15 @@ export function pageAdvice(pagePath, { probe, motion }) {
   const brief = readBrief(pagePath);
   const dir = path.relative(process.cwd(), path.dirname(path.resolve(pagePath)));
   const directions = directionsLines(brief, dir).filter((l) => !(l.startsWith('attractor:') && isWaived(authoring, 'attractor', /^attractor: direction (\w+)/.exec(l)?.[1] ?? null)));
+  const textCtx = { ...probe, rules: rulesWith(readDecls(pagePath), RULES) };
+  const board = boardFindings(brief, spectacleOf(fs.readFileSync(pagePath, 'utf8')));
+  const moveDocs = moveDocLines(brief);
   return {
-    text: textProblems(probe.samples, { ...probe, rules: rulesWith(readDecls(pagePath), RULES) }),
+    text: textProblems(probe.samples, textCtx),
+    items: [...contrastItems(unwaivedContrast(probe.contrast, authoring)), ...textItems(probe.samples, textCtx), ...board.map((b) => b.item), ...moveDocs.map((l) => planItem(l.slice('board: '.length)))],
     brief: authoring._clip || isWaived(authoring, 'no-brief') ? null : briefLine(brief),
     lines: adviceFor(brief, [...probeAdvice(pagePath, { probe, motion }), ...directions, ...recipeEchoLines(brief),
-      ...boardChecks(brief, spectacleOf(fs.readFileSync(pagePath, 'utf8'))), ...(isWaived(authoring, 'transitions') || boardFilled(brief ?? '') !== true ? [] : handoffAdvice(moveRows(brief)).flatMap((l) => [l, waiverHint('transitions')])), ...ideasAdvice(brief, authoring), ...moveDocLines(brief),
+      ...board.map((b) => `board: ${b.text}`), ...(isWaived(authoring, 'transitions') || boardFilled(brief ?? '') !== true ? [] : handoffAdvice(moveRows(brief)).flatMap((l) => [l, waiverHint('transitions')])), ...ideasAdvice(brief, authoring), ...moveDocs,
       ...beatLines(pagePath, probe.worlds, authoring),
       ...(authoring._clip || isWaived(authoring, 'signature-unchosen') ? [] : unchosenAdvice(chosenSignature(pagePath)))]),
   };
@@ -1125,7 +1129,7 @@ export async function videoChecks(mp4, pagePath, checks, probe = {}, cameraOnly 
   const shots = dropGuesses(parseBriefTables(readBrief(pagePath))).set.shots;
   const page = { worlds: probe.worlds, tailMoving: tailMoving(probe.tail), canvasFilm: Boolean(probe.canvasFilm), cameraOnly, typing };
   try {
-    return await checks.run('video', () => { const read = readVideo(mp4); return { problems: videoProblems(read, authoring, page), measures: videoMeasures(read, authoring, shots, page.tailMoving, page.worlds, cameraOnly, typing) }; }, { authoring, shots, page });
+    return await checks.run('video', () => { const read = readVideo(mp4); return { ...videoFindings(read, authoring, page), measures: videoMeasures(read, authoring, shots, page.tailMoving, page.worlds, cameraOnly, typing) }; }, { authoring, shots, page });
   } catch (e) { console.error(`  video not read: ${e.message}`); return null; }
 }
 
@@ -1150,6 +1154,7 @@ async function draftReport(mp4, pagePath, { probe, level, motion, advice: blanks
     arrivals: timedArrivals(motionRecords(motion), probe.speed?.arrivals ?? []),
     cues: (level?.cues ?? []).filter((c) => c.role === 'sfx'), dur: probe.length,
   });
+  checks.put('fix-first', [...(video?.items ?? []), ...page.items, ...planAdvice.filter((l) => l.startsWith('board: ')).map((l) => planItem(l.slice('board: '.length)))]);
   const advice = [...blanks, ...draftAdvice(problems, sound, page.brief), ...[peak].filter(Boolean), ...bedAdvice, ...planAdvice, ...page.lines];
   const table = whole ? await checks.time('acceptance', async () => draftAcceptance({ mp4, pagePath, probe, level, findings: motionFindings(pagePath, motion), video: video?.measures, mode: checks.mode, cameraOnly, typing: typingSpans(probe.motionText ?? []) })) : null;
   const inRows = new Set(whole ? [...problems, sound, peak, ...textCollisionLines(probe.samples, probe.motionText), ...contrastLines(probe.contrast)] : []);

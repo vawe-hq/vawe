@@ -1,7 +1,7 @@
 // Runs each draft check once per page state and times it. A check outside the mode's tier
 // (harness/lib/draft-tiers.mjs) does not run. A result is stored in out/<film>.checks.json under a key of
 // the page folder, core/ and the harness code (by size and mtime) plus the check's own settings, so an unchanged
-// page re-runs nothing. Results are JSON: the value a caller gets is the same on a miss as on a hit.
+// page re-runs nothing. `put` stores a value the draft derived from them (no cache key). Results are JSON: the value a caller gets is the same on a miss as on a hit.
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
@@ -36,6 +36,8 @@ export function createChecks({ pagePath, mode = 'draft', cache = true }) {
     return value;
   };
 
+  const put = (check, value) => { kept[check] = { key: 'derived', value }; };
+
   const time = async (name, fn) => {
     const t0 = Date.now();
     try { return await fn(); } finally { spent.set(name, (spent.get(name) ?? 0) + Date.now() - t0); }
@@ -43,6 +45,7 @@ export function createChecks({ pagePath, mode = 'draft', cache = true }) {
 
   return {
     run,
+    put,
     time,
     mode,
     save: () => { if (cache) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(kept)); } },

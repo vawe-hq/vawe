@@ -30,8 +30,14 @@ export function undeclaredStills(runs, authoring = {}, limit = STILL_SEC, readHo
 /** The problem line for one still run, with the two fixes. Pure. */
 export function stillText(r, limit = STILL_SEC) {
   const why = r.camera ? 'only the camera moves' : 'nothing moves';
-  return `static window ${r.a}-${r.b} s (${r.len} s, limit ${limit} s): ${why}; give the hold an element motion (typing, a counter, a glint), not a camera drift; ${waiverHint(`static-window@${r.a}-${r.b}`)}`;
+  return `${stillMeasured(r, limit)}: ${why}; ${stillFix(r)}`;
 }
+
+const stillMeasured = (r, limit) => `static window ${r.a}-${r.b} s (${r.len} s, limit ${limit} s)`;
+const stillFix = (r) => `give the hold an element motion (typing, a counter, a glint), not a camera drift; ${waiverHint(`static-window@${r.a}-${r.b}`)}`;
+
+/** The { kind, at, measured, fix } of one still run (the same run stillText words). Pure. */
+export const stillItem = (r, limit = STILL_SEC) => ({ kind: 'static-window', at: r.a, measured: stillMeasured(r, limit), fix: stillFix(r) });
 
 const round2 = (x) => +x.toFixed(2);
 

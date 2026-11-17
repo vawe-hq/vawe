@@ -102,7 +102,11 @@ export function heldWorlds(spans, max = TURN_SECONDS_MAX, authoring = {}) {
   const held = insideHold(authoring, 'world-held');
   return mergeSameContent(spans)
     .filter((s) => s.start != null && !s.playing && s.end - s.start > worldLimit(s, max) + SPAN_SLACK_S && !held({ a: s.start, b: s.end }))
-    .map((s) => ({ len: s.end - s.start, text: `world held ${s.id} ${s.start}-${s.end} s (${round(s.end - s.start)} s, limit ${round(worldLimit(s, max))} s${s.readNeed + READ_MARGIN_S > max ? ': its text needs that long' : ''}${s.id.includes('+') ? `; ${s.id.split('+').join(' and ')} show the same ground, words and things, so they are one world: cut the world where the content changes` : ''}); ${waiverHint(`world-held@${s.start}-${s.end}`)}` }));
+    .map((s) => {
+      const detail = `(${round(s.end - s.start)} s, limit ${round(worldLimit(s, max))} s${s.readNeed + READ_MARGIN_S > max ? ': its text needs that long' : ''}${s.id.includes('+') ? `; ${s.id.split('+').join(' and ')} show the same ground, words and things, so they are one world: cut the world where the content changes` : ''})`;
+      const hint = waiverHint(`world-held@${s.start}-${s.end}`);
+      return { len: s.end - s.start, text: `world held ${s.id} ${s.start}-${s.end} s ${detail}; ${hint}`, item: { kind: 'world-held', at: s.start, measured: `world ${s.id} held ${s.start}-${s.end} s ${detail}`, fix: `cut the world where the content changes, or ${hint}` } };
+    });
 }
 
 /**

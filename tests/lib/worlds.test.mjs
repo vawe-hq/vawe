@@ -52,7 +52,9 @@ const span = (id, start, end) => ({ id, start, end, ground: '#fff' });
 
 test('a world visible longer than the limit is held, and its line names the world', () => {
   const found = heldWorlds([span('s1', 0, 2), span('s2', 2, 5.5), span('s3', 5.5, 7.5)]);
-  assert.deepEqual(found, [{ len: 3.5, text: `world held s2 2-5.5 s (3.5 s, limit 2 s); ${waiverHint('world-held@2-5.5')}` }]);
+  const hint = waiverHint('world-held@2-5.5');
+  const item = { kind: 'world-held', at: 2, measured: 'world s2 held 2-5.5 s (3.5 s, limit 2 s)', fix: `cut the world where the content changes, or ${hint}` };
+  assert.deepEqual(found, [{ len: 3.5, text: `world held s2 2-5.5 s (3.5 s, limit 2 s); ${hint}`, item }]);
 });
 
 test('a world of exactly the limit, measured a few frames long on the frame grid, is not held', () => {

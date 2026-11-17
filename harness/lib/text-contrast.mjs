@@ -108,8 +108,13 @@ export const draftContrastLines = (samples) => contrastLines(draftLowContrast(sa
 
 /** One advice line per low-contrast text (draftLowContrast's list). Pure. */
 export function contrastLines(low) {
-  return (low ?? []).map((c) => `text "${c.text}" at ${c.t.toFixed(2)} s reads ${c.ratio.toFixed(1)}:1 on the pixels behind it (${hexOf(c.fg)} on ${hexOf(c.bg)}, needs ${c.need}:1): use ${passingColour(c)}, or change the ground behind it, or waive "text-low-contrast@${c.t.toFixed(2)}" with a _why`);
+  return (low ?? []).map((c) => `text "${c.text}" at ${c.t.toFixed(2)} s reads ${c.ratio.toFixed(1)}:1 on the pixels behind it (${hexOf(c.fg)} on ${hexOf(c.bg)}, needs ${c.need}:1): ${contrastFix(c)}`);
 }
+
+const contrastFix = (c) => `use ${passingColour(c)}, or change the ground behind it, or waive "text-low-contrast@${c.t.toFixed(2)}" with a _why`;
+
+/** One { kind, at, measured, fix } per low-contrast text (draftLowContrast's list), for out/<film>.checks.json. Pure. */
+export const contrastItems = (low) => (low ?? []).map((c) => ({ kind: 'contrast', at: c.t, measured: `"${c.text}" at ${c.t.toFixed(1)} s reads ${c.ratio.toFixed(1)}:1 (needs ${c.need}:1)`, fix: contrastFix(c) }));
 
 /** The low-contrast texts the page does not waive: a waiver is `text-low-contrast@<second>` or a range "a-b" that holds the sample's second. Null stays null (not sampled). */
 export const unwaivedContrast = (low, authoring) => (low ? low.filter((c) => !isWaived(authoring, 'text-low-contrast', c.t.toFixed(2))) : low);

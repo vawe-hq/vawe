@@ -108,16 +108,29 @@ export function cutAdvice(cuts) {
 }
 
 /** Advice lines for a filled board: rhythm, spectacle, sound, moves. `pageSpectacle` is the page's `<meta name="spectacle">` in seconds, or null. [] for a brief with no filled board. */
-export function boardChecks(brief, pageSpectacle = null) {
+export const boardChecks = (brief, pageSpectacle = null) => boardFindings(brief, pageSpectacle).map((f) => `board: ${f.text}`);
+
+const plan = (text) => ({ text, item: planItem(text) });
+const PLAN_FIX = 'change the Board in brief.md or the page so they agree';
+
+/** The { kind, at, measured, fix } of one board line (without its "board: " prefix): kind "plan". */
+export const planItem = (text) => ({ kind: 'plan', at: null, measured: text, fix: PLAN_FIX });
+
+/** boardChecks as [{ text, item }]: `text` is the line without "board: ", `item` the { kind, at, measured, fix } for out/<film>.checks.json. */
+export function boardFindings(brief, pageSpectacle = null) {
   if (boardFilled(brief ?? '') !== true) return [];
   const { cuts, moves, sound, spectacle } = parseBoard(brief);
-  const lines = cutAdvice(cuts).map((l) => `board: ${l}`);
-  if (spectacle === null) lines.push('board: the Spectacle line names no second ("at 7.2"); name the one big moment');
+  const lines = cutAdvice(cuts).map((l) => ({ text: l, item: planItem(l) }));
+  if (spectacle === null) lines.push(plan('the Spectacle line names no second ("at 7.2"); name the one big moment'));
   else if (pageSpectacle !== null && Math.abs(spectacle - pageSpectacle) > SPECTACLE_TOLERANCE_S) {
-    lines.push(`board: the Spectacle is at ${s1(spectacle)} s but <meta name="spectacle"> says ${s1(pageSpectacle)} s; the spectacle checks read ${s1(spectacle)} s, the Board's. Put the big move at ${s1(spectacle)} s, or change the Board's Spectacle line with the reason`);
+    const fix = `Put the big move at ${s1(spectacle)} s, or change the Board's Spectacle line with the reason`;
+    lines.push({
+      text: `the Spectacle is at ${s1(spectacle)} s but <meta name="spectacle"> says ${s1(pageSpectacle)} s; the spectacle checks read ${s1(spectacle)} s, the Board's. ${fix}`,
+      item: { kind: 'spectacle', at: spectacle, measured: `the Board's Spectacle is at ${s1(spectacle)} s, the page's spectacle meta says ${s1(pageSpectacle)} s`, fix },
+    });
   }
-  if (!sound.length) lines.push('board: no sound rows; add a real effect for each action or cut that earns one, or one row with "none" for a silent film');
-  moves.forEach((m, i) => { if (!m || /\bfade\b/i.test(m)) lines.push(`board: cut ${i + 1} names ${m ? `"${m}"` : 'no move'}; name a move from prompts/moves`); });
+  if (!sound.length) lines.push(plan('no sound rows; add a real effect for each action or cut that earns one, or one row with "none" for a silent film'));
+  moves.forEach((m, i) => { if (!m || /\bfade\b/i.test(m)) lines.push(plan(`cut ${i + 1} names ${m ? `"${m}"` : 'no move'}; name a move from prompts/moves`)); });
   return lines;
 }
 

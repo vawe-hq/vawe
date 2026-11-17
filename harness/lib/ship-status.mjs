@@ -2,7 +2,7 @@
 import path from 'node:path';
 import LIMITS_JSON from '../../taste/build/limits.json' with { type: 'json' };
 import { tasteLines } from './taste-steps.mjs';
-import { STILL_SEC, undeclaredStills, stillText, insideHold } from './still-limit.mjs';
+import { STILL_SEC, undeclaredStills, stillText, stillItem, insideHold } from './still-limit.mjs';
 import { heldWorlds, insideTextWorlds, readHolds } from './worlds.mjs';
 
 const WORLD = LIMITS_JSON['world-turns'];
@@ -132,12 +132,15 @@ function heldFromTurns(stats, limits, authoring, canvasFilm = false) {
 }
 
 /** Problems worth a look, worst first, each with its seconds. `stats` is scene-stats summarize(), `blanks` from blankRuns, `authoring` the page's #authoring waivers, `worlds` the measured data-world spans (null for a page with none, which reads the turns from pixels), `canvasFilm` true when a canvas covers the frame (its DOM worlds are not measured). */
-export function problemsOf(stats, blanks, limits = LIMITS, authoring = {}, worlds = null, canvasFilm = false) {
+export const problemsOf = (...args) => problemFindings(...args).map((p) => p.text);
+
+/** problemsOf with the { kind, at, measured, fix } of each problem that has one, same order: [{ len, text, item? }]. */
+export function problemFindings(stats, blanks, limits = LIMITS, authoring = {}, worlds = null, canvasFilm = false) {
   const found = [];
   for (const r of blanks.filter((x) => !(worlds?.length && insideTextWorlds(worlds, x)))) found.push({ len: r.b - r.a, text: `blank frame ${r.a.toFixed(1)}-${r.b.toFixed(1)} s` });
-  for (const r of undeclaredStills(stats.static, authoring, limits.staticSec, readHolds(worlds ?? []))) found.push({ len: r.len, text: stillText(r, limits.staticSec) });
+  for (const r of undeclaredStills(stats.static, authoring, limits.staticSec, readHolds(worlds ?? []))) found.push({ len: r.len, text: stillText(r, limits.staticSec), item: stillItem(r, limits.staticSec) });
   found.push(...(worlds?.length ? heldWorlds(worlds, limits.worldSec, authoring) : heldFromTurns(stats, limits, authoring, canvasFilm)));
-  return found.sort((x, y) => y.len - x.len).map((p) => p.text);
+  return found.sort((x, y) => y.len - x.len);
 }
 
 /** PASS when the fresh judge passed and no acceptance row missed, FIX when not, null when no judge ran. */

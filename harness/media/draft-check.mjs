@@ -2,7 +2,7 @@
 // The decisions are in harness/lib/draft-check.mjs; the mix level is measureMixLevel in page-audio.mjs.
 import { spawnSync } from 'node:child_process';
 import { readFeatures, summarize, probeSize } from './scene-stats.mjs';
-import { blankRuns, isFlat, problemsOf } from '../lib/ship-status.mjs';
+import { blankRuns, isFlat, problemFindings } from '../lib/ship-status.mjs';
 import { sampleTimes, settledSamples, DECORATIVE, CHROME, TEXTURE } from '../lib/draft-check.mjs';
 import { draftLowContrast, shownAndHidden } from '../lib/text-contrast.mjs';
 import { readHolds } from '../lib/worlds.mjs';
@@ -20,8 +20,14 @@ export function readVideo(mp4) {
 }
 
 /** Static windows, held worlds and blank runs of one video, worst first, then the judge's sheet runs. `page` is what the live page says: { worlds (the measured data-world spans, or null), tailMoving, canvasFilm, cameraOnly (the [a, b] seconds where only a whole-frame move runs), typing (the [a, b] seconds where the text keeps changing) }. */
-export function videoProblems({ feats, tiles }, authoring = {}, page = {}) {
-  return [...problemsOf(statsWithCamera(summarize(feats), page.cameraOnly, page.typing), blankRuns(feats, isFlat), undefined, authoring, page.worlds, page.canvasFilm), ...tileProblems(tiles.diffs, tiles.fps, authoring, page.tailMoving, readHolds(page.worlds ?? []))];
+export function videoProblems(read, authoring = {}, page = {}) {
+  return videoFindings(read, authoring, page).problems;
+}
+
+/** videoProblems with the { kind, at, measured, fix } of each static window and held world: { problems, items }. */
+export function videoFindings({ feats, tiles }, authoring = {}, page = {}) {
+  const found = problemFindings(statsWithCamera(summarize(feats), page.cameraOnly, page.typing), blankRuns(feats, isFlat), undefined, authoring, page.worlds, page.canvasFilm);
+  return { problems: [...found.map((p) => p.text), ...tileProblems(tiles.diffs, tiles.fps, authoring, page.tailMoving, readHolds(page.worlds ?? []))], items: found.flatMap((p) => p.item ?? []) };
 }
 
 /** scene-stats with the seconds where only the camera moves counted as still (harness/lib/camera-moves.mjs). */
