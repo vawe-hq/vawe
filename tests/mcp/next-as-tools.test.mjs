@@ -108,3 +108,10 @@ test('every verb a bin/vawe command in the stage logic names is mapped, or liste
     assert.ok(MAPPED.has(verb) || NO_TOOL.has(verb), `bin/vawe ${verb} in the stage logic has neither a tool nor an entry in NO_TOOL`);
   }
 });
+
+test('the skills stage maps its ui-skills list to vawe_ui_skills' , () => {
+  const text = SAY.skills('x', ['builder', 'type']);
+  assert.match(t(text), /list the skills with vawe_ui_skills \{"action":"list"\}$/);
+  assert.equal(t('command npx -y ui-skills list --category motion'), 'vawe_ui_skills {"action":"list","category":"motion"}');
+  assert.equal(t('command npx -y ui-skills get zeke/swiss-design now'), 'vawe_ui_skills {"action":"get","slug":"zeke/swiss-design"} now');
+});

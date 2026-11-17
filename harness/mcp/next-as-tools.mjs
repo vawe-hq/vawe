@@ -115,6 +115,10 @@ function tagDocs(text) {
   });
 }
 
+const UI_SKILLS = /(?:\bcommand\s+)?\bnpx\s+-y\s+ui-skills\s+(start|categories|list|get)\b(?:\s+--category\s+([a-z0-9-]+)|\s+([\w.-]+\/[\w.-]+))?/g;
+
+const uiSkillsCall = (_whole, action, category, slug) => call('vawe_ui_skills', { action, ...(category ? { category } : {}), ...(slug ? { slug } : {}) });
+
 const STATES = /(build one static state per world in )(films\/[a-z0-9][\w-]*\/page\.html)/;
 
 /**
@@ -141,7 +145,7 @@ export function translateNext(text, { film = null } = {}) {
     } else if (spec) unmapped.push(source.slice(start, end).trim());
   }
   out += source.slice(last);
-  return { text: tagDocs(out).replace(STATES, '$1$2 (vawe_write_page, then vawe_edit_page)'), unmapped };
+  return { text: tagDocs(out).replace(STATES, '$1$2 (vawe_write_page, then vawe_edit_page)').replace(UI_SKILLS, uiSkillsCall), unmapped };
 }
 
 /** The `next` text for a tool-only agent. */

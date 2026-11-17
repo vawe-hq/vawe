@@ -1,4 +1,4 @@
-// The vawe MCP server (stdio): the fourteen tools: the ten of the harness plan, vawe_write_doc, vawe_edit_doc, vawe_wait and vawe_refs. The guard core (harness/guards) decides every refusal;
+// The vawe MCP server (stdio): the fifteen tools: the ten of the harness plan, vawe_write_doc, vawe_edit_doc, vawe_wait, vawe_refs and vawe_ui_skills. The guard core (harness/guards) decides every refusal;
 // the work is done by bin/vawe verbs run as child processes (run-verb.mjs). Each tool returns JSON text { ok, findings, next, taste? }
 // and, for the frame tools, the images.
 import fs from 'node:fs';
@@ -7,7 +7,9 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import * as z from 'zod/v4';
 import { stageGate, contractCheck, tasteFor, TASTE_TOPICS, beatTopics, changedWorlds } from '../guards/index.mjs';
-import { nextStep } from '../live/stage-say.mjs';
+import { nextStep, missingRungs } from '../live/stage-say.mjs';
+import { tableRows } from '../lib/brief-tables.mjs';
+import { ACCEPTANCE } from '../lib/measured-brief.mjs';
 import { ideaFindings } from '../lib/ideas.mjs';
 import { boardVerify } from '../lib/board-verify.mjs';
 import { writeFileAtomic } from '../lib/atomic-write.mjs';
@@ -15,6 +17,8 @@ import { WORK } from '../lib/workspace.mjs';
 import { isRunning } from '../lib/running-work.mjs';
 import { runVerb } from './run-verb.mjs';
 import { nextAsTools } from './next-as-tools.mjs';
+import { fixRound, FIX_NEXT } from './fix-first.mjs';
+import { uiSkillsArgs, runUiSkills as spawnUiSkills, logFetched, fetchedSlugs, unfetchedClaims, clipText, UI_SKILLS_ACTIONS } from './ui-skills.mjs';
 
 const FILM = z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'film name: lowercase letters, digits and dashes').describe('film name, as in films/<name>');
 const MAX_IMAGES = 6;
@@ -23,6 +27,7 @@ const MAX_LOOKS = 4;
 const MAX_TASTE = 8;
 const MODES = ['world', 'board', 'cuts', 'moment', 'directions'];
 const REF_ACTIONS = ['list', 'frames', 'cuts'];
+const SPEC_TABLES = ['Shots', 'Words', 'Objects'];
 
 const paths = (name, work) => ({ dir: path.join(work, 'films', name), page: path.join(work, 'films', name, 'page.html'), rel: `films/${name}/page.html` });
 
@@ -108,12 +113,39 @@ function docPath(p, file) {
   return full.startsWith(path.join(p.dir, path.sep)) ? full : null;
 }
 
-function docFindings(p, file, text) {
+const norm = (s) => String(s).toLowerCase().replace(/\s+/g, ' ').trim();
+
+/** The standard Acceptance rows `vawe new` ships (measured-brief.mjs) that the brief lacks, and the spec tables with no row. A fact: the draft measures a row by its exact metric name. */
+function measuredBriefFindings(text) {
+  const lines = text.split('\n');
+  const have = new Set(tableRows(lines, 'Acceptance').map((r) => norm(r.row.metric)));
+  const missing = ACCEPTANCE.filter(([metric]) => !have.has(norm(metric)));
+  const out = [];
+  if (missing.length) {
+    out.push(finding('brief-acceptance', `the Acceptance table has ${ACCEPTANCE.length - missing.length} of the ${ACCEPTANCE.length} standard rows; missing: ${missing.map(([m, t]) => `${m} (${t})`).join('; ')}`,
+      'add each missing row with its exact metric name and target; the draft measures a row by that name'));
+  }
+  const bare = SPEC_TABLES.filter((name) => !tableRows(lines, name).length);
+  if (bare.length) out.push(finding('brief-spec', `the Spec has no rows in: ${bare.join(', ')}`, 'add a "### Shots", "### Words" and "### Objects" table with a row for each beat, word and object'));
+  return out;
+}
+
+function designFindings(p, text, work) {
+  const film = path.basename(p.dir);
+  const rungs = missingRungs(text).map((rung) => finding('design-rung', `DESIGN.md has no "Skill ${rung}: <slug>: what it decided" or "Skipped ${rung}: <reason>" line`,
+    rung === 'frame' ? 'the frame rung is vawe\'s own rules: write "Skill frame: vawe: <what you decided>"' : `vawe_ui_skills list with the category for ${rung}, get at least two candidates, read each in full, then write the line`));
+  const claims = unfetchedClaims(text, fetchedSlugs(path.join(work, 'out'), film)).map((c) => finding('design-skill-unread', `"Skill ${c.rung}: ${c.slug}" names a skill this film never fetched with vawe_ui_skills`,
+    `vawe_ui_skills get {"slug":"${c.slug}","film":"${film}"} and read it, or name the skill you did read`));
+  return [...rungs, ...claims];
+}
+
+function docFindings(p, file, text, work) {
+  if (file === 'DESIGN.md') return designFindings(p, text, work);
   if (file !== 'brief.md') return [];
   const worlds = fs.existsSync(p.page) ? [...fs.readFileSync(p.page, 'utf8').matchAll(/\bdata-world\s*=\s*["']([^"']*)["']/g)].map((m) => m[1]) : null;
   const ideas = ideaFindings(text, worlds).map((f) => finding(f.code, f.text, f.at));
   const board = boardVerify(text).map((l) => finding('board', l));
-  return [...ideas, ...board];
+  return [...ideas, ...board, ...measuredBriefFindings(text)];
 }
 
 function docReply(p, file, text, work) {
@@ -122,7 +154,7 @@ function docReply(p, file, text, work) {
   if (!full) return bad(`${file} is not a film doc this tool writes`);
   fs.mkdirSync(path.dirname(full), { recursive: true });
   writeFileAtomic(full, text);
-  return reply({ ok: true, findings: docFindings(p, file, text), next: nextStep(p.page, work).next });
+  return reply({ ok: true, findings: docFindings(p, file, text, work), next: nextStep(p.page, work).next });
 }
 
 function writeDoc({ film, file, text }, work) {
@@ -210,10 +242,29 @@ function asTools(result, film) {
   const body = JSON.parse(result.content[0].text);
   const swap = (text) => (typeof text === 'string' ? nextAsTools(text, { film }) : text);
   const next = { ...body, next: swap(body.next), why: swap(body.why), output: swap(body.output), findings: (body.findings ?? []).map((f) => ({ ...f, fix: swap(f.fix) })) };
+  if (body.fix_first) next.fix_first = body.fix_first.map((f) => ({ ...f, fix: swap(f.fix) }));
   return { ...result, content: [{ type: 'text', text: JSON.stringify(next, null, 2) }, ...result.content.slice(1)] };
 }
 
-function register(server, work) {
+async function renderDraft({ film, from, to }, work) {
+  const result = await gated('vawe_render_draft', film, work, (p) => viaVerb(['dev', p.rel, ...(from !== undefined ? ['--from', String(from)] : []), ...(to !== undefined ? ['--to', String(to)] : [])], work));
+  const body = JSON.parse(result.content[0].text);
+  if (!body.ok) return result;
+  const problems = fixRound(path.join(work, 'out'), film);
+  if (!problems.length) return result;
+  return { ...result, content: [{ type: 'text', text: JSON.stringify({ ...body, fix_first: problems, next: FIX_NEXT }, null, 2) }, ...result.content.slice(1)] };
+}
+
+async function uiSkills({ action, category, slug, film }, work, _sent, run) {
+  const call = uiSkillsArgs({ action, category, slug });
+  if (call.error) return reply({ ok: false, findings: [finding('bad-input', call.error)], next: 'call vawe_ui_skills again with valid input' });
+  const r = await run(call.args, { cwd: work });
+  if (!r.ok) return reply({ ok: false, findings: [finding('ui-skills-failed', r.reason ?? 'ui-skills failed')], next: 'call vawe_ui_skills again', output: clipText(r.text) });
+  if (action === 'get' && film) logFetched(path.join(work, 'out'), film, slug);
+  return reply({ ok: true, findings: [], next: null, output: clipText(r.text) });
+}
+
+function register(server, work, runUi) {
   const sent = new Map();
   const tool = (name, description, inputSchema, run) => server.registerTool(name, { description, inputSchema }, async (input) => asTools(await run(input, work, sent), input.film ?? input.name));
   tool('vawe_status', 'Use first, and after every step: the stage the film is at, why, and the one next step.', { film: FILM }, status);
@@ -238,9 +289,12 @@ function register(server, work) {
   tool('vawe_frame', 'Use to see the film as pictures: world (a key state per beat, after the page exists), board (the plan board), directions (the directions board to show the person), cuts or moment (read from a draft; moment needs t).', {
     film: FILM, mode: z.enum(MODES), t: z.number().min(0).optional(),
   }, frame);
-  tool('vawe_render_draft', 'Use to render a half-size draft with sound; from and to render only those seconds. Refused until the brief Ideas and Board are filled.', {
+  tool('vawe_render_draft', 'Use to render a half-size draft with sound; from and to render only those seconds. Refused until the brief Ideas and Board are filled. The first draft replies with fix_first: the top problems to fix in one round.', {
     film: FILM, from: z.number().min(0).optional(), to: z.number().min(0).optional(),
-  }, ({ film, from, to }, w) => gated('vawe_render_draft', film, w, (p) => viaVerb(['dev', p.rel, ...(from !== undefined ? ['--from', String(from)] : []), ...(to !== undefined ? ['--to', String(to)] : [])], w)));
+  }, renderDraft);
+  tool('vawe_ui_skills', 'Use at the design step: start prints the routing skill, categories and list (with category) show the registry, get (slug owner/name) prints one skill in full. film logs each get.', {
+    action: z.enum(UI_SKILLS_ACTIONS), category: z.string().optional().describe('with list: a name from categories'), slug: z.string().optional().describe('with get: owner/name'), film: FILM.optional(),
+  }, (input, w, s) => uiSkills(input, w, s, runUi));
   tool('vawe_look', 'Use to read a draft at full size: one still at each second in t (at most 4). Needs a draft.', {
     film: FILM, t: z.array(z.number().min(0)).min(1),
   }, look);
@@ -254,10 +308,10 @@ function register(server, work) {
     ({ film }, w) => gated('vawe_ship', film, w, (p) => viaVerb(['ship', p.rel], w)));
 }
 
-/** A server with the fourteen tools on the workspace `work`. */
-export function createServer({ work = WORK } = {}) {
+/** A server with the fifteen tools on the workspace `work`. `runUiSkills` replaces the npx call (a test). */
+export function createServer({ work = WORK, runUiSkills = spawnUiSkills } = {}) {
   const server = new McpServer({ name: 'vawe', version: '1.0.0' });
-  register(server, work);
+  register(server, work, runUiSkills);
   return server;
 }
 

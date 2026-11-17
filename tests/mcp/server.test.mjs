@@ -16,7 +16,7 @@ const FILM = `mcp-test-${process.pid}`;
 const DIR = path.join(WORK, 'films', FILM);
 const PAGE = path.join(DIR, 'page.html');
 const GOOD = '<meta name="duration" content="3">\n<meta name="message" content="zero fees">\n<section data-world="hello"><h1>Zero fees</h1><h1>Again</h1></section>\n<script>setTimeout(() => {}, 10)</script>\n';
-const TOOLS = ['vawe_status', 'vawe_new_film', 'vawe_read_rules', 'vawe_write_page', 'vawe_edit_page', 'vawe_frame', 'vawe_render_draft', 'vawe_look', 'vawe_critique', 'vawe_ship', 'vawe_write_doc', 'vawe_edit_doc', 'vawe_wait', 'vawe_refs'];
+const TOOLS = ['vawe_status', 'vawe_new_film', 'vawe_read_rules', 'vawe_write_page', 'vawe_edit_page', 'vawe_frame', 'vawe_render_draft', 'vawe_look', 'vawe_critique', 'vawe_ship', 'vawe_write_doc', 'vawe_edit_doc', 'vawe_wait', 'vawe_refs', 'vawe_ui_skills'];
 
 const IDEAS = '## Ideas\n\n| at | meaning | i1 | i2 | i3 | i4 | chosen | why |\n|---|---|---|---|---|---|---|---|\n| cold | start | type: a word, 0.3 | object: a ring, 0.2 | light: a glow, 0.4 | paper: a fold, 0.1 | 2 | because the ring is the brand |\n\n';
 
