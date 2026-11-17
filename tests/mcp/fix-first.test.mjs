@@ -79,6 +79,13 @@ test('a row alone gives the measured value of its kind', () => {
   assert.equal(item.measured, 'still windows over 0.5 s outside a declared hold: 2 (target 0)');
 });
 
+test('a short read hold ranks with unreadable text, ahead of a still window, and names its lines with the fix', () => {
+  const rows = [{ metric: 'read hold per line', target: '0 short', status: 'advice', measured: '1 line(s) short', detail: ['"Roasted slow, poured warm." holds 1.40 s, needs 2.40 s'] }];
+  const items = fixFirst(fixture({ items: [], rows }), 'f');
+  assert.deepEqual(items.map((i) => i.kind), ['read-hold', 'static-window', 'world-held']);
+  assert.match(items[0].fix, /^"Roasted slow, poured warm\." holds 1\.40 s, needs 2\.40 s; keep each line it names on screen/);
+});
+
 test('the static window and held world of a video read count as items', () => {
   const items = fixFirst(fixture({ items: [] }), 'f');
   assert.deepEqual(items.map((i) => i.kind), ['static-window', 'world-held']);

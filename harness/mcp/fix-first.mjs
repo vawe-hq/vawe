@@ -11,15 +11,23 @@ const ROW_KINDS = {
   'text contrast': 'contrast',
   'text cap height': 'cap-height',
   'still windows over 0.5 s outside a declared hold': 'static-window',
+  'read hold per line': 'read-hold',
+};
+
+// The read-hold row lists only the lines and their times, so its fix is named here.
+const ROW_FIXES = {
+  'read-hold': 'keep each line it names on screen, settled, for the seconds it needs (0.6 s a word from 4 words): move its exit or the next entrance later, or cut the line to fewer words',
 };
 
 // Unreadable text first, then picture that does not move, then plan mismatches, then every other measured problem.
-const RANK = ['contrast', 'cap-height', 'static-window', 'world-held', 'spectacle', 'plan'];
+const RANK = ['contrast', 'cap-height', 'read-hold', 'static-window', 'world-held', 'spectacle', 'plan'];
 const rankOf = (kind) => { const i = RANK.indexOf(kind); return i < 0 ? RANK.length : i; };
 
 function fromRow(row) {
   const detail = row.detail ?? [];
-  return { kind: ROW_KINDS[row.metric] ?? `row:${row.metric}`, measured: `${row.metric}: ${row.measured} (target ${row.target})`, fix: detail.at(-1) ?? 'see out/<film>.dev.md Acceptance', fromRow: true };
+  const kind = ROW_KINDS[row.metric] ?? `row:${row.metric}`;
+  const fix = ROW_FIXES[kind] ? `${detail.join('; ')}; ${ROW_FIXES[kind]}` : detail.at(-1) ?? 'see out/<film>.dev.md Acceptance';
+  return { kind, measured: `${row.metric}: ${row.measured} (target ${row.target})`, fix, fromRow: true };
 }
 
 const readJson = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; } };

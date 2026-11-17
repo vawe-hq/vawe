@@ -13,6 +13,7 @@ export const T = {
   staticFrac: 0.02,     // a 0.5 s window under this is static
   blockSize: 8,         // px of the square block a small move is read in
   blockChanged: 16,     // changed px in one block that count as a part moving (a line drawing, a cursor press, a counter) although under staticFrac of the frame
+  strokeRun: 6,         // changed px in one straight row or column of a block that count as a part moving: a 1 px line drawing changes one row only, and noise is never a run
   minStatic: 3,         // samples: shortest static run (0.3 s)
   onsetFrac: 0.03,      // per-sample change that starts an event
   quietFrac: 0.012,     // per-sample change that counts as quiet
@@ -114,7 +115,7 @@ export function windowChange(feats, span = STATIC_SPAN) {
 }
 const STATIC_SPAN = 3;
 
-/** The most pixels that changed (by more than `delta`) inside one `size` px block between two frames: a small part moving, which few pixels of the whole frame show. */
+/** The most pixels that changed (by more than `delta`) inside one `size` px block between two frames: a small part moving, which few pixels of the whole frame show. A block with a straight run of `strokeRun` changed pixels counts as `blockChanged`. */
 export function blockChanged(a, b, size = T.blockSize, delta = T.pixelDelta) {
   const w = a.w, h = Math.floor(a.luma.length / w);
   let best = 0;
@@ -125,11 +126,21 @@ export function blockChanged(a, b, size = T.blockSize, delta = T.pixelDelta) {
 }
 
 function changedInBlock(a, b, bx, by, size, delta) {
+  const changed = (x, y) => Math.abs(a.luma[y * a.w + x] - b.luma[y * a.w + x]) > delta;
   let c = 0;
+  let longest = 0;
+  const rowRun = new Array(size).fill(0);
   for (let y = by; y < by + size; y++) {
-    for (let x = bx; x < bx + size; x++) if (Math.abs(a.luma[y * a.w + x] - b.luma[y * a.w + x]) > delta) c++;
+    let run = 0;
+    for (let x = bx; x < bx + size; x++) {
+      const on = changed(x, y);
+      run = on ? run + 1 : 0;
+      rowRun[x - bx] = on ? rowRun[x - bx] + 1 : 0;
+      longest = Math.max(longest, run, rowRun[x - bx]);
+      if (on) c++;
+    }
   }
-  return c;
+  return longest >= T.strokeRun ? Math.max(c, T.blockChanged) : c;
 }
 
 /** windowChange for one block: the changed pixels of the busiest block of each sample against the one `span` samples back. */

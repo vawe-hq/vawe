@@ -39,3 +39,11 @@ test('a camera-only span past the end of the film is no still window', () => {
   const [run] = statsWithCamera(stats, [[4.2, 5.6]]).static;
   assert.equal(run.b, 5);
 });
+
+test('a 1 px line drawing out counts as a part moving; the same number of scattered changed pixels does not', () => {
+  const a = frame(() => {});
+  const line = frame((set) => { for (let x = 40; x < 48; x++) set(x, 44, 120); });
+  assert.equal(blockChanged(a, line), 16);
+  const scattered = frame((set) => { for (const [x, y] of [[40, 40], [42, 42], [44, 44], [46, 46], [41, 46], [43, 40], [45, 42], [47, 44]]) set(x, y, 120); });
+  assert.equal(blockChanged(a, scattered), 8);
+});
