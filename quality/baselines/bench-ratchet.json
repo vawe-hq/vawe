@@ -1,7 +1,7 @@
 {
  "readLoad": {
-  "words": 1719,
-  "tokens": 2286
+  "words": 1745,
+  "tokens": 2321
  },
  "fastPath": {
   "commands": 5,
@@ -13,8 +13,8 @@
   "frames": 15
  },
  "wholeLoop": {
-  "tokens": 13260,
-  "words": 9970,
+  "tokens": 13476,
+  "words": 10132,
   "files": {
    "bin/vawe --help": 287,
    "bin/vawe new --help": 561,
@@ -22,9 +22,9 @@
    "bin/vawe refs --help": 177,
    "guides/REFERENCE-STUDY.md": 1359,
    "prompts/skill-combos.md": 1111,
-   "skills/vawe-page/SKILL.md": 2257,
+   "skills/vawe-page/SKILL.md": 2396,
    "taste/build/DIGEST.md": 400,
-   "bin/vawe frame --help": 244,
+   "bin/vawe frame --help": 267,
    "skills/vawe-transitions/SKILL.md": 761,
    "bin/vawe dev --help": 432,
    "bin/vawe critique --help": 166,
