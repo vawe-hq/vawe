@@ -11,10 +11,10 @@ import { resultOf } from '../../harness/lib/verb-log.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 test('resultOf turns printed text into data: next, absolute images and files', () => {
-  const text = 'wrote out/a-draft.mp4\nlook at /abs/x.png and out/y.png\nnext: bin/vawe frame films/a/page.html\n';
+  const text = 'wrote out/a-draft.mp4\nlook at /abs/x.png and out/y.png\nnext: bin/vawe frame films/a\n';
   const r = resultOf({ verb: 'dev', code: 0, reason: 'ignored on success', text, work: '/w' });
   assert.deepEqual(r, {
-    ok: true, verb: 'dev', reason: null, next: 'bin/vawe frame films/a/page.html',
+    ok: true, verb: 'dev', reason: null, next: 'bin/vawe frame films/a',
     images: ['/abs/x.png', '/w/out/y.png'], files: ['/w/out/a-draft.mp4'], exitCode: 0,
   });
 });
