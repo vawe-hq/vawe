@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { readNeed } from '../../harness/lib/worlds.mjs';
 import { STARTERS, readRouting, starterWorlds, worldShares, wordlessIds, starterMin, starterType } from '../../harness/cli/route.mjs';
 import { newFilm, starterPage, starterFace, typeBeats } from '../../harness/cli/new.mjs';
 import { isStarterPage } from '../../harness/lib/frames-page.mjs';
@@ -211,3 +212,18 @@ for (const type of TYPES) {
     assert.equal(isStarterPage(make()), true);
   });
 }
+
+test('a sting of any length from 2 s keeps its beats in order inside the film and leaves the lockup its read time', () => {
+  const need = readNeed(['Acme', 'why it matters']);
+  for (const length of [2, 3, 5, 12]) {
+    const page = starterPage({ type: 'sting', length, title: 'Acme', face: starterFace('zz-short') });
+    const starts = [...page.matchAll(/--beat-\d+: ([\d.]+)s;/g)].map((m) => Number(m[1]));
+    const spectacle = Number(page.match(/<meta name="spectacle" content="([\d.]+)">/)[1]);
+    assert.equal(starts.length, 3, `${length} s`);
+    assert.equal(starts[0], 0);
+    assert.ok(starts.every((s, i) => i === 0 || s > starts[i - 1]) && starts[2] < length, `${length} s: ${starts}`);
+    assert.ok(starts[1] >= 0.5 && spectacle > starts[1] && spectacle < starts[2], `${length} s: spectacle ${spectacle}`);
+    assert.ok(length - starts[1] >= Math.min(need, length - 0.5) - 1e-9, `${length} s: the lockup holds ${length - starts[1]} s`);
+    assert.doesNotMatch(page, /\{\{|undefined|NaN/);
+  }
+});

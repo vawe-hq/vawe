@@ -21,7 +21,7 @@ import { measuredSections, DEFAULT_LENGTH, GUESS, GIVEN_KEYS, answeredDetails, u
 import { dialRanges, signatureSection } from '../lib/signature.mjs';
 import { recentFromDisk, varietyFor, namesBrandKit } from '../lib/variety.mjs';
 import { DIALS } from '../../core/motion/signature.js';
-import { starterBeats } from '../lib/worlds.mjs';
+import { starterBeats, readNeed } from '../lib/worlds.mjs';
 import { fontsLine } from '../lib/asset-lists.mjs';
 import { SEEDS, pickSeed, seedLine } from '../lib/palette-seeds.mjs';
 import { EDIT_TEMPLATE } from '../lib/plan-parts.mjs';
@@ -201,9 +201,9 @@ const fill = (template, values) => template.replace(/\{\{(\w+)\}\}/g, (_, key) =
 });
 
 /** The worlds of a film type's starter: [{ id, start, end, wordless }], the starts being the STARTERS fractions of the length. */
-export function typeBeats(type, length) {
+export function typeBeats(type, length, need = 0) {
   let start = 0;
-  return starterWorlds(type, length).map(({ id, share }) => {
+  return starterWorlds(type, length, need).map(({ id, share }) => {
     const beat = { id, start: +start.toFixed(2), end: +(start + share * length).toFixed(2), wordless: false };
     start += share * length;
     return beat;
@@ -216,13 +216,14 @@ const keepWorlds = (html, ids) => html.replace(/<(main|section)\b[^>]*data-world
 export function starterPage({ length = DEFAULT_LENGTH, aspect = '16:9', title = 'Say the one thing', face = starterFace(), type }) {
   const own = type && STARTERS[type];
   const safe = title.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-  const beats = own ? typeBeats(type, length) : starterBeats(length, [title, STARTER_LINE]);
+  const need = readNeed([title, STARTER_LINE]);
+  const beats = own ? typeBeats(type, length, need) : starterBeats(length, [title, STARTER_LINE]);
   const template = own ? keepWorlds(readStarterFile(`${own.file}.html`), beats.map((b) => b.id)) : STARTER_TEMPLATE;
   return fill(template, {
     length, aspect, title: safe, font: face.font, family: face.family, ground: PLACEHOLDER.ground, ink: PLACEHOLDER.ink,
     signature: DIALS.map((d) => `${d}=`).join('; '), beats: beatVars(beats), groundCss: readStarterFile('ground.css').trimEnd(),
     worlds: own ? beats.map((b) => `<div class="world" data-world="${b.id}">${GROUND}</div>`).join('\n') : worldsHtml(beats, safe),
-    spectacle: own ? +starterSpectacle(type, length).toFixed(2) : '', wordFit: +(0.64 / (0.52 * title.length)).toFixed(3),
+    spectacle: own ? +starterSpectacle(type, length, need).toFixed(2) : '', wordFit: +(0.64 / (0.52 * title.length)).toFixed(3),
   });
 }
 

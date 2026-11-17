@@ -53,12 +53,25 @@ const MIN_WORLDS = 4;
 const index = (id) => Number(id.slice(1)) - 1;
 const fullShares = ({ beats }) => beats.map((start, i) => (beats[i + 1] ?? 1) - start);
 
+// A sting's lockup shows from its second beat to the last frame, so a short film shortens the quiet first beat to leave the text its read time.
+const STING_QUIET_MIN_S = 0.5;
+const STING_SPECTACLE_AFTER_S = 0.06;
+
+/** The type's table row at a length: a sting's beats are rebuilt so its lockup, which `need` seconds of reading, still fits; every other row is as listed. */
+function entryAt(type, length, need) {
+  const entry = STARTERS[type];
+  if (type !== 'sting' || length === undefined) return entry;
+  const lead = Math.min(entry.beats[1] * length, Math.max(STING_QUIET_MIN_S, length - need));
+  const turn = lead + (entry.beats[2] - entry.beats[1]) * length;
+  return { ...entry, beats: [0, lead / length, turn / length], spectacle: (lead + STING_SPECTACLE_AFTER_S * length) / length };
+}
+
 // A world must hold its text's read floor and the entrance and exit margin.
 const WORLD_FLOOR_S = HOLD_RULE.floor + READ_MARGIN_S;
 
 /** The first `count` worlds of a type's `order`, in film order: [{ id, share }], the shares adding to 1. A share is the world's share in the full starter, renormalised. */
-export function worldShares(type, count) {
-  const entry = STARTERS[type];
+export function worldShares(type, count, length, need = 0) {
+  const entry = entryAt(type, length, need);
   const shares = fullShares(entry);
   const kept = (entry.order?.slice(0, count) ?? shares.map((_, i) => `s${i + 1}`)).map(index).sort((x, y) => x - y);
   const total = kept.reduce((sum, i) => sum + shares[i], 0);
@@ -82,9 +95,9 @@ const fits = (type, count, length) => {
  * The worlds a type's starter keeps at a length: the largest count of the first worlds of `order` (at least MIN_WORLDS) whose shortest world still spans WORLD_FLOOR_S.
  * More worlds also keep every span nearer TURN_SECONDS_MAX, the world-held limit, which the read floor makes unreachable for a text world: the two limits meet only at 2 s.
  */
-export function starterWorlds(type, length) {
+export function starterWorlds(type, length, need = 0) {
   const { order } = STARTERS[type];
-  if (!order) return worldShares(type);
+  if (!order) return worldShares(type, undefined, length, need);
   let count = MIN_WORLDS;
   for (let n = MIN_WORLDS + 1; n <= order.length; n += 1) if (fits(type, n, length)) count = n;
   return worldShares(type, count);
@@ -98,9 +111,9 @@ export function starterMin(type) {
 }
 
 /** The spectacle second: the full starter's offset from its last world's start, kept on the last world kept. */
-export function starterSpectacle(type, length) {
-  const { beats, spectacle } = STARTERS[type];
-  const last = starterWorlds(type, length).at(-1);
+export function starterSpectacle(type, length, need = 0) {
+  const { beats, spectacle } = entryAt(type, length, need);
+  const last = starterWorlds(type, length, need).at(-1);
   return length * (1 - last.share + spectacle - beats.at(-1));
 }
 
