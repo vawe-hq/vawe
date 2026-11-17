@@ -11,11 +11,11 @@ const PAGE = `${HEAD}
 `;
 
 test('beatTopics: a title beat holds type only; the first beat has no cut', () => {
-  assert.deepEqual(beatTopics(PAGE, ['title']), { title: ['type'] });
+  assert.deepEqual(beatTopics(PAGE, ['title']), { title: ['type', 'motion'] });
 });
 
 test('beatTopics: a UI beat with a cut and a sound tag', () => {
-  assert.deepEqual(beatTopics(PAGE, ['app']), { app: ['type', 'layout', 'cuts', 'sound'] });
+  assert.deepEqual(beatTopics(PAGE, ['app']), { app: ['type', 'motion', 'layout', 'cuts', 'sound'] });
 });
 
 test('beatTopics: a ground and no text gives colour and a cut; a stylesheet ground counts', () => {
@@ -27,7 +27,7 @@ test('beatTopics: a ground and no text gives colour and a cut; a stylesheet grou
 test('beatTopics: nested same tags close at the matching tag; an unknown world is skipped', () => {
   const html = '<div data-world="a"><div><p>x</p></div></div><div data-world="b"><audio></audio></div>';
   assert.deepEqual(beatTopics(html, ['b', 'zzz']), { b: ['cuts', 'sound'] });
-  assert.deepEqual(beatTopics(html, ['a']), { a: ['type'] });
+  assert.deepEqual(beatTopics(html, ['a']), { a: ['type', 'motion'] });
 });
 
 test('changedWorlds: only the added or edited beats', () => {

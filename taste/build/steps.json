@@ -99,7 +99,7 @@
    },
    {
     "rule": "live-hold",
-    "text": "keep one part moving in every hold (typing, a counter, a glint), not a frozen frame and not a camera drift"
+    "text": "keep one part moving in every hold (typing, a counter, glint() or breathe() from core/motion/alive.js), not a frozen frame and not a camera drift"
    },
    {
     "rule": "named-eases",

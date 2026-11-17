@@ -31,7 +31,10 @@ export function videoFindings({ feats, tiles }, authoring = {}, page = {}) {
 }
 
 /** scene-stats with the seconds where only the camera moves counted as still (harness/lib/camera-moves.mjs). */
-export const statsWithCamera = (stats, cameraOnly = [], typing = []) => ({ ...stats, static: withoutTypingStills(withCameraStills(stats.static, cameraOnly), typing) });
+export const statsWithCamera = (stats, cameraOnly = [], typing = []) => {
+  const inFilm = cameraOnly.map(([a, b]) => [a, Math.min(b, stats.duration)]).filter(([a, b]) => b > a);
+  return { ...stats, static: withoutTypingStills(withCameraStills(stats.static, inFilm), typing) };
+};
 
 /** The judge's sheet tiles (harness/media/judge-fresh.mjs contactSheet, without labels): adjacent mean grey differences. */
 export function sheetTileDiffs(mp4) {

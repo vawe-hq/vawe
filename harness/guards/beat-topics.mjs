@@ -52,7 +52,7 @@ export function beatTopics(html, worlds = null) {
     if (beat === undefined) continue;
     const own = `${beat}\n${ruleText(html, id)}`;
     const topics = [];
-    if (TEXT.test(beat) || strip(beat).length > 0) topics.push('type');
+    if (TEXT.test(beat) || strip(beat).length > 0) topics.push('type', 'motion');
     if (UI.test(own)) topics.push('layout');
     if (GROUND.test(own)) topics.push('colour');
     if (ids.indexOf(id) > 0) topics.push('cuts');

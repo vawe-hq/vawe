@@ -11,6 +11,8 @@ export const T = {
   minWorld: 8,          // samples: turns closer than 0.8 s merge into the strongest
   pixelDelta: 10,       // luma steps (0..255) that count as a changed pixel
   staticFrac: 0.02,     // a 0.5 s window under this is static
+  blockSize: 8,         // px of the square block a small move is read in
+  blockChanged: 16,     // changed px in one block that count as a part moving (a line drawing, a cursor press, a counter) although under staticFrac of the frame
   minStatic: 3,         // samples: shortest static run (0.3 s)
   onsetFrac: 0.03,      // per-sample change that starts an event
   quietFrac: 0.012,     // per-sample change that counts as quiet
@@ -52,7 +54,7 @@ export function frameFeatures(rgb, w, h) {
   const n = w * h;
   for (let i = 0; i < 16; i++) hist[i] /= n;
   for (let i = 0; i < 32; i++) grid[i] /= cnt[i] || 1;
-  return { hist, grid, luma };
+  return { hist, grid, luma, w };
 }
 
 export function histDistance(a, b) {
@@ -112,13 +114,38 @@ export function windowChange(feats, span = STATIC_SPAN) {
 }
 const STATIC_SPAN = 3;
 
-/** Static time: a sample interval is quiet when under `staticFrac` of pixels changed; a run counts from 0.3 s. */
-export function staticRuns(change, t = T) {
+/** The most pixels that changed (by more than `delta`) inside one `size` px block between two frames: a small part moving, which few pixels of the whole frame show. */
+export function blockChanged(a, b, size = T.blockSize, delta = T.pixelDelta) {
+  const w = a.w, h = Math.floor(a.luma.length / w);
+  let best = 0;
+  for (let by = 0; by + size <= h; by += size) {
+    for (let bx = 0; bx + size <= w; bx += size) best = Math.max(best, changedInBlock(a, b, bx, by, size, delta));
+  }
+  return best;
+}
+
+function changedInBlock(a, b, bx, by, size, delta) {
+  let c = 0;
+  for (let y = by; y < by + size; y++) {
+    for (let x = bx; x < bx + size; x++) if (Math.abs(a.luma[y * a.w + x] - b.luma[y * a.w + x]) > delta) c++;
+  }
+  return c;
+}
+
+/** windowChange for one block: the changed pixels of the busiest block of each sample against the one `span` samples back. */
+export function windowBlocks(feats, span = STATIC_SPAN) {
+  const out = [0];
+  for (let i = 1; i < feats.length; i++) out.push(blockChanged(feats[Math.max(0, i - span)], feats[i]));
+  return out;
+}
+
+/** Static time: a sample interval is quiet when under `staticFrac` of pixels changed and no block (`blocks`, from windowBlocks) holds `blockChanged` changed pixels; a run counts from 0.3 s. */
+export function staticRuns(change, t = T, blocks = null) {
   const runs = [];
   let start = null;
   const close = (end) => { if (start !== null && end - start >= t.minStatic) runs.push({ a: start / SAMPLE_FPS, b: end / SAMPLE_FPS, len: (end - start) / SAMPLE_FPS }); start = null; };
   for (let i = 1; i < change.length; i++) {
-    if (change[i] < t.staticFrac) { if (start === null) start = i - 1; } else close(i - 1);
+    if (change[i] < t.staticFrac && !(blocks && blocks[i] >= t.blockChanged)) { if (start === null) start = i - 1; } else close(i - 1);
   }
   close(change.length - 1);
   return runs.map((r) => ({ a: +r.a.toFixed(2), b: +r.b.toFixed(2), len: +r.len.toFixed(2) }));
@@ -141,7 +168,7 @@ export function summarize(feats, t = T) {
   const dur = feats.length / SAMPLE_FPS;
   const turns = findTurns(feats, t);
   const change = perSampleChange(feats);
-  const runs = staticRuns(windowChange(feats), t);
+  const runs = staticRuns(windowChange(feats), t, windowBlocks(feats));
   const events = findEvents(change, t);
   const worlds = turns.length + 1;
   return {

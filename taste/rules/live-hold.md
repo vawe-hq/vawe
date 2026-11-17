@@ -12,7 +12,7 @@ prevents: doc no-jolt and MOTION-CRAFT: smooth on a storyboard, jerky on screen.
 status: active
 scored: yes
 numbers: {"still_limit_s":0.5,"rest_min_s":0.4,"rest_max_s":0.6,"jolt_px_per_s":600,"jolt_zoom_per_s":0.6}
-print-motion: keep one part moving in every hold (typing, a counter, a glint), not a frozen frame and not a camera drift
+print-motion: keep one part moving in every hold (typing, a counter, glint() or breathe() from core/motion/alive.js), not a frozen frame and not a camera drift
 craft: motion-craft
 ---
 
