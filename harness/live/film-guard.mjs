@@ -5,7 +5,6 @@ import { filmWrites, rawTools, commandVerbs, lookupOf, RAW_TOOLS } from '../lib/
 import { bare } from '../lib/shell-match.mjs';
 
 export const MCP_PREFIX = 'mcp__plugin_vawe-agent_vawe__';
-export const NAMED_TOOLS = ['vawe_write_page', 'vawe_edit_page', 'vawe_status', 'vawe_write_doc', 'vawe_edit_doc', 'vawe_render_draft', 'vawe_look'];
 const toolsNamed = (prefix) => (...names) => names.map((n) => `${prefix}${n}`).join(' or ');
 
 const fixes = (tool) => {

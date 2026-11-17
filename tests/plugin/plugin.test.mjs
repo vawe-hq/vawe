@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { denial, MCP_PREFIX, NAMED_TOOLS } from '../../harness/live/film-guard.mjs';
+import { denial, MCP_PREFIX } from '../../harness/live/film-guard.mjs';
+import { TOOL_NAMES } from '../../harness/mcp/server.mjs';
+import { agentFileWithTools } from '../../harness/dev/sync-agent-tools.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const json = (rel) => JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8'));
@@ -37,8 +39,15 @@ test('the agent has only the vawe tools plus Read, Grep and Glob', () => {
   const { tools } = agent();
   for (const banned of ['Bash', 'Write', 'Edit', 'MultiEdit']) assert.ok(!tools.includes(banned), banned);
   for (const t of tools) assert.ok(/^(?:Read|Grep|Glob)$/.test(t) || t.startsWith(`${MCP_PREFIX}vawe_`), t);
-  for (const name of NAMED_TOOLS) assert.ok(tools.includes(`${MCP_PREFIX}${name}`), `${name} is named by the hook but missing from the agent`);
+  const reasons = [['Write', { file_path: 'films/x/page.html' }], ['Write', { file_path: 'films/x/brief.md' }], ['Bash', { command: 'ffmpeg -i a b' }], ['Bash', { command: 'chrome --screenshot' }]].map(([n, i]) => denial(n, i, ''));
+  for (const name of new Set(reasons.join(' ').match(/vawe_\w+/g))) assert.ok(tools.includes(`${MCP_PREFIX}${name}`), `${name} is named by the hook but missing from the agent`);
   assert.ok(!tools.includes(`${MCP_PREFIX}vawe_approve`));
+});
+
+test('the agent tools line is the one sync-agent-tools writes (run: bin/vawe-dev sync-agent-tools)', () => {
+  const { text } = agent();
+  assert.equal(agentFileWithTools(text), text);
+  assert.deepEqual(agent().tools.filter((t) => t.startsWith(MCP_PREFIX)), TOOL_NAMES.map((n) => `${MCP_PREFIX}${n}`));
 });
 
 test('the agent file never tells the agent to approve', () => {

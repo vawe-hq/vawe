@@ -308,6 +308,15 @@ function register(server, work, runUi) {
     ({ film }, w) => gated('vawe_ship', film, w, (p) => viaVerb(['ship', p.rel], w)));
 }
 
+const registeredNames = () => {
+  const names = [];
+  register({ registerTool: (name) => names.push(name) }, WORK, spawnUiSkills);
+  return names;
+};
+
+/** The registered tool names, in registration order: the one list pi, the plugin agent file and the tests read. */
+export const TOOL_NAMES = registeredNames();
+
 /** A server with the fifteen tools on the workspace `work`. `runUiSkills` replaces the npx call (a test). */
 export function createServer({ work = WORK, runUiSkills = spawnUiSkills } = {}) {
   const server = new McpServer({ name: 'vawe', version: '1.0.0' });

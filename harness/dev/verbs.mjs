@@ -125,6 +125,13 @@ export const DEV_VERBS = [
     next: () => 'look at the clip in prompts/moves/ and run node scripts/site/moves.mjs --clips to encode its web copy',
   },
   {
+    name: 'sync-agent-tools', summary: 'rewrite the tools line of agents/vawe.md from the MCP server tool list (run after you add or rename a vawe tool)',
+    positional: [],
+    flags: [],
+    example: 'vawe-dev sync-agent-tools',
+    build: () => [{ script: 'harness/dev/sync-agent-tools.mjs', args: [] }],
+  },
+  {
     name: 'doctor', summary: 'check node, ffmpeg, Chrome and the other tools; print the install line for each missing one',
     positional: [],
     flags: [

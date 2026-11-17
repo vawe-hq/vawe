@@ -2,15 +2,12 @@
 // The tools are the MCP server's own handlers, reached through an in-process MCP client, so pi and Claude Code run the same code.
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { createServer } from '../harness/mcp/server.mjs';
+import { createServer, TOOL_NAMES } from '../harness/mcp/server.mjs';
 import { denial } from '../harness/live/film-guard.mjs';
 
 export const PI_VERSION = '1.5.2';
 
-export const VAWE_TOOLS = [
-  'vawe_status', 'vawe_new_film', 'vawe_read_rules', 'vawe_write_page', 'vawe_edit_page', 'vawe_frame',
-  'vawe_render_draft', 'vawe_look', 'vawe_critique', 'vawe_ship', 'vawe_write_doc', 'vawe_edit_doc', 'vawe_wait', 'vawe_refs', 'vawe_ui_skills',
-];
+export const VAWE_TOOLS = TOOL_NAMES;
 
 // pi names its built-in tools in lower case with `path`; the guard speaks Claude Code's names with `file_path`.
 const GUARDED = { write: 'Write', edit: 'Edit', bash: 'Bash' };
