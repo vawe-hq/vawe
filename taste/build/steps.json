@@ -8,6 +8,18 @@
     "craft": "law"
    },
    {
+    "rule": "thread",
+    "text": "pick one thread that carries through (an object, a type line, a colour or a rhythm), not separate reveals one after another",
+    "craft": "film-structure"
+   },
+   {
+    "rule": "three-materials",
+    "text": "draw three directions from different materials (type, paper, liquid, cut geometry, photograph, UI, light), not three colours of one idea; at most one is light",
+    "craft": "law"
+   }
+  ],
+  "more": [
+   {
     "rule": "beat-cause",
     "text": "name the act that causes each change (\"the cursor hits Send on the card\"), not \"then\" or \"it cuts to\"",
     "craft": "film-structure"
@@ -58,16 +70,6 @@
     "craft": "direction"
    },
    {
-    "rule": "thread",
-    "text": "pick one thread that carries through (an object, a type line, a colour or a rhythm), not separate reveals one after another",
-    "craft": "film-structure"
-   },
-   {
-    "rule": "three-materials",
-    "text": "draw three directions from different materials (type, paper, liquid, cut geometry, photograph, UI, light), not three colours of one idea; at most one is light",
-    "craft": "law"
-   },
-   {
     "rule": "licensed-assets",
     "text": "embed only assets you may publish and capture the real product UI, not copyrighted posters, stills, news photos or music",
     "craft": "imagery"
@@ -93,13 +95,50 @@
   "title": "frames",
   "lines": [
    {
-    "rule": "no-emdash-on-screen",
-    "text": "use a comma, a period or a middle dot in on-screen text, not an em dash"
-   },
-   {
     "rule": "accent-share",
     "text": "keep the accent on one thing, not a full-frame flood",
     "craft": "color"
+   },
+   {
+    "rule": "first-frame",
+    "text": "show the subject by 0.1 s, not an empty ground for the first half second",
+    "craft": "film-structure"
+   },
+   {
+    "rule": "living-ground",
+    "text": "put soft colour blobs behind the content, not one flat fill",
+    "craft": "color"
+   },
+   {
+    "rule": "one-focal-point",
+    "text": "give each frame one focal point and one accent colour, not two things fighting",
+    "craft": "layout"
+   },
+   {
+    "rule": "palette-from-brand",
+    "text": "read the brand CSS tokens and tint the neutrals, not pure #000, #fff or a guessed palette",
+    "craft": "color"
+   },
+   {
+    "rule": "readable-text-size",
+    "text": "set a read line at a 6% cap height (UI that is the subject, in data-ui: 3%) and hold it 0.6 s a word from 4 words (a 4 word tagline 2.4 s), fewer words max(1.2 s, words/3), not a small tagline that flashes by",
+    "craft": "typography"
+   },
+   {
+    "rule": "typeface-default",
+    "text": "use the kit's face and ground or a face the direction chose, not Inter or Space Grotesk by habit",
+    "craft": "typography"
+   },
+   {
+    "rule": "word-colour",
+    "text": "colour one or two words per line, each the word the beat is about, not every word",
+    "craft": "direction"
+   }
+  ],
+  "more": [
+   {
+    "rule": "no-emdash-on-screen",
+    "text": "use a comma, a period or a middle dot in on-screen text, not an em dash"
    },
    {
     "rule": "archetype-rotation",
@@ -110,11 +149,6 @@
     "rule": "asymmetry",
     "text": "compose asymmetric with one hero anchored to an edge or a third, not a centred 6/6 split",
     "craft": "layout"
-   },
-   {
-    "rule": "first-frame",
-    "text": "show the subject by 0.1 s, not an empty ground for the first half second",
-    "craft": "film-structure"
    },
    {
     "rule": "graphic-is-subject",
@@ -152,29 +186,9 @@
     "craft": "imagery"
    },
    {
-    "rule": "living-ground",
-    "text": "put soft colour blobs behind the content, not one flat fill",
-    "craft": "color"
-   },
-   {
     "rule": "logo-prominence",
     "text": "size the logo mark at 5 percent of the frame height or more, with real weight on the end card, not a logo as punctuation",
     "craft": "imagery"
-   },
-   {
-    "rule": "one-focal-point",
-    "text": "give each frame one focal point and one accent colour, not two things fighting",
-    "craft": "layout"
-   },
-   {
-    "rule": "palette-from-brand",
-    "text": "read the brand CSS tokens and tint the neutrals, not pure #000, #fff or a guessed palette",
-    "craft": "color"
-   },
-   {
-    "rule": "readable-text-size",
-    "text": "set a read line at a 6% cap height (UI that is the subject, in data-ui: 3%) and hold it 0.6 s a word from 4 words (a 4 word tagline 2.4 s), fewer words max(1.2 s, words/3), not a small tagline that flashes by",
-    "craft": "typography"
    },
    {
     "rule": "real-optics",
@@ -212,11 +226,6 @@
     "craft": "typography"
    },
    {
-    "rule": "typeface-default",
-    "text": "use the kit's face and ground or a face the direction chose, not Inter or Space Grotesk by habit",
-    "craft": "typography"
-   },
-   {
     "rule": "typeface-system",
     "text": "use one to three faces, each with a role, and recolour at the same weight to emphasise, not a heavier bold or a second expressive face",
     "craft": "typography"
@@ -235,17 +244,44 @@
     "rule": "whitespace",
     "text": "name what each empty area does in one clause, and enlarge the subject when the gap is passive, not a leftover gap between two things",
     "craft": "layout"
-   },
-   {
-    "rule": "word-colour",
-    "text": "colour one or two words per line, each the word the beat is about, not every word",
-    "craft": "direction"
    }
   ]
  },
  "storyboard": {
   "title": "storyboard",
   "lines": [
+   {
+    "rule": "readable-hold",
+    "text": "hold a line of 4 or more words 0.6 s per word once settled (a 4 word line 2.4 s), fewer words max(1.2 s, words / 3), and take it off when read plus 1.5 s, not hold it for the beat",
+    "craft": "typography"
+   },
+   {
+    "rule": "text-breathing",
+    "text": "leave beats with no words, not text in every frame",
+    "craft": "typography"
+   },
+   {
+    "rule": "world-turns",
+    "text": "turn the world every 1 to 2 s (a new element, a cut, a ground swap), not one lockup held",
+    "craft": "film-structure"
+   },
+   {
+    "rule": "crossfade-limit",
+    "text": "cut, wipe on the motion or match a shape, not a muddy crossfade",
+    "craft": "transitions"
+   },
+   {
+    "rule": "eye-trace",
+    "text": "land the next subject where the eye was (within 0.3 of the frame diagonal), not across the frame",
+    "craft": "transitions"
+   },
+   {
+    "rule": "seam-variety",
+    "text": "change axis or direction at every moving seam, not the same seam move twice",
+    "craft": "transitions"
+   }
+  ],
+  "more": [
    {
     "rule": "cta-last-short",
     "text": "make the CTA the shortest scene, 3 to 5 s with one action, and keep the world moving under it, not a faded or frozen end card",
@@ -267,38 +303,13 @@
     "craft": "film-structure"
    },
    {
-    "rule": "readable-hold",
-    "text": "hold a line of 4 or more words 0.6 s per word once settled (a 4 word line 2.4 s), fewer words max(1.2 s, words / 3), and take it off when read plus 1.5 s, not hold it for the beat",
-    "craft": "typography"
-   },
-   {
-    "rule": "text-breathing",
-    "text": "leave beats with no words, not text in every frame",
-    "craft": "typography"
-   },
-   {
-    "rule": "world-turns",
-    "text": "turn the world every 1 to 2 s (a new element, a cut, a ground swap), not one lockup held",
-    "craft": "film-structure"
-   },
-   {
     "rule": "camera-path-linear",
     "text": "fly the camera through one space at constant speed on interior legs and ease only at the ends, not an eased stop at every waypoint",
     "craft": "transitions"
    },
    {
-    "rule": "crossfade-limit",
-    "text": "cut, wipe on the motion or match a shape, not a muddy crossfade",
-    "craft": "transitions"
-   },
-   {
     "rule": "cut-on-beat",
     "text": "cut on the beat or two frames early on a completed action, not in a dead hold",
-    "craft": "transitions"
-   },
-   {
-    "rule": "eye-trace",
-    "text": "land the next subject where the eye was (within 0.3 of the frame diagonal), not across the frame",
     "craft": "transitions"
    },
    {
@@ -330,17 +341,59 @@
     "rule": "seam-timing",
     "text": "time each seam by its type (whip 0.27 to 0.4 s, slide 0.5 to 1 s, fade 0.66 to 1.33 s) and end the outgoing text at the seam, not a double blend",
     "craft": "transitions"
-   },
-   {
-    "rule": "seam-variety",
-    "text": "change axis or direction at every moving seam, not the same seam move twice",
-    "craft": "transitions"
    }
   ]
  },
  "motion": {
   "title": "motion",
   "lines": [
+   {
+    "rule": "entrance-ease",
+    "text": "land an entrance on EASE.land with most of the move shown by frame 1, not a slow-start ease-in or a scale(0) start",
+    "craft": "motion-craft"
+   },
+   {
+    "rule": "entrance-origin",
+    "text": "make each entrance a move with an origin, not everything fading in",
+    "craft": "motion-craft"
+   },
+   {
+    "rule": "exits-shorter",
+    "text": "exit shorter than the entrance on EASE.launch, not an exit as long as its entrance",
+    "craft": "motion-craft"
+   },
+   {
+    "rule": "live-hold",
+    "text": "keep one part moving in every hold (typing, a counter, glint() or breathe() from core/motion/alive.js), not a frozen frame and not a camera drift",
+    "craft": "motion-craft"
+   },
+   {
+    "rule": "named-eases",
+    "text": "take curves from EASE names (or a sampled spring), not a CSS keyword or a hand-fitted cubic-bezier",
+    "craft": "motion-craft"
+   },
+   {
+    "rule": "overshoot",
+    "text": "land about 1 in 3 arrivals with a spring (EASE.pop), not every arrival on one soft stop, and never a spring on a count",
+    "craft": "motion-craft"
+   },
+   {
+    "rule": "real-physics",
+    "text": "sample a spring or exponential with 8 or more stops, not one cubic-bezier sold as physics",
+    "craft": "motion-craft"
+   },
+   {
+    "rule": "speed-bands",
+    "text": "put each move in a speed band with the slowest move 3x the fastest and the fastest under 12 frame heights a second, not every move at one duration",
+    "craft": "motion-craft"
+   },
+   {
+    "rule": "stagger",
+    "text": "stagger a group 30 to 80 ms, not a group that lands on one frame",
+    "craft": "motion-craft"
+   }
+  ],
+  "more": [
    {
     "rule": "anticipation",
     "text": "give a hero move a small opposite wind-up (2 to 4 percent dip), not an anticipation on every move",
@@ -372,33 +425,8 @@
     "craft": "motion-craft"
    },
    {
-    "rule": "entrance-ease",
-    "text": "land an entrance on EASE.land with most of the move shown by frame 1, not a slow-start ease-in or a scale(0) start",
-    "craft": "motion-craft"
-   },
-   {
-    "rule": "entrance-origin",
-    "text": "make each entrance a move with an origin, not everything fading in",
-    "craft": "motion-craft"
-   },
-   {
-    "rule": "exits-shorter",
-    "text": "exit shorter than the entrance on EASE.launch, not an exit as long as its entrance",
-    "craft": "motion-craft"
-   },
-   {
     "rule": "follow-through",
     "text": "finish a trailing property 0.05 to 0.15 s after the main one (scale after position, shadow after card), not everything ending on one frame",
-    "craft": "motion-craft"
-   },
-   {
-    "rule": "live-hold",
-    "text": "keep one part moving in every hold (typing, a counter, glint() or breathe() from core/motion/alive.js), not a frozen frame and not a camera drift",
-    "craft": "motion-craft"
-   },
-   {
-    "rule": "named-eases",
-    "text": "take curves from EASE names (or a sampled spring), not a CSS keyword or a hand-fitted cubic-bezier",
     "craft": "motion-craft"
    },
    {
@@ -407,28 +435,8 @@
     "craft": "motion-craft"
    },
    {
-    "rule": "overshoot",
-    "text": "land about 1 in 3 arrivals with a spring (EASE.pop), not every arrival on one soft stop, and never a spring on a count",
-    "craft": "motion-craft"
-   },
-   {
-    "rule": "real-physics",
-    "text": "sample a spring or exponential with 8 or more stops, not one cubic-bezier sold as physics",
-    "craft": "motion-craft"
-   },
-   {
     "rule": "spectacle-weak",
     "text": "give the spectacle second the fastest or longest move of the film, with quiet before it, not a stronger peak elsewhere",
-    "craft": "motion-craft"
-   },
-   {
-    "rule": "speed-bands",
-    "text": "put each move in a speed band with the slowest move 3x the fastest and the fastest under 12 frame heights a second, not every move at one duration",
-    "craft": "motion-craft"
-   },
-   {
-    "rule": "stagger",
-    "text": "stagger a group 30 to 80 ms, not a group that lands on one frame",
     "craft": "motion-craft"
    },
    {
@@ -481,6 +489,7 @@
     "text": "take a recorded effect first (resources/README.md), not a synth bed or a tick on every cut",
     "craft": "sound"
    }
-  ]
+  ],
+  "more": []
  }
 }

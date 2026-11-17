@@ -6,7 +6,7 @@ limit: the camera moves for 60 percent of the film or less, and for 4 worlds in 
 range: one deliberate camera move at the spectacle second (it is not counted); the reference films move the camera for a median 36 percent of their time, p90 95
 break-when: a film built as one continuous shot (a tracking move through a space) the brief names
 instead: hold the camera still and give the hold an element motion: a line typing, a counter, a glint, a secondary action. Keep camera() for the spectacle or a reveal.
-print-motion: hold the camera still and give the hold an element motion, moving it for at most 60 percent of the film and 4 worlds in a row, not a drift on every beat
+more-motion: hold the camera still and give the hold an element motion, moving it for at most 60 percent of the film and 4 worlds in a row, not a drift on every beat
 check: constant-camera
 judge: Does the camera move in every beat, or only where the film earns it?
 prevents: agents satisfied live-hold the lazy way, with a slow camera drift on every hold, so every film had a constantly moving camera (owner, 2026-10-10).

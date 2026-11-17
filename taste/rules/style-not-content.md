@@ -6,7 +6,7 @@ limit: none
 range: none
 break-when: the owner recreates a reference 1:1 for a private render (references-are-in-house)
 instead: write what the reference does (a cut every 0.8 s, a warm key light, a push on the last word) and rebuild it with your own subject, words and marks.
-print-explore: take the reference's style (grammar, light, type, moves) and rebuild it with your own subject, not its text, logos or photos
+more-explore: take the reference's style (grammar, light, type, moves) and rebuild it with your own subject, not its text, logos or photos
 check: judge
 judge: Does the film reuse the reference's text, logo, brand words or photos, or only its style?
 prevents: owner rule, 2026-10-10: style from a reference, never its content.

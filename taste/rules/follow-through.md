@@ -6,7 +6,7 @@ limit: none
 range: delay the trailing property 0.05 to 0.15 s; a child lags its parent 1 to 3 frames
 break-when: rigid things: a card that drags reads as jelly
 instead: when the trailing thing is a separate element, delay it as its own move. Stagger is not follow-through: stagger delays siblings.
-print-motion: finish a trailing property 0.05 to 0.15 s after the main one (scale after position, shadow after card), not everything ending on one frame
+more-motion: finish a trailing property 0.05 to 0.15 s after the main one (scale after position, shadow after card), not everything ending on one frame
 check: follow-through
 judge: Do all properties of one element stop on one frame?
 prevents: doc MOTION-CRAFT: a card whose every property stops on one frame reads as a slide changing.

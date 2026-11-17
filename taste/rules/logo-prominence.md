@@ -6,7 +6,7 @@ limit: a logo mark at least 5 percent of the frame height
 range: about 7 percent of the frame height
 break-when: never
 instead: size by optical balance (a circle looks smaller than a square of the same box). Keep a light variant for dark grounds and a dark variant for light grounds. The end card keeps moving with the world.
-print-frames: size the logo mark at 5 percent of the frame height or more, with real weight on the end card, not a logo as punctuation
+more-frames: size the logo mark at 5 percent of the frame height or more, with real weight on the end card, not a logo as punctuation
 check: none
 judge: Does the mark read as the brand at a glance on the end card?
 prevents: doc logo-prominence and IMAGERY.md: a mark sized like a bullet next to a headline reads as punctuation.

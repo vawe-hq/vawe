@@ -6,7 +6,7 @@ limit: none
 range: punchy shots 0.8 to 1.5 s, breathing shots 2 to 3 s; the payoff is the longest
 break-when: a metric-cut film where a fixed pulse is the thread (name the pulse in the brief)
 instead: tighten cutting through the build, release on the payoff. Pacing is readable, not rushed: a quick cut is a hard cut between held beats, never a shorter read. A captured clip or a UI screen dwells at least 1.2 s, and held text keeps its read time (rule readable-hold).
-print-storyboard: alternate punchy shots (0.8 to 1.5 s) with breathing shots (2 to 3 s), and keep a clip 1.2 s or longer, not one cut length
+more-storyboard: alternate punchy shots (0.8 to 1.5 s) with breathing shots (2 to 3 s), and keep a clip 1.2 s or longer, not one cut length
 check: none
 judge: Does shot length vary with intent, and is the payoff the longest hold?
 prevents: doc film-structure (motion grammar): a reference ran shots of 0.76 to 3.2 s with a median of 1.52 s; films of 2.5 to 4 s per beat cut at about half that rate.

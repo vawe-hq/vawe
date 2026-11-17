@@ -15,13 +15,13 @@ const PAGE_STEPS = new Set(['frames', 'storyboard', 'motion']);
 const rules = fs.readdirSync(RULES).filter((f) => f.endsWith('.md')).map((f) => {
   const head = fs.readFileSync(path.join(RULES, f), 'utf8').split(/^---$/m)[1] ?? '';
   const field = (k) => head.match(new RegExp(`^${k}:\\s*(.*)$`, 'm'))?.[1]?.trim() ?? '';
-  return { id: field('id'), status: field('status') || 'active', prints: [...head.matchAll(/^print-([a-z]+):/gm)].map((m) => m[1]) };
+  return { id: field('id'), status: field('status') || 'active', prints: [...head.matchAll(/^(?:print|more)-([a-z]+):/gm)].map((m) => m[1]) };
 }).filter((r) => r.status === 'active');
 
 const named = (lines) => new Set(lines.map((l) => /\(rule ([a-z0-9-]+)\)$/.exec(l)?.[1]).filter(Boolean));
 
-test('every active rule is on a stage card', () => {
-  const shown = named(STAGES.flatMap((s) => tasteFor(s)));
+test('every active rule reaches the agent: on a stage card, or through a topic', () => {
+  const shown = named([...STAGES.flatMap((s) => tasteFor(s)), ...STAGES.flatMap((s) => TASTE_TOPICS.flatMap((t) => tasteFor(s, t)))]);
   assert.deepEqual(rules.filter((r) => !shown.has(r.id)).map((r) => r.id), []);
 });
 

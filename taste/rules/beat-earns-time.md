@@ -6,7 +6,7 @@ limit: none
 range: beat roles: hook, problem, build, proof, feature, payoff, CTA
 break-when: never
 instead: write per beat the role, the persuasion move (pain agitation, negative contrast, future pacing, social proof, risk reversal, inevitability) and the feeling arc (anxiety to relief, curiosity to payoff). A beat with neither is cut.
-print-explore: give each beat a role, a persuasion move and a feeling arc, and cut a beat with none, not a beat kept for filler
+more-explore: give each beat a role, a persuasion move and a feeling arc, and cut a beat with none, not a beat kept for filler
 check: judge
 judge: For each beat: what does the viewer lose if it is cut?
 prevents: doc TASTE.md: "every frame must fight for its value". doc TASTE-RULES: a beat that cannot say what it does to the viewer is decoration.

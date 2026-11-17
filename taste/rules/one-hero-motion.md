@@ -6,7 +6,7 @@ limit: none
 range: one hero motion, at most one quiet secondary motion per beat, lower contrast and offset in time
 break-when: never
 instead: key the hero first at its start and end pose, check the read with nothing else moving, then add secondary and ambient in decreasing loudness. Slide up plus fade is one claim "arriving"; rise plus rotate is two claims about one object: drop one.
-print-motion: let one element own the motion of a beat and the rest support quietly, one claim per element, not rise plus rotate on one object
+more-motion: let one element own the motion of a beat and the rest support quietly, one claim per element, not rise plus rotate on one object
 check: staging
 judge: Which element owns the motion in each beat?
 prevents: doc MOTION-CRAFT and DIRECTION: two competing animations read as none; everything moving at once reads as a block, not a hierarchy.

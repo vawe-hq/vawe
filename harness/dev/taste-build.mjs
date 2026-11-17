@@ -11,7 +11,7 @@ import { JOBS, easeRef, jobsOf } from '../../core/motion/ease-jobs.js';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 export const STEPS = ['concept', 'look', 'motion', 'transitions', 'finish', 'sound', 'preship'];
-// The owner's process steps: each command prints the rules of its own step (a rule's `print-<step>` line).
+// The owner's process steps: each command prints the rules of its own step (a rule's `print-<step>` line); a `more-<step>` line is sent only by topic, on a write, so the printed card stays short.
 export const PRINT_STEPS = { explore: 'explore', frames: 'frames', storyboard: 'storyboard', motion: 'motion', check: 'check' };
 
 // Every check a rule may name: the id the draft check, the lint or the judge prints. `judge` and `none` are not checks.
@@ -47,8 +47,8 @@ export function parseRule(text, file) {
   const { fields, body } = parseMarkdown(text);
   let numbers;
   try { numbers = JSON.parse(fields.numbers || '{}'); } catch { throw new Error(`${file}: numbers is not JSON`); }
-  const prints = Object.fromEntries(Object.entries(fields).filter(([k]) => k.startsWith('print-')).map(([k, v]) => [k.slice(6), v]));
-  return { ...fields, file, numbers, prints, body };
+  const lines = (prefix) => Object.fromEntries(Object.entries(fields).filter(([k]) => k.startsWith(prefix)).map(([k, v]) => [k.slice(prefix.length), v]));
+  return { ...fields, file, numbers, prints: lines('print-'), mores: lines('more-'), body };
 }
 
 const missingFields = (r) => REQUIRED.filter((k) => !r[k]).map((k) => `${r.file}: no "${k}"`);
@@ -75,11 +75,13 @@ function valueProblems(r) {
 
 function printProblems(r) {
   const out = [];
-  for (const [s, text] of Object.entries(r.prints)) {
-    if (!PRINT_STEPS[s]) out.push(`${r.file}: print-${s} is not a printed step (${Object.keys(PRINT_STEPS).join(' ')})`);
-    if (!/, not /.test(text)) out.push(`${r.file}: print-${s} is not a "do X, not Y" pair`);
+  for (const [kind, lines] of [['print', r.prints], ['more', r.mores ?? {}]]) {
+    for (const [s, text] of Object.entries(lines)) {
+      if (!PRINT_STEPS[s]) out.push(`${r.file}: ${kind}-${s} is not a printed step (${Object.keys(PRINT_STEPS).join(' ')})`);
+      if (!/, not /.test(text)) out.push(`${r.file}: ${kind}-${s} is not a "do X, not Y" pair`);
+    }
   }
-  if (r.scored === 'yes' && !r.digest && !Object.keys(r.prints).length) out.push(`${r.file}: a scored rule needs a digest or a print-<step> line, or the author never sees what the judge scores`);
+  if (r.scored === 'yes' && !r.digest && !Object.keys(r.prints).length && !Object.keys(r.mores ?? {}).length) out.push(`${r.file}: a scored rule needs a digest, a print-<step> or a more-<step> line, or the author never sees what the judge scores`);
   if (!/^## Example\n\n\S/m.test(r.body)) out.push(`${r.file}: the body has no "## Example" section`);
   return out;
 }
@@ -178,8 +180,10 @@ export function digestText(rules, attractors) {
 export function stepsJson(rules) {
   const steps = {};
   for (const [step, title] of Object.entries(PRINT_STEPS)) {
-    const lines = rules.filter((r) => r.prints[step]).map((r) => ({ rule: r.id, text: r.prints[step], ...(r.craft ? { craft: r.craft } : {}) }));
-    steps[step] = { title, lines };
+    const line = (r, text) => ({ rule: r.id, text, ...(r.craft ? { craft: r.craft } : {}) });
+    const lines = rules.filter((r) => r.prints[step]).map((r) => line(r, r.prints[step]));
+    const more = rules.filter((r) => r.mores?.[step]).map((r) => line(r, r.mores[step]));
+    steps[step] = { title, lines, more };
   }
   return `${JSON.stringify(steps, null, 1)}\n`;
 }

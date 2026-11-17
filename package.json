@@ -61,6 +61,10 @@
     "type": "git",
     "url": "git+https://github.com/vawe-hq/vawe.git"
   },
+  "homepage": "https://vawe.dev",
+  "bugs": {
+    "url": "https://github.com/vawe-hq/vawe/issues"
+  },
   "keywords": [
     "video",
     "motion-graphics",

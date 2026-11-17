@@ -6,7 +6,7 @@ limit: none
 range: 30 s: 5 to 7 scenes of 3 to 6 s. 60 s: 8 to 12 scenes of 4 to 7 s. A new beat every 5 to 7 s
 break-when: a kinetic film cuts on a 1.5 s pulse (see shot-length-varies)
 instead: set the count from the brand tempo: a calm brand is slow with few scenes, playful is fast with many. Accelerate toward the climax, then hold it longer than anything else.
-print-storyboard: size the scene count to the runtime (5 to 7 scenes in 30 s) and vary scene length, 3 to 7 s, not equal scenes
+more-storyboard: size the scene count to the runtime (5 to 7 scenes in 30 s) and vary scene length, 3 to 7 s, not equal scenes
 check: none
 judge: Does scene length vary, and does the payoff hold longest?
 prevents: doc STORY.md: uniform scene length is the story form of monotone timing.

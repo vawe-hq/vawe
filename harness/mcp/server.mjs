@@ -154,8 +154,8 @@ function docFindings(p, file, text, work) {
   return [...ideas, ...board, ...measuredBriefFindings(text)];
 }
 
-// The decisions each doc holds: DESIGN.md and the kit set the look, the brief's Board plans the cuts.
-const DOC_TOPICS = (file) => (file === 'brief.md' ? ['cuts'] : ['type', 'colour', 'layout']);
+// The decisions each doc holds: DESIGN.md and the kit set the look, the brief holds the story and plans the cuts.
+const DOC_TOPICS = (file) => (file === 'brief.md' ? ['story', 'cuts'] : ['type', 'colour', 'layout']);
 
 function docReply(p, file, text, work, sent) {
   const bad = (why) => reply({ ok: false, findings: [finding('bad-path', why, 'file is brief.md, DESIGN.md or a path under kit/')], next: 'call again with an allowed file' });
@@ -286,7 +286,7 @@ function register(server, work, runUi) {
   tool('vawe_edit_doc', 'Use for a small change to brief.md, DESIGN.md or a kit/ file: one exact replace of old by new. Refuses when old is missing or not unique.', {
     film: FILM, file: z.string().describe('brief.md | DESIGN.md | kit/<path>'), old: z.string(), new: z.string(),
   }, editDoc);
-  tool('vawe_read_rules', 'Use before you write a beat: the taste and contract lines for this film stage; topic narrows to type, colour, motion, cuts, sound or layout; kit lists the kit parts and moves to build from.', {
+  tool('vawe_read_rules', 'Use before you write a beat: the taste and contract lines for this film stage; topic narrows to type, colour, motion, cuts, sound, layout or story; kit lists the kit parts and moves to build from.', {
     film: FILM, topic: z.string().optional().describe(TASTE_TOPICS.join(' | ')),
   }, readRules);
   tool('vawe_write_page', 'Use to write the whole films/<name>/page.html. Refuses (writes nothing) when the page contract breaks: no duration meta, no data-world, an absolute path. Other findings advise.', {

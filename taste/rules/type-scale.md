@@ -6,7 +6,7 @@ limit: no frame with more than six distinct text sizes
 range: at most 6 distinct sizes in one frame; steps at least 1.25 apart (steps under 1.2 read muddy)
 break-when: a product screen shown as it is: its own type scale is the content (mark UI texture data-chrome)
 instead: pick three sizes (hero, support, label) and set every text to one of them.
-print-frames: use three text sizes (hero, support, label) with at most six in a frame, not many near sizes
+more-frames: use three text sizes (hero, support, label) with at most six in a frame, not many near sizes
 check: type-sizes
 judge: How many text sizes does the frame hold, and can you tell two neighbours apart?
 prevents: research harnesses 1 (impeccable, Refactoring UI, Utopia, trydemotion): 4 to 6 sizes per family; steps 1.1 apart read as uncommitted.

@@ -6,7 +6,7 @@ limit: none
 range: a scale dip of 2 to 4 percent for about 4 frames; or a counter-move of 10 to 20 percent of the travel, then the main move with no hold
 break-when: informational motion and anything the viewer already looks at
 instead: a heavy object anticipates longer.
-print-motion: give a hero move a small opposite wind-up (2 to 4 percent dip), not an anticipation on every move
+more-motion: give a hero move a small opposite wind-up (2 to 4 percent dip), not an anticipation on every move
 check: anticipation
 judge: Is anticipation on a hero move only?
 prevents: doc DIRECTION and AE techniques: wind-up on every move reads as wobble.
