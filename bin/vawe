@@ -14,7 +14,7 @@ import { newFilm, newFilmLines, readDetails, questionsJson, gatherFootage } from
 import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
 import { pageDigest } from '../harness/lib/approval.mjs';
-import { verbEvent, footerLine, untaggedLine, filmOfCall, imagesIn, reasonOf, readNotes, causeOf, refusalOf, UNFILED } from '../harness/lib/verb-log.mjs';
+import { verbEvent, footerLine, untaggedLine, filmOfCall, imagesIn, reasonOf, readNotes, causeOf, refusalOf, resultOf, UNFILED } from '../harness/lib/verb-log.mjs';
 import { defaultRefFor } from '../harness/lib/refs.mjs';
 import { nextStep, recentPage } from '../harness/live/stage-say.mjs';
 import { verbStage } from '../harness/lib/trace/stages.mjs';
@@ -44,12 +44,13 @@ function runStep(step, call) {
   return new Promise((resolve) => {
     const child = spawn(process.execPath, argv, { stdio: ['inherit', 'pipe', 'pipe'], cwd: WORK, env: { ...process.env, ...step.env, VAWE_VERB_NOTES: call.notes } });
     let stderr = '';
-    child.stdout.on('data', (d) => { process.stdout.write(d); if (call.stdout.length < MAX_SCAN) call.stdout += d; });
+    child.stdout.on('data', (d) => { process.stdout.write(d); if (call.stdout.length < MAX_SCAN) call.stdout += d; if (call.all.length < MAX_SCAN) call.all += d; });
     child.stderr.on('data', (d) => { stderr += d; });
     child.on('close', (code, signal) => {
       const clean = stripChromeNoise(stderr);
       process.stderr.write(clean);
       call.stderr = clean;
+      call.all += clean;
       const hint = code === 0 ? null : doctorHintFromFile(ROOT, stderr);
       if (hint) console.error(hint);
       resolve({ code: code ?? 1, signal });
@@ -66,7 +67,7 @@ async function execute(verb, rest, call) {
   const named = verb.defaultRef && !values.ref && !values.alone ? defaultRefFor(verb.defaultRef(values, positional), { root: ROOT }) : null;
   if (named) {
     values.ref = named.file;
-    console.log(`ref: ${named.id}, named in the brief (${named.file}); pass --ref to use another`);
+    say(call, `ref: ${named.id}, named in the brief (${named.file}); pass --ref to use another`);
   }
   const steps = verb.build ? verb.build(values, positional) : null;
   applyRenderEnv(verb, values, steps);
@@ -86,36 +87,42 @@ async function startFilm(values, name, call) {
   const exists = fs.existsSync(path.join(WORK, 'films', name, 'page.html'));
   if (site && exists) {
     const ignored = ['request', 'from', 'length', 'aspect', 'title', 'answers', 'detail', 'defaults'].filter((f) => values[f] !== undefined);
-    if (ignored.length) console.log(`films/${name} exists: only the capture runs; ${ignored.map((f) => `--${f}`).join(', ')} ignored`);
+    if (ignored.length) say(call, `films/${name} exists: only the capture runs; ${ignored.map((f) => `--${f}`).join(', ')} ignored`);
   } else {
     const footage = values.footage ? await gatherFootage(WORK, name, values.footage) : null;
-    if (footage) console.log(`footage: ${footage.clips.length} clips in films/${name}/footage/, log in ${footage.log}; Read the log and its contact sheets before the Cut list`);
+    if (footage) say(call, `footage: ${footage.clips.length} clips in films/${name}/footage/, log in ${footage.log}; Read the log and its contact sheets before the Cut list`);
     const made = newFilm(name, { from: values.from, fromUrl: values['from-url'], siteWhere: site?.where, footage: footage?.clips, root: ROOT, work: WORK, length: values.length, aspect: values.aspect, title: values.title, request: values.request, details: readDetails(values), defaults: values.defaults });
     if (!made.asked) {
       appendRun(name, newEvent({ template: made.template, length: made.length, answered: made.answered, guessed: made.guesses, ranges: made.ranges }), { root: WORK });
     }
-    console.log(newFilmLines(name, { ...made, fromUrl: values['from-url'] }).join('\n'));
+    say(call, newFilmLines(name, { ...made, fromUrl: values['from-url'] }).join('\n'));
     const missing = made.asked ? null : toolProbeLine(ROOT);
     if (missing) console.error(missing);
     for (const line of recentFailedShipLines(readAllRuns(path.join(WORK, 'out')), Date.now())) console.error(line);
     if (made.asked || !site) return 0;
   }
   const code = stepCode(await runStep(site, call), call);
-  if (code === 0) console.log(`captured: ${site.where}: ${values.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html)' : 'Read each PNG at full size, then name the frames you take in "Taken from"'}`);
+  if (code === 0) say(call, `captured: ${site.where}: ${values.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html)' : 'Read each PNG at full size, then name the frames you take in "Taken from"'}`);
   return code;
 }
 
 async function runSteps(verb, values, positional, steps, call, startedMs, rest) {
   for (const [i, step] of steps.entries()) {
-    if (step.label) console.log(`\n[${verb.name} ${i + 1}/${steps.length}: ${step.label}]`);
+    if (step.label) say(call, `\n[${verb.name} ${i + 1}/${steps.length}: ${step.label}]`);
     const code = stepCode(await runStep(step, call), call);
-    if (code !== 0 && step.advice && !call.signal) { console.log(`  advice: this step reported a mismatch (exit ${code}); ${verb.name} goes on`); continue; }
+    if (code !== 0 && step.advice && !call.signal) { say(call, `  advice: this step reported a mismatch (exit ${code}); ${verb.name} goes on`); continue; }
     if (code !== 0) return code;
   }
-  if (typeof verb.report === 'function') console.log(verb.report(values, positional, startedMs).join('\n'));
+  if (typeof verb.report === 'function') say(call, verb.report(values, positional, startedMs).join('\n'));
   const next = verb.next && !verb.nextInline ? verb.next(values, positional) : null;
-  if (next) console.log(`\n${nextSeen(filmOfRun(verb.name, call, rest).film, { next }, { root: WORK, sessionId: process.env.CLAUDE_CODE_SESSION_ID ?? null }) ? NEXT_UNCHANGED : `next: ${next}`}`);
+  if (next) say(call, `\n${nextSeen(filmOfRun(verb.name, call, rest).film, { next }, { root: WORK, sessionId: process.env.CLAUDE_CODE_SESSION_ID ?? null }) ? NEXT_UNCHANGED : `next: ${next}`}`);
   return 0;
+}
+
+/** Prints a line of bin/vawe's own, and keeps it for the result file. */
+function say(call, text) {
+  console.log(text);
+  call.all += `${text}\n`;
 }
 
 function stepCode({ code, signal }, call) {
@@ -155,7 +162,18 @@ function record(verb, rest, call, code, reason, endMs, alias = null) {
   }
 }
 
-const bareCall = () => ({ startMs: Date.now(), positional: [], stdout: '', stderr: '', signal: null, notes: '', help: false, usage: false });
+const bareCall = () => ({ startMs: Date.now(), positional: [], stdout: '', all: '', stderr: '', signal: null, notes: '', help: false, usage: false });
+
+/** With VAWE_RESULT set, writes what this call returned as JSON for a caller that reads data, not text. */
+function writeResult(verbName, call, code, reason) {
+  const file = process.env.VAWE_RESULT;
+  if (!file) return;
+  try {
+    fs.writeFileSync(file, JSON.stringify(resultOf({ verb: verbName, code, reason, text: call.all, work: WORK })));
+  } catch (e) {
+    console.error(`vawe: could not write VAWE_RESULT: ${e.message}`);
+  }
+}
 
 const quietFooter =(rest) => rest.includes('--json') || rest.includes('--questions-json');
 
@@ -173,6 +191,7 @@ async function runDevAlias(name, rest) {
   const reason = code === 0 ? null : reasonOf({ code, signal, stderr: call.stderr });
   call.usage = code === EXIT.USAGE;
   record({ name }, rest, call, code, reason, endMs, name);
+  writeResult(name, call, code, reason);
   if (!quietFooter(rest)) console.log(footerLine({ verb: name, code, reason, seconds: (endMs - call.startMs) / 1000 }));
   process.exitCode = code;
 }
@@ -196,6 +215,7 @@ async function main(args) {
       console.error(`vawe: ${e.message}`);
       console.log(footerLine({ verb: alias, code: EXIT.USAGE, reason: e.message, seconds: 0 }));
       record({ name: alias }, rest, { ...bareCall(), usage: true }, EXIT.USAGE, e.message, Date.now(), alias);
+      writeResult(alias, bareCall(), EXIT.USAGE, e.message);
       process.exitCode = EXIT.USAGE;
       return;
     }
@@ -210,11 +230,13 @@ async function main(args) {
     console.error(`vawe: ${message}`);
     console.log(footerLine({ verb: name, code: EXIT.USAGE, reason: `unknown verb ${name}`, seconds: 0 }));
     record({ name }, rest, { ...bareCall(), usage: true }, EXIT.USAGE, `unknown verb ${name}`, Date.now());
+    writeResult(name, bareCall(), EXIT.USAGE, `unknown verb ${name}`);
     process.exitCode = EXIT.USAGE;
     return;
   }
   if (rest.includes('--help') || rest.includes('-h')) {
     record(verb, rest, { ...bareCall(), help: true, positional: rest.filter((a) => !a.startsWith('-')) }, 0, null, Date.now(), alias);
+    writeResult(verb.name, bareCall(), 0, null);
     return console.log(verbHelp(verb));
   }
   const untagged = untaggedLine(verb.name);
@@ -243,6 +265,7 @@ async function main(args) {
   }
   const endMs = Date.now();
   record(verb, rest, call, code, reason, endMs, alias);
+  writeResult(verb.name, call, code, reason);
   fs.rmSync(dir, { recursive: true, force: true });
   if (!quietFooter(rest)) console.log(footerLine({ verb: verb.name, code, reason, seconds: (endMs - call.startMs) / 1000 }));
   process.exitCode = code;

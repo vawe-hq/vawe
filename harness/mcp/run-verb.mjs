@@ -1,41 +1,50 @@
-// Runs one bin/vawe verb as a child process and reads what it printed: the footer, the next: line, the image paths.
+// Runs one bin/vawe verb as a child process and reads its result file (VAWE_RESULT), not its printed text.
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { ENGINE, WORK } from '../lib/workspace.mjs';
-import { imagesIn } from '../lib/verb-log.mjs';
 
-const FOOTER = /^vawe: (\S+) (ok|FAILED)(?: \((.*)\))? in [\d.]+s$/m;
 const MAX_OUTPUT = 3000;
 const LIMIT_MS = 30 * 60 * 1000;
 
-/** Parses a verb's stdout and stderr: { ok, reason, next, images, output }. Images are absolute paths. */
-export function readVerbOutput(text, work = WORK) {
-  const footer = FOOTER.exec(text);
-  const next = /^next: (.*)$/m.exec(text);
-  return {
-    ok: footer?.[2] === 'ok',
-    reason: footer?.[3] ?? null,
-    next: next?.[1] ?? null,
-    images: imagesIn(text).map((p) => (path.isAbsolute(p) ? p : path.join(work, p))),
-    output: text.length > MAX_OUTPUT ? `...${text.slice(-MAX_OUTPUT)}` : text,
-  };
+/** The result bin/vawe wrote: { ok, verb, reason, next, images, files, exitCode }, or null when it wrote none (killed, or died before the end). */
+export function readResult(file) {
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (e) {
+    if (e.code === 'ENOENT' || e instanceof SyntaxError) return null;
+    throw e;
+  }
 }
 
-/** Runs `bin/vawe <args>` in the workspace. VAWE_AGENT is passed through, and defaults to "mcp" so the run log names the caller. */
+/** Runs `bin/vawe <args>` in the workspace: { code, ok, reason, next, images, files, output }. VAWE_AGENT is passed through, and defaults to "mcp" so the run log names the caller. */
 export function runVerb(args, { work = WORK, env = process.env } = {}) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-result-'));
+  const file = path.join(dir, 'result.json');
   return new Promise((resolve) => {
     const child = spawn(process.execPath, [path.join(ENGINE, 'bin', 'vawe'), ...args], {
       cwd: work,
-      env: { ...env, VAWE_AGENT: env.VAWE_AGENT || 'mcp' },
+      env: { ...env, VAWE_AGENT: env.VAWE_AGENT || 'mcp', VAWE_RESULT: file },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let text = '';
     child.stdout.on('data', (d) => { text += d; });
     child.stderr.on('data', (d) => { text += d; });
     const timer = setTimeout(() => child.kill('SIGTERM'), LIMIT_MS);
-    child.on('close', (code) => {
+    child.on('close', (code, signal) => {
       clearTimeout(timer);
-      resolve({ code: code ?? 1, ...readVerbOutput(text, work) });
+      const result = readResult(file);
+      fs.rmSync(dir, { recursive: true, force: true });
+      resolve({
+        code: code ?? 1,
+        ok: result?.ok ?? false,
+        reason: result ? result.reason : `killed by ${signal ?? 'a signal'} before it wrote a result`,
+        next: result?.next ?? null,
+        images: result?.images ?? [],
+        files: result?.files ?? [],
+        output: text.length > MAX_OUTPUT ? `...${text.slice(-MAX_OUTPUT)}` : text,
+      });
     });
   });
 }

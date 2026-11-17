@@ -1,10 +1,13 @@
 // One log entry and one last output line per `bin/vawe` call. Pure: bin/vawe owns the process and the clock.
 import fs from 'node:fs';
+import path from 'node:path';
 import { filmKeyOf, namedAgent, agentId, modelId } from './runlog.mjs';
 import { EXIT, EXIT_CAUSE, BROWSER_LOST } from './exit-codes.mjs';
 
 export const UNFILED = '_unfiled';
-const IMAGE = /(?:^|[\s(`"'=])((?:~\/|\/|\.\/|[\w.-]+\/)[^\s`"')|]*\.(?:png|jpe?g|webp))(?=$|[\s)`"'|,;:])/gi;
+const pathsOf = (ext) => new RegExp(`(?:^|[\\s(\`"'=])((?:~\\/|\\/|\\.\\/|[\\w.-]+\\/)[^\\s\`"')|]*\\.(?:${ext}))(?=$|[\\s)\`"'|,;:])`, 'gi');
+const IMAGE = pathsOf('png|jpe?g|webp');
+const FILE = pathsOf('mp4|webm|html|md|json');
 const MAX_IMAGES = 20;
 const MAX_REASON = 260;
 
@@ -19,8 +22,17 @@ export function filmOfCall(verb, positional, args = []) {
 
 /** The image paths a verb printed for the agent to Read, in order, once each. */
 export function imagesIn(text) {
+  return firstPaths(text, IMAGE);
+}
+
+/** The mp4, webm, html, md and json paths a verb printed, in order, once each. */
+export function filesIn(text) {
+  return firstPaths(text, FILE);
+}
+
+function firstPaths(text, re) {
   const seen = new Set();
-  for (const m of String(text).matchAll(IMAGE)) {
+  for (const m of String(text).matchAll(re)) {
     seen.add(m[1]);
     if (seen.size >= MAX_IMAGES) break;
   }
@@ -56,6 +68,20 @@ export function untaggedLine(verb, env = process.env) {
   if (!TAGGED_VERBS.has(verb)) return null;
   const unset = [!namedAgent(agentId(env)) && 'VAWE_AGENT', !modelId(env) && 'VAWE_MODEL'].filter(Boolean);
   return unset.length ? `vawe: ${unset.join(' and ')} not set, so the run log cannot tell this call from another agent's; export VAWE_AGENT=<name> VAWE_MODEL=<model>` : null;
+}
+
+/** What a call returned, as data: the fields bin/vawe prints as text, with paths made absolute against `work`. */
+export function resultOf({ verb, code, reason = null, text = '', work }) {
+  const absolute = (p) => (path.isAbsolute(p) ? p : path.join(work, p));
+  return {
+    ok: code === 0,
+    verb,
+    reason: code === 0 ? null : reason,
+    next: /^next: (.*)$/m.exec(text)?.[1] ?? null,
+    images: imagesIn(text).map(absolute),
+    files: filesIn(text).map(absolute),
+    exitCode: code,
+  };
 }
 
 const tenths = (s) => Math.round(s * 10) / 10;
