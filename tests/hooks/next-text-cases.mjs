@@ -15,6 +15,8 @@ const nextLines = (lines) => lines.filter((l) => l.startsWith('next:')).join('\n
 
 /** The text of every producer, keyed by a stable name. */
 export function cases() {
+  // `refs list` names a different step when the machine has reference films: fix the folder so CI and a laptop agree.
+  process.env.VAWE_REFS_DIR = '/nonexistent/vawe-refs';
   const out = {};
   const put = (k, v) => { out[k] = v; };
   const say = {
