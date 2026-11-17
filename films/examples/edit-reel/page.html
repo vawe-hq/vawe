@@ -30,7 +30,7 @@
   [data-aspect="9:16"] h1 { font-size: calc(var(--vw) * 0.13); }
   video { position: absolute; left: 0; top: 0; width: 100%; height: calc(100% - var(--band)); object-fit: contain; }
   .lower { position: absolute; left: calc(var(--vw) * 0.07); right: calc(var(--vw) * 0.07); bottom: calc(var(--vh) * 0.055); height: calc(var(--band) - var(--vh) * 0.055); margin: 0; display: flex; align-items: center;
-           font-size: calc(var(--vh) * 0.065); font-weight: 600; letter-spacing: -0.02em; }
+           font-size: calc(var(--vh) * 0.09); font-weight: 600; letter-spacing: -0.02em; }
 </style>
 <script type="module">
 import { enter, leave, EASE } from '../../../core/motion/presets.js';
@@ -63,7 +63,7 @@ leave(card.querySelector('h1'), { end: beat(2) });
 worlds.forEach((world, i) => {
   const lower = world.querySelector('.lower');
   if (!lower) return;
-  enter(lower, { at: beat(i + 1) + 0.4, from: '-0.6em 0' });
+  enter(lower, { at: beat(i + 1) + 0.4, from: '-0.6em 0', ease: i % 2 ? 'nudge' : undefined });
   leave(lower, { end: beat(i + 2) - 0.06 });
 });
 </script>
