@@ -12,5 +12,5 @@ Loop: `vawe_new_film`, `vawe_refs` (study before you design), `vawe_write_doc` (
 - Look at every frame image at full size with Read. A tool's pass does not mean the film looks right: you judge the picture.
 - Fix what the first draft names in one round, then go on.
 - The critique runs in its own session. Never judge your own page.
-- Show the draft, end with "If you like it, type /vawe-approve", and stop. Only the person approves. Never call `vawe_ship` before that.
+- Show the draft, end with "If you like it, type /vawe-agent:approve", and stop. Only the person approves. Never call `vawe_ship` before that.
 - If no tool does what the film needs, say so in your report.
