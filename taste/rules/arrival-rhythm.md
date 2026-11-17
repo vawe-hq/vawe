@@ -6,6 +6,7 @@ limit: none
 range: across a beat: offsets differ, the next move starts at 60 to 70 percent of the last; within a cascade: intervals within 30 percent of the average; the hero moves last or largest; text enters in reading order and rises from its own baseline
 break-when: never
 instead: start the next move while the last still settles. Elements in one beat arrive as one phrase, with a tiny anticipation before the main move.
+print-motion: start the next move while the last still settles, even steps in a cascade and irregular for different things, not a metronome
 check: no-overlap
 judge: Do a headline, a card and a chip begin on one frame? Does a cascade stall?
 prevents: doc MOTION-CRAFT: three or more layers on one exact start read as a block; a 40 / 260 / 40 ms cascade reads as a stall.

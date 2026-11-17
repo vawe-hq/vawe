@@ -7,12 +7,68 @@
     "text": "choose the hero on purpose, not an attractor: a glowing circle or orb, a dusk sun or crescent, a light-poetry name like Vesper"
    },
    {
+    "rule": "beat-cause",
+    "text": "name the act that causes each change (\"the cursor hits Send on the card\"), not \"then\" or \"it cuts to\""
+   },
+   {
+    "rule": "beat-earns-time",
+    "text": "give each beat a role, a persuasion move and a feeling arc, and cut a beat with none, not a beat kept for filler"
+   },
+   {
+    "rule": "claim-backed",
+    "text": "show on screen every claim the copy makes in the same beat, or cut it, not \"26 looks\" with fewer than 26 on screen"
+   },
+   {
+    "rule": "legible-effect",
+    "text": "enlarge, lengthen or cut an effect the viewer cannot see at its real size and time, not a glow on dark content or a 0.4 s blinds wipe"
+   },
+   {
+    "rule": "motion-register",
+    "text": "write the motion register in the brief before the restraint level, not a hype film where every beat moves the same way"
+   },
+   {
+    "rule": "name-three-reject-first",
+    "text": "name three ways to do each beat and reject the first, not rise plus fade as the default"
+   },
+   {
+    "rule": "no-inventory",
+    "text": "map each piece of product material to a beat and leave out what maps to none, not every fact in the film"
+   },
+   {
+    "rule": "owner-decides",
+    "text": "follow the font, type size, UI scale and camera the film declares in DESIGN.md under \"## Declared\", not a house default"
+   },
+   {
+    "rule": "show-real-thing",
+    "text": "show a real artifact working in each beat (the real UI or the brand's own world), not a word in a box"
+   },
+   {
+    "rule": "style-not-content",
+    "text": "take the reference's style (grammar, light, type, moves) and rebuild it with your own subject, not its text, logos or photos"
+   },
+   {
     "rule": "thread",
     "text": "pick one thread that carries through (an object, a type line, a colour or a rhythm), not separate reveals one after another"
    },
    {
     "rule": "three-materials",
     "text": "draw three directions from different materials (type, paper, liquid, cut geometry, photograph, UI, light), not three colours of one idea; at most one is light"
+   },
+   {
+    "rule": "licensed-assets",
+    "text": "embed only assets you may publish and capture the real product UI, not copyrighted posters, stills, news photos or music"
+   },
+   {
+    "rule": "theme-source",
+    "text": "take the theme from the brand site, ask when the prompt is bare, and invent one on purpose for \"you choose\", not plain grey"
+   },
+   {
+    "rule": "visual-style-one",
+    "text": "pick one visual style as the register and justify it from the brand's own site, not a mix of styles"
+   },
+   {
+    "rule": "music-licence",
+    "text": "use only CC0 or CC BY music you can show a licence for and log it in assets/music/credits.json, not CC ND or CC NC"
    }
   ]
  },
@@ -20,16 +76,60 @@
   "title": "frames",
   "lines": [
    {
+    "rule": "no-emdash-on-screen",
+    "text": "use a comma, a period or a middle dot in on-screen text, not an em dash"
+   },
+   {
     "rule": "accent-share",
     "text": "keep the accent on one thing, not a full-frame flood"
+   },
+   {
+    "rule": "archetype-rotation",
+    "text": "pick the layout by what the beat does and change three or more of layout, scale, value, ground, hue and motion between neighbours, not the same archetype twice"
+   },
+   {
+    "rule": "asymmetry",
+    "text": "compose asymmetric with one hero anchored to an edge or a third, not a centred 6/6 split"
    },
    {
     "rule": "first-frame",
     "text": "show the subject by 0.1 s, not an empty ground for the first half second"
    },
    {
+    "rule": "graphic-is-subject",
+    "text": "give a graphic that carries a beat at least 8 percent of the canvas and demote the type to a caption, not a mark-sized graphic"
+   },
+   {
+    "rule": "ground-hue",
+    "text": "turn the ground to a second hue family from the palette in two or more worlds, not three shots within a 40 degree hue span"
+   },
+   {
+    "rule": "hero-plus-proof",
+    "text": "pair the hero claim with a smaller proof in any beat held over 3 s, with 2 to 5 decoratives, not a big word centred on empty space"
+   },
+   {
+    "rule": "hierarchy",
+    "text": "make one element dominant by scale (hero 60 to 80 percent of the width, small caption) and soften the support, not three medium lines"
+   },
+   {
+    "rule": "icon-family",
+    "text": "show a company's mark whenever it is named and keep one icon family, not a text-only list of named things"
+   },
+   {
+    "rule": "image-source-order",
+    "text": "use the lightest visual that carries the meaning, a clean gradient before a photo, not an image on a beat that reads fine on a plain field"
+   },
+   {
+    "rule": "image-treatment",
+    "text": "treat each image by its job with the lightest treatment that works, not a raw flat screenshot or an over-graded one"
+   },
+   {
     "rule": "living-ground",
     "text": "put soft colour blobs behind the content, not one flat fill"
+   },
+   {
+    "rule": "logo-prominence",
+    "text": "size the logo mark at 5 percent of the frame height or more, with real weight on the end card, not a logo as punctuation"
    },
    {
     "rule": "one-focal-point",
@@ -44,8 +144,52 @@
     "text": "set a read line at a 6% cap height (UI that is the subject, in data-ui: 3%) and hold it 0.6 s a word from 4 words (a 4 word tagline 2.4 s), fewer words max(1.2 s, words/3), not a small tagline that flashes by"
    },
    {
+    "rule": "real-optics",
+    "text": "draw bloom, fringe, focus and flares with the lens surface, not a CSS blur or radial gradient that imitates one"
+   },
+   {
+    "rule": "safe-margin",
+    "text": "keep essential content inside the inner 90 percent of the frame, checked on the real box after layout, not in the margin"
+   },
+   {
+    "rule": "shared-edges",
+    "text": "snap text blocks to at most three left edges in one frame, not a new edge for each block"
+   },
+   {
+    "rule": "surface-spec",
+    "text": "lock a bespoke surface in one page of tokens before you author it and check the frame against it, not a silent swap of palette, family or radius"
+   },
+   {
+    "rule": "text-contrast",
+    "text": "set a headline on a flat patch with 3:1 contrast for large text and 4.5:1 for body, not on a moving blob or gradient hot spot"
+   },
+   {
+    "rule": "type-scale",
+    "text": "use three text sizes (hero, support, label) with at most six in a frame, not many near sizes"
+   },
+   {
+    "rule": "type-setting",
+    "text": "set display type tight (letter-spacing -0.03em) and body type open at a 45 to 75 character measure, not one tracking for both"
+   },
+   {
     "rule": "typeface-default",
     "text": "use the kit's face and ground or a face the direction chose, not Inter or Space Grotesk by habit"
+   },
+   {
+    "rule": "typeface-system",
+    "text": "use one to three faces, each with a role, and recolour at the same weight to emphasise, not a heavier bold or a second expressive face"
+   },
+   {
+    "rule": "value-dominance",
+    "text": "follow the brand hero's value, light site light-first and dark site dark-first, with 2 px or heavier borders on light, not a swapped dark design"
+   },
+   {
+    "rule": "weight-contrast",
+    "text": "use the full 100 to 900 weight range for hierarchy, light against black, not size alone or thin weights that shimmer"
+   },
+   {
+    "rule": "whitespace",
+    "text": "name what each empty area does in one clause, and enlarge the subject when the gap is passive, not a leftover gap between two things"
    },
    {
     "rule": "word-colour",
@@ -56,6 +200,22 @@
  "storyboard": {
   "title": "storyboard",
   "lines": [
+   {
+    "rule": "cta-last-short",
+    "text": "make the CTA the shortest scene, 3 to 5 s with one action, and keep the world moving under it, not a faded or frozen end card"
+   },
+   {
+    "rule": "hook-payoff",
+    "text": "pose the question in the first 3 s (at most 12 words) and show the payoff late, from 77 percent of the runtime, not the best fact in the hook"
+   },
+   {
+    "rule": "scene-budget",
+    "text": "size the scene count to the runtime (5 to 7 scenes in 30 s) and vary scene length, 3 to 7 s, not equal scenes"
+   },
+   {
+    "rule": "shot-length-varies",
+    "text": "alternate punchy shots (0.8 to 1.5 s) with breathing shots (2 to 3 s), and keep a clip 1.2 s or longer, not one cut length"
+   },
    {
     "rule": "readable-hold",
     "text": "hold a line of 4 or more words 0.6 s per word once settled (a 4 word line 2.4 s), fewer words max(1.2 s, words / 3), and take it off when read plus 1.5 s, not hold it for the beat"
@@ -69,12 +229,44 @@
     "text": "turn the world every 1 to 2 s (a new element, a cut, a ground swap), not one lockup held"
    },
    {
+    "rule": "camera-path-linear",
+    "text": "fly the camera through one space at constant speed on interior legs and ease only at the ends, not an eased stop at every waypoint"
+   },
+   {
     "rule": "crossfade-limit",
     "text": "cut, wipe on the motion or match a shape, not a muddy crossfade"
    },
    {
+    "rule": "cut-on-beat",
+    "text": "cut on the beat or two frames early on a completed action, not in a dead hold"
+   },
+   {
     "rule": "eye-trace",
     "text": "land the next subject where the eye was (within 0.3 of the frame diagonal), not across the frame"
+   },
+   {
+    "rule": "ground-jump-cover",
+    "text": "cover a ground jump (dark to light) with a colour that peaks at the cut, not a full-bleed fade-out flash"
+   },
+   {
+    "rule": "hard-cut-default",
+    "text": "make the hard cut the default seam and earn 2 to 3 transition accents by meaning, not a transition on every seam"
+   },
+   {
+    "rule": "match-cut-align",
+    "text": "align the two silhouettes before a match cut, not a match cut with no real rhyme"
+   },
+   {
+    "rule": "paired-exit-direction",
+    "text": "pair each directional entrance with an exit that continues the same line of travel, not an element that enters and retreats"
+   },
+   {
+    "rule": "seam-meaning",
+    "text": "give each seam a reason (relationship and feeling across it) or use a hard cut, not \"it looks smoother\""
+   },
+   {
+    "rule": "seam-timing",
+    "text": "time each seam by its type (whip 0.27 to 0.4 s, slide 0.5 to 1 s, fade 0.66 to 1.33 s) and end the outgoing text at the seam, not a double blend"
    },
    {
     "rule": "seam-variety",
@@ -85,6 +277,30 @@
  "motion": {
   "title": "motion",
   "lines": [
+   {
+    "rule": "anticipation",
+    "text": "give a hero move a small opposite wind-up (2 to 4 percent dip), not an anticipation on every move"
+   },
+   {
+    "rule": "arrival-rhythm",
+    "text": "start the next move while the last still settles, even steps in a cascade and irregular for different things, not a metronome"
+   },
+   {
+    "rule": "blur-follows-motion",
+    "text": "blur only what moves fast and echo the glyph outline for type, not a blurred still"
+   },
+   {
+    "rule": "blur-out-dense",
+    "text": "blur out and fade faces, cards and dense grids on exit, not a slide of many elements at once"
+   },
+   {
+    "rule": "cause-first",
+    "text": "put each effect on the frame after its cause (press, then the answer; the sound on its own action), not before it"
+   },
+   {
+    "rule": "constant-camera",
+    "text": "hold the camera still and give the hold an element motion, moving it for at most 60 percent of the film and 4 worlds in a row, not a drift on every beat"
+   },
    {
     "rule": "entrance-ease",
     "text": "land an entrance on EASE.land with most of the move shown by frame 1, not a slow-start ease-in or a scale(0) start"
@@ -98,12 +314,20 @@
     "text": "exit shorter than the entrance on EASE.launch, not an exit as long as its entrance"
    },
    {
+    "rule": "follow-through",
+    "text": "finish a trailing property 0.05 to 0.15 s after the main one (scale after position, shadow after card), not everything ending on one frame"
+   },
+   {
     "rule": "live-hold",
     "text": "keep one part moving in every hold (typing, a counter, glint() or breathe() from core/motion/alive.js), not a frozen frame and not a camera drift"
    },
    {
     "rule": "named-eases",
     "text": "take curves from EASE names (or a sampled spring), not a CSS keyword or a hand-fitted cubic-bezier"
+   },
+   {
+    "rule": "one-hero-motion",
+    "text": "let one element own the motion of a beat and the rest support quietly, one claim per element, not rise plus rotate on one object"
    },
    {
     "rule": "overshoot",
@@ -114,12 +338,20 @@
     "text": "sample a spring or exponential with 8 or more stops, not one cubic-bezier sold as physics"
    },
    {
+    "rule": "spectacle-weak",
+    "text": "give the spectacle second the fastest or longest move of the film, with quiet before it, not a stronger peak elsewhere"
+   },
+   {
     "rule": "speed-bands",
     "text": "put each move in a speed band with the slowest move 3x the fastest and the fastest under 12 frame heights a second, not every move at one duration"
    },
    {
     "rule": "stagger",
     "text": "stagger a group 30 to 80 ms, not a group that lands on one frame"
+   },
+   {
+    "rule": "sound-bridge",
+    "text": "run audio across a picture change with a 0.35 s equal-power crossfade, not two sounds butted together"
    }
   ]
  },

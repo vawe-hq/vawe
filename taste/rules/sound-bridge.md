@@ -6,6 +6,7 @@ limit: none
 range: J-cut: the next scene's audio starts 0.4 to 0.8 s before the cut with data-fade-in; L-cut: the old audio runs past the cut with data-fade-out; fade both ends by about 0.35 s
 break-when: the film is deliberately silent (say why in the brief)
 instead: never butt two sounds; use an equal-power crossfade.
+print-motion: run audio across a picture change with a 0.35 s equal-power crossfade, not two sounds butted together
 check: none
 judge: Does any sound cross a cut?
 prevents: doc SOUND and FILM-STRUCTURE: a film that ships silent gives up the sound bridge, one of the cheapest continuity devices.

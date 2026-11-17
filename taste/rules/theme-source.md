@@ -6,6 +6,7 @@ limit: none
 range: none
 break-when: never
 instead: ask for a reference or a theme when none is given; take the palette seed from the brief's Design system section. Never fall back to plain grey.
+print-explore: take the theme from the brand site, ask when the prompt is bare, and invent one on purpose for "you choose", not plain grey
 check: none
 judge: Does the film's theme trace to the brand site or to a stated choice?
 prevents: owner ruling (CONTENT.md): every design decision traces to the brand's real site, not to your defaults.

@@ -6,6 +6,7 @@ limit: none
 range: CTA scene 3 to 5 s, one action
 break-when: never
 instead: keep the world moving under the end card (see moving-tail).
+print-storyboard: make the CTA the shortest scene, 3 to 5 s with one action, and keep the world moving under it, not a faded or frozen end card
 check: none
 judge: Is there exactly one action on the end card?
 prevents: doc STORY.md: the CTA fades out, or the last word sits over an emptied plate.

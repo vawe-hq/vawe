@@ -6,6 +6,7 @@ limit: three or more shots whose ground stays within one 40 degree hue family
 range: the reference films change the ground at about half of their cuts; a ground that turns is a new hue, a new value or a new light, not the same hue made lighter or darker
 break-when: one colour world is the idea (a mono film): declare ground-hue in the page with a reason that names the hue degrees and the seconds
 instead: give two or more worlds a ground in another hue family, taken from the palette, and let the accent carry the thread. The reference's own changes are in the line the draft prints (bin/vawe refs frames <id> shows its palette per shot).
+print-frames: turn the ground to a second hue family from the palette in two or more worlds, not three shots within a 40 degree hue span
 check: ground-hue
 judge: Does the ground only get lighter and darker in one hue, while the references turn it?
 prevents: colour scored 6 or 7 in four films (crave, moths, moths-3d, flower) with "one blue-grey scale" or "one red ramp" while the references turn the ground.

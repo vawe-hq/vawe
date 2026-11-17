@@ -6,6 +6,7 @@ limit: none
 range: hard cuts are 50 to 95 percent of seams, by pace: the fast end for a kinetic film, the low end for a calm one; one primary family for most seams plus 2 to 3 earned accents
 break-when: never
 instead: be able to say which meaning each accent serves, such as a tone flip or a time jump. Master a few: a dissolve, one momentum move, one zoom, a rare morph. Cut on the beat or two frames early. Use a dissolve for passing time, a fade for an act break, a whip for momentum, a zoom to enter a surface, a match cut for a hidden connection, a morph for a logo or one hero moment.
+print-storyboard: make the hard cut the default seam and earn 2 to 3 transition accents by meaning, not a transition on every seam
 check: judge
 judge: Name the family and the meaning of each accent. What does each visible transition mean? Could it be a hard cut?
 prevents: doc one-cut-family and SELECTION: mixing whip and iris is five fonts on a slide. doc TRANSITIONS and TASTE-RULES: a showy transition on every seam is the amateur tell; blur was not wrong as a primary, it was wrong as the only thing. The 95 percent figure is the fast end of the range, not a measured fact.

@@ -6,6 +6,7 @@ limit: a graphic that carries a beat covers at least 8 percent of the canvas (ab
 range: at least one carrying graphic in the film, on screen for at least a third of the runtime
 break-when: a film whose whole idea is type on a field, decided on purpose; a line that is none of the five claim shapes is fine as type
 instead: bring the picture forward and make the type a caption. A picture behind the content is scenery. Quantity: a bar whose length is the figure (a count-up beside it, never instead). Proportion: a ring, an arc, a filled grid. Change: a line or a before and after side by side. Flow: nodes and connectors that draw on. Real thing: a capture, a photo, a clipped screenshot.
+print-frames: give a graphic that carries a beat at least 8 percent of the canvas and demote the type to a caption, not a mark-sized graphic
 check: judge
 judge: Is one graphic large enough to be the subject of its beat, and on screen for a third of the film? Which claim is a quantity, proportion, change, flow or real thing set only in type?
 prevents: doc SHOW-DONT-TELL.md: a number in type is a word, a bar is a size the eye compares without reading; the missing 17 percent shows in a ring and hides in a numeral. A 60 px logo beside a headline is punctuation. Median film gave about 5 percent of its layers to picture.

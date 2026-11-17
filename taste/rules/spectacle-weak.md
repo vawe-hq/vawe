@@ -6,6 +6,7 @@ limit: no element peak elsewhere is more than 1.25 times the fastest peak within
 range: the spectacle second is the one big moment (recipe 15); quiet comes before it, so its move is the film's fastest or longest
 break-when: the spectacle is a held reveal, a sound or a colour change that needs no travel; say so in the brief and waive with the reason
 instead: give the second the Board names the fastest or longest move of the film, with quiet before it. The checks read the Board's Spectacle second, so moving the meta changes nothing.
+print-motion: give the spectacle second the fastest or longest move of the film, with quiet before it, not a stronger peak elsewhere
 check: spectacle-weak
 judge: Does the eye go to the spectacle second as the biggest moment of the film?
 prevents: films/tidepool: the hero chip at the spectacle second moved 0.29 frame heights per second while a strip at 4.8 s peaked at 5.0, so the big moment was one of the quietest.

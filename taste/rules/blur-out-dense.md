@@ -6,6 +6,7 @@ limit: none
 range: animate filter: blur() with opacity during the exit only
 break-when: a single simple shape may still slide
 instead: blur out and fade; the blur runs only during the exit itself.
+print-motion: blur out and fade faces, cards and dense grids on exit, not a slide of many elements at once
 check: judge
 judge: Does a dense layer slide out as one block of motion?
 prevents: doc blur-out-dense and DIRECTION: sliding 50 elements is chaos.

@@ -6,6 +6,7 @@ limit: none
 range: align centres and boxes to within a few pixels and match rotation; overlap 1 to 2 frames to hide a residual gap; 20 px apart reads as a jump
 break-when: the two things are unrelated: do not match them
 instead: cut cleanly, or find the real rhyme.
+print-storyboard: align the two silhouettes before a match cut, not a match cut with no real rhyme
 check: none
 judge: Do the two silhouettes line up across the cut?
 prevents: doc AFTER-EFFECTS-TECHNIQUES: a forced rhyme reads as a trick.
