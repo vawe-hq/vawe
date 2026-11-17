@@ -5,6 +5,7 @@ canvas, three.js); if natural code fails, report it as a framework bug.
 
 ## Start
 
+- When the vawe tools (`vawe_status` and the rest) are available, use them and skip the stage recipes in this file: each tool reply gives the next step.
 - Node 22 or newer and ffmpeg. Run `npm install`. Chrome: `npx puppeteer browsers install chrome`.
 - `bin/vawe new <name> --request "<the ask>"` checks the tools (it prints the install line for each missing one) and writes `films/<name>/page.html`, a working starter, and `brief.md`. The first run turns on `.githooks`.
 - `bin/vawe dev films/<name>/page.html` renders a draft. `bin/vawe --help` lists the verbs; `bin/vawe <verb> --help` before first use. Every verb ends with `vawe: <verb> ok|FAILED (<reason>)` and names the `next:` step and the doc to read for it.
