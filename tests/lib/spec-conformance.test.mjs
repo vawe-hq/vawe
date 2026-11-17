@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { specTimes, settleTimes, unmeasuredWords, runStart, lineFor, findable, skippedWords, wordTimes, wordChecks, objectChecks, measuredSpec, cutChecks, cutSpans, checkLines, APPEAR_TOL_S, LAYOUT_TOL_PCT } from '../../harness/lib/spec-conformance.mjs';
+import { specTimes, settleTimes, unmeasuredWords, runStart, lineFor, findable, skippedWords, wordTimes, wordChecks, objectChecks, measuredSpec, cutChecks, cutSpans, checkLines, checkAdvice, APPEAR_TOL_S, LAYOUT_TOL_PCT } from '../../harness/lib/spec-conformance.mjs';
 
 const frame = { frameW: 1000, frameH: 500 };
 const word = { text: 'Ship it', appear: 1, settle: 1.5, cap: 8, x: 10, y: 40 };
@@ -112,6 +112,23 @@ test('wordChecks: x and y name the nearest of left, centre, right and top, middl
 test('wordChecks: a word really off its spec stays out on every edge', () => {
   const checks = wordChecks([{ ...ember, x: 60 }], [centred], { frameW: 1920, frameH: 1080 }, [{ appear: 0.53, settle: 0.97, whole: true }]);
   assert.deepEqual(checkLines(checks.filter((c) => c.unit === '%'), LAYOUT_TOL_PCT), ['"Ember" x (centre) at 0.97 s: spec 60.0%, film 50.0%']);
+});
+
+test('wordChecks: top and bottom are the ink (cap top, baseline) when the line carries its font metrics, so the font ascent never moves a word off its spec', () => {
+  const inked = { t: 0.97, lines: [], blocks: [{ text: 'Ember', fontPx: 259.2, ink: { top: 0.278, bottom: 0.255 }, box: [553, 306, 814, 324] }] };
+  const y = wordChecks([{ ...ember, y: 35 }], [inked], { frameW: 1920, frameH: 1080 }, [{ appear: 0.53, settle: 0.97, whole: true }]).at(-1);
+  assert.equal(y.label, '"Ember" y (top) at 0.97 s');
+  assert.ok(Math.abs(y.got - 35.0) < 0.05 && y.dev < 0.05, `${y.got}`);
+  const [bare] = wordChecks([{ ...ember, y: 28.3 }], [centred], { frameW: 1920, frameH: 1080 }, [{ appear: 0.53, settle: 0.97, whole: true }]).slice(-1);
+  assert.ok(bare.dev < 0.05, 'a line without ink falls back to its text box');
+});
+
+test('wordChecks: a miss names the CSS that closes it', () => {
+  const lunch = { t: 4.367, lines: [{ text: 'LUNCH.', fontPx: 388.8, box: [100, 400, 1500, 330] }], blocks: [] };
+  const checks = wordChecks([{ text: 'LUNCH.', appear: 3.6, cap: 30, x: 5.2, y: 40 }], [lunch], { frameW: 1920, frameH: 1080 }, [{ appear: 3.6, settle: 4.367, whole: false }]);
+  assert.match(checks.find((c) => c.label.includes('cap height')).fix, /from calc\(var\(--vh\) \* 0\.360\) to calc\(var\(--vh\) \* 0\.429\)/);
+  assert.match(checks.find((c) => c.label.includes('x (left)')).fix, /^move it left by calc\(var\(--vw\) \* 0\.000\)|^move it right by/);
+  assert.match(checkAdvice(checks.find((c) => c.label.includes('cap height'))), /^"LUNCH\." cap height at 4\.367 s: spec 30\.0%, film 25\.2%: set its font-size/);
 });
 
 test('settleTimes: one sample per distinct measured settle, none for a word that never rests', () => {

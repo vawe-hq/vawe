@@ -4,8 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { openPage, settle, resolveFrame } from '../../harness/media/render-page.mjs';
-import { visibleLines } from '../../harness/media/draft-check.mjs';
-import { DECORATIVE, CHROME, TEXTURE } from '../../harness/lib/draft-check.mjs';
+import { readLines } from '../../harness/media/draft-check.mjs';
 import { lineFor } from '../../harness/lib/spec-conformance.mjs';
 
 const PAGE = 'tests/fixtures/pages/decorative-text.html';
@@ -16,7 +15,7 @@ test('a line keeps its block id when lines before it come and go, wrapped text l
   try {
     await opened.page.goto(opened.url, { waitUntil: 'load' });
     await settle(opened.page);
-    const read = () => opened.page.evaluate(visibleLines, DECORATIVE, CHROME, false, TEXTURE);
+    const read = () => readLines(opened.page);
     const before = (await read()).lines;
     await opened.page.evaluate(() => { document.getElementById('early').style.visibility = 'hidden'; });
     const after = (await read()).lines;
@@ -36,7 +35,7 @@ test('a flex row is one line: tilted letters that touch are glued into one word,
   try {
     await opened.page.goto(opened.url, { waitUntil: 'load' });
     await settle(opened.page);
-    const { lines } = await opened.page.evaluate(visibleLines, DECORATIVE, CHROME, false, TEXTURE);
+    const { lines } = await readLines(opened.page);
     const [s, h, i, p] = ['S', 'H', 'I', 'P'].map((t) => lines.find((l) => l.text === t));
     assert.equal(new Set([s, h, i, p].map((l) => l.block)).size, 1);
     assert.deepEqual([s, h, i, p].map((l) => Boolean(l.glued)), [false, true, true, true]);
@@ -51,7 +50,7 @@ test('texture by measure is not probed and chrome texture is flagged; hidden tex
   try {
     await opened.page.goto(opened.url, { waitUntil: 'load' });
     await settle(opened.page);
-    const sample = await opened.page.evaluate(visibleLines, DECORATIVE, CHROME, false, TEXTURE);
+    const sample = await readLines(opened.page);
     const texts = sample.lines.map((l) => l.text);
     assert.ok(texts.includes('Read this'));
     assert.ok(!texts.some((t) => /invoices|flood/.test(t)), 'aria-hidden text with a texture reason must be skipped');
@@ -61,5 +60,19 @@ test('texture by measure is not probed and chrome texture is flagged; hidden tex
     assert.ok(!sample.lines.find((l) => l.text === 'Read this').chrome);
     assert.equal(lineFor(sample, 'Ship').text, 'Ship');
     assert.equal(lineFor(sample, 'Inbox (3)').text, 'Inbox (3)');
+  } finally { await opened.close(); }
+});
+
+test('text under an overflow clip counts only while the clip shows it, and a line carries the ink of its font unless it is turned', async () => {
+  const page = 'tests/fixtures/pages/clipped-text.html';
+  const opened = await openPage(page, resolveFrame(page, {}));
+  try {
+    await opened.page.goto(opened.url, { waitUntil: 'load' });
+    await settle(opened.page);
+    const { lines } = await readLines(opened.page);
+    assert.deepEqual(lines.map((l) => l.text), ['Shown inside', 'Tilted']);
+    const [shown, tilted] = lines;
+    assert.ok(shown.ink.top > 0 && shown.ink.top < 0.6 && shown.ink.bottom > 0 && shown.ink.bottom < 0.5, JSON.stringify(shown.ink));
+    assert.equal(tilted.ink, undefined);
   } finally { await opened.close(); }
 });

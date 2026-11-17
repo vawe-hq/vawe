@@ -2,7 +2,7 @@
 // from harness/media/acceptance-run.mjs, the brief's targets from brief-tables.mjs, and each number is
 // the one its own module already computes (still-limit, sheet-tiles, text-contrast, text-collision,
 // read-hold, motion-lint, peak-limit, smoothness, spec-conformance).
-import { LAYOUT_TOL_PCT, checkLine } from './spec-conformance.mjs';
+import { LAYOUT_TOL_PCT, checkAdvice } from './spec-conformance.mjs';
 import { RULES, loudnessFix } from './draft-check.mjs';
 import { PEAK_DBFS, loudestCue } from './peak-limit.mjs';
 import { DRAFT_MIN_RATIO } from './text-contrast.mjs';
@@ -65,7 +65,7 @@ function deviationRow(checks, pass, none, fmt, fix, guessed = 0) {
   if (!checks || !checks.length) return guessed ? skip('the rows are still template guesses: replace them with your numbers', 'not set') : skip(none);
   const worst = Math.max(...checks.map((c) => c.dev));
   const off = checks.filter((c) => !pass(c.dev));
-  return done(!off.length, worst === Infinity ? 'not found' : fmt(worst), off.length ? [...off.slice(0, SHOW).map(checkLine), fix] : []);
+  return done(!off.length, worst === Infinity ? 'not found' : fmt(worst), off.length ? [...off.slice(0, SHOW).map(checkAdvice), fix] : []);
 }
 
 // Each row reads its measure from `m`, a plain object the run fills; a key left out is "not measured".

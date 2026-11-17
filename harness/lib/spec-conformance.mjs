@@ -126,13 +126,27 @@ async function firstRest(seen, from, { dur, frame, fps = FPS }) {
   return null;
 }
 
-const X_ANCHORS = [['left', 0], ['centre', 0.5], ['right', 1]];
-const Y_ANCHORS = [['top', 0], ['middle', 0.5], ['bottom', 1]];
+/** A line's left, centre and right edge, and the top, middle and bottom of its ink (cap top to baseline, from the font's own metrics; the text box when the line is turned), in px. Pure. */
+export function lineAnchors(line) {
+  const [x, y, w, h] = line.box;
+  const [top, bottom] = line.ink ? [y + line.ink.top * line.fontPx, y + h - line.ink.bottom * line.fontPx] : [y, y + h];
+  return { x: [['left', x], ['centre', x + w / 2], ['right', x + w]], y: [['top', top], ['middle', (top + bottom) / 2], ['bottom', bottom]] };
+}
 
-/** Of a box's start, centre and end (px, in a frame `total` px long), the one nearest `spec` percent: { value, name } in percent. Pure. */
-function nearestAnchor(spec, start, size, total, anchors) {
-  const at = anchors.map(([name, f]) => ({ name, value: ((start + f * size) * 100) / total }));
+/** Of the anchors ([name, px]) in a frame `total` px long, the one nearest `spec` percent: { value, name, px } in percent. Pure. */
+function nearestAnchor(spec, anchors, total) {
+  const at = anchors.map(([name, px]) => ({ name, value: (px * 100) / total }));
   return at.reduce((a, b) => (Math.abs(b.value - spec) < Math.abs(a.value - spec) ? b : a));
+}
+
+const unit = (pct, axis) => `calc(var(--v${axis}) * ${(Math.abs(pct) / 100).toFixed(3)})`;
+
+/** The CSS change that closes the gap: a font-size for a cap, a shift along x or y. Pure. */
+function fixFor(key, spec, got, fontVh) {
+  const table = `, or write ${got.toFixed(1)} in the table if the film is right`;
+  if (key === 'cap') return `set its font-size from ${unit(fontVh * 100, 'h')} to ${unit((fontVh * 100 * spec) / got, 'h')}${table}`;
+  const [axis, plus, minus] = key === 'x' ? ['w', 'right', 'left'] : ['h', 'down', 'up'];
+  return `move it ${spec > got ? plus : minus} by ${unit(spec - got, axis)} (translate)${table}`;
 }
 
 /**
@@ -148,10 +162,11 @@ export function wordChecks(words, samples, { frameW, frameH }, times = []) {
     const t = times[i]?.settle;
     if (!has(t)) return;
     const line = lineFor(sampleAt(samples, round(t)), w.text, { whole: times[i].whole });
-    const add = (key, name, got) => has(w[key]) && out.push(check(`"${w.text}" ${name} at ${round(t)} s`, w[key], got, '%'));
+    const add = (key, name, got) => has(w[key]) && out.push({ ...check(`"${w.text}" ${name} at ${round(t)} s`, w[key], got, '%'), ...(got === null ? {} : { fix: fixFor(key, w[key], got, line.fontPx / frameH) }) });
     add('cap', 'cap height', line ? (RULES.capOfFont * line.fontPx * 100) / frameH : null);
-    for (const [key, anchors, at, total] of [['x', X_ANCHORS, [0, 2], frameW], ['y', Y_ANCHORS, [1, 3], frameH]]) {
-      const near = line && has(w[key]) ? nearestAnchor(w[key], line.box[at[0]], line.box[at[1]], total, anchors) : null;
+    const anchors = line && lineAnchors(line);
+    for (const [key, total] of [['x', frameW], ['y', frameH]]) {
+      const near = line && has(w[key]) ? nearestAnchor(w[key], anchors[key], total) : null;
       add(key, near ? `${key} (${near.name})` : key, near ? near.value : null);
     }
   });
@@ -224,6 +239,9 @@ export function checkLine(c) {
     ? `${c.label}: not found within the sampled window (spec ${fmt(c.spec, c.unit)})`
     : `${c.label}: spec ${fmt(c.spec, c.unit)}, film ${fmt(c.got, c.unit)}${c.frames ? ` (${c.dev.toFixed(1)} frames off)` : ''}`;
 }
+
+/** The advice line with the CSS change that closes the gap, when the check knows it. Pure. */
+export const checkAdvice = (c) => `${checkLine(c)}${c.fix ? `: ${c.fix}` : ''}`;
 
 /** One advice line per check outside `tol`. Pure. */
 export const checkLines = (checks, tol) => checks.filter((c) => c.dev > tol + 1e-9).map(checkLine);

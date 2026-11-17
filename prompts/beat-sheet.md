@@ -70,7 +70,8 @@ Column meanings:
 - **move in**, **move out**: the change and where it ends, and the transition to the next row.
   Adjacent rows change axis or direction. An end state you can picture is one you can check.
 - **camera**: static, push, pull, whip, tilt. One camera language per film.
-- **x %, y %**: the text box's left, centre or right (x) and top, middle or bottom (y), as a percent of the frame from its top left. The check takes the edge nearest your number: write 50 for a centred word.
+- **cap %**: the height of a capital letter as a percent of the frame height, 0.7 of the font size: cap 30 needs `font-size: calc(var(--vh) * 0.43)`.
+- **x %, y %**: the text box's left, centre or right (x) and cap top, middle or baseline (y; a turned word: its box top, middle, bottom), as a percent of the frame from its top left. The check takes the edge nearest your number: write 50 for a centred word.
 - Exposure and sound cues are not columns: write them as page literals. Exposure is ones (UI) or twos
   (a drawn look); a cue lands 30 ms before its frame.
 

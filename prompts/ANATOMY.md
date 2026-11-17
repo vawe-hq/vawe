@@ -71,7 +71,7 @@ the replacement. An unmarked line is a bug. Answers: the recreation loop (`promp
 ### 4. SPEC
 
 Three tables, fixed. Times are seconds. Sizes and positions are a percent of the frame from its top left: `cap %`
-of the frame height, `x %` the left, centre or right of the text box, `y %` its top, middle or bottom. The check takes
+of the frame height (the height of a capital letter, 0.7 of the font size: cap 30 needs `font-size: calc(var(--vh) * 0.43)`), `x %` the left, centre or right of the text box, `y %` the cap top, middle or baseline of its ink (a turned word: its box). The check takes
 the edge nearest your number, so write the one you laid out by (50 for a centred word). Each word is measured once, at
 the second its text first holds still fully inside the frame, on the element whose whole text is the word. Every cell
 is a number you can check in the page.

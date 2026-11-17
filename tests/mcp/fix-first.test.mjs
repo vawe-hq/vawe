@@ -117,3 +117,10 @@ test('fixRound lists problems for the first draft only; the re-render after the 
   assert.deepEqual(fixRound(out, 'f'), []);
   assert.equal(fixRound(fixture(), 'f').length, 3);
 });
+
+test('the spec row names every miss with its CSS, not the closing generic line', () => {
+  const detail = ['"LUNCH." cap height at 4.4 s: spec 30.0%, film 25.2%: set its font-size from calc(var(--vh) * 0.360) to calc(var(--vh) * 0.429)', 'set the font size and box to the Words table, or change the table'];
+  const rows = [{ metric: 'word cap height and position vs spec', target: 'within 1% of frame', status: 'advice', measured: '4.8%', detail }];
+  const [item] = fixFirst(fixture({ rows, items: [], video: [] }), 'f');
+  assert.equal(item.fix, detail[0]);
+});

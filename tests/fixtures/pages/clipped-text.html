@@ -1,0 +1,16 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<meta name="duration" content="1">
+<style>
+*{margin:0}html,body{background:#fff}
+.mask{overflow:hidden;height:80px;width:400px}
+.mask p{font:700 60px/80px system-ui;color:#111}
+#below{translate:0 100%}
+.cp{clip-path:inset(-40% -20% 0 -20%)}
+.cp p{font:700 40px system-ui;color:#111;translate:0 100%}
+#turned{rotate:5deg;font:700 40px system-ui;color:#111}
+</style></head><body>
+<div class="mask"><p id="below">Hidden below</p></div>
+<div class="mask"><p id="up">Shown inside</p></div>
+<div class="cp"><p id="cp-below">Cut below</p></div>
+<p id="turned">Tilted</p>
+</body></html>

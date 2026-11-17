@@ -54,6 +54,54 @@ export function sheetTileDiffs(mp4) {
   return { diffs, fps };
 }
 
+// Run inside the page with visibleLines (LINES_SOURCE). What the elements above a text do to it: { opacity, scale (a transform's size), turned
+// (a rotation or skew), clip (the box an overflow:hidden, clip, auto or scroll ancestor cuts it to, or null) }.
+function textAncestry(el) {
+  let opacity = 1, scale = 1, turned = false, clip = null;
+  for (let n = el; n; n = n.parentElement) {
+    const s = getComputedStyle(n);
+    if (s.display === 'none') return { opacity: 0, scale, turned, clip };
+    opacity *= Number(s.opacity);
+    if (s.transform !== 'none') {
+      const m = new DOMMatrix(s.transform);
+      scale *= Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) || 1;
+      turned = turned || Math.abs(m.b) > 0.001 || Math.abs(m.c) > 0.001;
+    }
+    turned = turned || s.rotate !== 'none';
+    const cuts = n !== el && n !== document.documentElement && n !== document.body && /(hidden|clip|scroll|auto)/.test(s.overflowX + s.overflowY);
+    const box = cuts ? n.getBoundingClientRect() : s.clipPath.startsWith('inset(') ? insetBox(n, s.clipPath) : null;
+    if (box) clip = clip ? [Math.max(clip[0], box.left), Math.max(clip[1], box.top), Math.min(clip[2], box.right), Math.min(clip[3], box.bottom)] : [box.left, box.top, box.right, box.bottom];
+  }
+  return { opacity, scale, turned, clip };
+}
+
+// The box a clip-path inset(top right bottom left [round ...]) leaves on element `n`, in px: { left, top, right, bottom }. A percent is of the element's own width or height.
+function insetBox(n, clipPath) {
+  const c = n.getBoundingClientRect();
+  const v = clipPath.slice(6, clipPath.indexOf(')')).split(/\s+round\s+/)[0].trim().split(/\s+/);
+  const [t, r, b, l] = [v[0], v[1] ?? v[0], v[2] ?? v[0], v[3] ?? v[1] ?? v[0]];
+  const px = (x, size) => (x.endsWith('%') ? (parseFloat(x) * size) / 100 : parseFloat(x));
+  return { left: c.left + px(l, c.width), top: c.top + px(t, c.height), right: c.right - px(r, c.width), bottom: c.bottom - px(b, c.height) };
+}
+
+// The part of a text rect (0 to 1) that its clip box leaves visible.
+function shownShare(r, clip) {
+  if (!clip || !(r.width * r.height > 0)) return 1;
+  return (Math.max(0, Math.min(r.right, clip[2]) - Math.max(r.left, clip[0])) * Math.max(0, Math.min(r.bottom, clip[3]) - Math.max(r.top, clip[1]))) / (r.width * r.height);
+}
+
+// A font's ink inside its text box, in em, measured on "H": { top: the box top to the cap top, bottom: the baseline to the box bottom }, or null when the font has no metrics. `memo` is one Map per probe.
+function inkOf(cs, memo) {
+  const key = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontFamily}`;
+  if (!memo.has(key)) {
+    const ctx = document.createElement('canvas').getContext('2d');
+    ctx.font = `${cs.fontStyle} ${cs.fontWeight} 1000px ${cs.fontFamily}`;
+    const m = ctx.measureText('H');
+    memo.set(key, m.fontBoundingBoxAscent > 0 ? { top: (m.fontBoundingBoxAscent - m.actualBoundingBoxAscent) / 1000, bottom: m.fontBoundingBoxDescent / 1000 } : null);
+  }
+  return memo.get(key);
+}
+
 // Runs inside the page. { lines, blocks }: lines is one { text, fontPx, family, weight, box, rects?, world?, color, opacity, block, chrome? } per visible text
 // node (fontPx includes ancestor transform scale; rects is the box of each wrapped line when the text wraps; world is its data-world;
 // block is the document-order index of its nearest block-level ancestor, the element a reader sees as one line, the same at every sample; glued is set when no space separates it from the text node before it in the same block, so per-letter spans are one word); blocks is the joined visible text of each element that holds
@@ -62,6 +110,7 @@ export function sheetTileDiffs(mp4) {
 // attribute of reasonMin characters); any other marked text is read as copy. `hidden` counts the marked nodes: { total, marked, reads, sample }.
 export function visibleLines(decorative, chrome, lineage = false, texture = { capFrac: 0, repeatsMin: Infinity, reasonMin: Infinity }) {
   const out = [];
+  const inks = new Map();
   const norm = (s) => s.replace(/\s+/g, ' ').trim().toLowerCase();
   const textNodes = [];
   const repeats = new Map();
@@ -102,31 +151,25 @@ export function visibleLines(decorative, chrome, lineage = false, texture = { ca
     const cs = getComputedStyle(el);
     const clipped = cs.webkitBackgroundClip === 'text' || cs.backgroundClip === 'text';
     if (cs.visibility === 'hidden' || (/^rgba\(.*, 0\)$/.test(cs.color) && !clipped)) continue;
-    let opacity = 1;
-    let scale = 1;
-    for (let n = el; n; n = n.parentElement) {
-      const s = getComputedStyle(n);
-      if (s.display === 'none') { opacity = 0; break; }
-      opacity *= Number(s.opacity);
-      if (s.transform !== 'none') { const m = new DOMMatrix(s.transform); scale *= Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) || 1; }
-    }
+    const { opacity, scale, turned, clip } = textAncestry(el);
     const range = document.createRange();
     range.selectNodeContents(node);
     const r = range.getBoundingClientRect();
-    const inside = r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight;
+    const inside = r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight && shownShare(r, clip) >= 0.5;
     if (!(opacity > 0.5 && inside)) continue;
     const fontPx = parseFloat(cs.fontSize) * scale;
+    const ink = turned ? null : inkOf(cs, inks);
     const rects = [...range.getClientRects()].filter((q) => q.width > 0 && q.height > 0).map((q) => [q.x, q.y, q.width, q.height]);
     const world = el.closest('[data-world]')?.dataset.world;
     const source = lineage ? sourceOf(el) : null;
     const block = blockOf(el);
     before.right = r.right;
     const glued = Boolean(prev && prev.el && blockOf(prev.el) === block && (prev.right == null || r.left - prev.right < 0.25 * fontPx) && !/\s$/.test(prev.raw) && !/^\s/.test(node.nodeValue));
-    out.push({ text, fontPx, family: cs.fontFamily, weight: cs.fontWeight, box: [r.x, r.y, r.width, r.height], color: cs.color, opacity, block, ...(glued ? { glued } : {}),
+    out.push({ text, fontPx, family: cs.fontFamily, weight: cs.fontWeight, box: [r.x, r.y, r.width, r.height], color: cs.color, opacity, block, ...(glued ? { glued } : {}), ...(ink ? { ink } : {}),
       ...(rects.length > 1 ? { rects } : {}), ...(world ? { world } : {}), ...(el.closest(chrome) && isTexture(node) ? { chrome: true } : {}), ...(el.closest('[data-ui]') ? { ui: true } : {}),
       ...(lineage ? { own: docOrder.get(el), up: ancestorsOf(el), ...(source ? { source } : {}) } : {}) });
     for (let a = el; a && a !== document.documentElement; a = a.parentElement) {
-      const o = owners.get(a) || { raw: '', n: 0, fontPx, x0: r.left, y0: r.top, x1: r.right, y1: r.bottom };
+      const o = owners.get(a) || { raw: '', n: 0, fontPx, ink, x0: r.left, y0: r.top, x1: r.right, y1: r.bottom };
       o.raw += node.nodeValue;
       o.n += 1;
       o.x0 = Math.min(o.x0, r.left); o.y0 = Math.min(o.y0, r.top); o.x1 = Math.max(o.x1, r.right); o.y1 = Math.max(o.y1, r.bottom);
@@ -134,7 +177,7 @@ export function visibleLines(decorative, chrome, lineage = false, texture = { ca
     }
   }
   const blocks = [...owners.values()].filter((o) => o.n > 1)
-    .map((o) => ({ text: o.raw.replace(/\s+/g, ' ').trim(), fontPx: o.fontPx, box: [o.x0, o.y0, o.x1 - o.x0, o.y1 - o.y0] }));
+    .map((o) => ({ text: o.raw.replace(/\s+/g, ' ').trim(), fontPx: o.fontPx, ...(o.ink ? { ink: o.ink } : {}), box: [o.x0, o.y0, o.x1 - o.x0, o.y1 - o.y0] }));
   return { lines: out, blocks, hidden };
 }
 
@@ -316,6 +359,12 @@ function layoutSample(decorative, chrome) {
   return { w, h, accent: accent ? rgba(accent) : null, palette, ...layoutTexts(env), boxes: layoutBoxes(env) };
 }
 
+const LINES_SOURCE = [textAncestry, insetBox, shownShare, inkOf, visibleLines].map((fn) => fn.toString()).join('\n');
+
+/** visibleLines on the live page: { lines, blocks, hidden }. `lineage` adds each line's element lineage. */
+export const readLines = (page, lineage = false) => page.evaluate(
+  (src, d, c, l, t) => new Function(`${src}\nreturn visibleLines(${JSON.stringify(d)}, ${JSON.stringify(c)}, ${l}, ${JSON.stringify(t)});`)(), LINES_SOURCE, DECORATIVE, CHROME, lineage, TEXTURE);
+
 const LAYOUT_SOURCE = [layoutColours, layoutFrame, layoutTexts, layoutBoxes, rootPalette, layoutSample].map((fn) => fn.toString()).join('\n');
 const readLayout = (page) => page.evaluate((src, d, c) => new Function(`${src}\nreturn layoutSample(${JSON.stringify(d)}, ${JSON.stringify(c)});`)(), LAYOUT_SOURCE, DECORATIVE, CHROME);
 
@@ -337,7 +386,7 @@ export async function sampleText(page, dur, seek, from = 0) {
   for (const rel of times) {
     const t = +(from + rel).toFixed(3);
     await seek(t * 1000);
-    const read = await page.evaluate(visibleLines, DECORATIVE, CHROME, false, TEXTURE);
+    const read = await readLines(page);
     samples.push({ t, lines: read.lines });
     hidden = read.hidden;
   }
@@ -355,7 +404,7 @@ export async function sampleTextMotion(page, dur, seek, from = 0) {
   for (let i = 0; i <= n; i++) {
     const t = +(from + i * step).toFixed(4);
     await seek(t * 1000);
-    samples.push({ t, lines: (await page.evaluate(visibleLines, DECORATIVE, CHROME, true, TEXTURE)).lines });
+    samples.push({ t, lines: (await readLines(page, true)).lines });
   }
   return { samples, step };
 }
@@ -379,7 +428,7 @@ export async function sampleSpec(page, tables, seek, dur, { objects = true } = {
   if (!tables.words.length && !tables.objects.length) return null;
   const [frameW, frameH] = await page.evaluate(() => [innerWidth, innerHeight]);
   const frame = { frameW, frameH };
-  const linesAt = async (t) => { await seek(t * 1000); return page.evaluate(visibleLines, DECORATIVE, CHROME, false, TEXTURE); };
+  const linesAt = async (t) => { await seek(t * 1000); return readLines(page); };
   const wordTimesOf = [];
   for (const w of tables.words) wordTimesOf.push(await wordTimes(w, linesAt, { dur, frame }));
   const samples = [];

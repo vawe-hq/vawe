@@ -19,6 +19,9 @@ const ROW_FIXES = {
   'read-hold': 'keep each line it names on screen, settled, for the seconds it needs (0.6 s a word from 4 words): move its exit or the next entrance later, or cut the line to fewer words',
 };
 
+// These rows list one line per miss, each already naming the CSS to change: that list is the fix, not the closing generic line.
+const NAMED_FIX_ROWS = new Set(['word cap height and position vs spec']);
+
 // Unreadable text first, then picture that does not move, then plan mismatches, then every other measured problem.
 const RANK = ['contrast', 'cap-height', 'read-hold', 'static-window', 'world-held', 'spectacle', 'plan'];
 const rankOf = (kind) => { const i = RANK.indexOf(kind); return i < 0 ? RANK.length : i; };
@@ -26,7 +29,7 @@ const rankOf = (kind) => { const i = RANK.indexOf(kind); return i < 0 ? RANK.len
 function fromRow(row) {
   const detail = row.detail ?? [];
   const kind = ROW_KINDS[row.metric] ?? `row:${row.metric}`;
-  const fix = ROW_FIXES[kind] ? `${detail.join('; ')}; ${ROW_FIXES[kind]}` : detail.at(-1) ?? 'see out/<film>.dev.md Acceptance';
+  const fix = ROW_FIXES[kind] ? `${detail.join('; ')}; ${ROW_FIXES[kind]}` : (NAMED_FIX_ROWS.has(row.metric) && detail.length > 1 ? detail.slice(0, -1).join('; ') : detail.at(-1)) ?? 'see out/<film>.dev.md Acceptance';
   return { kind, measured: `${row.metric}: ${row.measured} (target ${row.target})`, fix, fromRow: true };
 }
 
