@@ -6,7 +6,7 @@ import path from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import * as z from 'zod/v4';
-import { stageGate, contractCheck, tasteFor, TASTE_TOPICS, beatTopics, changedWorlds } from '../guards/index.mjs';
+import { stageGate, contractCheck, tasteFor, TASTE_TOPICS, changedTopics } from '../guards/index.mjs';
 import { nextStep, missingRungs } from '../live/stage-say.mjs';
 import { tableRows } from '../lib/brief-tables.mjs';
 import { ACCEPTANCE } from '../lib/measured-brief.mjs';
@@ -51,7 +51,11 @@ const refused = (gate) => reply({ ok: false, findings: [finding('refused', gate.
 
 /** The taste lines for the beats a write changed: the topics each beat holds, at most MAX_TASTE lines, none already sent for this film in this session. */
 function beatTaste(p, work, before, after, sent) {
-  const topics = [...new Set(Object.values(beatTopics(after, changedWorlds(before, after))).flat())];
+  return tasteLines(p, work, changedTopics(before, after), sent);
+}
+
+/** At most MAX_TASTE taste lines over `topics` for the film's stage, none already sent for this film in this session. */
+function tasteLines(p, work, topics, sent) {
   if (!topics.length) return [];
   const seen = sent.get(p.rel) ?? new Set();
   const quota = Math.max(1, Math.floor(MAX_TASTE / topics.length));
@@ -150,22 +154,25 @@ function docFindings(p, file, text, work) {
   return [...ideas, ...board, ...measuredBriefFindings(text)];
 }
 
-function docReply(p, file, text, work) {
+// The decisions each doc holds: DESIGN.md and the kit set the look, the brief's Board plans the cuts.
+const DOC_TOPICS = (file) => (file === 'brief.md' ? ['cuts'] : ['type', 'colour', 'layout']);
+
+function docReply(p, file, text, work, sent) {
   const bad = (why) => reply({ ok: false, findings: [finding('bad-path', why, 'file is brief.md, DESIGN.md or a path under kit/')], next: 'call again with an allowed file' });
   const full = docPath(p, file);
   if (!full) return bad(`${file} is not a film doc this tool writes`);
   fs.mkdirSync(path.dirname(full), { recursive: true });
   writeFileAtomic(full, text);
-  return reply({ ok: true, findings: docFindings(p, file, text, work), next: nextStep(p.page, work).step });
+  return reply({ ok: true, findings: docFindings(p, file, text, work), next: nextStep(p.page, work).step, taste: tasteLines(p, work, DOC_TOPICS(file), sent) });
 }
 
-function writeDoc({ film, file, text }, work) {
+function writeDoc({ film, file, text }, work, sent) {
   const p = paths(film, work);
   if (!fs.existsSync(p.dir)) return refused(stageGate(p.dir, 'vawe_write_doc', { root: work }));
-  return docReply(p, file, text, work);
+  return docReply(p, file, text, work, sent);
 }
 
-function editDoc({ film, file, old, new: replacement }, work) {
+function editDoc({ film, file, old, new: replacement }, work, sent) {
   const p = paths(film, work);
   if (!fs.existsSync(p.dir)) return refused(stageGate(p.dir, 'vawe_edit_doc', { root: work }));
   const full = docPath(p, file);
@@ -173,7 +180,7 @@ function editDoc({ film, file, old, new: replacement }, work) {
   const text = fs.readFileSync(full, 'utf8');
   const count = old === '' ? 0 : text.split(old).length - 1;
   if (count !== 1) return reply({ ok: false, findings: [finding('edit-not-unique', count === 0 ? `the old text is not in ${file}` : `the old text is in ${file} ${count} times`, 'send more surrounding text in old so it matches once')], next: 'edit again with an exact, unique old text' });
-  return docReply(p, file, text.replace(old, () => replacement), work);
+  return docReply(p, file, text.replace(old, () => replacement), work, sent);
 }
 
 function kitLines(p) {

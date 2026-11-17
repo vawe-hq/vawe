@@ -61,3 +61,18 @@ export function beatTopics(html, worlds = null) {
   }
   return out;
 }
+
+/** The page outside every data-world element: a lockup or a caption that stays across beats. */
+const outsideOf = (html) => Object.values(beatsOf(html)).reduce((rest, beat) => rest.replace(beat, ' '), html.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, ' '));
+
+/** The topics of a write: those of each beat it changed, and type and motion (plus layout, colour) for changed content outside every beat. */
+export function changedTopics(before, after) {
+  const topics = Object.values(beatTopics(after, changedWorlds(before, after))).flat();
+  const outside = outsideOf(after);
+  if (strip(outside) && outside !== outsideOf(before)) {
+    topics.push('type', 'motion');
+    if (UI.test(outside)) topics.push('layout');
+    if (GROUND.test(outside)) topics.push('colour');
+  }
+  return [...new Set(topics)];
+}

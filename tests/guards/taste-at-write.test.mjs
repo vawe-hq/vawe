@@ -1,7 +1,7 @@
 // node --test tests/guards/taste-at-write.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { beatTopics, changedWorlds, closestEase, contractCheck } from '../../harness/guards/index.mjs';
+import { beatTopics, changedTopics, changedWorlds, closestEase, contractCheck } from '../../harness/guards/index.mjs';
 
 const HEAD = '<meta name="duration" content="6">\n<meta name="message" content="zero fees">\n';
 const PAGE = `${HEAD}
@@ -72,4 +72,12 @@ test('a vetted waiver on hand-ease drops the finding', () => {
   const why = 'world a: the 0.2 s fade matches the product UI curve measured at 0.2 s';
   const waive = `<script type="application/json" id="authoring">${JSON.stringify({ allow: ['hand-ease'], _why: { 'hand-ease': why } })}</script>\n`;
   assert.equal(eases(hand('h1 { animation: in 0.5s ease-out both }', waive)).length, 0);
+});
+
+test('changedTopics: text outside every beat (a lockup across beats) brings type and motion; an unchanged lockup brings nothing', () => {
+  const grounds = `${HEAD}<div data-world="s1"><div class="ground"></div></div><div data-world="s2"><div class="ground"></div></div>\n`;
+  const lockup = `${grounds}<div class="lockup"><h1>Ember</h1><p>Roasted slow, poured warm.</p></div>`;
+  assert.deepEqual(changedTopics('', grounds), ['cuts']);
+  assert.deepEqual(changedTopics(grounds, lockup), ['type', 'motion']);
+  assert.deepEqual(changedTopics(lockup, lockup), []);
 });

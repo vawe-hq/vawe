@@ -73,6 +73,8 @@ test('DESIGN.md with no lines names every rung', async () => {
   const rungs = r.findings.filter((f) => f.code === 'design-rung').map((f) => /Skill (\w+):/.exec(f.message)[1]);
   assert.deepEqual(rungs, ['builder', 'type', 'colour', 'depth', 'frame']);
   assert.equal(r.ok, true);
+  assert.ok(r.taste.some((l) => /\(rule [a-z-]+\)$/.test(l)), 'DESIGN.md sets the look, so its reply carries the look rules');
+  assert.ok(r.taste.some((l) => l === 'read taste/craft/typography.md'), JSON.stringify(r.taste));
 });
 
 const DESIGN = '# Design\n\nSkill builder: leonxlnx/minimalist-skill: flat fills\nSkill type: zeke/swiss-design: light grotesque\nSkipped colour: the brief gives the palette\nSkill depth: mengto/beautiful-shadows: one soft shadow\nSkill frame: vawe: one line, 3 things\n';
