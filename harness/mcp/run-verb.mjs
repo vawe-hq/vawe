@@ -8,7 +8,7 @@ import { ENGINE, WORK } from '../lib/workspace.mjs';
 const MAX_OUTPUT = 3000;
 const LIMIT_MS = 30 * 60 * 1000;
 
-/** The result bin/vawe wrote: { ok, verb, reason, next, images, files, exitCode }, or null when it wrote none (killed, or died before the end). */
+/** The result bin/vawe wrote: { ok, verb, reason, next (a step, harness/lib/next-step.mjs), images, files, exitCode }, or null when it wrote none (killed, or died before the end). */
 export function readResult(file) {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8'));

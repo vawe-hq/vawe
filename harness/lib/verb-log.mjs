@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { filmKeyOf, namedAgent, agentId, modelId } from './runlog.mjs';
 import { EXIT, EXIT_CAUSE, BROWSER_LOST } from './exit-codes.mjs';
+import { step as stepOf, shellNext } from './next-step.mjs';
 
 export const UNFILED = '_unfiled';
 const pathsOf = (ext) => new RegExp(`(?:^|[\\s(\`"'=])((?:~\\/|\\/|\\.\\/|[\\w.-]+\\/)[^\\s\`"')|]*\\.(?:${ext}))(?=$|[\\s)\`"'|,;:])`, 'gi');
@@ -70,14 +71,14 @@ export function untaggedLine(verb, env = process.env) {
   return unset.length ? `vawe: ${unset.join(' and ')} not set, so the run log cannot tell this call from another agent's; export VAWE_AGENT=<name> VAWE_MODEL=<model>` : null;
 }
 
-/** What a call returned, as data: the fields bin/vawe prints as text, with paths made absolute against `work`. */
-export function resultOf({ verb, code, reason = null, text = '', work }) {
+/** What a call returned, as data: the fields bin/vawe prints as text, with paths made absolute against `work`. `next` is the step (data) when the caller has it, else the printed `next:` line as a plain-text step. */
+export function resultOf({ verb, code, reason = null, text = '', work, nextStep = null }) {
   const absolute = (p) => (path.isAbsolute(p) ? p : path.join(work, p));
   return {
     ok: code === 0,
     verb,
     reason: code === 0 ? null : reason,
-    next: /^next: (.*)$/m.exec(text)?.[1] ?? null,
+    next: nextStep ?? /^next: (.*)$/m.exec(text)?.[1] ?? null,
     images: imagesIn(text).map(absolute),
     files: filesIn(text).map(absolute),
     exitCode: code,
@@ -131,4 +132,11 @@ export function readNotes(file) {
   try {
     return Object.assign({}, ...fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)));
   } catch { return {}; }
+}
+
+/** The `next: ` line a child script prints for `step` (then `tail`), and the step itself handed to bin/vawe for its result file. */
+export function nextLine(step, tail = '', env = process.env) {
+  const whole = stepOf(step, tail);
+  noteVerb({ nextStep: whole }, env);
+  return `next: ${shellNext(whole)}`;
 }

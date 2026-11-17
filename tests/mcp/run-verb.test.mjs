@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { readResult, runVerb } from '../../harness/mcp/run-verb.mjs';
-import { resultOf } from '../../harness/lib/verb-log.mjs';
+import { resultOf, nextLine, readNotes } from '../../harness/lib/verb-log.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -17,6 +17,20 @@ test('resultOf turns printed text into data: next, absolute images and files', (
     ok: true, verb: 'dev', reason: null, next: 'bin/vawe frame films/a',
     images: ['/abs/x.png', '/w/out/y.png'], files: ['/w/out/a-draft.mp4'], exitCode: 0,
   });
+});
+
+test('resultOf carries the step as data when the caller has it, and a child script hands its step over the notes file', () => {
+  const step = [{ bin: 'bin/vawe', verb: 'wait', args: ['films/a/page.html'] }, ' then more'];
+  assert.deepEqual(resultOf({ verb: 'ship', code: 0, text: 'next: bin/vawe wait films/a/page.html then more\n', work: '/w', nextStep: step }).next, step);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-notes-test-'));
+  const notes = path.join(dir, 'notes.jsonl');
+  try {
+    const line = nextLine(step, '.', { VAWE_VERB_NOTES: notes });
+    assert.equal(line, 'next: bin/vawe wait films/a/page.html then more.');
+    assert.deepEqual(readNotes(notes).nextStep, [step[0], ' then more.']);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('resultOf keeps the reason and no next for a failed call', () => {

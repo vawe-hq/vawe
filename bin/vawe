@@ -25,6 +25,7 @@ import { ensureHooks, gitAt } from '../harness/lib/git-hooks.mjs';
 import { applyRenderEnv } from '../harness/cli/helpers.mjs';
 import { toolProbeLine } from '../harness/lib/tool-probe.mjs';
 import { nextSeen, aliasSeen, NEXT_UNCHANGED } from '../harness/lib/next-once.mjs';
+import { shellNext } from '../harness/lib/next-step.mjs';
 
 const ROOT = ENGINE;
 const MAX_SCAN = 4_000_000;
@@ -135,7 +136,9 @@ async function runSteps(verb, values, positional, steps, call, startedMs, rest) 
     if (code !== 0) return code;
   }
   if (typeof verb.report === 'function') say(call, verb.report(values, positional, startedMs).join('\n'));
-  const next = verb.next && !verb.nextInline ? verb.next(values, positional) : null;
+  const nextStep = verb.next && !verb.nextInline ? (verb.next.step ?? verb.next)(values, positional) : null;
+  const next = nextStep == null ? null : shellNext(nextStep);
+  if (next) call.nextStep = nextStep;
   if (next) say(call, `\n${nextSeen(filmOfRun(verb.name, call, rest).film, { next }, { root: WORK, sessionId: process.env.CLAUDE_CODE_SESSION_ID ?? null }) ? NEXT_UNCHANGED : `next: ${next}`}`);
   return 0;
 }
@@ -190,7 +193,7 @@ function writeResult(verbName, call, code, reason) {
   const file = process.env.VAWE_RESULT;
   if (!file) return;
   try {
-    fs.writeFileSync(file, JSON.stringify(resultOf({ verb: verbName, code, reason, text: call.all, work: WORK })));
+    fs.writeFileSync(file, JSON.stringify(resultOf({ verb: verbName, code, reason, text: call.all, work: WORK, nextStep: call.nextStep ?? readNotes(call.notes).nextStep ?? null })));
   } catch (e) {
     console.error(`vawe: could not write VAWE_RESULT: ${e.message}`);
   }

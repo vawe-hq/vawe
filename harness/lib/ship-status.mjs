@@ -2,7 +2,8 @@
 import path from 'node:path';
 import LIMITS_JSON from '../../taste/build/limits.json' with { type: 'json' };
 import { tasteLines } from './taste-steps.mjs';
-import { say, vawe, shellNext } from './next-step.mjs';
+import { say, vawe } from './next-step.mjs';
+import { nextLine } from './verb-log.mjs';
 import { STILL_SEC, undeclaredStills, stillText, stillItem, insideHold } from './still-limit.mjs';
 import { heldWorlds, insideTextWorlds, readHolds } from './worlds.mjs';
 
@@ -150,8 +151,6 @@ export function shipVerdict(job) {
   const judged = /: PASS/.test(job.verdict[0] || '');
   return judged && job.acceptance?.allGreen !== false ? 'PASS' : 'FIX';
 }
-
-const nextLine = (step) => `next: ${shellNext(step)}`;
 
 export function doneLines(job) {
   const lines = [`job ${job.id}: done in ${clock(job.endedAt - job.startedAt)}`];

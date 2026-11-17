@@ -50,5 +50,5 @@ const partText = (p) => (typeof p === 'string' ? p : p.verb !== undefined ? comm
 /** The text a person types and reads at a shell. A plain string is a step with no command. */
 export const shellNext = (s) => (typeof s === 'string' ? s : step(s).map(partText).join(''));
 
-/** Makes a function that returns a step or a string return text: the form bin/vawe prints. Null stays null. */
-export const asText = (fn) => (...a) => { const s = fn(...a); return s === null || s === undefined ? s : shellNext(s); };
+/** Makes a function that returns a step or a string return text: the form bin/vawe prints. Null stays null. The step form stays on `.step`. */
+export const asText = (fn) => Object.assign((...a) => { const s = fn(...a); return s === null || s === undefined ? s : shellNext(s); }, { step: fn });

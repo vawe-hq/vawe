@@ -24,6 +24,7 @@ import { videoProblems, readVideo } from './draft-check.mjs';
 import { pageAuthoring } from '../lib/motion-stamp.mjs';
 import { WAIT_WORK, WAIT_STEP } from '../live/stage-say.mjs';
 import { say, vawe, shellNext } from '../lib/next-step.mjs';
+import { nextLine } from '../lib/verb-log.mjs';
 import { doneLines, shipVerdict, SHIP_JOBS_DIR, jobLogPath, finalFailure, failedShipLine, firstCapture, captureEtaMs, waitCallsLeft, sameRender } from '../lib/ship-status.mjs';
 import { appendRun, filmKeyOf } from '../lib/runlog.mjs';
 import { waitForFilm, WAIT_CAP_DEFAULT_MS, stillRunningLine, waitExitCode } from '../lib/render-wait.mjs';
@@ -189,7 +190,7 @@ const progressLine = (job, text) => progress(job, text).line;
 function waitNextLine(job, text) {
   const { etaMs, elapsed } = progress(job, text);
   const { calls, basis } = waitCallsLeft({ etaMs, elapsedMs: elapsed, capMs: WAIT_CAP_MS });
-  return `next: ${shellNext(say`${vawe('wait', job.page)} (about ${calls} more ${calls === 1 ? 'call' : 'calls'} ${basis}; one call waits up to ${clock(WAIT_CAP_MS)}; run it alone, not in parallel); ${WAIT_STEP}`)}`;
+  return nextLine(say`${vawe('wait', job.page)} (about ${calls} more ${calls === 1 ? 'call' : 'calls'} ${basis}; one call waits up to ${clock(WAIT_CAP_MS)}; run it alone, not in parallel); ${WAIT_STEP}`);
 }
 
 const LINE_CAP = 240;
@@ -233,7 +234,7 @@ function statusOf(id) {
 const renderedLines = (job) => [
   `job ${job.id}: RENDERED in ${clock(job.renderMs)}, the mp4 is ready; NOT JUDGED yet (a fresh judge and the acceptance rows run now, about 70 s)`,
   ...job.outputs.map((o) => `output: ${o}`),
-  `next: ${shellNext(say`${vawe('wait', job.page)} (1 more call: the judge and the acceptance rows end within about 70 s)`)}`,
+  nextLine(say`${vawe('wait', job.page)} (1 more call: the judge and the acceptance rows end within about 70 s)`),
 ];
 
 const isOver = (id) => { const job = readJob(id); return isTerminal(job.status) || runnerLost(job, pidAlive); };

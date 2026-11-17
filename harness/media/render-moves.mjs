@@ -16,6 +16,7 @@ import { JOBS } from '../../core/motion/ease-jobs.js';
 import { pageAuthoring } from '../lib/motion-stamp.mjs';
 import { isWaived, waiverHint } from '../lib/waivers.mjs';
 import { clipHash } from '../lib/clip-hash.mjs';
+import { nextLine } from '../lib/verb-log.mjs';
 import { chooseCrf, RENDER_CRF, CLIP_BUDGET_BYTES } from '../lib/clip-budget.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -278,7 +279,7 @@ async function main() {
   console.log(`${results.length - failed.length} of ${results.length} clips rendered to prompts/moves/`);
   if (only && done.some((r) => r.id === only)) {
     console.log(`  sheet    ${path.relative(ROOT, writeClipSheet(only))}`);
-    console.log('next: Read the sheet at full size');
+    console.log(nextLine('Read the sheet at full size'));
   }
   process.exit(failed.length ? 1 : 0);
 }

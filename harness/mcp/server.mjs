@@ -17,7 +17,6 @@ import { WORK } from '../lib/workspace.mjs';
 import { isRunning } from '../lib/running-work.mjs';
 import { runVerb } from './run-verb.mjs';
 import { toolNext } from './next-as-tools.mjs';
-import { nextAsTools } from './legacy-next.mjs';
 import { fixRound, FIX_NEXT } from './fix-first.mjs';
 import { uiSkillsArgs, runUiSkills as spawnUiSkills, logFetched, fetchedSlugs, unfetchedClaims, clipText, UI_SKILLS_ACTIONS } from './ui-skills.mjs';
 
@@ -241,8 +240,8 @@ async function refs({ action, id }, work) {
 /** The reply with its shell commands swapped for the tool calls that do the same (the agent has no shell). */
 function asTools(result, film) {
   const body = JSON.parse(result.content[0].text);
-  const swap = (next) => (Array.isArray(next) ? toolNext(next, film) : typeof next === 'string' ? nextAsTools(next, { film }) : next);
-  const next = { ...body, next: swap(body.next), why: swap(body.why), output: swap(body.output), findings: (body.findings ?? []).map((f) => ({ ...f, fix: swap(f.fix) })) };
+  const swap = (next) => (Array.isArray(next) ? toolNext(next, film) : next);
+  const next = { ...body, next: swap(body.next), why: swap(body.why), findings: (body.findings ?? []).map((f) => ({ ...f, fix: swap(f.fix) })) };
   if (body.fix_first) next.fix_first = body.fix_first.map((f) => ({ ...f, fix: swap(f.fix) }));
   return { ...result, content: [{ type: 'text', text: JSON.stringify(next, null, 2) }, ...result.content.slice(1)] };
 }
