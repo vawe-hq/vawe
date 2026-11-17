@@ -1113,7 +1113,7 @@ export function pageAdvice(pagePath, { probe, motion }) {
   const moveDocs = moveDocLines(brief);
   return {
     text: textProblems(probe.samples, textCtx),
-    items: [...contrastItems(unwaivedContrast(probe.contrast, authoring)), ...textItems(probe.samples, textCtx), ...board.map((b) => b.item), ...moveDocs.map((l) => planItem(l.slice('board: '.length)))],
+    items: [...contrastItems(unwaivedContrast(probe.contrast, authoring)), ...textItems(probe.samples, textCtx), ...board.map((b) => b.item)],
     brief: authoring._clip || isWaived(authoring, 'no-brief') ? null : briefLine(brief),
     lines: adviceFor(brief, [...probeAdvice(pagePath, { probe, motion }), ...directions, ...recipeEchoLines(brief),
       ...board.map((b) => `board: ${b.text}`), ...(isWaived(authoring, 'transitions') || boardFilled(brief ?? '') !== true ? [] : handoffAdvice(moveRows(brief)).flatMap((l) => [l, waiverHint('transitions')])), ...ideasAdvice(brief, authoring), ...moveDocs,
@@ -1154,7 +1154,7 @@ async function draftReport(mp4, pagePath, { probe, level, motion, advice: blanks
     arrivals: timedArrivals(motionRecords(motion), probe.speed?.arrivals ?? []),
     cues: (level?.cues ?? []).filter((c) => c.role === 'sfx'), dur: probe.length,
   });
-  checks.put('fix-first', [...(video?.items ?? []), ...page.items, ...planAdvice.filter((l) => l.startsWith('board: ')).map((l) => planItem(l.slice('board: '.length)))]);
+  checks.put('fix-first', [...(video?.items ?? []), ...page.items, ...planAdvice.filter((l) => l.startsWith('board: ') && !l.startsWith('board: read prompts/moves/')).map((l) => planItem(l.slice('board: '.length)))]);
   const advice = [...blanks, ...draftAdvice(problems, sound, page.brief), ...[peak].filter(Boolean), ...bedAdvice, ...planAdvice, ...page.lines];
   const table = whole ? await checks.time('acceptance', async () => draftAcceptance({ mp4, pagePath, probe, level, findings: motionFindings(pagePath, motion), video: video?.measures, mode: checks.mode, cameraOnly, typing: typingSpans(probe.motionText ?? []) })) : null;
   const inRows = new Set(whole ? [...problems, sound, peak, ...textCollisionLines(probe.samples, probe.motionText), ...contrastLines(probe.contrast)] : []);
