@@ -22,7 +22,8 @@ import { defaultOut } from './render-page.mjs';
 import { pageQuery } from '../lib/page-params.mjs';
 import { videoProblems, readVideo } from './draft-check.mjs';
 import { pageAuthoring } from '../lib/motion-stamp.mjs';
-import { WAIT_WORK } from '../live/stage-say.mjs';
+import { WAIT_WORK, WAIT_STEP } from '../live/stage-say.mjs';
+import { say, vawe, shellNext } from '../lib/next-step.mjs';
 import { doneLines, shipVerdict, SHIP_JOBS_DIR, jobLogPath, finalFailure, failedShipLine, firstCapture, captureEtaMs, waitCallsLeft, sameRender } from '../lib/ship-status.mjs';
 import { appendRun, filmKeyOf } from '../lib/runlog.mjs';
 import { waitForFilm, WAIT_CAP_DEFAULT_MS, stillRunningLine, waitExitCode } from '../lib/render-wait.mjs';
@@ -81,7 +82,7 @@ function startJob(page, renderArgs) {
   if (fresh.status === 'starting') writeJob({ ...fresh, pid: runner.pid });
   console.log(`job ${id} started: final render of ${page} in the background`);
   console.log(`log: ${log}`);
-  console.log(`status: bin/vawe wait ${page}`);
+  console.log(`status: ${shellNext(vawe('wait', page))}`);
   console.log(`work: ${WAIT_WORK}`);
 }
 
@@ -188,7 +189,7 @@ const progressLine = (job, text) => progress(job, text).line;
 function waitNextLine(job, text) {
   const { etaMs, elapsed } = progress(job, text);
   const { calls, basis } = waitCallsLeft({ etaMs, elapsedMs: elapsed, capMs: WAIT_CAP_MS });
-  return `next: bin/vawe wait ${job.page} (about ${calls} more ${calls === 1 ? 'call' : 'calls'} ${basis}; one call waits up to ${clock(WAIT_CAP_MS)}; run it alone, not in parallel); ${WAIT_WORK}`;
+  return `next: ${shellNext(say`${vawe('wait', job.page)} (about ${calls} more ${calls === 1 ? 'call' : 'calls'} ${basis}; one call waits up to ${clock(WAIT_CAP_MS)}; run it alone, not in parallel); ${WAIT_STEP}`)}`;
 }
 
 const LINE_CAP = 240;
@@ -232,7 +233,7 @@ function statusOf(id) {
 const renderedLines = (job) => [
   `job ${job.id}: RENDERED in ${clock(job.renderMs)}, the mp4 is ready; NOT JUDGED yet (a fresh judge and the acceptance rows run now, about 70 s)`,
   ...job.outputs.map((o) => `output: ${o}`),
-  `next: bin/vawe wait ${job.page} (1 more call: the judge and the acceptance rows end within about 70 s)`,
+  `next: ${shellNext(say`${vawe('wait', job.page)} (1 more call: the judge and the acceptance rows end within about 70 s)`)}`,
 ];
 
 const isOver = (id) => { const job = readJob(id); return isTerminal(job.status) || runnerLost(job, pidAlive); };
@@ -250,7 +251,7 @@ async function waitThenStatus(id) {
   }
   console.log(statusOf(target).join('\n'));
   const running = Boolean(target && fs.existsSync(stateFile(target)) && !isOver(target));
-  if (running) console.log(stillRunningLine(`bin/vawe wait ${readJob(target).page}`, WAIT_CAP_MS));
+  if (running) console.log(stillRunningLine(vawe('wait', readJob(target).page), WAIT_CAP_MS));
   else if (target && fs.existsSync(stateFile(target)) && readJob(target).status === 'failed') process.exitCode = 1;
 }
 
@@ -260,7 +261,7 @@ async function waitForRender(film) {
   const job = activeJobFor(film);
   if (job) return waitThenStatus(job.id);
   const { running, result } = await waitForFilm(film, { capMs: WAIT_CAP_MS, progressMs: PROGRESS_MS });
-  if (running) console.log(stillRunningLine(`bin/vawe wait ${filmKeyOf(film)}`, WAIT_CAP_MS));
+  if (running) console.log(stillRunningLine(vawe('wait', filmKeyOf(film)), WAIT_CAP_MS));
   else console.log(result ?? `vawe wait: no render of ${filmKeyOf(film)} is running and no result is logged yet`);
   process.exitCode = waitExitCode({ running, result });
 }

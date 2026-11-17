@@ -15,6 +15,7 @@ import { readRuns, looksSince, isBoardRun, readHookSeen } from '../lib/runlog.mj
 import { isClipDemo } from '../lib/clip-demo.mjs';
 import { loopState } from '../lib/loop-state.mjs';
 import { nextStep, isTestPage, filmDirOf, SAY } from './stage-say.mjs';
+import { vawe, shellNext } from '../lib/next-step.mjs';
 import { planStatusLines } from './plan-status.mjs';
 import { readPlan } from '../media/plan-read.mjs';
 
@@ -48,7 +49,7 @@ export function readPlanState(pagePath, root = ROOT, opened = null) {
     frames: !frames ? 'none' : frames < mtime(abs) ? 'stale' : 'ok',
     storyboardRan: readRuns(name, root).some((r) => isBoardRun(r) && r.exitCode === 0),
     digest: read(path.join(root, 'taste', 'build', 'DIGEST.md')) ?? '',
-    next: step.stage === 'draft' ? (isEditFilm(brief) ? SAY.motion(name, rel) : `bin/vawe frame ${rel} --board`) : step.next,
+    next: step.stage === 'draft' ? (isEditFilm(brief) ? SAY.motion(name, rel) : shellNext(vawe('frame', rel, '--board'))) : step.next,
   };
 }
 

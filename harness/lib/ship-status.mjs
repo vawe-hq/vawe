@@ -2,6 +2,7 @@
 import path from 'node:path';
 import LIMITS_JSON from '../../taste/build/limits.json' with { type: 'json' };
 import { tasteLines } from './taste-steps.mjs';
+import { say, vawe, shellNext } from './next-step.mjs';
 import { STILL_SEC, undeclaredStills, stillText, stillItem, insideHold } from './still-limit.mjs';
 import { heldWorlds, insideTextWorlds, readHolds } from './worlds.mjs';
 
@@ -150,6 +151,8 @@ export function shipVerdict(job) {
   return judged && job.acceptance?.allGreen !== false ? 'PASS' : 'FIX';
 }
 
+const nextLine = (step) => `next: ${shellNext(step)}`;
+
 export function doneLines(job) {
   const lines = [`job ${job.id}: done in ${clock(job.endedAt - job.startedAt)}`];
   for (const o of job.outputs || []) lines.push(`output: ${o}`);
@@ -168,9 +171,9 @@ export function doneLines(job) {
   const judged = /: PASS/.test(job.verdict?.[0] || '');
   const missed = job.acceptance?.allGreen === false;
   if (job.verdict) lines.push(`ship verdict: ${shipVerdict(job)} (the judge ${judged ? 'passed' : 'did not pass'}; ${missed ? 'an acceptance row missed' : 'every measured acceptance row is green'})`);
-  if (!job.verdict) lines.push(`next: bin/vawe critique ${job.page ?? '<page>'} --fresh`);
-  else if (judged && !missed) lines.push('next: show the owner');
-  else if (judged) lines.push(`next: fix the acceptance rows above on drafts (bin/vawe dev), then bin/vawe ship ${job.page} again`);
-  else lines.push(`next: fix what the judge and the final check name, worst first, on drafts (bin/vawe dev, then bin/vawe critique <page> --fresh), then bin/vawe ship ${job.page} again`);
+  if (!job.verdict) lines.push(nextLine(vawe('critique', job.page ?? '<page>', '--fresh')));
+  else if (judged && !missed) lines.push(nextLine('show the owner'));
+  else if (judged) lines.push(nextLine(say`fix the acceptance rows above on drafts (${vawe('dev')}), then ${vawe('ship', job.page)} again`));
+  else lines.push(nextLine(say`fix what the judge and the final check name, worst first, on drafts (${vawe('dev')}, then ${vawe('critique', '<page>', '--fresh')}), then ${vawe('ship', job.page)} again`));
   return lines;
 }

@@ -4,6 +4,9 @@ import { motionFilled } from '../lib/board.mjs';
 import { emptyPlanParts, isEditFilm, adviceFor } from '../lib/plan-parts.mjs';
 import { NOTE_LINES } from '../lib/draft-check.mjs';
 import { takenFromCount, missingRungs } from './stage-say.mjs';
+import { vawe, shellNext } from '../lib/next-step.mjs';
+
+const frameText = (rel, ...flags) => shellNext(vawe('frame', rel, ...flags));
 
 export const STATUS_MAX_LINES = 8;
 export const ITEMS_SHOWN = 2;
@@ -60,12 +63,12 @@ export function openItems({ rel, brief, design, early, frames, storyboardRan, lo
   const empty = emptySections(brief, early);
   if (empty.length) items.push({ what: `brief.md sections empty: ${empty.map((e) => e.title).join(', ')}`, fix: SKILLS[empty[0].skill] });
   const designed = !isEditFilm(brief);
-  if (early && designed && !storyboardRan) items.push({ what: 'no storyboard run', fix: `bin/vawe frame ${rel} --board` });
+  if (early && designed && !storyboardRan) items.push({ what: 'no storyboard run', fix: frameText(rel, '--board') });
   const taken = designed ? takenFromCount(brief) : null;
   if (early && taken !== null && taken < 4) items.push({ what: `the reference study names ${taken} of 4 frames`, fix: SKILLS.study });
   const rungs = early && taken !== null ? missingRungs(design ?? '') : [];
   if (rungs.length) items.push({ what: `DESIGN.md has no line for ${rungs.join(', ')}`, fix: SKILLS.design });
-  if (early && designed && frames !== 'ok') items.push({ what: frames === 'stale' ? 'the frames are older than the page' : 'no frames run', fix: `bin/vawe frame ${rel} --world all` });
+  if (early && designed && frames !== 'ok') items.push({ what: frames === 'stale' ? 'the frames are older than the page' : 'no frames run', fix: frameText(rel, '--world', 'all') });
   if (looked?.printed.length && !looked.hook) items.push({ what: 'the log-read hook is not registered, so the strips you Read are not counted', fix: 'harness/README.md "Hooks"' });
   else if (looked?.unread.length) items.push({ what: `read ${looked.printed.length - looked.unread.length} of ${looked.printed.length} strips of the last draft`, fix: `Read ${looked.unread[0]}` });
   return items;
@@ -77,7 +80,7 @@ const itemLine = ({ what, fix }) => `  - ${what}: ${fix}`;
 function findingLine(findings, rel) {
   if (!findings.length) return [];
   const ranked = [...findings].sort((a, b) => Number(b.startsWith('attractor:')) - Number(a.startsWith('attractor:')));
-  const more = ranked.length > 1 ? ` (+${ranked.length - 1} more: bin/vawe frame ${rel} --board)` : '';
+  const more = ranked.length > 1 ? ` (+${ranked.length - 1} more: ${frameText(rel, '--board')})` : '';
   return [`  plan: ${short(ranked[0])}${more}`];
 }
 
@@ -106,7 +109,7 @@ function pageLines(page, rel) {
   const lines = ranked(page);
   const shown = lines.slice(0, PAGE_SHOWN).map((l) => `${PAGE_PREFIX}${withDoc(l)}`);
   const rest = lines.length - shown.length;
-  return [...shown, ...(rest > 0 ? [`${PAGE_PREFIX}+${rest} more before the render: bin/vawe frame ${rel} --board`] : [])];
+  return [...shown, ...(rest > 0 ? [`${PAGE_PREFIX}+${rest} more before the render: ${frameText(rel, '--board')}`] : [])];
 }
 
 /**

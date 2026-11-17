@@ -1,5 +1,6 @@
 // Every next-step text a producer prints, rendered with fixed inputs. The fixture next-text.json holds the text as it was
 // before next steps became data: the renderer must reproduce it byte for byte.
+import { createHash } from 'node:crypto';
 import { SAY, briefStep } from '../../harness/live/stage-say.mjs';
 import { SHOW_PLAN, SHOW_OWNER, shipProblem, planProblem } from '../../harness/lib/approval.mjs';
 import { critiqueCommand, critiqueFreshCommand } from '../../harness/lib/critique-gate.mjs';
@@ -73,5 +74,18 @@ export function cases() {
   put('planStatus.findings', planStatusLines({ name: 'x', rel: REL, brief: '## Look\n', design: '', early: true, frames: 'ok', storyboardRan: true, findings: ['a', 'b'], next: 'n' }).join('\n'));
   put('newFilmLines.edit', nextLines(newFilmLines('x', { page: REL, route: { type: 'edit', template: 't', why: 'w' }, request: 'r' })));
   put('newFilmLines.plan', nextLines(newFilmLines('x', { page: REL, route: null, request: 'r' })));
+  // The sweep keeps a hash of each text: a verb text for every flag and argument combination, too many to read in a fixture.
+  const vs = [{}, { 'from-url': true }, { 'from-url': true, tour: true }, { lab: true }, { sfx: true }, { at: 1 }, { waveform: true }, { cuts: 1 }, { spec: true }, { probe: true }, { vs: true }, { plan: true }, { 'sync-brief': true }, { wait: true }, { fresh: true }, { world: 'all' }, { world: 'all', full: true }, { moment: 1 }, { moment: 1, onion: true }, { moment: 1, velocity: true }, { board: true }, { directions: true }, { full: true }, { at: 1, vs: 'r' }, { box: '1,2,3,4' }, { from: 1 }, { animatic: true }, { studio: true }];
+  const positions = [['films/x/page.html'], ['add', 'x'], ['log', 'x'], ['list'], ['frames'], ['x.mp4'], []];
+  for (const v of VERBS) {
+    if (typeof v.next !== 'function') continue;
+    for (const values of vs) {
+      for (const pos of v.name === 'frame' ? positions.slice(0, 1) : positions) {
+        let text;
+        try { text = v.next(values, pos); } catch (e) { text = `ERR ${e.message.slice(0, 40)}`; }
+        if (text !== null && text !== undefined) put(`sweep.${v.name}.${JSON.stringify(values)}.${JSON.stringify(pos)}`, createHash('sha1').update(String(text)).digest('hex').slice(0, 12));
+      }
+    }
+  }
   return out;
 }

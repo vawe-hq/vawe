@@ -11,7 +11,7 @@ const FLAG = /^--?[a-z][a-z-]*$/;
 
 /** Per verb: how many positionals it takes and which flags take a value. */
 export const SPECS = {
-  frame: { pos: 1, valueFlags: ['world', 'moment', 'at', 'vs', 'out', 'from', 'to', 'aspect'] },
+  frame: { pos: 1, valueFlags: ['world', 'moment', 'at', 'vs', 'out', 'from', 'to', 'aspect', 'box'] },
   dev: { pos: 1, valueFlags: ['from', 'to', 'aspect'] },
   critique: { pos: 1, valueFlags: [] },
   ship: { pos: 1, valueFlags: ['aspect'] },
@@ -35,7 +35,7 @@ function filmOf(page, film) {
 function frameCall(page, flags, film) {
   const f = filmOf(page, film);
   const modes = ['world', 'board', 'cuts', 'moment', 'directions', 'at'].filter((m) => flags[m]);
-  if (f === null || modes.length !== 1 || ['vs', 'full', 'out', 'from', 'to', 'aspect'].some((k) => flags[k])) return null;
+  if (f === null || modes.length !== 1 || ['vs', 'full', 'out', 'from', 'to', 'aspect', 'box'].some((k) => flags[k])) return null;
   const [mode] = modes;
   if (mode === 'world') return flags.world === 'all' ? call('vawe_frame', { film: f, mode: 'world' }) : null;
   if (mode === 'at') return flags.at === true ? null : call('vawe_look', { film: f, t: [num(flags.at)] });
@@ -110,7 +110,7 @@ function commandTool(c, film) {
  */
 export function toolNext(next, film = null) {
   const seen = new Set();
-  return step(next).map((p) => {
+  return step(next ?? '').map((p) => {
     if (typeof p === 'string') return p;
     if (p.verb !== undefined) return commandTool(p, film);
     if (p.build !== undefined) return `${p.build} ${BUILD_TAG}`;

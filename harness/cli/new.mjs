@@ -14,7 +14,8 @@ import { tasteLines } from '../lib/taste-steps.mjs';
 import { isAspect, aspectProblem } from '../lib/page-params.mjs';
 import { FAMILIES, FIELDS, brandAdvice } from '../lib/directions.mjs';
 import { adviceBlock } from '../lib/advice.mjs';
-import { SAY } from '../live/stage-say.mjs';
+import { STEP } from '../live/stage-say.mjs';
+import { say, shellNext } from '../lib/next-step.mjs';
 import { measuredSections, DEFAULT_LENGTH, GUESS, GIVEN_KEYS, answeredDetails, unansweredDetails, questionCalls, PLACEHOLDER, STARTER_LINE } from '../lib/measured-brief.mjs';
 import { dialRanges, signatureSection } from '../lib/signature.mjs';
 import { recentFromDisk, varietyFor, namesBrandKit } from '../lib/variety.mjs';
@@ -539,6 +540,9 @@ const LATER_DOCS = [
   'skill combos for DESIGN.md: prompts/skill-combos.md; ideas before the board: guides/IDEATE.md',
 ];
 
+/** The next: line of a new film: its first steps, then where the rest of the loop is. */
+const nextLine = (steps) => `next: ${shellNext(steps)}. The stages after it are in AGENTS.md, The loop; bin/vawe names the next one after each step.`;
+
 export function newFilmLines(name, { page, route, title, guesses = [], asked, request, from, fromUrl, defaulted = [], variety = { lines: [] } }) {
   if (asked) return askLines(name, request, from, asked, fromUrl);
   const lines = [`wrote ${page}, films/${name}/brief.md and films/${name}/directions.html`];
@@ -550,7 +554,7 @@ export function newFilmLines(name, { page, route, title, guesses = [], asked, re
     lines.push(`another film type: delete films/${name}, then bin/vawe new ${name} --from prompts/<template>.md (rows in ${ROUTING}) or --request "<the ask>" --length <s>`);
   }
   if (route?.type === 'edit') {
-    return [...lines, '', 'rules for authors: taste/build/DIGEST.md', '', `next: ${SAY.cut(name)}; then ${SAY.dev(name, page)}. The stages after it are in AGENTS.md, The loop; bin/vawe names the next one after each step.`];
+    return [...lines, '', 'rules for authors: taste/build/DIGEST.md', '', nextLine(say`${STEP.cut(name)}; then ${STEP.dev(name, page)}`)];
   }
   const advice = [
     `directions: films/${name}/directions.html holds one starter still per family (type, object, graphic); fill the three slots in brief.md, then pick one`,
@@ -558,7 +562,7 @@ export function newFilmLines(name, { page, route, title, guesses = [], asked, re
   ];
   const spread = variety.lines.length ? ['', ...variety.lines] : [];
   return [...lines, ...spread, '', 'rules for authors: taste/build/DIGEST.md; the judge scores taste/build/CARD.md; every rule is in taste/README.md', '', ...tasteLines('explore'), '',
-    ...adviceBlock(advice, '(advice only)'), '', ...LATER_DOCS, '', `next: ${SAY.study(name)}; then ${SAY.moves()}. The stages after it are in AGENTS.md, The loop; bin/vawe names the next one after each step.`];
+    ...adviceBlock(advice, '(advice only)'), '', ...LATER_DOCS, '', nextLine(say`${STEP.study(name)}; then ${STEP.moves()}`)];
 }
 
 const withFootage = (footage, name, details) => (footage ? { show: "the person's own clips, cut as the Cut list says", assets: `${footage.length} clips in films/${name}/footage/ (films/${name}/footage.md)`, ...details } : details);

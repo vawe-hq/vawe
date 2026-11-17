@@ -10,6 +10,9 @@ export const cmd = (verb, args = [], extra = {}) => ({ bin: BIN, verb, args, ...
 /** `bin/vawe <verb> <args...>` */
 export const vawe = (verb, ...args) => cmd(verb, args);
 
+/** `vawe <verb> <args...>`, the form a sentence uses for a verb it only names. */
+export const bare = (verb, ...args) => cmd(verb, args, { bin: 'vawe' });
+
 /** A film doc a step names: `mode` is what the step asks of it, write (whole), edit (a part) or read. `file` is brief.md, DESIGN.md or kit/. */
 export const doc = (film, file, mode) => ({ doc: `films/${film}/${file}`, film, file, mode });
 
@@ -24,7 +27,7 @@ export const docAt = (relPath, mode) => {
 /** The page a step asks the agent to build from the kit. */
 export const buildPage = (rel) => ({ build: rel });
 
-const flat = (parts) => parts.flatMap((p) => (Array.isArray(p) ? flat(p) : p === null || p === undefined || p === false ? [] : [typeof p === 'object' ? p : String(p)]));
+const flat = (parts) => parts.flatMap((p) => (Array.isArray(p) ? flat(p) : [p !== null && typeof p === 'object' ? p : String(p)]));
 
 /** The step of these pieces (strings, numbers, parts and steps): adjacent strings join, nested steps open out. */
 export function step(...pieces) {
@@ -40,7 +43,7 @@ export function step(...pieces) {
 export const say = (strings, ...values) => step(strings.flatMap((s, i) => (i < values.length ? [s, values[i]] : [s])));
 
 /** The shell form of one command part. */
-export const commandText = (c) => [c.env, c.bin, c.verb, ...c.args].filter((t) => t !== undefined && t !== '').join(' ');
+export const commandText = (c) => [c.env, c.bin, c.verb, ...c.args.map(String)].filter((t) => t !== undefined).join(' ');
 
 const partText = (p) => (typeof p === 'string' ? p : p.verb !== undefined ? commandText(p) : p.doc ?? p.build);
 

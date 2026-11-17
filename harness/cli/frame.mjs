@@ -14,7 +14,8 @@ import { VELOCITY_SPAN, velocityProblem } from '../media/see/velocity-math.mjs';
 import { filmFile } from '../media/see/input.mjs';
 import { outProblem } from '../lib/out-target.mjs';
 import { looksProblem } from '../lib/looks.mjs';
-import { SAY, nextStep } from '../live/stage-say.mjs';
+import { STEP, nextStep } from '../live/stage-say.mjs';
+import { say, vawe, bare, asText } from '../lib/next-step.mjs';
 
 import { WORK } from '../lib/workspace.mjs';
 const ROOT = WORK;
@@ -159,26 +160,28 @@ function stepsOf(v0, [input]) {
 }
 
 const FRAME_NEXT = {
-  still: 'Read the PNG at full size; vawe frame <page|mp4> --at <s> --box x,y,w,h enlarges one region',
-  sheet: 'Read the PNG at full size; vawe frame <page> --moment <s> shows the frames through one moment',
+  still: say`Read the PNG at full size; ${bare('frame', '<page|mp4>', '--at', '<s>', '--box', 'x,y,w,h')} enlarges one region`,
+  sheet: say`Read the PNG at full size; ${bare('frame', '<page>', '--moment', '<s>')} shows the frames through one moment`,
   looks: 'Read each grid at full size, pick a look by sight, then put `look: \'<name>\'` in the lens options of the page (prompts/moves/lens.md lists the numbers); the page options still win over the look',
-  crop: 'Read the PNG at full size: left is a, right is b; name the pixel pattern you see (colour fringes, a stripe mask, halo width) and then vawe see <film> for the numbers',
+  crop: say`Read the PNG at full size: left is a, right is b; name the pixel pattern you see (colour fringes, a stripe mask, halo width) and then ${bare('see', '<film>')} for the numbers`,
 };
 
-function nextOf(v, [input]) {
+function nextStepOf(v, [input]) {
   const mode = modeOf(v);
   if (mode === 'sheet' && v.vs) return `look at the PNG: ${v.at === CUTS || v.at === undefined ? 'one frame per world change, at its middle' : 'one frame per --at second'}, reference left, yours right; fix the worst row first`;
   if (FRAME_NEXT[mode]) return FRAME_NEXT[mode];
-  if (mode === 'world') return v.full ? `Read the stills at full size and fix the states; then bin/vawe frame ${input} --world all for the sheet` : nextStep(path.resolve(input), ROOT).next;
+  if (mode === 'world') return v.full ? say`Read the stills at full size and fix the states; then ${vawe('frame', input, '--world', 'all')} for the sheet` : nextStep(path.resolve(input), ROOT).step;
   if (mode === 'moment') {
-    if (v.onion) return 'Read the PNG at full size: evenly spaced ghosts mean a linear move, ghosts bunched at one end mean an ease, a ghost past the final position means an overshoot; vawe frame <page> --moment <s> --velocity gives the numbers for a page';
+    if (v.onion) return say`Read the PNG at full size: evenly spaced ghosts mean a linear move, ghosts bunched at one end mean an ease, a ghost past the final position means an overshoot; ${bare('frame', '<page>', '--moment', '<s>', '--velocity')} gives the numbers for a page`;
     if (v.velocity) return 'Read the PNG, then fix the move the summary names: the page literal that sets its ease, its duration or its overshoot';
-    return 'Read each grid path above at full size: frames run left to right, top to bottom, and the motion line gives the seconds the move starts and settles; then bin/vawe frame <page|mp4> --vs <ref.mp4> --at <s> to put the reference beside yours';
+    return say`Read each grid path above at full size: frames run left to right, top to bottom, and the motion line gives the seconds the move starts and settles; then ${vawe('frame', '<page|mp4>', '--vs', '<ref.mp4>', '--at', '<s>')} to put the reference beside yours`;
   }
-  if (mode === 'cuts') return `Read each grid path above at full size: frames run left to right, top to bottom, and the motion line gives the seconds the move starts and settles; compare how the outgoing and incoming parts overlap at each cut${input.endsWith('.html') ? `; ${SAY.motionRows(pageName(input))}, then ${SAY.critique(pageName(input), input)}` : '; then name 3 moves in "Taken from" (ref id, cut second) and the pattern of taste/craft/film-structure.md (The motion grammar) the ref uses'}`;
+  if (mode === 'cuts') return say`Read each grid path above at full size: frames run left to right, top to bottom, and the motion line gives the seconds the move starts and settles; compare how the outgoing and incoming parts overlap at each cut${input.endsWith('.html') ? say`; ${STEP.motionRows(pageName(input))}, then ${STEP.critique(pageName(input), input)}` : '; then name 3 moves in "Taken from" (ref id, cut second) and the pattern of taste/craft/film-structure.md (The motion grammar) the ref uses'}`;
   if (mode === 'directions') return `Read the board, ask the person to pick one direction, then write \`picked: <A, B or C>, because <reason>\` in ${path.join(path.dirname(input), 'brief.md')}`;
-  return `read the plan advice (bin/vawe frame ${input} --board --all, or the board) and fix it or keep it on purpose; open the HTML from disk to present or review the board; the Board and Motion pass in brief.md fill the move, handoff and note fields`;
+  return say`read the plan advice (${vawe('frame', input, '--board', '--all')}, or the board) and fix it or keep it on purpose; open the HTML from disk to present or review the board; the Board and Motion pass in brief.md fill the move, handoff and note fields`;
 }
+
+const nextOf = asText(nextStepOf);
 
 const SUMMARY = 'use when you want a picture of a film: --at s one frame, --at s,s,s a sheet, --world, --cuts, --moment s, --box, --looks, --board';
 

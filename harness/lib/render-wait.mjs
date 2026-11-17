@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { slotsInUse } from './render-slots.mjs';
+import { say, shellNext } from './next-step.mjs';
 import { readRuns, filmKeyOf } from './runlog.mjs';
 import { footerLine } from './verb-log.mjs';
 
@@ -88,7 +89,7 @@ export async function waitForFilm(film, { capMs, progressMs, slots = () => [...s
 }
 
 /** The last line of a wait call that hit its cap: tells the agent the render goes on and which command to call again. */
-export const stillRunningLine = (command, capMs) => `vawe wait: STILL RUNNING after ${Math.round(capMs / 1000)}s, the render goes on and nothing is lost. Call again: ${command}`;
+export const stillRunningLine = (command, capMs) => shellNext(say`vawe wait: STILL RUNNING after ${Math.round(capMs / 1000)}s, the render goes on and nothing is lost. Call again: ${command}`);
 
 /** 1 when the awaited verb failed, 0 otherwise. A call that is still running also exits 0: its last printed line is STILL RUNNING. */
 export const waitExitCode = ({ running, result }) => (!running && /\bFAILED\b/.test(result ?? '') ? 1 : 0);

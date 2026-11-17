@@ -5,13 +5,16 @@
 import { readRuns } from './runlog.mjs';
 import { pageDigest } from './approval.mjs';
 import { critiqueAt } from './loop-state.mjs';
+import { cmd, vawe, shellNext } from './next-step.mjs';
 import { sameSession, lastAuthorRun } from './judge-self-record.mjs';
 
 /** The command that records a critique the ship gate accepts: run it in a separate terminal or agent session. */
-export const critiqueCommand = (pagePath) => `VAWE_AGENT=critic bin/vawe critique ${pagePath}`;
+export const critiqueCommandStep = (pagePath) => cmd('critique', [pagePath], { env: 'VAWE_AGENT=critic' });
+export const critiqueCommand = (pagePath) => shellNext(critiqueCommandStep(pagePath));
 
 /** The command that records a fresh critique from the author's own terminal: it starts the critic session. It exits 2 when the claude CLI is missing. */
-export const critiqueFreshCommand = (pagePath) => `bin/vawe critique ${pagePath} --fresh`;
+export const critiqueFreshStep = (pagePath) => vawe('critique', pagePath, '--fresh');
+export const critiqueFreshCommand = (pagePath) => shellNext(critiqueFreshStep(pagePath));
 
 const WAYS = (page) => `run ${critiqueFreshCommand(page)} (it starts its own session; exit 2 means the claude CLI is missing), or in a separate terminal ${critiqueCommand(page)}`;
 

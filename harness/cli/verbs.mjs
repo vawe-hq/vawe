@@ -16,8 +16,9 @@ import { scratch } from '../lib/scratch.mjs';
 import { refsDir, refsEmpty } from '../lib/refs.mjs';
 import { isClipDemo } from '../lib/clip-demo.mjs';
 import { planWindow } from '../lib/dev-window.mjs';
-import { SAY, WAIT_WORK, nextStep } from '../live/stage-say.mjs';
-import { critiqueProblem, critiqueCommand, critiqueFreshCommand } from '../lib/critique-gate.mjs';
+import { STEP, WAIT_STEP, nextStep } from '../live/stage-say.mjs';
+import { say, vawe, bare, doc, asText } from '../lib/next-step.mjs';
+import { critiqueProblem, critiqueCommandStep, critiqueFreshStep } from '../lib/critique-gate.mjs';
 export { commitsBehind } from '../lib/stale-checkout.mjs';
 
 import { WORK } from '../lib/workspace.mjs';
@@ -31,11 +32,12 @@ export const stripChromeNoise = (text) => String(text).split('\n').filter((l) =>
 /** The sentence for an unknown verb on a checkout that lags main, or '' when it does not. Pure. */
 export const staleNote = (behind) => (behind > 0 ? `this checkout is ${behind} commit${behind === 1 ? '' : 's'} behind main: the verb may exist there (git pull or rebase on main)` : '');
 
-export const devFix = (reason, [page]) => {
-  if (/render slot|Navigation timeout/i.test(reason)) return `bin/vawe wait ${page}`;
-  if (causeOf(reason) === 'browser lost') return `the browser died mid-render: find the heavy second with bin/vawe dev ${page} --from 0 --to 4, then the next 4 s; a page with large images, canvas or WebGL work per frame crashes it`;
-  return `bin/vawe frame ${page} --world all`;
+export const devFixStep = (reason, [page]) => {
+  if (/render slot|Navigation timeout/i.test(reason)) return say`${vawe('wait', page)}`;
+  if (causeOf(reason) === 'browser lost') return say`the browser died mid-render: find the heavy second with ${vawe('dev', page, '--from', '0', '--to', '4')}, then the next 4 s; a page with large images, canvas or WebGL work per frame crashes it`;
+  return say`${vawe('frame', page, '--world', 'all')}`;
 };
+export const devFix = asText(devFixStep);
 /** The steps of `dev --animatic` or `dev --studio`, or null for a draft. */
 function devModeSteps(v, page) {
   if (v.animatic && v.studio) throw new UsageError('--animatic and --studio are two modes of dev: run one');
@@ -45,16 +47,17 @@ function devModeSteps(v, page) {
   if (v.studio) return [{ script: 'studio/page-server.mjs', args: [page], env: v.port ? { PORT: String(v.port) } : {} }];
   return null;
 }
-const devNext = (v, [page]) => {
+const devNextStep = (v, [page]) => {
   if (v.animatic) return 'Watch the mp4: each world holds for its planned time; retime the world starts in the page, then bin/vawe dev';
   if (v.studio) return null;
-  if (isClipDemo(page)) return nextStep(path.resolve(page), ROOT).next;
-  if (v.from != null || v.to != null) return `bin/vawe frame ${page} --moment <the second you fixed> and Read it; when every named second is fixed: ${SAY.critique(pageName(page), page)}`;
-  if (critiqueProblem(page, { root: ROOT })) return `before anything else: ${critiqueFreshCommand(page)} (its own session), or in a separate terminal ${critiqueCommand(page)}`;
+  if (isClipDemo(page)) return nextStep(path.resolve(page), ROOT).step;
+  if (v.from != null || v.to != null) return say`${vawe('frame', page, '--moment', '<the second you fixed>')} and Read it; when every named second is fixed: ${STEP.critique(pageName(page), page)}`;
+  if (critiqueProblem(page, { root: ROOT })) return say`before anything else: ${critiqueFreshStep(page)} (its own session), or in a separate terminal ${critiqueCommandStep(page)}`;
   const state = nextStep(path.resolve(page), ROOT);
-  if (state.stage === 'draft') return SAY.motion(pageName(page), page);
-  return state.stage === 'motion' && !/Motion pass/.test(state.why) ? state.next : `${state.next} (${state.why})`;
+  if (state.stage === 'draft') return STEP.motion(pageName(page), page);
+  return state.stage === 'motion' && !/Motion pass/.test(state.why) ? state.step : say`${state.step} (${state.whyStep})`;
 };
+const devNext = asText(devNextStep);
 const readFresh = (file, sinceMs) => (fs.existsSync(file) && fs.statSync(file).mtimeMs >= sinceMs ? readFindings(file) || [] : []);
 const critiqueFindingsFile = (page) => path.join(scratch('critique', filmKey(page)), 'findings.json');
 function seeSpec(v, film) {
@@ -133,7 +136,7 @@ export const VERBS = [
     ],
     example: 'vawe new my-launch --from prompts/story-explainer.md   |   vawe new acme-launch --request "a launch film for acme" --from-url https://acme.com --full   |   vawe new --from-url /,/blog --full   |   vawe new acme-tour --from-url https://acme.com/app --tour tour.json --w 1600   |   vawe new trip-edit --footage ~/Movies/trip --request "a 20 s edit of my trip"',
     build: newSteps,
-    next: (v) => (v['from-url'] ? (v.tour ? 'play the mp4 in a film page (prompts/moves/demo/mask-rise.html); vawe frame <film mp4> reads it' : 'Read each PNG at full size; the 390 one shows the phone layout; vawe check links crawls every link of the site') : null),
+    next: asText((v) => (v['from-url'] ? (v.tour ? say`play the mp4 in a film page (prompts/moves/demo/mask-rise.html); ${bare('frame', '<film mp4>')} reads it` : say`Read each PNG at full size; the 390 one shows the phone layout; ${bare('check', 'links')} crawls every link of the site`) : null)),
   },
   {
     tier: 'core',
@@ -170,7 +173,7 @@ export const VERBS = [
       if (problem) throw new UsageError(problem);
       return [{ script: 'harness/media/see/one.mjs', args: [film, ...opt('--vs', v.vs), ...opt('--at', v.at), ...opt('--at-b', v['at-b']), ...opt('--from', v.from), ...opt('--to', v.to), ...opt('--draft', v.draft), ...opt('--out', v.out), ...(v['no-ocr'] ? ['--no-ocr'] : []), ...(v['no-cache'] ? ['--no-cache'] : [])] }];
     },
-    next: (v, [film]) => (v.plan ? `fix a flagged rhythm or a cue in the wrong world, then bin/vawe sound ${film} --waveform to check each sound on its event` : v.probe ? 'compare the numbers with the move you meant; vawe frame <page> --moment <s> shows the frames through that second' : v.spec ? 'mark every SPEC.md line KEEP or CHANGE, then vawe new <name> and rebuild' : v['sync-brief'] ? `bin/vawe dev ${film}; the changed cells end in *` : v.vs ? 'Read see.md, then every image path in it at full size, each with the numbers under it; act on the advice lines (each names the page literal), then vawe see again' : 'Read see.md, then every image path in it at full size, each with the numbers under it; vawe see <film> --vs <ref id> puts a reference beside it'),
+    next: asText((v, [film]) => (v.plan ? say`fix a flagged rhythm or a cue in the wrong world, then ${vawe('sound', film, '--waveform')} to check each sound on its event` : v.probe ? say`compare the numbers with the move you meant; ${bare('frame', '<page>', '--moment', '<s>')} shows the frames through that second` : v.spec ? say`mark every SPEC.md line KEEP or CHANGE, then ${bare('new', '<name>')} and rebuild` : v['sync-brief'] ? say`${vawe('dev', film)}; the changed cells end in *` : v.vs ? say`Read see.md, then every image path in it at full size, each with the numbers under it; act on the advice lines (each names the page literal), then ${bare('see')} again` : say`Read see.md, then every image path in it at full size, each with the numbers under it; ${bare('see', '<film>', '--vs', '<ref id>')} puts a reference beside it`)),
   },
   FRAME,
   {
@@ -185,7 +188,7 @@ export const VERBS = [
       if (v.full && action !== 'add') throw new UsageError('--full goes with add');
       return [{ script: 'harness/media/footage-cli.mjs', args: [action, film, ...clips, ...(v.full ? ['--full'] : [])] }];
     },
-    next: (v, [action, film]) => (action === 'add' ? `bin/vawe footage log ${film}` : `fill the brief's "Cut list" in films/${film}/brief.md from footage.md, then point each <video src="footage/<slug>.mp4"> at it`),
+    next: asText((v, [action, film]) => (action === 'add' ? vawe('footage', 'log', film) : say`fill the brief's "Cut list" in ${doc(film, 'brief.md', 'edit')} from footage.md, then point each <video src="footage/<slug>.mp4"> at it`)),
   },
   {
     tier: 'core',
@@ -246,11 +249,11 @@ export const VERBS = [
       if (v.wait) return [...before, { script: 'harness/media/render-page.mjs', args: [...args, '--final', ...opt('--aspect', v.aspect)] }];
       return [...before, { script: 'harness/media/ship-job.mjs', args: ['start', ...args, ...opt('--aspect', v.aspect)] }];
     },
-    fix: (reason, [page]) => (page?.endsWith('.html') && !/ship refused/.test(reason) ? `bin/vawe dev ${page}` : null),
-    next: (v, [page]) => {
-      if (v.wait) return critiqueFreshCommand(page);
-      return `rendering in the background: bin/vawe wait ${page} (one call waits up to 100 seconds, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`;
-    },
+    fix: asText((reason, [page]) => (page?.endsWith('.html') && !/ship refused/.test(reason) ? vawe('dev', page) : null)),
+    next: asText((v, [page]) => {
+      if (v.wait) return critiqueFreshStep(page);
+      return say`rendering in the background: ${vawe('wait', page)} (one call waits up to 100 seconds, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_STEP}`;
+    }),
   },
   {
     tier: 'core',
@@ -259,7 +262,7 @@ export const VERBS = [
     flags: [],
     example: 'vawe wait films/my-launch/page.html   |   vawe wait my-launch',
     build: (v, [film]) => [{ script: 'harness/media/ship-job.mjs', args: ['wait', film] }],
-    next: (v, [film]) => `${WAIT_WORK}`,
+    next: asText(() => WAIT_STEP),
   },
   {
     tier: 'core',
@@ -289,9 +292,9 @@ export const VERBS = [
       readFresh(critiqueFindingsFile(page), sinceMs),
       freshImages(scratch('see', filmKey(page)), sinceMs),
     ),
-    next: (v, [page]) => (v.fresh
-      ? `Read the critique file above, fix its top five with bin/vawe dev ${page} --from s --to s`
-      : `look at the sheets above, or start a critic session with ${SAY.critique(pageName(page), page)}`),
+    next: asText((v, [page]) => (v.fresh
+      ? say`Read the critique file above, fix its top five with ${vawe('dev', page, '--from', 's', '--to', 's')}`
+      : say`look at the sheets above, or start a critic session with ${STEP.critique(pageName(page), page)}`)),
   },
   {
     tier: 'core',
@@ -304,7 +307,7 @@ export const VERBS = [
     ],
     example: 'vawe refs list [id]   |   vawe refs frames u6iro1jHujs   |   vawe refs add https://youtu.be/xxxx --type product --title "Linear Agent"   |   vawe refs add <url> --no-measure',
     build: (v, [action, source]) => [{ script: 'harness/dev/refs.mjs', args: [action, ...(source ? [source] : []), ...opt('--type', v.type), ...opt('--title', v.title), ...(v['no-measure'] ? ['--no-measure'] : [])] }],
-    next: (v, [action]) => (action === 'add' && v['no-measure'] ? 'bin/vawe see <id> measures it (the id is on the added line); bin/vawe refs list' : action === 'list' && refsEmpty(refsDir()) ? 'bin/vawe frame films/examples/colour-sting/page.html --world all --full, then Read the stills at full size before you design' : action === 'list' ? 'bin/vawe refs frames, then Read the absolute paths it prints (one per frame) at full size before you design; bin/vawe frame <id> --cuts shows how the film moves through each cut' : action === 'frames' ? 'Read the frames at full size; write what you take from which frame before you design' : 'bin/vawe refs list'),
+    next: asText((v, [action]) => (action === 'add' && v['no-measure'] ? say`${vawe('see', '<id>')} measures it (the id is on the added line); ${vawe('refs', 'list')}` : action === 'list' && refsEmpty(refsDir()) ? say`${vawe('frame', 'films/examples/colour-sting/page.html', '--world', 'all', '--full')}, then Read the stills at full size before you design` : action === 'list' ? say`${vawe('refs', 'frames')}, then Read the absolute paths it prints (one per frame) at full size before you design; ${vawe('frame', '<id>', '--cuts')} shows how the film moves through each cut` : action === 'frames' ? 'Read the frames at full size; write what you take from which frame before you design' : vawe('refs', 'list'))),
   },
   {
     tier: 'core',
@@ -358,9 +361,9 @@ export const VERBS = [
       }
       return [{ script: 'harness/media/sound.mjs', args: [input, ...opt('--cuts', v.cuts), ...opt('--from', v.from), ...opt('--to', v.to), ...opt('--out', v.out), ...(v['no-cache'] ? ['--no-cache'] : [])] }];
     },
-    next: (v, [input]) => (v.lab ? 'verdicts are kept in quality/baselines/sound-verdicts.json' : v.sfx ? 'set data-at on the <audio> line, then bin/vawe sound <page> --at <s> to check the cue sounds on its event' : !input ? 'a voice goes in <audio data-synth="name" data-at="s">; vawe sound <track> gives the beat grid and hits of a music file the user gave'
+    next: asText((v, [input]) => (v.lab ? 'verdicts are kept in quality/baselines/sound-verdicts.json' : v.sfx ? say`set data-at on the <audio> line, then ${vawe('sound', '<page>', '--at', '<s>')} to check the cue sounds on its event` : !input ? say`a voice goes in <audio data-synth="name" data-at="s">; ${bare('sound', '<track>')} gives the beat grid and hits of a music file the user gave`
       : v.at || v.waveform ? (v.waveform ? 'Read the PNG: each orange tick must sit on the dashed world line of its visual event; move a cue with data-at or data-on' : 'a cue 0 s into itself starts at that second; move one that is off its event with data-at')
-        : 'Read sound.md and sound.png; put each cut on a hit or a beat line at the frame the cut table names, then vawe sound <track> --cuts <page> again'),
+        : say`Read sound.md and sound.png; put each cut on a hit or a beat line at the frame the cut table names, then ${bare('sound', '<track>', '--cuts', '<page>')} again`)),
   },
 ];
 
