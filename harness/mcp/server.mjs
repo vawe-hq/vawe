@@ -16,7 +16,8 @@ import { writeFileAtomic } from '../lib/atomic-write.mjs';
 import { WORK } from '../lib/workspace.mjs';
 import { isRunning } from '../lib/running-work.mjs';
 import { runVerb } from './run-verb.mjs';
-import { nextAsTools } from './next-as-tools.mjs';
+import { toolNext } from './next-as-tools.mjs';
+import { nextAsTools } from './legacy-next.mjs';
 import { fixRound, FIX_NEXT } from './fix-first.mjs';
 import { uiSkillsArgs, runUiSkills as spawnUiSkills, logFetched, fetchedSlugs, unfetchedClaims, clipText, UI_SKILLS_ACTIONS } from './ui-skills.mjs';
 
@@ -45,7 +46,7 @@ function reply(body, images = []) {
   return { content, isError: body.ok === false };
 }
 
-const refused = (gate) => reply({ ok: false, findings: [finding('refused', gate.reason, gate.next)], next: gate.next });
+const refused = (gate) => reply({ ok: false, findings: [finding('refused', gate.reason, gate.step)], next: gate.step });
 
 /** The taste lines for the beats a write changed: the topics each beat holds, at most MAX_TASTE lines, none already sent for this film in this session. */
 function beatTaste(p, work, before, after, sent) {
@@ -82,7 +83,7 @@ function checkedWrite(p, html, work, sent, before) {
   const blocks = findings.filter((f) => f.severity === 'block').map(fromContract);
   if (blocks.length) return reply({ ok: false, findings: blocks, next: 'fix the blocking findings and write the page again; nothing was written' });
   writeFileAtomic(p.page, html);
-  const next = stageGate(p.dir, 'vawe_write_page', { root: work }).next;
+  const next = stageGate(p.dir, 'vawe_write_page', { root: work }).step;
   return reply({ ok: true, findings: findings.map(fromContract), next, taste: beatTaste(p, work, before, html, sent) });
 }
 
@@ -154,7 +155,7 @@ function docReply(p, file, text, work) {
   if (!full) return bad(`${file} is not a film doc this tool writes`);
   fs.mkdirSync(path.dirname(full), { recursive: true });
   writeFileAtomic(full, text);
-  return reply({ ok: true, findings: docFindings(p, file, text, work), next: nextStep(p.page, work).next });
+  return reply({ ok: true, findings: docFindings(p, file, text, work), next: nextStep(p.page, work).step });
 }
 
 function writeDoc({ film, file, text }, work) {
@@ -188,12 +189,12 @@ function kitLines(p) {
 function readRules({ film, topic }, work) {
   const p = paths(film, work);
   const stage = fs.existsSync(p.dir) ? nextStep(p.page, work).stage : 'brief';
-  if (topic === 'kit') return reply({ ok: true, findings: [], next: nextStep(p.page, work).next, kit: kitLines(p) });
+  if (topic === 'kit') return reply({ ok: true, findings: [], next: nextStep(p.page, work).step, kit: kitLines(p) });
   if (topic && !TASTE_TOPICS.includes(topic)) {
     return reply({ ok: false, findings: [finding('unknown-topic', `no topic "${topic}"`, `use one of: ${[...TASTE_TOPICS, 'kit'].join(', ')}`)], next: 'call vawe_read_rules again with a valid topic' });
   }
   const contract = ['a film is films/<name>/page.html with <meta name="duration"> and one data-world element per beat', 'relative asset paths only'];
-  return reply({ ok: true, findings: [], next: nextStep(p.page, work).next, taste: tasteFor(stage, topic ?? null), contract });
+  return reply({ ok: true, findings: [], next: nextStep(p.page, work).step, taste: tasteFor(stage, topic ?? null), contract });
 }
 
 async function wait({ film }, work) {
@@ -201,7 +202,7 @@ async function wait({ film }, work) {
   if (!fs.existsSync(p.dir)) return refused(stageGate(p.dir, 'vawe_wait', { root: work }));
   if (!isRunning(p.rel, work)) {
     const step = nextStep(p.page, work);
-    return reply({ ok: false, findings: [finding('nothing-running', 'no render, critique or ship of this film is running', step.next)], next: step.next });
+    return reply({ ok: false, findings: [finding('nothing-running', 'no render, critique or ship of this film is running', step.step)], next: step.step });
   }
   return viaVerb(['wait', p.rel], work);
 }
@@ -211,7 +212,7 @@ function status({ film }, work) {
   const gate = stageGate(p.dir, 'vawe_status', { root: work });
   if (!gate.allow) return refused(gate);
   const step = nextStep(p.page, work);
-  return reply({ ok: true, findings: [], stage: step.stage, why: step.why, next: step.next });
+  return reply({ ok: true, findings: [], stage: step.stage, why: step.whyStep, next: step.step });
 }
 
 const FRAME_FLAGS = { world: () => ['--world', 'all'], board: () => ['--board'], cuts: () => ['--cuts'], moment: (t) => ['--moment', String(t)], directions: () => ['--directions'] };
@@ -240,7 +241,7 @@ async function refs({ action, id }, work) {
 /** The reply with its shell commands swapped for the tool calls that do the same (the agent has no shell). */
 function asTools(result, film) {
   const body = JSON.parse(result.content[0].text);
-  const swap = (text) => (typeof text === 'string' ? nextAsTools(text, { film }) : text);
+  const swap = (next) => (Array.isArray(next) ? toolNext(next, film) : typeof next === 'string' ? nextAsTools(next, { film }) : next);
   const next = { ...body, next: swap(body.next), why: swap(body.why), output: swap(body.output), findings: (body.findings ?? []).map((f) => ({ ...f, fix: swap(f.fix) })) };
   if (body.fix_first) next.fix_first = body.fix_first.map((f) => ({ ...f, fix: swap(f.fix) }));
   return { ...result, content: [{ type: 'text', text: JSON.stringify(next, null, 2) }, ...result.content.slice(1)] };

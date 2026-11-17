@@ -24,24 +24,26 @@ export function rootOf(filmDir) {
 export const shipProblems = (page, { root, env = process.env } = {}) =>
   [critiqueProblem(page, { root, env }), shipProblem(page, { root, env })].filter(Boolean);
 
-const refuse = (reason, next) => ({ allow: false, reason, next });
-const allow = (next = null) => ({ allow: true, reason: null, next });
+// `next` is a stage from nextStep or plain words; `step` is the same next step as data.
+const nextOf = (next) => (next !== null && typeof next === 'object' ? { next: next.next, step: next.step } : { next, step: next });
+const refuse = (reason, next) => ({ allow: false, reason, ...nextOf(next) });
+const allow = (next = null) => ({ allow: true, reason: null, ...nextOf(next) });
 const verdict = (ok, reason, next) => (ok ? allow(next) : refuse(reason, next));
 
 // Each rule gets { page, hasPage, stage, step, mode, root, env } and answers { allow, reason, next }.
 const RULES = {
   vawe_frame: ({ hasPage, step, mode, page, root }) => {
-    if (!hasPage) return refuse('no page.html yet: frames come after the page is written', step.next);
+    if (!hasPage) return refuse('no page.html yet: frames come after the page is written', step);
     const needsDraft = mode === 'cuts' || mode === 'moment';
-    return verdict(!needsDraft || loopState(page, root).draft, 'no draft yet: cuts and moments are read from a draft', step.next);
+    return verdict(!needsDraft || loopState(page, root).draft, 'no draft yet: cuts and moments are read from a draft', step);
   },
-  vawe_render_draft: ({ hasPage, stage, step }) => verdict(hasPage && !BEFORE_DRAFT.has(stage), step.why, step.next),
-  vawe_look: ({ hasPage, page, root, step }) => verdict(hasPage && loopState(page, root).draft, 'no draft to look at', step.next),
-  vawe_critique: ({ hasPage, stage, step }) => verdict(hasPage && FROM_CRITIQUE.has(stage), `the motion pass is not done: ${step.why}`, step.next),
+  vawe_render_draft: ({ hasPage, stage, step }) => verdict(hasPage && !BEFORE_DRAFT.has(stage), step.why, step),
+  vawe_look: ({ hasPage, page, root, step }) => verdict(hasPage && loopState(page, root).draft, 'no draft to look at', step),
+  vawe_critique: ({ hasPage, stage, step }) => verdict(hasPage && FROM_CRITIQUE.has(stage), `the motion pass is not done: ${step.why}`, step),
   vawe_ship: ({ hasPage, page, root, env, step }) => {
-    if (!hasPage) return refuse('no page.html to ship', step.next);
+    if (!hasPage) return refuse('no page.html to ship', step);
     const problems = shipProblems(page, { root, env });
-    return verdict(!problems.length, problems.join('; '), step.next);
+    return verdict(!problems.length, problems.join('; '), step);
   },
 };
 
@@ -61,8 +63,8 @@ export function stageGate(filmDir, tool, { mode = null, root = rootOf(filmDir), 
   if (tool === 'vawe_new_film') return verdict(!fs.existsSync(dir), `${path.relative(root, dir)} exists`, 'pick another name, or work on the film that exists');
   if (!fs.existsSync(dir)) return refuse(`no film folder ${path.relative(root, dir)}`, 'vawe_new_film');
   const step = nextStep(page, root);
-  if (ALWAYS.has(tool)) return allow(step.next);
+  if (ALWAYS.has(tool)) return allow(step);
   const rule = RULES[tool];
-  if (!rule) return refuse(`unknown tool ${tool}`, step.next);
+  if (!rule) return refuse(`unknown tool ${tool}`, step);
   return rule({ page, hasPage: fs.existsSync(page), stage: gateStage(step, dir), step, mode, root, env });
 }

@@ -8,14 +8,17 @@ import { paramsFilm } from './page-params.mjs';
 import { sectionOf } from './board.mjs';
 import { parseDirections } from './directions.mjs';
 import { renderState } from './render-meta.mjs';
+import { say, vawe, docAt, shellNext, asText } from './next-step.mjs';
 
 const TEXT_FILE = /\.(html|css|m?js|svg)$/i;
 const FILE_TOKEN = /[\w@./-]+\.[a-z0-9]{2,5}\b/gi;
 
 export const ASK_LINE = 'end your message with one line, "If you like it, type /vawe-approve"';
 export const ASK_OK = `${ASK_LINE}, and stop`;
-export const SHOW_PLAN = `show the person the directions board (bin/vawe frame <page> --directions) and the Board, then ${ASK_OK}`;
-export const SHOW_OWNER = `show the person the draft (bin/vawe frame <draft>), then ${ASK_OK}`;
+export const SHOW_PLAN_STEP = say`show the person the directions board (${vawe('frame', '<page>', '--directions')}) and the Board, then ${ASK_OK}`;
+export const SHOW_OWNER_STEP = say`show the person the draft (${vawe('frame', '<draft>')}), then ${ASK_OK}`;
+export const SHOW_PLAN = shellNext(SHOW_PLAN_STEP);
+export const SHOW_OWNER = shellNext(SHOW_OWNER_STEP);
 
 export const approvalPath = (film, root = '.') => path.join(root, 'out', `${paramsFilm(filmKeyOf(film))}.approved`);
 export const planApprovalPath = (film, root = '.') => path.join(root, 'out', `${filmKeyOf(film)}.plan-approved`);
@@ -90,25 +93,30 @@ export function draftState(pagePath, { root = '.' } = {}) {
   return draftChange(approval, pagePath, root) ? 'stale' : 'fresh';
 }
 
-/** The reason a final render may not start, or null when it may. VAWE_UNATTENDED=1 (hill-climb, CI, the A/B test) needs no approval. */
-export function shipProblem(pagePath, { root = '.', env = process.env } = {}) {
+/** The reason a final render may not start as a step, or null when it may. VAWE_UNATTENDED=1 (hill-climb, CI, the A/B test) needs no approval. */
+export function shipProblemStep(pagePath, { root = '.', env = process.env } = {}) {
   if (env.VAWE_UNATTENDED === '1') return null;
   const film = filmKeyOf(pagePath);
   const plan = planState(pagePath, { root });
-  if (plan === 'none') return `waiting for the person's OK on the plan of ${film}: ${SHOW_PLAN}`;
-  if (plan === 'stale') return `the plan of ${film} changed after the person's OK: ${SHOW_PLAN}`;
+  if (plan === 'none') return say`waiting for the person's OK on the plan of ${film}: ${SHOW_PLAN_STEP}`;
+  if (plan === 'stale') return say`the plan of ${film} changed after the person's OK: ${SHOW_PLAN_STEP}`;
   const draft = draftState(pagePath, { root });
-  if (draft === 'none') return `waiting for the person's OK on the draft of ${film}: ${SHOW_OWNER}`;
-  return draft === 'stale' ? `${draftChange(readApproval(pagePath, root), pagePath, root)} after the person's OK on the draft: ${SHOW_OWNER}` : null;
+  if (draft === 'none') return say`waiting for the person's OK on the draft of ${film}: ${SHOW_OWNER_STEP}`;
+  return draft === 'stale' ? say`${draftChange(readApproval(pagePath, root), pagePath, root)} after the person's OK on the draft: ${SHOW_OWNER_STEP}` : null;
 }
 
-/** The reason the plan cannot be approved, or null: it needs a Directions section (with a picked line) or a Board. */
-export function planProblem(pagePath) {
+export const shipProblem = asText(shipProblemStep);
+
+/** The reason the plan cannot be approved as a step, or null: it needs a Directions section (with a picked line) or a Board. */
+export function planProblemStep(pagePath) {
   const brief = readBrief(pagePath);
-  if (planDigest(pagePath) === null) return `no plan to approve: write the Directions and the Board in ${path.relative('.', briefPath(pagePath))}`;
+  const briefDoc = docAt(path.relative('.', briefPath(pagePath)), 'write');
+  if (planDigest(pagePath) === null) return say`no plan to approve: write the Directions and the Board in ${briefDoc}`;
   const directions = parseDirections(brief);
-  return directions.found && !directions.picked?.id ? `the plan has no picked direction: show the directions board, ask the person to pick one, write the picked line in ${path.relative('.', briefPath(pagePath))}` : null;
+  return directions.found && !directions.picked?.id ? say`the plan has no picked direction: show the directions board, ask the person to pick one, write the picked line in ${briefDoc}` : null;
 }
+
+export const planProblem = asText(planProblemStep);
 
 /** The reason a draft cannot be approved, or null: a full draft (no --from, --to) newer than the page and its files. */
 export function approveProblem(pagePath, { root = '.' } = {}) {

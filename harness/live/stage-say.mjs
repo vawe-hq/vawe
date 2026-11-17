@@ -10,7 +10,8 @@ import { isClipDemo } from '../lib/clip-demo.mjs';
 import { movesTaken, boardFilled, motionFilled, boardChecks, spectacleOf, moveRows, briefLengthLine } from '../lib/board.mjs';
 import { handoffAdvice } from '../lib/handoffs.mjs';
 import { ideasFilled, IDEATE_ASK } from '../lib/ideas.mjs';
-import { ASK_LINE, shipProblem, planProblem } from '../lib/approval.mjs';
+import { ASK_LINE, shipProblemStep, planProblemStep } from '../lib/approval.mjs';
+import { say, vawe, doc, cmd, buildPage, shellNext, asText } from '../lib/next-step.mjs';
 import { loopState, filmDirOf } from '../lib/loop-state.mjs';
 import { statedLength } from '../media/page-duration.mjs';
 import { staleCheckoutLine, mainCheckoutLine } from '../lib/stale-checkout.mjs';
@@ -76,33 +77,39 @@ export function missingRungs(design) {
   });
 }
 
-/**
- * The one owner of the stage order (AGENTS.md, The loop). Each entry is the text of one command line; the verbs in
- * harness/cli/verbs.mjs print these after they run, so a verb and this hook never name different next steps.
- */
-export const WAIT_WORK = "while it renders, fill the brief's Board and Motion pass rows if empty, Read the bin/vawe frame <page> --cuts grids, or prepare the critique notes";
+export const WAIT_STEP = say`while it renders, fill the brief's Board and Motion pass rows if empty, Read the ${vawe('frame', '<page>', '--cuts')} grids, or prepare the critique notes`;
+export const WAIT_WORK = shellNext(WAIT_STEP);
 
 export const CRITIQUE_ASK = 'ask: what reads flat, and what is a trick (an effect with no job)?';
 export const BRIEF_ASK = 'ask: what is the one thing to remember, who watches it, and where (platform, sound on or off)?';
 
-export const SAY = {
-  study: (name) => `bin/vawe refs list, bin/vawe refs frames <id>, Read the frames at full size, then fill "Taken from" in films/${name}/brief.md: ${TAKEN_FROM_MIN} to 6 frames, exact path and what you take; ask: what does this ref do that a simple film does not?`,
-  moves: () => `bin/vawe frame <ref-id> --cuts on 2 reference films, Read every strip, then name ${MOVES_MIN} moves in "Taken from" (ref id, cut second) and which of the ten patterns in taste/craft/film-structure.md (The motion grammar) each ref uses; ask: what does the cut do to the eye?`,
-  design: (name) => `write films/${name}/DESIGN.md and films/${name}/kit/ (format: skills/vawe-page/SKILL.md, example: films/examples/colour-sting/kit/; type: taste/craft/typography.md, colour: taste/craft/color.md); ask: which type scale and colour roles still read at this screen size?`,
-  skills: (name, rungs) => `add to films/${name}/DESIGN.md one line per rung (${rungs.join(', ')}): "Skill <rung>: <slug>: what it decided", or "Skipped <rung>: <reason>"; list the skills with command npx -y ui-skills list`,
-  states: (name, rel) => `build one static state per world in ${rel} from the kit, no motion yet (layout: taste/craft/layout.md), then bin/vawe frame ${rel} --world all; ask: where is the eye in each frame, and what does it see first?`,
-  frames: (name, rel) => `bin/vawe frame ${rel} --world all`,
-  ideas: (name, rel) => `fill "Ideas" in films/${name}/brief.md (guides/IDEATE.md): ${IDEATE_ASK}; then bin/vawe frame ${rel} --board lists what the taste docs say about the plan`,
-  board: (name, rel) => `bin/vawe frame ${rel} --board lists what the taste docs say about the plan (stagger gaps, read holds, the last second); then fill "Board" in films/${name}/brief.md: rhythm, spectacle, a move per cut and its handoff (load skills/vawe-transitions/SKILL.md: the cut's row in the Ideas ledger (guides/IDEATE.md), the less typical pick, the ledger; families: taste/craft/transitions.md; feeling: taste/craft/selection.md), sound (effects on actions, a real recording first, no bed: taste/craft/sound.md); ask: what carries the eye across each cut, what is the rhythm, where is the one big moment, what sound sits on each action?`,
-  cut: (name) => `Read films/${name}/footage.md and its contact sheets, then fill the "why" cell of each row in "Cut list" in films/${name}/brief.md (in and out seconds, rate, and the message line); ask: which action or word ends each clip, and what does the cut keep?`,
-  dev: (name, rel) => `bin/vawe dev ${rel}`,
-  motion: (name, rel) => `bin/vawe frame ${rel} --cuts and Read every cut at full size; for the spectacle second also bin/vawe frame ${rel} --moment <s> --onion and bin/vawe frame ${rel} --moment <s> --velocity; check each cut against taste/craft/motion-craft.md and the principles in core/motion/README.md: anticipation on the hero, follow-through and overlap, eased spacing, arcs on travelling elements, secondary action, exits faster than entrances, holds alive through element motion, camera still unless the spectacle; fix what reads flat`,
-  cutCheck: (name, rel) => `bin/vawe frame ${rel} --cuts and Read every cut at full size; check that each cut lands on an action or a word end (films/${name}/footage/<clip>.words.json has the word times) and each clip holds 1.2 s or more; move the in and out points in the Cut list and the page`,
-  motionRows: (name) => `write one row per cut in "Motion pass" in films/${name}/brief.md: each principle checked, what read flat, what you fixed`,
-  critique: (name, rel) => `bin/vawe critique ${rel} --fresh`,
-  plan: (page, rel) => `${planProblem(page) ?? `show the plan to the person: the directions board (bin/vawe frame ${rel} --directions) and the Board`}, then go on with ${SAY.dev('', rel)} and ${ASK_LINE}`,
-  ship: (name, rel) => `bin/vawe ship ${rel}, then bin/vawe wait ${rel} (one call waits up to 100 seconds, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_WORK}`,
+const UI_SKILLS_LIST = cmd('list', [], { bin: 'command npx -y ui-skills' });
+
+/**
+ * The one owner of the stage order (AGENTS.md, The loop). Each entry is one next step as data (harness/lib/next-step.mjs); the verbs in
+ * harness/cli/verbs.mjs print these after they run, so a verb and this hook never name different next steps.
+ */
+export const STEP = {
+  study: (name) => say`${vawe('refs', 'list')}, ${vawe('refs', 'frames', '<id>')}, Read the frames at full size, then fill "Taken from" in ${doc(name, 'brief.md', 'edit')}: ${TAKEN_FROM_MIN} to 6 frames, exact path and what you take; ask: what does this ref do that a simple film does not?`,
+  moves: () => say`${vawe('frame', '<ref-id>', '--cuts')} on 2 reference films, Read every strip, then name ${MOVES_MIN} moves in "Taken from" (ref id, cut second) and which of the ten patterns in taste/craft/film-structure.md (The motion grammar) each ref uses; ask: what does the cut do to the eye?`,
+  design: (name) => say`write ${doc(name, 'DESIGN.md', 'write')} and ${doc(name, 'kit/', 'write')} (format: skills/vawe-page/SKILL.md, example: films/examples/colour-sting/kit/; type: taste/craft/typography.md, colour: taste/craft/color.md); ask: which type scale and colour roles still read at this screen size?`,
+  skills: (name, rungs) => say`add to ${doc(name, 'DESIGN.md', 'edit')} one line per rung (${rungs.join(', ')}): "Skill <rung>: <slug>: what it decided", or "Skipped <rung>: <reason>"; list the skills with ${UI_SKILLS_LIST}`,
+  states: (name, rel) => say`build one static state per world in ${buildPage(rel)} from the kit, no motion yet (layout: taste/craft/layout.md), then ${vawe('frame', rel, '--world', 'all')}; ask: where is the eye in each frame, and what does it see first?`,
+  frames: (name, rel) => say`${vawe('frame', rel, '--world', 'all')}`,
+  ideas: (name, rel) => say`fill "Ideas" in ${doc(name, 'brief.md', 'edit')} (guides/IDEATE.md): ${IDEATE_ASK}; then ${vawe('frame', rel, '--board')} lists what the taste docs say about the plan`,
+  board: (name, rel) => say`${vawe('frame', rel, '--board')} lists what the taste docs say about the plan (stagger gaps, read holds, the last second); then fill "Board" in ${doc(name, 'brief.md', 'edit')}: rhythm, spectacle, a move per cut and its handoff (load skills/vawe-transitions/SKILL.md: the cut's row in the Ideas ledger (guides/IDEATE.md), the less typical pick, the ledger; families: taste/craft/transitions.md; feeling: taste/craft/selection.md), sound (effects on actions, a real recording first, no bed: taste/craft/sound.md); ask: what carries the eye across each cut, what is the rhythm, where is the one big moment, what sound sits on each action?`,
+  cut: (name) => say`Read films/${name}/footage.md and its contact sheets, then fill the "why" cell of each row in "Cut list" in ${doc(name, 'brief.md', 'edit')} (in and out seconds, rate, and the message line); ask: which action or word ends each clip, and what does the cut keep?`,
+  dev: (name, rel) => say`${vawe('dev', rel)}`,
+  motion: (name, rel) => say`${vawe('frame', rel, '--cuts')} and Read every cut at full size; for the spectacle second also ${vawe('frame', rel, '--moment', '<s>', '--onion')} and ${vawe('frame', rel, '--moment', '<s>', '--velocity')}; check each cut against taste/craft/motion-craft.md and the principles in core/motion/README.md: anticipation on the hero, follow-through and overlap, eased spacing, arcs on travelling elements, secondary action, exits faster than entrances, holds alive through element motion, camera still unless the spectacle; fix what reads flat`,
+  cutCheck: (name, rel) => say`${vawe('frame', rel, '--cuts')} and Read every cut at full size; check that each cut lands on an action or a word end (films/${name}/footage/<clip>.words.json has the word times) and each clip holds 1.2 s or more; move the in and out points in the Cut list and the page`,
+  motionRows: (name) => say`write one row per cut in "Motion pass" in ${doc(name, 'brief.md', 'write')}: each principle checked, what read flat, what you fixed`,
+  critique: (name, rel) => say`${vawe('critique', rel, '--fresh')}`,
+  plan: (page, rel) => say`${planProblemStep(page) ?? say`show the plan to the person: the directions board (${vawe('frame', rel, '--directions')}) and the Board`}, then go on with ${STEP.dev('', rel)} and ${ASK_LINE}`,
+  ship: (name, rel) => say`${vawe('ship', rel)}, then ${vawe('wait', rel)} (one call waits up to 100 seconds, then says STILL RUNNING: call it again; run it alone, not in parallel); ${WAIT_STEP}`,
 };
+
+/** The stage steps as the text a person reads at a shell, the form the hooks and verbs print. */
+export const SAY = Object.fromEntries(Object.entries(STEP).map(([k, fn]) => [k, asText(fn)]));
 
 /** True when `out/strip/<name>` or `out/strip/<name>-*` changed after `sinceMs`: an agent's own --out folders count. */
 function stripsSince(root, name, sinceMs) {
@@ -117,18 +124,21 @@ function designPlan(brief) {
   return { edit, plan, taken: plan ? takenFromCount(plan) : null, moves: plan ? movesTakenCount(plan) : null };
 }
 
+/** A stage and its next step: `step` and `whyStep` are data, `next` and `why` the shell text of them. */
+const at = (name, stage, step, why) => ({ name, stage, next: shellNext(step), step, why: shellNext(why), whyStep: why });
+
 /** The step of a film with no brief.md. */
-export const briefStep = (name) => ({ name, stage: 'brief', next: `create films/${name}/brief.md: the ask, the message, the spectacle second, "Taken from", "Board" (bin/vawe new <other-name> writes the template to copy); ${BRIEF_ASK}`, why: `films/${name} has no brief.md` });
+export const briefStep = (name) => at(name, 'brief', say`create ${doc(name, 'brief.md', 'write')}: the ask, the message, the spectacle second, "Taken from", "Board" (${vawe('new', '<other-name>')} writes the template to copy); ${BRIEF_ASK}`, `films/${name} has no brief.md`);
 
 export function nextStep(page, root = process.cwd()) {
   if (isClipDemo(page)) {
     const clip = path.basename(page, '.html');
-    return { name: clip, stage: 'clip', next: `bin/vawe-dev moves --only ${clip}`, why: 'a page under prompts/moves/demo/ is a clip: it has no brief, and bin/vawe-dev moves renders it' };
+    return at(clip, 'clip', cmd('moves', ['--only', clip], { bin: 'bin/vawe-dev' }), 'a page under prompts/moves/demo/ is a clip: it has no brief, and bin/vawe-dev moves renders it');
   }
   const name = path.basename(filmDirOf(page));
   const rel = path.relative(root, page);
   if (isTestPage(page, root)) {
-    return { name, stage: 'test', next: `bin/vawe frame ${rel} --moment <the second to check>`, why: 'a test page inside a film folder has no brief of its own' };
+    return at(name, 'test', vawe('frame', rel, '--moment', '<the second to check>'), 'a test page inside a film folder has no brief of its own');
   }
   const dir = filmDirOf(page);
   const t = mtime(page);
@@ -141,40 +151,40 @@ export function nextStep(page, root = process.cwd()) {
   const early = !draft && !final && !framed;
   if (early && !brief) return briefStep(name);
   if (early && taken !== null && taken < TAKEN_FROM_MIN) {
-    return { name, stage: 'study', next: SAY.study(name), why: `Taken from not filled (${taken} named frames); it comes before the design files` };
+    return at(name, 'study', STEP.study(name), `Taken from not filled (${taken} named frames); it comes before the design files`);
   }
   if (early && moves !== null && moves < MOVES_MIN) {
-    return { name, stage: 'moves', next: SAY.moves(), why: `${moves} moves named; motion is studied before the board` };
+    return at(name, 'moves', STEP.moves(), `${moves} moves named; motion is studied before the board`);
   }
   if (early && taken !== null && !mtime(design)) {
-    return { name, stage: 'design', next: SAY.design(name), why: 'the design system and the asset kit come before the states' };
+    return at(name, 'design', STEP.design(name), 'the design system and the asset kit come before the states');
   }
   const rungs = early && taken !== null ? missingRungs(read(design)) : [];
   if (rungs.length) {
-    return { name, stage: 'skills', next: SAY.skills(name, rungs), why: `DESIGN.md has no Skill line for ${rungs.join(', ')}; one skill per rung is applied before the states (advice: a rung you skip needs a "Skipped <rung>: <reason>" line that cites a reference frame path or a SPEC.md line)` };
+    return at(name, 'skills', STEP.skills(name, rungs), `DESIGN.md has no Skill line for ${rungs.join(', ')}; one skill per rung is applied before the states (advice: a rung you skip needs a "Skipped <rung>: <reason>" line that cites a reference frame path or a SPEC.md line)`);
   }
   if (early && taken !== null && t <= mtime(design)) {
-    return { name, stage: 'states', next: SAY.states(name, rel), why: 'DESIGN.md is newer than the page; the states come before the frames and the motion' };
+    return at(name, 'states', STEP.states(name, rel), 'DESIGN.md is newer than the page; the states come before the frames and the motion');
   }
-  if (edit && !draft && !final && emptyPlanParts(brief).length) return { name, stage: 'cut', next: SAY.cut(name), why: 'the Cut list is the plan of an edit film: fill it from the footage log' };
-  if (early && !edit && hasWorlds(page)) return { name, stage: 'states', next: SAY.frames(name, rel), why: 'the frames come before the motion' };
+  if (edit && !draft && !final && emptyPlanParts(brief).length) return at(name, 'cut', STEP.cut(name), 'the Cut list is the plan of an edit film: fill it from the footage log');
+  if (early && !edit && hasWorlds(page)) return at(name, 'states', STEP.frames(name, rel), 'the frames come before the motion');
   const stated = statedLength(read(page));
   const stale = !draft && !final && plan && typeof stated === 'number' ? briefLengthLine(brief, stated) : null;
   if (stale) {
-    return { name, stage: 'board', next: `bring Length, Board and Spec in films/${name}/brief.md to the page, then bin/vawe frame ${rel} --board`, why: `${stale}; a plan for another film length is stale` };
+    return at(name, 'board', say`bring Length, Board and Spec in ${doc(name, 'brief.md', 'edit')} to the page, then ${vawe('frame', rel, '--board')}`, `${stale}; a plan for another film length is stale`);
   }
   if (!draft && !final && plan && ideasFilled(plan) !== true) {
-    return { name, stage: 'ideas', next: SAY.ideas(name, rel), why: 'the Ideas ledger is empty; the ideas come before the board, so each cut carries a chosen idea' };
+    return at(name, 'ideas', STEP.ideas(name, rel), 'the Ideas ledger is empty; the ideas come before the board, so each cut carries a chosen idea');
   }
   if (!draft && !final && plan && boardFilled(plan) === false) {
-    return { name, stage: 'board', next: SAY.board(name, rel), why: 'the board is a plan for time and comes after the states, before the motion' };
+    return at(name, 'board', STEP.board(name, rel), 'the board is a plan for time and comes after the states, before the motion');
   }
   const boardAdvice = !draft && !final && plan && boardFilled(plan) ? [...boardChecks(brief, spectacleOf(read(page))), ...handoffAdvice(moveRows(brief))] : [];
   if (boardAdvice.length) {
-    return { name, stage: 'board', next: `check "Board" in films/${name}/brief.md (advice; a plan you keep on purpose needs no change), then ${SAY.dev(name, rel)}`, why: boardAdvice.map((l) => l.replace(/^board: /, '')).join('; ') };
+    return at(name, 'board', say`check "Board" in ${doc(name, 'brief.md', 'edit')} (advice; a plan you keep on purpose needs no change), then ${STEP.dev(name, rel)}`, boardAdvice.map((l) => l.replace(/^board: /, '')).join('; '));
   }
   if (!draft && !final && plan && boardFilled(plan) && process.env.VAWE_UNATTENDED !== '1' && state.approval.plan !== 'fresh') {
-    return { name, stage: 'plan', next: SAY.plan(page, rel), why: `the person has not given an OK on the plan (${state.approval.plan === 'stale' ? 'the Directions or the Board changed after the last OK' : 'no OK yet'}); the draft does not wait for it, only the final render does` };
+    return at(name, 'plan', STEP.plan(page, rel), `the person has not given an OK on the plan (${state.approval.plan === 'stale' ? 'the Directions or the Board changed after the last OK' : 'no OK yet'}); the draft does not wait for it, only the final render does`);
   }
   return afterDraft({ page, root, name, rel, state, brief, plan });
 }
@@ -188,17 +198,17 @@ function afterDraft({ page, root, name, rel, state, brief, plan }) {
   const stripped = stripsSince(root, name, draftMs);
   if (draft && finalOld && plan && (ideasFilled(plan) === false || boardFilled(plan) === false)) {
     return ideasFilled(brief) === false
-      ? { name, stage: 'ideas', next: SAY.ideas(name, rel), why: 'the draft was made without a plan: the Ideas ledger is empty; fill it, then the board, before the next draft' }
-      : { name, stage: 'board', next: SAY.board(name, rel), why: 'the draft was made without a plan: the Board is empty; fill it before the next draft' };
+      ? at(name, 'ideas', STEP.ideas(name, rel), 'the draft was made without a plan: the Ideas ledger is empty; fill it, then the board, before the next draft')
+      : at(name, 'board', STEP.board(name, rel), 'the draft was made without a plan: the Board is empty; fill it before the next draft');
   }
-  if (draftOld && finalOld) return { name, stage: 'draft', next: SAY.dev(name, rel), why: 'the page changed after its last draft' };
-  if (finalOld && !stripped) return { name, stage: 'motion', next: (isEditFilm(brief) ? SAY.cutCheck : SAY.motion)(name, rel), why: 'a draft exists; the motion pass comes before the critique (dev: overshoot-share, live-hold and seam-variety clean or waived with a reason)' };
+  if (draftOld && finalOld) return at(name, 'draft', STEP.dev(name, rel), 'the page changed after its last draft');
+  if (finalOld && !stripped) return at(name, 'motion', (isEditFilm(brief) ? STEP.cutCheck : STEP.motion)(name, rel), 'a draft exists; the motion pass comes before the critique (dev: overshoot-share, live-hold and seam-variety clean or waived with a reason)');
   const looks = finalOld ? looksSince(name, draftMs, root) : { printed: [], unread: [] };
   if (looks.unread.length && readHookSeen(root, undefined, draftMs)) {
     const n = looks.printed.length;
-    return { name, stage: 'motion', next: `Read the ${n} cut strips of this draft (${n - looks.unread.length} of ${n} read): ${looks.unread[0]}`, why: 'the strips are rendered; the motion pass starts with looking at them' };
+    return at(name, 'motion', `Read the ${n} cut strips of this draft (${n - looks.unread.length} of ${n} read): ${looks.unread[0]}`, 'the strips are rendered; the motion pass starts with looking at them');
   }
-  if (finalOld && motionFilled(brief) === false) return { name, stage: 'motion', next: SAY.motionRows(name), why: 'the cuts are stripped; the Motion pass section is empty' };
+  if (finalOld && motionFilled(brief) === false) return at(name, 'motion', STEP.motionRows(name), 'the cuts are stripped; the Motion pass section is empty');
   return afterMotion({ page, root, name, rel, state });
 }
 
@@ -206,12 +216,12 @@ function afterDraft({ page, root, name, rel, state, brief, plan }) {
 function afterMotion({ page, root, name, rel, state }) {
   const finalOld = !state.final?.current;
   if (finalOld && !state.critique) {
-    return { name, stage: 'critique', next: SAY.critique(name, rel), why: `the motion pass is done; critique the draft in a fresh session, fix the named seconds, then bin/vawe ship; ${CRITIQUE_ASK}` };
+    return at(name, 'critique', STEP.critique(name, rel), say`the motion pass is done; critique the draft in a fresh session, fix the named seconds, then ${vawe('ship')}; ${CRITIQUE_ASK}`);
   }
-  const waiting = finalOld ? shipProblem(page, { root }) : null;
-  if (waiting) return { name, stage: 'approve', next: waiting, why: 'the critique ran on this draft; the final render needs the person\'s OK on the plan and on the draft' };
-  if (finalOld) return { name, stage: 'ship', next: SAY.ship(name, rel), why: 'the critique ran on this draft; fix the seconds it named, then render the final' };
-  return { name, stage: 'judge', next: SAY.critique(name, rel), why: 'the final is rendered; a fresh session judges it' };
+  const waiting = finalOld ? shipProblemStep(page, { root }) : null;
+  if (waiting) return at(name, 'approve', waiting, 'the critique ran on this draft; the final render needs the person\'s OK on the plan and on the draft');
+  if (finalOld) return at(name, 'ship', STEP.ship(name, rel), 'the critique ran on this draft; fix the seconds it named, then render the final');
+  return at(name, 'judge', STEP.critique(name, rel), 'the final is rendered; a fresh session judges it');
 }
 
 /** The page film git sees as changed and edited most recently (within RECENT_MS), or null. */

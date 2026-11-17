@@ -1,54 +1,29 @@
-// The `next` text of the stage logic names shell commands (bin/vawe ...) and film files. The vawe agent has no shell and no file
-// writer, so the MCP server swaps each command for the tool call that does the same, and tags each film doc with the tool that writes
-// it. The wording around the command stays; stage-say's own output (the Claude Code hooks, the shell path) is not touched.
+// A next step (harness/lib/next-step.mjs) names shell commands (bin/vawe ...) and film docs. The vawe agent has no shell and no
+// file writer, so toolNext prints the step with each command as the tool call that does the same and each film doc tagged with
+// the tool that writes it. The words around the command stay.
+import { step, commandText } from '../lib/next-step.mjs';
 
-const COMMAND = /(?:\bVAWE_AGENT=\S+\s+)?(?<![\w/-])((?:bin\/)?)vawe[ \t]+([a-z][a-z0-9-]*)/g;
-const TOKEN = /[ \t]+(<[^>]*>|"[^"]*"|[^\s,;:)]+)([,;:.)]?)/y;
-const PLACEHOLDER = /^<[^>]*>$/;
 const PAGE_WORD = /^(?:films\/|[^/\s]*\.html$)/;
+const PLACEHOLDER = /^<[^>]*>$/;
 const FILM_IN_PATH = /^films\/(examples\/)?([a-z0-9][\w-]*)\//;
 const PAGE_PLACEHOLDERS = new Set(['<page>', '<draft>', '<page|mp4>', '<rel>', '<film>']);
+const FLAG = /^--?[a-z][a-z-]*$/;
 
-const SPECS = {
-  frame: { pos: 1, valueFlags: new Set(['world', 'moment', 'at', 'vs', 'out', 'from', 'to', 'aspect']), positional: (t) => PAGE_WORD.test(t) || PLACEHOLDER.test(t) || /^[A-Za-z0-9_-]{6,}$/.test(t) },
-  dev: { pos: 1, valueFlags: new Set(['from', 'to', 'aspect']), positional: (t) => PAGE_WORD.test(t) || PLACEHOLDER.test(t) },
-  critique: { pos: 1, valueFlags: new Set(), positional: (t) => PAGE_WORD.test(t) || PLACEHOLDER.test(t) },
-  ship: { pos: 1, valueFlags: new Set(['aspect']), positional: (t) => PAGE_WORD.test(t) || PLACEHOLDER.test(t) },
-  wait: { pos: 1, valueFlags: new Set(), positional: (t) => PAGE_WORD.test(t) || PLACEHOLDER.test(t) },
-  refs: { pos: 2, valueFlags: new Set(['type', 'title']), positional: (t, n) => (n === 0 ? /^(?:list|frames|add|index)$/.test(t) : PLACEHOLDER.test(t) || /^[A-Za-z0-9_-]{6,}$/.test(t)) },
-  other: { pos: 2, valueFlags: new Set(['at', 'vs', 'out', 'type', 'title', 'from', 'to']), positional: (t) => PAGE_WORD.test(t) || PLACEHOLDER.test(t) || /^(?:log|add|list|links)$/.test(t) },
-  new: { pos: 1, valueFlags: new Set(['request', 'aspect', 'from-url', 'footage']), positional: (t) => PLACEHOLDER.test(t) || /^[a-z0-9][\w-]*$/.test(t) },
+/** Per verb: how many positionals it takes and which flags take a value. */
+export const SPECS = {
+  frame: { pos: 1, valueFlags: ['world', 'moment', 'at', 'vs', 'out', 'from', 'to', 'aspect'] },
+  dev: { pos: 1, valueFlags: ['from', 'to', 'aspect'] },
+  critique: { pos: 1, valueFlags: [] },
+  ship: { pos: 1, valueFlags: ['aspect'] },
+  wait: { pos: 1, valueFlags: [] },
+  refs: { pos: 2, valueFlags: ['type', 'title'] },
+  new: { pos: 1, valueFlags: ['request', 'aspect', 'from-url', 'footage'] },
 };
-
-/** The verb, its positionals and its flags, read from the text after `vawe <verb>`; `end` is where the command stops, so the words after it stay. */
-function parseArgs(text, from, spec) {
-  const positionals = [];
-  const flags = {};
-  let end = from;
-  TOKEN.lastIndex = from;
-  for (let m = TOKEN.exec(text); m; TOKEN.lastIndex = end, m = TOKEN.exec(text)) {
-    const [whole, token, stop] = m;
-    const flag = /^--?[a-z][a-z-]*$/.exec(token) ? token.replace(/^-+/, '') : null;
-    if (flag) {
-      end = m.index + whole.length - stop.length;
-      if (spec.valueFlags.has(flag)) {
-        TOKEN.lastIndex = end;
-        const value = TOKEN.exec(text);
-        if (value && !value[1].startsWith('--')) { flags[flag] = value[1].replace(/^"|"$/g, ''); end = value.index + value[0].length - value[2].length; } else flags[flag] = true;
-      } else flags[flag] = true;
-    } else if (positionals.length < spec.pos && spec.positional(token, positionals.length)) {
-      positionals.push(token);
-      end = m.index + whole.length - stop.length;
-    } else break;
-    if (stop && text.slice(end, end + 1) === stop) break;
-  }
-  return { positionals, flags, end };
-}
 
 const call = (tool, args) => `${tool} ${JSON.stringify(args)}`;
 const num = (v) => (/^\d+(?:\.\d+)?$/.test(v) ? Number(v) : v);
-
 const isPage = (word) => word && (PAGE_WORD.test(word) || PAGE_PLACEHOLDERS.has(word));
+const only = (flags, allowed) => Object.keys(flags).every((k) => allowed.includes(k));
 
 function filmOf(page, film) {
   if (page && !isPage(page)) return null;
@@ -56,7 +31,6 @@ function filmOf(page, film) {
   if (m?.[1]) return null;
   return m ? m[2] : (film ?? '<film>');
 }
-
 
 function frameCall(page, flags, film) {
   const f = filmOf(page, film);
@@ -72,8 +46,6 @@ function frameCall(page, flags, film) {
   }
   return call('vawe_frame', { film: f, mode });
 }
-
-const only = (flags, allowed) => Object.keys(flags).every((k) => allowed.includes(k));
 
 const HANDLERS = {
   frame: ({ positionals: [page], flags }, film) => {
@@ -100,53 +72,51 @@ const HANDLERS = {
   new: ({ positionals: [name], flags }) => (name && only(flags, ['request', 'defaults']) ? call('vawe_new_film', { name, ...(flags.request ? { request: flags.request } : {}) }) : null),
 };
 
-const DOC = /films\/([a-z0-9][\w-]*)\/(brief\.md|DESIGN\.md|kit\/)/g;
+/** The tool call for a parsed command ({ positionals, flags }), or null when no tool does it. */
+export const mapCommand = (verb, parsed, film) => HANDLERS[verb]?.(parsed, film) || null;
 
-/** Adds the tool that writes a film doc after its first mention: vawe_write_doc after "write" or "create", vawe_edit_doc otherwise; a doc the agent only reads (after "Read") is left alone. */
-function tagDocs(text) {
-  const seen = new Set();
-  return text.replace(DOC, (whole, film, file, at) => {
-    const before = text.slice(Math.max(0, at - 12), at);
-    const key = `${film}/${file}`;
-    if (seen.has(key) || /Read\s+$/.test(before)) return whole;
-    seen.add(key);
-    const tool = /\b(?:write|create)\b[^;:]*$/i.test(text.slice(Math.max(0, at - 80), at)) ? 'vawe_write_doc' : 'vawe_edit_doc';
-    return `${whole} (${tool} {"film":"${film}","file":"${file === 'kit/' ? 'kit/<path>' : file}"})`;
-  });
+/** The tag after a film doc: the tool that writes it. */
+export const docTag = (tool, film, file) => `(${tool} {"film":"${film}","file":"${file === 'kit/' ? 'kit/<path>' : file}"})`;
+
+export const BUILD_TAG = '(vawe_write_page, then vawe_edit_page)';
+
+export const uiSkillsCall = (action, category, slug) => call('vawe_ui_skills', { action, ...(category ? { category } : {}), ...(slug ? { slug } : {}) });
+
+/** { positionals, flags } of the argv tokens of a command; null when it has more positionals than the verb takes. */
+function parseTokens(args, { pos, valueFlags }) {
+  const positionals = [];
+  const flags = {};
+  for (let i = 0; i < args.length; i += 1) {
+    const flag = FLAG.test(args[i]) ? args[i].replace(/^-+/, '') : null;
+    if (!flag) positionals.push(args[i]);
+    else if (valueFlags.includes(flag) && args[i + 1] !== undefined && !args[i + 1].startsWith('--')) { flags[flag] = args[i + 1].replace(/^"|"$/g, ''); i += 1; } else flags[flag] = true;
+  }
+  return positionals.length > pos ? null : { positionals, flags };
 }
 
-const UI_SKILLS = /(?:\bcommand\s+)?\bnpx\s+-y\s+ui-skills\s+(start|categories|list|get)\b(?:\s+--category\s+([a-z0-9-]+)|\s+([\w.-]+\/[\w.-]+))?/g;
-
-const uiSkillsCall = (_whole, action, category, slug) => call('vawe_ui_skills', { action, ...(category ? { category } : {}), ...(slug ? { slug } : {}) });
-
-const STATES = /(build one static state per world in )(films\/[a-z0-9][\w-]*\/page\.html)/;
+function commandTool(c, film) {
+  if (c.bin === 'command npx -y ui-skills') {
+    const [category, slug] = [c.args[c.args.indexOf('--category') + 1], c.args.find((a) => /^[\w.-]+\/[\w.-]+$/.test(a))];
+    return uiSkillsCall(c.verb, c.args.includes('--category') ? category : undefined, slug);
+  }
+  const spec = c.bin === 'bin/vawe' || c.bin === 'vawe' ? SPECS[c.verb] : null;
+  const parsed = spec && parseTokens(c.args, spec);
+  return (parsed && mapCommand(c.verb, parsed, film)) || commandText(c);
+}
 
 /**
- * `text` with each bin/vawe command replaced by the tool call that does it and each film doc tagged with its writer tool.
- * `film` fills a <page> placeholder. Returns { text, unmapped }: unmapped lists the commands no tool does, left as written.
+ * The text of a next step for an agent with tools and no shell: each command a tool call, each film doc the agent writes tagged with
+ * its tool after its first mention, the page to build tagged with the page tools. `film` fills a <page> placeholder.
  */
-export function translateNext(text, { film = null } = {}) {
-  const unmapped = [];
-  let out = '';
-  let last = 0;
-  const source = String(text ?? '');
-  for (const m of source.matchAll(COMMAND)) {
-    if (m.index < last) continue;
-    const verb = m[2];
-    const spec = SPECS[verb] ?? (m[1] === 'bin/' ? SPECS.other : null);
-    const start = m.index;
-    const after = m.index + m[0].length;
-    const parsed = spec ? parseArgs(source, after, spec) : null;
-    const replacement = parsed && HANDLERS[verb] ? HANDLERS[verb](parsed, film) || null : null;
-    const end = parsed ? parsed.end : after;
-    if (replacement) {
-      out += source.slice(last, start) + replacement;
-      last = end;
-    } else if (spec) unmapped.push(source.slice(start, end).trim());
-  }
-  out += source.slice(last);
-  return { text: tagDocs(out).replace(STATES, '$1$2 (vawe_write_page, then vawe_edit_page)').replace(UI_SKILLS, uiSkillsCall), unmapped };
+export function toolNext(next, film = null) {
+  const seen = new Set();
+  return step(next).map((p) => {
+    if (typeof p === 'string') return p;
+    if (p.verb !== undefined) return commandTool(p, film);
+    if (p.build !== undefined) return `${p.build} ${BUILD_TAG}`;
+    const key = `${p.film}/${p.file}`;
+    if (p.mode === 'read' || seen.has(key)) return p.doc;
+    seen.add(key);
+    return `${p.doc} ${docTag(p.mode === 'write' ? 'vawe_write_doc' : 'vawe_edit_doc', p.film, p.file)}`;
+  }).join('');
 }
-
-/** The `next` text for a tool-only agent. */
-export const nextAsTools = (text, options) => translateNext(text, options).text;
