@@ -9,7 +9,7 @@ import { isUrl } from '../harness/lib/url.mjs';
 import { EXIT, ExitError } from '../harness/lib/exit-codes.mjs';
 import { closest, parseArgs, topHelp, UsageError, verbHelp } from '../harness/cli/parse.mjs';
 import { ALIASES, DEV_ALIASES, aliasNotice, aliasKey } from '../harness/cli/aliases.mjs';
-import { VERBS, SERVED_VERBS, ALIAS_TARGETS, siteStep, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
+import { VERBS, IN_PROCESS, SERVED_VERBS, ALIAS_TARGETS, siteStep, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
 import { newFilm, newFilmLines, readDetails, questionsJson, gatherFootage } from '../harness/cli/new.mjs';
 import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
@@ -39,7 +39,28 @@ function requireFiles(verb, values, positional) {
   verb.exists?.(values, positional);
 }
 
+async function runInProcess(step, call) {
+  const out = (text) => { process.stdout.write(text); if (call.stdout.length < MAX_SCAN) call.stdout += text; call.all += text; };
+  let stderr = '';
+  const here = process.cwd();
+  process.chdir(WORK);
+  let code;
+  try {
+    code = await (await import(path.join(ROOT, step.script))).run(step.args, { env: { ...process.env, ...step.env, VAWE_VERB_NOTES: call.notes }, out, err: (text) => { stderr += text; } });
+  } finally {
+    process.chdir(here);
+  }
+  const clean = stripChromeNoise(stderr);
+  process.stderr.write(clean);
+  call.stderr = clean;
+  call.all += clean;
+  const hint = code === 0 ? null : doctorHintFromFile(ROOT, stderr);
+  if (hint) console.error(hint);
+  return { code, signal: null };
+}
+
 function runStep(step, call) {
+  if (IN_PROCESS.has(step.script)) return runInProcess(step, call);
   const argv = step.node || [path.join(ROOT, step.script), ...step.args];
   return new Promise((resolve) => {
     const child = spawn(process.execPath, argv, { stdio: ['inherit', 'pipe', 'pipe'], cwd: WORK, env: { ...process.env, ...step.env, VAWE_VERB_NOTES: call.notes } });

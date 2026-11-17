@@ -6,14 +6,24 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { shipProblems } from '../guards/stage-gate.mjs';
-import { EXIT, fail } from '../lib/exit-codes.mjs';
+import { EXIT } from '../lib/exit-codes.mjs';
+import { runAsMain } from '../lib/step.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const [page] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
-if (page && !fs.existsSync(page)) fail(EXIT.IO, `vawe: ship: no such page: ${page}`);
-const problems = page ? shipProblems(page, { root: ROOT }) : [];
-if (problems.length) {
-  for (const problem of problems) console.error(`vawe: ship refused: ${problem}`);
-  process.exit(EXIT.REFUSED);
+
+export async function run(args, { env, out, err }) {
+  const [page] = args.filter((a) => !a.startsWith('--'));
+  if (page && !fs.existsSync(page)) {
+    err(`vawe: ship: no such page: ${page}\n`);
+    return EXIT.IO;
+  }
+  const problems = page ? shipProblems(page, { root: ROOT, env }) : [];
+  if (problems.length) {
+    for (const problem of problems) err(`vawe: ship refused: ${problem}\n`);
+    return EXIT.REFUSED;
+  }
+  if (env.VAWE_UNATTENDED === '1') out('vawe: ship runs unattended: no fresh review and no OK from the person checked\n');
+  return 0;
 }
-if (process.env.VAWE_UNATTENDED === '1') console.log('vawe: ship runs unattended: no fresh review and no OK from the person checked');
+
+await runAsMain(import.meta.url, run);

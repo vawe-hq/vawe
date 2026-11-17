@@ -101,6 +101,9 @@ function newSteps(v, [name]) {
   return name ? null : [site];
 }
 
+/** Step scripts bin/vawe calls in-process: each exports `run` (harness/lib/step.mjs). A script is listed here, never probed, because importing a script that has no `run` would start it. */
+export const IN_PROCESS = new Set(['harness/live/ship-approval.mjs']);
+
 export const VERBS = [
   {
     tier: 'core',
