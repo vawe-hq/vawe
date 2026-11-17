@@ -49,13 +49,26 @@ test('the same tools under the --mcp-config server name map too, and a subagent 
   assert.equal(c.draft, true);
 });
 
-test('tokens are summed over every assistant message, main and subagent, one message once', async () => {
-  const msg = (id, out, sub) => ({ type: 'assistant', ...(sub ? { parent_tool_use_id: 'p' } : {}), message: { id, role: 'assistant', content: [{ type: 'text', text: 'x' }], usage: { input_tokens: 2, output_tokens: out, cache_read_input_tokens: 100, cache_creation_input_tokens: 10 } } });
-  const rows = [msg('a', 5), msg('a', 9), msg('b', 7, true), msg('c', 3, true), { type: 'result', duration_ms: 1000, usage: { input_tokens: 1, output_tokens: 1 } }];
+test('tokens come from the result row model totals, not the partial streamed rows', async () => {
+  const msg = (id, out) => ({ type: 'assistant', message: { id, role: 'assistant', content: [{ type: 'text', text: 'x' }], usage: { input_tokens: 2, output_tokens: out } } });
+  const modelUsage = { main: { inputTokens: 6, outputTokens: 100, cacheReadInputTokens: 300, cacheCreationInputTokens: 10 }, sub: { inputTokens: 4, outputTokens: 900, cacheReadInputTokens: 700, cacheCreationInputTokens: 20 } };
+  const rows = [msg('a', 5), msg('b', 7), { type: 'result', duration_ms: 2500, num_turns: 4, total_cost_usd: 1.25, usage: { input_tokens: 6, output_tokens: 100 }, modelUsage }];
   const c = await countFirstDraft({ rows: parseStream(rows.map((r) => JSON.stringify(r)).join('\n')) });
-  assert.equal(c.output, 9 + 7 + 3);
-  assert.equal(c.input, 6);
-  assert.equal(c.cacheRead, 300);
+  assert.equal(c.output, 1000);
+  assert.equal(c.input, 10);
+  assert.equal(c.cacheRead, 1000);
+  assert.equal(c.cacheWrite, 30);
+  assert.equal(c.costUsd, 1.25);
+  assert.equal(c.turns, 4);
+  assert.equal(c.wallS, 2.5);
+});
+
+test('a real trimmed stream: output counts the subagent, not the main thread alone', async () => {
+  const text = fs.readFileSync(new URL('../fixtures/bench/title-sting-subagent.stream.jsonl', import.meta.url), 'utf8');
+  const c = await countFirstDraft({ rows: parseStream(text) });
+  assert.equal(c.output, 1542 + 12434);
+  assert.equal(c.costUsd, 0.8104424000000001);
+  assert.equal(c.turns, 5);
 });
 
 test('the recorded plugin stream is a first draft with no raw film write', async () => {
@@ -64,5 +77,6 @@ test('the recorded plugin stream is a first draft with no raw film write', async
   assert.equal(c.draft, true);
   assert.equal(c.rawFilmWrites, 0);
   for (const stage of ['design', 'page', 'frames', 'ideas', 'storyboard', 'draft']) assert.ok(c.stagesReached.includes(stage), `${stage} in ${c.stagesReached}`);
-  assert.ok(c.output > 300, `output tokens ${c.output} count the subagent`);
+  assert.equal(c.output, 1616 + 12268, 'the old stream carries model_usage_since_last_result');
+  assert.ok(c.costUsd > 0 && c.turns > 0);
 });

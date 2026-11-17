@@ -35,7 +35,7 @@ import path from 'node:path';
 import cp from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gateFindings } from '../../harness/lib/findings.mjs';
-import { VERBS } from '../../harness/cli/verbs.mjs';
+import { VERBS, SERVED_VERBS } from '../../harness/cli/verbs.mjs';
 import { DEV_VERBS } from '../../harness/dev/verbs.mjs';
 import { GATES } from '../../harness/lib/check-gate.mjs';
 
@@ -170,7 +170,7 @@ function targetsIn(text) {
 // `vawe dev <page>` names a verb; `vawe check <gate>` names a gate; the flags after a verb are that verb's own.
 // Both come from the CLI's own tables. A flag is read up to the next `vawe`, `|` or `;`, so the prose after a command is not judged.
 const COMMAND = /(?:^|\bbin\/|[$&;|]\s*)(vawe(?:-dev)?)\s+([a-z][a-z0-9-]*)(?:\s+([a-z][a-z0-9-]*))?([^|;`\n]*)/g;
-const TABLES = { vawe: VERBS, 'vawe-dev': DEV_VERBS };
+const TABLES = { vawe: [...VERBS, ...SERVED_VERBS], 'vawe-dev': DEV_VERBS };
 function vawesIn(text) {
   const bad = [];
   for (const m of text.matchAll(COMMAND)) {

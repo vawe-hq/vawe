@@ -144,3 +144,15 @@ test('bin/vawe ship --status exits 2 with the wait command, and logs a usage err
   assert.match(run.stderr, /bin\/vawe wait <page>/);
   assert.match(run.stdout, /vawe: ship FAILED/);
 });
+
+test('mcp and agent are served verbs: known to the doc-refs gate and listed in --help --all only', async () => {
+  const { SERVED_VERBS } = await import('../../harness/cli/verbs.mjs');
+  assert.deepEqual(SERVED_VERBS.map((v) => v.name), ['mcp', 'agent']);
+  const all = topHelp(VERBS, { all: true, served: SERVED_VERBS });
+  for (const v of SERVED_VERBS) {
+    assert.match(all, new RegExp(`^  ${v.name}\\s`, 'm'), `${v.name} in the full help`);
+    assert.doesNotMatch(topHelp(VERBS, { served: SERVED_VERBS }), new RegExp(`^  ${v.name}\\s`, 'm'), `${v.name} in the short help`);
+  }
+  const gate = fs.readFileSync(path.join(ROOT, 'quality/gates/doc-refs.mjs'), 'utf8');
+  assert.match(gate, /\[\.\.\.VERBS, \.\.\.SERVED_VERBS\]/);
+});

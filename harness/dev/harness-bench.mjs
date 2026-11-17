@@ -105,14 +105,18 @@ export function mcpRows(rows) {
   return { rows: out, mcpIds };
 }
 
-/** Tokens summed over every assistant message of the stream, main agent and subagents (one message once, though it spans rows); the result row fills in a stream with no per-message usage. */
-function tokensOf(rows, fold) {
+/** Per-model totals of the whole session, subagents included: the result row's modelUsage (older streams: model_usage_since_last_result). Its usage field and the streamed assistant rows are not used: usage is the main thread only, and a streamed row holds a partial output_tokens (3 to 46). */
+function modelTotals(result) {
+  const models = Object.values(result?.modelUsage ?? result?.model_usage_since_last_result ?? {});
+  if (!models.length) return null;
+  const sum = (key) => models.reduce((n, m) => n + (m[key] ?? 0), 0);
+  return { input_tokens: sum('inputTokens'), output_tokens: sum('outputTokens'), cache_read_input_tokens: sum('cacheReadInputTokens'), cache_creation_input_tokens: sum('cacheCreationInputTokens') };
+}
+
+/** Tokens, cost, turns and wall time of the session, read from the result row. */
+function tokensOf(rows) {
   const result = rows.findLast((r) => r.type === 'result');
-  const messages = [...fold.usage.values()];
-  const sum = (key) => messages.reduce((n, u) => n + (u[key] ?? 0), 0);
-  const usage = messages.length
-    ? { input_tokens: sum('input_tokens'), output_tokens: sum('output_tokens'), cache_read_input_tokens: sum('cache_read_input_tokens'), cache_creation_input_tokens: sum('cache_creation_input_tokens') }
-    : (result?.usage ?? {});
+  const usage = modelTotals(result) ?? result?.usage ?? {};
   const wallS = result?.duration_ms != null ? result.duration_ms / 1000 : (Date.parse(rows.at(-1)?.timestamp) - Date.parse(rows[0]?.timestamp)) / 1000 || 0;
   return {
     input: usage.input_tokens ?? 0, output: usage.output_tokens ?? 0,
@@ -162,7 +166,7 @@ export async function countFirstDraft({ rows: streamRows, runs = [], devMd = nul
     rawMedia: calls.flatMap((c) => c.raw.filter((id) => RAW_MEDIA.has(id))).length,
     verbCalls: events.filter((e) => !e.help && e.call <= cutIndex).length,
     toolCalls: calls.length,
-    ...tokensOf(rows, fold),
+    ...tokensOf(rows),
   };
 }
 
@@ -228,6 +232,8 @@ const COUNTS = [
   ['vawe verb calls', (r) => r.verbCalls],
   ['tool calls', (r) => r.toolCalls],
   ['output tokens', (r) => r.output],
+  ['cost USD', (r) => (r.costUsd == null ? null : Math.round(r.costUsd * 1000) / 1000)],
+  ['turns', (r) => r.turns],
   ['wall seconds', (r) => r.wallS],
 ];
 

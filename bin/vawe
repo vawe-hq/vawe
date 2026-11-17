@@ -9,7 +9,7 @@ import { isUrl } from '../harness/lib/url.mjs';
 import { EXIT, ExitError } from '../harness/lib/exit-codes.mjs';
 import { closest, parseArgs, topHelp, UsageError, verbHelp } from '../harness/cli/parse.mjs';
 import { ALIASES, DEV_ALIASES, aliasNotice, aliasKey } from '../harness/cli/aliases.mjs';
-import { VERBS, ALIAS_TARGETS, siteStep, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
+import { VERBS, SERVED_VERBS, ALIAS_TARGETS, siteStep, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
 import { newFilm, newFilmLines, readDetails, questionsJson, gatherFootage } from '../harness/cli/new.mjs';
 import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
@@ -201,7 +201,7 @@ async function main(args) {
     }
     announceAlias(alias, [name, ...rest]);
   }
-  if (!name || name === '--help' || name === '-h' || name === 'help') return console.log(topHelp(VERBS, { all: rest.includes('--all') }));
+  if (!name || name === '--help' || name === '-h' || name === 'help') return console.log(topHelp(VERBS, { all: rest.includes('--all'), served: SERVED_VERBS }));
   const verb = [...VERBS, ...ALIAS_TARGETS].find((v) => v.name === name);
   if (!verb) {
     const guess = closest(name, VERBS.map((v) => v.name));

@@ -361,6 +361,12 @@ export const VERBS = [
   },
 ];
 
+/** Verbs bin/vawe runs itself before it reads the table: they start a long-lived program and take their own argv, so they have no build step. */
+export const SERVED_VERBS = [
+  { tier: 'served', name: 'mcp', summary: 'serve the film tools to an MCP client over stdio', positional: [], flags: [], raw: true, example: 'vawe mcp' },
+  { tier: 'served', name: 'agent', summary: 'chat with a pi SDK session that has only the film tools and read; needs ANTHROPIC_API_KEY', positional: [], flags: [], raw: true, example: 'vawe agent --model claude-sonnet-5-5 "<the ask>"' },
+];
+
 /** Verbs that are no longer in the table: only an alias in aliases.mjs reaches them, so they stay out of --help and the list of valid verbs. */
 export const ALIAS_TARGETS = [
   {
