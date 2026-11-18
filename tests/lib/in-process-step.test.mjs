@@ -18,6 +18,8 @@ function copyRoot() {
   }
   fs.cpSync(path.join(REPO, 'package.json'), path.join(root, 'package.json'));
   fs.symlinkSync(path.join(REPO, 'node_modules'), path.join(root, 'node_modules'));
+  // A checkout, so bin/vawe prints its text as the script does (an installed package rewrites paths for the person).
+  fs.mkdirSync(path.join(root, '.git'));
   return root;
 }
 
