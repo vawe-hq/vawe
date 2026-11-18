@@ -277,13 +277,20 @@ function normaliseFilter(mixWav, loudness) {
   return `loudnorm=I=${loudness}:TP=${PEAK_LIMIT_DB}:LRA=11:${measured}:linear=true,aresample=${RATE}`;
 }
 
+/**
+ * The filter graph that sums `chains` into [mix], exactly `duration` long. The pad and the trim count samples, not the mix's own
+ * timestamps: an unbounded apad behind a timestamp trim once wrote a 117 GB wav under load. Pure.
+ */
+export function mixGraph(chains, duration) {
+  const labels = chains.map((_, i) => `[a${i}]`).join('');
+  return `${chains.join(';')};${labels}amix=inputs=${chains.length}:normalize=0:duration=longest:dropout_transition=0,apad=whole_len=${Math.round(duration * RATE)},asetpts=N/SR/TB,atrim=end=${f(duration)}[mix]`;
+}
+
 /** Mix the specs into `<tmp>/mix.wav` as written (no limiter, no normalising). Returns the wav path, the cue-spread warnings and the tracks ({ spec, file, seconds, peakDb }). */
 function writeMix(specs, duration, tmp) {
   const tracks = specs.map((spec, i) => ({ spec, ...materialise(spec, tmp, i) }));
   const windows = duckWindows(tracks, duration);
-  const chains = tracks.map((t, i) => trackChain(t, i, duration, windows));
-  const labels = tracks.map((_, i) => `[a${i}]`).join('');
-  const graph = `${chains.join(';')};${labels}amix=inputs=${tracks.length}:normalize=0:duration=longest:dropout_transition=0,apad,atrim=end=${f(duration)}[mix]`;
+  const graph = mixGraph(tracks.map((t, i) => trackChain(t, i, duration, windows)), duration);
   const mixWav = path.join(tmp, 'mix.wav');
   run('ffmpeg', ['-y', '-loglevel', 'error', ...tracks.flatMap((t) => ['-i', t.file]), '-filter_complex', graph, '-map', '[mix]', '-c:a', 'pcm_f32le', mixWav]);
   return { warnings: cueSpreadWarnings(tracks), mixWav, tracks };

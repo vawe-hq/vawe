@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { mixAndMux } from '../../harness/media/page-audio.mjs';
+import { mixAndMux, mixGraph } from '../../harness/media/page-audio.mjs';
 import { DEFAULT_GAIN_DB } from '../../core/audio/kit.mjs';
 import { onsetEnvelope } from '../../core/beats/detect.js';
 
@@ -123,3 +123,9 @@ test('sharp clicks stay at -1 dBTP or under after the AAC encode', () => withFil
   const { measured } = await mixAndMux({ specs: [c(0.2), c(0.2), c(1.3)], duration: 3, video, out: path.join(dir, 'clicks.mp4') });
   assert.ok(measured.TP <= -1, `clicks peak at ${measured.TP} dBTP`);
 }));
+
+test('the mix pads and trims by sample count, so no input or timestamp can make it endless', () => {
+  const graph = mixGraph(['[0:a]anull[a0]', '[1:a]anull[a1]'], 3);
+  assert.match(graph, /amix=inputs=2:.*,apad=whole_len=144000,asetpts=N\/SR\/TB,atrim=end=3\[mix\]$/);
+  assert.doesNotMatch(graph, /apad(,|\[)/, 'an apad with no length pads forever');
+});
