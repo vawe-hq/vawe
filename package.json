@@ -9,6 +9,7 @@
   "files": [
     "bin/vawe",
     "bin/vawe-dev",
+    "AGENTS.md",
     "core",
     "harness",
     "prompts",

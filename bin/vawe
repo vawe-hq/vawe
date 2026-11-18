@@ -26,6 +26,16 @@ import { applyRenderEnv } from '../harness/cli/helpers.mjs';
 import { toolProbeLine } from '../harness/lib/tool-probe.mjs';
 import { nextSeen, aliasSeen, NEXT_UNCHANGED } from '../harness/lib/next-once.mjs';
 import { shellNext } from '../harness/lib/next-step.mjs';
+import { engineFrom, personText } from '../harness/lib/person-text.mjs';
+
+// Every line a verb prints passes through here, its own and its child scripts': an installed package names npx vawe and its own doc paths.
+function printForPerson(engineAt) {
+  for (const stream of [process.stdout, process.stderr]) {
+    const write = stream.write.bind(stream);
+    stream.write = (chunk, ...rest) => write(typeof chunk === 'string' || Buffer.isBuffer(chunk) ? personText(String(chunk), engineAt) : chunk, ...rest);
+  }
+}
+if (!CHECKOUT) printForPerson(engineFrom(WORK, ENGINE));
 
 const ROOT = ENGINE;
 const MAX_SCAN = 4_000_000;
