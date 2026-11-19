@@ -94,5 +94,5 @@ export function topHelp(verbs, { all = false, served = [] } = {}) {
   const servedGroup = all && served.length ? ['', 'run by vawe itself:', ...served.map(row)] : [];
   const hiddenCount = verbs.filter((v) => v.tier !== 'core').length;
   const hidden = all || !hiddenCount ? [] : ['', `${hiddenCount} more verbs: vawe --help --all`];
-  return ['vawe: one HTML page in, one film out.', '', 'usage: vawe <verb> [args]   (vawe <verb> --help for flags)', ...groups, ...servedGroup, ...hidden, '', EXIT_HELP].join('\n');
+  return ['vawe: one HTML page in, one film out.', '', 'usage: vawe <verb> [args]   (vawe <verb> --help for flags, vawe --version)', ...groups, ...servedGroup, ...hidden, '', EXIT_HELP].join('\n');
 }

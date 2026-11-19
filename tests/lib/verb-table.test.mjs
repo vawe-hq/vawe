@@ -41,6 +41,15 @@ test('the core list is the eleven verbs of the loop, and vawe --help stays under
   assert.ok(words <= 300, `${words} words in vawe --help`);
 });
 
+test('vawe --version and -v print the package version alone and exit 0', () => {
+  const { version } = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  for (const flag of ['--version', '-v']) {
+    const run = spawnSync(process.execPath, ['bin/vawe', flag], { cwd: ROOT, encoding: 'utf8' });
+    assert.equal(run.status, 0, `${flag}: ${run.stderr}`);
+    assert.equal(run.stdout, `${version}\n`, flag);
+  }
+});
+
 test('no two core verbs share their purpose line', () => {
   const core = VERBS.filter((v) => v.tier === 'core');
   for (const a of core) {

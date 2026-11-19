@@ -232,6 +232,7 @@ async function runDevAlias(name, rest) {
 
 async function main(args) {
   let [name, ...rest] = args;
+  if (name === '--version' || name === '-v') return console.log(JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version);
   const hooksLine = CHECKOUT ? ensureHooks(gitAt(ROOT)) : '';
   if (hooksLine) console.error(hooksLine);
   if (name === 'mcp') return (await import('../harness/mcp/server.mjs')).serve();
