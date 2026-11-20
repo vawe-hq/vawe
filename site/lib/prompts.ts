@@ -3,18 +3,18 @@
 
 const SETUP = [
   "If vawe is not installed here, install it first:",
-  "git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install && npx puppeteer browsers install chrome",
-  "(it needs Node 22 or newer and ffmpeg; bin/vawe-dev doctor prints the install line for anything missing).",
-  "Then read AGENTS.md and follow its steps and each command’s next: line.",
+  "npm install @vawe/cli",
+  "(it needs Node 22 or newer and ffmpeg; npx vawe new prints the install line for anything missing).",
+  "Then follow each command’s next: line.",
 ].join("\n");
 
 const DRAFT = "Show me the draft video and wait for my OK before the final render.";
 
 const FOOTAGE = (task: string, detail: string) =>
-  [`Use vawe (https://github.com/vawe-hq/vawe), the open-source video-from-code tool, to ${task}`, `My clip: <path to your clip or folder>.`, detail, SETUP, `Start with bin/vawe new <name> --footage <my clip>, which logs the clip with a transcript.`, DRAFT].join("\n\n");
+  [`Use vawe (https://github.com/vawe-hq/vawe), the open-source video-from-code tool, to ${task}`, `My clip: <path to your clip or folder>.`, detail, SETUP, `Start with npx vawe new <name> --footage <my clip>, which logs the clip with a transcript.`, DRAFT].join("\n\n");
 
 const FILM = (task: string, detail: string) =>
-  [`Use vawe (https://github.com/vawe-hq/vawe), the open-source HTML-to-video tool, to ${task}`, detail, SETUP, `Start with bin/vawe new <name> --request "<my ask in one line>".`, DRAFT].join("\n\n");
+  [`Use vawe (https://github.com/vawe-hq/vawe), the open-source HTML-to-video tool, to ${task}`, detail, SETUP, `Start with npx vawe new <name> --request "<my ask in one line>".`, DRAFT].join("\n\n");
 
 export const PAGE_PROMPTS: Record<string, string> = {
   "/how-to/add-captions-to-video": FOOTAGE(
@@ -64,7 +64,7 @@ export const PAGE_PROMPTS: Record<string, string> = {
   "/studio": [
     "Use vawe (https://github.com/vawe-hq/vawe), the open-source HTML-to-video tool, to open my film in the vawe studio so I can edit it by hand.",
     "My film: <path to your film's page.html>.",
-    "Start it with bin/vawe dev <my film> --studio in the background, then tell me the address it prints. While it runs, read the page file again before you change it, because I may have edited it in the studio.",
+    "Start it with npx vawe dev <my film> --studio in the background, then tell me the address it prints. While it runs, read the page file again before you change it, because I may have edited it in the studio.",
     SETUP,
   ].join("\n\n"),
   "/ai-agents": FILM("make a short motion graphics video.", "What it is about: <topic, product or message>. Length: <seconds>."),

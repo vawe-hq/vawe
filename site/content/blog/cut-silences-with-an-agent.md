@@ -100,7 +100,7 @@ Then look at the cuts, since a number can be right and a cut can still feel wron
 
 vawe has no filler-word detector. It will not find "um" or "you know" for you. The agent can read a filler in the transcript and cut it on its word times, as any other span, but the choice is the agent’s and yours. The same goes for a bad take: nothing scores it.
 
-Other parts of an edit work on the same word times: [captions](/blog/animated-captions-html), titles and the order of clips. See [agentic video editing](/agentic-video-editing) for the scope, and [edit video with Claude Code](/edit-video-with-claude-code) for the steps in your agent.
+Other parts of an edit work on the same word times: [captions](/blog/animated-captions-html), titles and the order of clips. See [agentic video editing](/agentic-video-editing) for the scope, and [edit video with Claude Code](/edit-video-with-claude-code) for the steps in your agent. video-use is another open-source way for Claude Code or Codex to cut your clips; [how vawe and video-use differ](/vs/video-use) compares transcripts, API keys and rendering.
 
 ## FAQ
 

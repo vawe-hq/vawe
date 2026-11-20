@@ -13,7 +13,7 @@ export const HOME = {
     lede: "Write one HTML page. vawe renders it to an mp4. You write the page, or an agent does.",
     primary: { href: REPO_URL, label: "Get started on GitHub" } as Link,
     secondary: { href: "/video-components", label: "See the video components" } as Link,
-    install: { cmd: "git clone https://github.com/vawe-hq/vawe.git && cd vawe && npm install", next: "then bin/vawe new hello" },
+    install: { cmd: "npm install @vawe/cli", next: "then npx vawe new hello" },
   },
   chapters: [
     {
@@ -70,8 +70,8 @@ export const HOME = {
     primary: { href: REPO_URL, label: "Get started on GitHub" } as Link,
     docs: { href: "/docs", label: "Read the docs" } as Link,
     install: [
-      { cmd: "npm install", note: "Node 22+, ffmpeg" },
-      { cmd: "bin/vawe-dev doctor", note: "checks each tool" },
+      { cmd: "npm install @vawe/cli", note: "Node 22+, ffmpeg" },
+      { cmd: "npx vawe new hello", note: "checks each tool" },
     ] as Command[],
   },
 };

@@ -15,6 +15,17 @@ function shareLoop(route: string) {
   return [{ url, secureUrl: url, type: "video/mp4", ...LOOP_SIZE }];
 }
 
+// Google shows about 60 characters of a title, so the brand suffix stays only where it fits.
+const TITLE_MAX = 60;
+const BRAND_SUFFIX = / \| vawe( blog)?$/;
+
+export function fitTitle(title: string) {
+  if (title.length <= TITLE_MAX || !BRAND_SUFFIX.test(title)) return title;
+  const core = title.replace(BRAND_SUFFIX, "");
+  const short = `${core} | vawe`;
+  return short.length <= TITLE_MAX ? short : core;
+}
+
 // A route with a markdown renderer (lib/md/routes.mjs) also gets its <link rel="alternate" type="text/markdown">.
 // `ai-summary` defaults to the meta description; pass `aiSummary` to give a key page its own.
 //
@@ -35,7 +46,8 @@ export function pageMetadata(opts: {
   type?: "website" | "article";
   aiSummary?: string;
 }): Metadata {
-  const { title, description, path, type = "website", aiSummary = description } = opts;
+  const { description, path, type = "website", aiSummary = description } = opts;
+  const title = fitTitle(opts.title);
   return {
     title,
     description,

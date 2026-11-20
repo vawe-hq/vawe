@@ -330,6 +330,35 @@ if (fs.existsSync(DOCS_DIR)) {
   }
 }
 
+// ===== 6. every comparison page has body links from other pages =================================
+// Advises only. A comparison page that only the footer links to gets little crawl or reader traffic.
+// A source file counts once; the target's own content file, its share card and the markdown index do not count.
+{
+  const MIN_INBOUND = 3;
+  const SOURCE_DIRS = ['site/lib', 'site/content', 'site/app'].map((d) => path.join(ROOT, d));
+  const NOT_BODY = /(opengraph-image\.tsx|site-pages\.json|lib\/md\/pages\.ts|(header|footer|nav)[^/]*\.tsx)$/i;
+  const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) return e.name === 'node_modules' || e.name.startsWith('.') ? [] : walk(full);
+    return /\.(tsx?|md)$/.test(e.name) && !NOT_BODY.test(full) ? [full] : [];
+  });
+  const sources = SOURCE_DIRS.flatMap(walk).map((file) => ({ file, text: read(file) }));
+  const pagesJson = JSON.parse(read(path.join(SITE_LIB, 'site-pages.json')));
+  const targets = (pagesJson.routes || []).map((r) => r.path).filter((p) => /^\/(vs|compare)\/|-alternatives$/.test(p));
+  for (const target of targets) {
+    const section = target.split('/')[1];
+    const ownFiles = new Set([path.join(SITE_LIB, 'content', `${section}.ts`)]);
+    const linkRe = new RegExp(`["(]${target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[")#?]`);
+    const from = sources.filter((s) => !ownFiles.has(s.file) && !s.file.startsWith(path.join(SITE_APP, section) + path.sep) && linkRe.test(s.text));
+    if (from.length < MIN_INBOUND) {
+      f.warn('seo-few-body-links', `${target} has body links from ${from.length} file(s) (${from.map((s) => rel(s.file)).join(', ') || 'none'}); a comparison page wants ${MIN_INBOUND}`, {
+        at: 'site/lib/site-pages.json',
+        fix: `link ${target} from a post or page that discusses it, with words that say what the page compares`,
+      });
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------------------------
 console.log(`\n  SEO SURFACE · ${pageFiles.length} route(s) checked · ${f.count} finding(s)\n`);
 f.emit();

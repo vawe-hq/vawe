@@ -155,7 +155,7 @@ export const resourceGroups = (sizes?: FileSizes): Group[] => [
 export const RESOURCES = {
   path: "/resources",
   meta: {
-    title: "Motion graphics resources: CSS easing, video components and AI agent video | vawe",
+    title: "Motion graphics resources: easing, components, agents | vawe",
     description: `${EASES.length} CSS easing functions, ${MOVES.length} video components with clips, the files an AI agent reads to make a video, guides, and comparisons with Remotion, HyperFrames, Motion Canvas and Lottie.`,
   } as Meta,
   crumb: { current: "Resources" } as Crumb,

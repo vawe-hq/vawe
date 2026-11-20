@@ -100,7 +100,7 @@ So the agent never needs to watch anything. It reads text, writes numbers, and r
 
 Footage processing is out of scope. There is no tracking, no rotoscoping, no depth cut and no generated video. A clip is moved whole: trimmed, ordered, sped up or slowed, framed with titles and captions, graded and joined with transitions. Music comes only from a file you give. The full list is on the [hub page](/agentic-video-editing).
 
-For one job that this log makes easy, see [cutting silences with an agent](/blog/cut-silences-with-an-agent).
+For one job that this log makes easy, see [cutting silences with an agent](/blog/cut-silences-with-an-agent). OpenEdit by VEED also has an agent write the edit as HTML; [how vawe and OpenEdit differ](/vs/openedit) covers licence, renderer and transcripts.
 
 ## FAQ
 

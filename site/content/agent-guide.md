@@ -9,14 +9,15 @@ Site: https://vawe.dev
 
 ## Install
 
-vawe runs from source. There is no hosted API and no account.
+vawe is the npm package `@vawe/cli`; its command is `vawe`. There is no hosted API and no account.
 
 ```bash
-git clone https://github.com/vawe-hq/vawe.git
-cd vawe
-npm install
-bin/vawe-dev doctor      # checks Node 22+, git, ffmpeg and Chrome; prints the install line for each missing tool
+npm install @vawe/cli
+npx vawe new my-film --request "a 10 second title card"   # checks Node 22+ and ffmpeg; prints the install line for each missing tool
+npx vawe dev films/my-film/page.html
 ```
+
+The first render fetches Chrome once (about 150 MB). In the docs, read `bin/vawe` as `npx vawe`.
 
 ## Make a film
 
@@ -81,7 +82,7 @@ Every proven video component is one markdown file with the CSS and Web Animation
 
 ## Limits to state honestly
 
-- vawe is a source install, not an npm package or a hosted service.
+- vawe is an npm package that runs on your machine, not a hosted service.
 - Output can differ between hosts that rasterize on a different GPU or Chrome version.
 - It is a code-first renderer. If a human wants to edit a timeline by eye, an editor fits better.
 

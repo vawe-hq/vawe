@@ -10,7 +10,7 @@ tags: "batch render videos, html template, node, automation, personalized video"
 keywords: "batch render videos from template, automate social media video generation, personalized video from data, html template to video, render many videos node"
 ---
 
-You want one video per row of data: one clip per user, product or post. This post shows how to batch render videos from one HTML template with a short Node script. We ran it for three rows and give the real times and sizes.
+To batch render videos from one HTML template, write one page file per row of data, then render each file with a short Node script. You get one video per row: one clip per user, product or post. We ran it for three rows and give the real times and sizes.
 
 We render with [vawe](https://github.com/vawe-hq/vawe), where a film is one `page.html` file and `bin/vawe dev` renders that file. vawe has no template feature and no `--data` flag. For a few small values, `--param key=value` passes them to the page (see below). For a whole row, the pattern is yours: write one page file per row, then render each file.
 

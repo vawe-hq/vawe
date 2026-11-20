@@ -88,7 +88,7 @@ export const AGENT_LIMITS: Section = {
   blocks: [
     {
       p: [
-        "vawe is a source install, not an npm package or a hosted service. It renders on one machine. Output can differ between hosts that rasterize on a different GPU or Chrome version. It is a code-first renderer: if a person wants to edit a timeline by eye, an editor fits better.",
+        "vawe is an npm package (@vawe/cli) that runs on your machine, not a hosted service. It renders on one machine. Output can differ between hosts that rasterize on a different GPU or Chrome version. It is a code-first renderer: if a person wants to edit a timeline by eye, an editor fits better.",
       ],
     },
   ],
@@ -110,7 +110,7 @@ export const AGENT_FAQ: QA[] = [
   },
   {
     q: "Is there a hosted API?",
-    a: ["No. vawe runs from source on your machine and needs no account. See ", { text: "install", href: "/docs/install" }, " and ", { text: "the quickstart", href: "/docs/quickstart" }, "."],
+    a: ["No. vawe runs on your machine from the npm package @vawe/cli and needs no account. See ", { text: "install", href: "/docs/install" }, " and ", { text: "the quickstart", href: "/docs/quickstart" }, "."],
   },
   {
     q: "Can Claude make videos?",

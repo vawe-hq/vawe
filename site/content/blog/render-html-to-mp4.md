@@ -81,15 +81,13 @@ The script moves every CSS animation and every Web Animation with `currentTime`.
 
 vawe is an open-source renderer that does the same seek loop and also owns the clock. Before your scripts run, it replaces `Date`, `performance.now`, `requestAnimationFrame`, the timers and `Math.random`. All of them now follow the seek time.
 
-Install it. You need Node 22 or newer, git and ffmpeg:
+Install it. You need Node 22 or newer and ffmpeg:
 
 ```bash
-git clone https://github.com/vawe-hq/vawe.git
-cd vawe && npm install
-bin/vawe-dev doctor
+npm install @vawe/cli
 ```
 
-`bin/vawe-dev doctor` names each missing tool and prints the install line for your system. Then write a page. This is the same page as above, with a duration and a `data-world` attribute on the beat (a beat is one scene of the film):
+`npx vawe new` names each missing tool and prints the install line for your system. Then write a page. This is the same page as above, with a duration and a `data-world` attribute on the beat (a beat is one scene of the film):
 
 ```html
 <!doctype html>
@@ -105,10 +103,10 @@ bin/vawe-dev doctor
 Save it as `films/hello/page.html` and run:
 
 ```bash
-bin/vawe dev films/hello/page.html
+npx vawe dev films/hello/page.html
 ```
 
-The draft is `out/hello-draft.mp4`. Our run made 90 frames at 30 fps, 960 by 540 pixels and 120 KB. The whole command took 5.7 seconds, and it also printed advice about the page. A draft is half size and has no sound. The command `bin/vawe ship` makes the full-size 60 fps file with sound, after you approve the draft.
+The draft is `out/hello-draft.mp4`. Our run made 90 frames at 30 fps, 960 by 540 pixels and 120 KB. The whole command took 5.7 seconds, and it also printed advice about the page. A draft is half size and has no sound. The command `npx vawe ship` makes the full-size 60 fps file with sound, after you approve the draft.
 
 ## What we found
 

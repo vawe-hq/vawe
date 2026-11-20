@@ -14,7 +14,7 @@ hero: /blog/determinism/hero.webp
 heroAlt: "Bar chart of frames that differed between two renders: 70 of 216 in a shared Chrome, 1 of 1296 with a Chrome per lane, 0 of 648 with software compositing, 117 of 154 for a downscaled WebGL page."
 ---
 
-Render one web page twice and compare the frames. They should match. In headless Chrome they often do not. We rendered one page with an SVG filter twice, with no change to the page or the machine. In a shared Chrome, 70 of 216 frames came out different.
+Headless Chrome screenshots differ between runs when the page reads the real clock, animations run on their own timeline, render workers share one Chrome, or WebGL goes through the Chrome downscale. Fix each cause and the frames match. Render one web page twice and compare the frames. They should match. In headless Chrome they often do not. We rendered one page with an SVG filter twice, with no change to the page or the machine. In a shared Chrome, 70 of 216 frames came out different.
 
 This matters for two reasons. A person who sees a wrong frame cannot tell if the page or the renderer is at fault. An AI agent cannot tell either. A renderer that gives the same frame every time removes one of the two causes.
 

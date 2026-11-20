@@ -75,7 +75,7 @@ export const ABOUT = {
           "vawe is open source under Apache-2.0. The repository started in June 2026 under the name Shortwave and became vawe on 2026-07-15. It has been public since 2026-09-16.",
         ],
         [
-          "There is no npm package, no hosted API and no account. You clone the repo and run it on your machine: ",
+          "There is no hosted API and no account. You install the npm package @vawe/cli and run it on your machine: ",
           { text: "the quickstart", href: "/docs/quickstart" },
           ".",
         ],
