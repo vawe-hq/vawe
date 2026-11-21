@@ -27,6 +27,9 @@ export default function Templates() {
           <p className="mv-intro">
             {TEMPLATES_INTRO} Every template is built from the <Link href="/video-components">video components</Link>.
           </p>
+          <p className="mv-intro">
+            Templates for After Effects, Premiere Pro, Final Cut Pro, DaVinci Resolve and Motion, made by other motion designers, are in the <Link href="/marketplace">marketplace</Link>.
+          </p>
           <p className="mv-links">
             <a href="/templates.json">templates.json</a>
           </p>

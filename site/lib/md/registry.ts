@@ -23,6 +23,7 @@ import {
 import { SITE_URL, absoluteUrl } from "../site";
 import { absolutize, bareTitle, codeBlock, heading, item, markdownPage, table, type Link } from "./format";
 import { CONTENT_RENDERERS } from "./pages";
+import { MARKETPLACE_RENDERERS } from "./marketplace";
 import { RENDERED, matchPattern, mdUrlOf } from "./routes.mjs";
 
 // The renderers of every page that has a markdown version. Each one reads the data the HTML page
@@ -352,6 +353,7 @@ const RENDERERS: Record<string, Renderer> = {
   "/video-components/[name]": moveItem,
   "/templates": templatesIndex,
   "/templates/[id]": templateItem,
+  ...MARKETPLACE_RENDERERS,
   "/easing": easingIndex,
   "/easing/[slug]": easeItem,
   "/easing/for/[job]": easeJob,

@@ -124,6 +124,7 @@ export default async function TemplatePage({ params }: Params) {
             secondary={{ href: "/templates", label: `All ${TEMPLATES.length} templates` }}
             related={[
               { href: "/video-components", label: "The video components inside a template" },
+              { href: "/marketplace", label: "Templates by other motion designers" },
               { href: "/ai-agents", label: "Let an agent remix a template" },
             ]}
           />

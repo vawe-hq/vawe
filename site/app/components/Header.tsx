@@ -13,6 +13,8 @@ export function VaweMark({ className = "glyph" }: { className?: string }) {
 const NAV = [
   { href: "/video-components", label: "Video components", key: "video-components" },
   { href: "/templates", label: "Templates", key: "templates" },
+  { href: "/marketplace", label: "Marketplace", key: "marketplace" },
+  { href: "/jobs", label: "Jobs", key: "jobs" },
   { href: "/inspiration", label: "Inspiration", key: "inspiration" },
   { href: "/resources", label: "Resources", key: "resources" },
   { href: "/blog", label: "Blog", key: "blog" },

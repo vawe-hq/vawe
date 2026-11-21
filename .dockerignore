@@ -9,7 +9,7 @@
 # absent from the context until somebody says otherwise, and the failure mode of forgetting is a build
 # that stops with "not found" instead of one that quietly grows.
 #
-#   Dockerfile      (the site): scripts generators core harness/media/fonts.lock.json
+#   Dockerfile      (the site): scripts generators core marketplace harness/media/fonts.lock.json
 #                   site (site/docker-start.sh included) NOTICE package.json
 #
 # EDITING THIS FILE: add a COPY, add its `!` line here in the same commit. `quality/gates/site-build-check.mjs` builds
@@ -26,6 +26,8 @@
 !harness/lib/clip-hash.mjs
 !generators
 !core
+# scripts/site/marketplace.mjs reads the listings, creators, jobs and designers.
+!marketplace
 
 # ── the web app ─────────────────────────────────────────────────────────────────────────────
 !site
