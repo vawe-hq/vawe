@@ -58,7 +58,7 @@ function lensLines() {
     '',
     `Palettes for \`palette: { stops: PALETTES.<name>, amount, keepColor }\`: ${Object.keys(PALETTES).join(', ')}.`,
     '',
-    `Options and their defaults with no look (\`OFF\` zeroes ${Object.keys(OFF).join(', ')}):`,
+    `Options and their defaults with no look (\`OFF\` zeroes ${Object.keys(OFF).join(', ')}). \`fps\` below is the default outside a render; in a render it is \`vawe.renderFps\`, so grain, tear and weave change on every output frame:`,
     ...options,
   ];
 }

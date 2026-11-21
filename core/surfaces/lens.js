@@ -101,7 +101,8 @@ export function resolveOptions(options = {}, override = globalThis.__vaweLensOve
   const name = override?.look ?? options.look;
   if (name != null && !(name in LOOKS)) throw new Error(`lens: unknown look "${name}"; valid: ${Object.keys(LOOKS).join(', ')}`);
   const base = name == null ? DEFAULTS : merge(DEFAULTS, merge(OFF, LOOKS[name]));
-  return merge(merge(base, options), override || {});
+  const renderFps = globalThis.vawe?.renderFps;
+  return merge(merge(renderFps ? { ...base, fps: renderFps } : base, options), override || {});
 }
 
 const resolve = (v, t) => {

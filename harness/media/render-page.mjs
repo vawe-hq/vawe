@@ -862,7 +862,7 @@ export async function renderPage(pagePath, outPath, opts = {}) {
   if (layer && !final) throw new RenderError('a layer render is a final: pass final: true', EXIT.USAGE);
   const canvas = resolveFrame(pagePath, opts);
   const length = await resolveLength(pagePath, canvas).catch((e) => { throw e instanceof DurationError ? new RenderError(e.message) : e; });
-  const frame = { ...canvas, ...(length.auto ? { duration: length.seconds } : {}), ...(layer ? { layer } : {}) };
+  const frame = { ...canvas, renderFps: fps, ...(length.auto ? { duration: length.seconds } : {}), ...(layer ? { layer } : {}) };
   const wantAudio = !layer && (opts.audio ?? (from === 0 && durArg == null));
   if (opts.audio && from > 0) throw new RenderError('--audio needs a render from 0: the mix has no offset', EXIT.USAGE);
   const digest = pageDigest(pagePath);

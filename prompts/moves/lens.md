@@ -74,7 +74,7 @@ Sound: a short noise tick at each tear, and a low thud on a lock (aberration pea
   - `weave: { amount }`: gate weave. The whole image moves by up to `amount` px, a new seeded offset every
     frame (`seed`, `fps`). `project()` follows it.
 - `tear` (rows slide, seeded), `grain`, `vignette`, `exposure`, `lift`, `fade`. All noise is hashed from
-  `seed` and `floor(t * fps)`: a frame is a pure function of t, so renders match byte for byte.
+  `seed` and `floor(t * fps)`: a frame is a pure function of t, so renders match byte for byte. `fps` is the render fps (30 in a draft, 60 in a final) unless the page sets it, so noise changes on every output frame.
 - `project(x, y, t)` is the same camera on the CPU. Labels, links and brackets drawn in HTML on top
   of the canvas (z-index above 0) stay sharp and show real source coordinates.
 

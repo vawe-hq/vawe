@@ -169,9 +169,9 @@ export async function awaitReady(timeoutMs = 10000) {
 }
 
 // Runs in the page before any page script: the frame facts a page lays out against. documentElement does not exist yet at this point, so its attributes wait for the parser.
-export function installPageFrame({ aspect, width, height, eases = {}, duration }) {
+export function installPageFrame({ aspect, width, height, eases = {}, duration, renderFps }) {
   const vawe = window.vawe || (window.vawe = {});
-  Object.assign(vawe, { aspect, width, height });
+  Object.assign(vawe, { aspect, width, height, renderFps });
   vawe.onFrame = (fn) => (window.__vaweFrameHooks || (window.__vaweFrameHooks = [])).push(fn);
   Object.defineProperty(vawe, 'fps', {
     configurable: true,

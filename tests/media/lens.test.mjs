@@ -24,14 +24,14 @@ before(async () => {
 });
 after(async () => { await browser?.close(); server?.close(); });
 
-async function newPage() {
+async function newPage(renderFps) {
   const page = await browser.newPage();
-  await page.evaluateOnNewDocument(installPageFrame, { aspect: '16:9', width: W, height: H });
+  await page.evaluateOnNewDocument(installPageFrame, { aspect: '16:9', width: W, height: H, renderFps });
   return page;
 }
 
-async function shoot(cfg, { only, src, t = 0.3, scale = 1, draws = 1, probe = [], plain = false, override = null } = {}) {
-  const page = await newPage();
+async function shoot(cfg, { only, src, t = 0.3, scale = 1, draws = 1, probe = [], plain = false, override = null, renderFps } = {}) {
+  const page = await newPage(renderFps);
   try {
     if (override) await page.evaluateOnNewDocument((o) => { window.__vaweLensOverride = o; }, override);
     await page.setViewport({ width: W, height: H, deviceScaleFactor: 1 });
@@ -454,4 +454,13 @@ test('looks: lens({ look }) films the look, and the preview override swaps it', 
   assert.ok(beside(halation) - beside(clean) > 15, `the look lights the dark beside the bar, ${beside(clean).toFixed(1)} to ${beside(halation).toFixed(1)}`);
   const swapped = await shoot({ look: 'film-halation', vignette: 0, grain: 0 }, { only: 'bar', plain: true, override: lookOverride('clean') });
   assert.equal(hash(swapped), hash(clean), 'the override look beats the page look');
+});
+
+test('lens noise follows the render fps: at 60 fps the grain changes every frame, an explicit page fps keeps its hold', async () => {
+  const fill = { aim: [1400, 500], zoom: 3.4, grain: 0.1 };
+  const grainAt = async (cfg, t, renderFps) => hash(await shoot(cfg, { only: 'patch', t, renderFps }));
+  const [t0, t1] = [18 / 60, 19 / 60];
+  assert.notEqual(await grainAt(fill, t0, 60), await grainAt(fill, t1, 60), 'consecutive 60 fps frames differ');
+  assert.equal(await grainAt(fill, t0, undefined), await grainAt(fill, t1, undefined), 'with no render fps the 30 fps default holds two frames');
+  assert.equal(await grainAt({ ...fill, fps: 30 }, t0, 60), await grainAt({ ...fill, fps: 30 }, t1, 60), 'a page that sets fps keeps it');
 });

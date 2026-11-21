@@ -25,7 +25,7 @@ Looks (`bin/vawe frame <page> --looks --at <s>` shows each): clean (no effect); 
 
 Palettes for `palette: { stops: PALETTES.<name>, amount, keepColor }`: thermal, phosphor, amber, navy, paper, mono, cyanotype.
 
-Options and their defaults with no look (`OFF` zeroes dof, palette, riso, bloom, halation, grid, aberration, tear, streaks, diffusion, softFocus, tiltShift, distortion, weave, grain, vignette, exposure, lift, fade):
+Options and their defaults with no look (`OFF` zeroes dof, palette, riso, bloom, halation, grid, aberration, tear, streaks, diffusion, softFocus, tiltShift, distortion, weave, grain, vignette, exposure, lift, fade). `fps` below is the default outside a render; in a render it is `vawe.renderFps`, so grain, tear and weave change on every output frame:
 - `seed`: 1
 - `fps`: 30
 - `lodBias`: 0
