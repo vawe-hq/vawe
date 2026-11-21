@@ -3,7 +3,7 @@
 **Use when** a held sentence has one open word that changes value: "We make films that feel fast,
 loud, clean, alive". The word sits in a slot, rolls up through 3 or 4 values and lands on the last
 one, and the sentence reflows its width as the slot grows and shrinks. Reference: HyperFrames
-kinetic-type-swap. Clip: [word-swap-slot.mp4](../../site/public/moves/word-swap-slot.mp4). Demo:
+kinetic-type-swap. Clip: [word-swap-slot.mp4](clips/word-swap-slot.mp4). Demo:
 [demo/word-swap-slot.html](demo/word-swap-slot.html).
 
 ```css

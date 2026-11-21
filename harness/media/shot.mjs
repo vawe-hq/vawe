@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // `vawe new [name] --from-url <route|url|page.html>[,more] [--w 1440,390] [--full] [--base url] [--out dir]`: a PNG of a site page, a url or a static html page at each width.
 //   node harness/media/shot.mjs /blog,/moves --w 1440,390 --full
-// A route needs a site server: a running one at --base is reused; a localhost one that is down is started here (site/ `npm run dev`) and stopped when the shots are done.
+// A route needs a site server: a running one at --base is reused; a localhost one that is down is started here (a vawe-hq/vawe-site checkout, `next dev`) and stopped when the shots are done.
 // Lazy images are loaded before the shot. Each line also reports page errors, failed requests and sideways overflow, the three things a screenshot hides.
 //   node harness/media/shot.mjs https://vawe.dev/easing --tour steps.json --w 1600 --fps 60 --out out/easing-tour.mp4
 // --tour drives a scripted cursor through the page and writes an mp4 of it, every frame at its exact second (harness/media/tour.mjs, steps in tour-math.mjs).

@@ -1,7 +1,7 @@
 # Shadow handoff
 
 **Use when** a product moves from a light theme to a dark one on screen: a theme control is picked and the whole page
-recolours. Clip: [shadow-handoff.mp4](../../site/public/moves/shadow-handoff.mp4). Demo: [demo/shadow-handoff.html](demo/shadow-handoff.html).
+recolours. Clip: [shadow-handoff.mp4](clips/shadow-handoff.mp4). Demo: [demo/shadow-handoff.html](demo/shadow-handoff.html).
 
 Look: a browser window on the flat neutral ground, holding a weekly report: a stat card with a number, a delta pill and a
 seven day bar chart, and two small cards. The page has a Light and Dark segmented control at the top right. The colours are

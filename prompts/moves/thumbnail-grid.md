@@ -4,7 +4,7 @@
 into a thumbnail, and the pull back reveals its neighbours; the grid is the next scene ("all projects",
 "your library", "the whole roadmap"). One camera move does it: a pull back in log space, centred on the
 starting scene, with no push after. The neighbours were always there, off the edge of the frame, so
-nothing arrives and nothing fades. Clip: [thumbnail-grid.mp4](../../site/public/moves/thumbnail-grid.mp4). Demo:
+nothing arrives and nothing fades. Clip: [thumbnail-grid.mp4](clips/thumbnail-grid.mp4). Demo:
 [demo/thumbnail-grid.html](demo/thumbnail-grid.html). Not [grid-tile-flip](grid-tile-flip.md), which flips
 tiles over to shot B.
 

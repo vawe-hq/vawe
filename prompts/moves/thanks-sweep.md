@@ -3,7 +3,7 @@
 **Use when** a closing line should arrive as one gesture, not a fade. A soft mask edge crosses the
 line left to right and an accent bar rides that edge; a second, smaller line follows 140 ms behind
 on the same sweep. The bar leaves the moment the edge passes the last letter, and a slow linear
-drift carries the finished lines to the last frame. Clip: [thanks-sweep.mp4](../../site/public/moves/thanks-sweep.mp4).
+drift carries the finished lines to the last frame. Clip: [thanks-sweep.mp4](clips/thanks-sweep.mp4).
 Demo: [demo/thanks-sweep.html](demo/thanks-sweep.html).
 
 Use once per film: the accent bar is a stock device (rule no-tells), never the idea.

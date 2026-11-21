@@ -3,7 +3,7 @@
 **Use when** the name is the last beat. Each letter falls onto a rail, one after the other, each
 gap shorter than the last, so the word speeds up as it lands; the full stop is the accent and lands
 last. After the landing a short accent bar runs along the rail, so the tail is never still. Clip:
-[wordmark-cascade.mp4](../../site/public/moves/wordmark-cascade.mp4). Demo: [demo/wordmark-cascade.html](demo/wordmark-cascade.html).
+[wordmark-cascade.mp4](clips/wordmark-cascade.mp4). Demo: [demo/wordmark-cascade.html](demo/wordmark-cascade.html).
 
 Use once per film: the accent bar is a stock device (rule no-tells), never the idea.
 

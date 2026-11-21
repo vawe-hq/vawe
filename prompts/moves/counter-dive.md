@@ -4,7 +4,7 @@
 into the counter (the hole) of an "o" and the next scene is inside it. The hole shows scene B from the
 first frame as a tiny world, so the dive is a reveal that was already there, and there is no cut. It is
 a different move from [zoom-through](zoom-through.md), which dives into a plain disc and swaps shots at
-the end; here the letter's own shape is the portal. Clip: [counter-dive.mp4](../../site/public/moves/counter-dive.mp4). Demo:
+the end; here the letter's own shape is the portal. Clip: [counter-dive.mp4](clips/counter-dive.mp4). Demo:
 [demo/counter-dive.html](demo/counter-dive.html).
 
 ```js

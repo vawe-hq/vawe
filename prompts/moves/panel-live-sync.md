@@ -4,7 +4,7 @@
 The page holds two surfaces in one frame, a target (a button on a page) and a panel of controls. A
 cursor presses a field and scrubs it, and the field's number and the target change in the same frame,
 three beats in a row (rotate, radius, padding). The claim is the causality: one gesture, two surfaces,
-no lag. Clip: [panel-live-sync.mp4](../../site/public/moves/panel-live-sync.mp4). Demo: [demo/panel-live-sync.html](demo/panel-live-sync.html).
+no lag. Clip: [panel-live-sync.mp4](clips/panel-live-sync.mp4). Demo: [demo/panel-live-sync.html](demo/panel-live-sync.html).
 
 ```js
 import '../../core/engine/page-api.js';

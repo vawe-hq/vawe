@@ -3,7 +3,7 @@
 **Use when** an export, a render or an upload ends and the product shows the result in an editor. A loading bar fills and does not stop at its
 end: the fill keeps going, its tail catches up with its head, the head stands up into a thin vertical line, and that line is the scrubber of a
 video timeline. The scrubber reveals the timeline as it moves, and it keeps the speed the fill had. One object, one speed, two screens.
-Clip: [progress-timeline.mp4](../../site/public/moves/progress-timeline.mp4). Demo: [demo/progress-timeline.html](demo/progress-timeline.html).
+Clip: [progress-timeline.mp4](clips/progress-timeline.mp4). Demo: [demo/progress-timeline.html](demo/progress-timeline.html).
 
 ```js
 // one speed curve for the whole move: accelerate, run at V, brake at the end of the timeline

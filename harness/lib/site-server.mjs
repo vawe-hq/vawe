@@ -1,4 +1,5 @@
-// The site server that `vawe new --from-url` and `vawe-dev check links` need: reuse a running one, or start site/ `next dev` for a localhost base and stop it afterwards.
+// The site server that `vawe new --from-url` and `vawe-dev check links` need: reuse a running one, or start `next dev` of the vawe.dev site for a localhost base and stop it afterwards.
+// The site lives in vawe-hq/vawe-site: a sibling checkout at ../vawe-site, or the folder in VAWE_SITE_DIR.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -7,6 +8,7 @@ import { REPO_ROOT } from './render-harness.mjs';
 import { scratch } from './scratch.mjs';
 import { withFileLock } from './file-lock.mjs';
 
+const VENDOR_ASSETS = path.join('scripts', 'site', 'vendor-assets.mjs');
 const SERVER_START_MS = 180000;
 const LOCK_WAIT_MS = 600000;
 
@@ -14,22 +16,30 @@ export async function reachable(url) {
   try { await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(3000) }); return true; } catch { return false; }
 }
 
+/** The vawe-hq/vawe-site checkout, or null when there is none. */
+export const siteDir = () => {
+  const dir = path.resolve(process.env.VAWE_SITE_DIR || path.join(REPO_ROOT, '..', 'vawe-site'));
+  return fs.existsSync(path.join(dir, 'site', 'package.json')) ? dir : null;
+};
+
 const isLocal = (base) => /^https?:\/\/(localhost|127\.0\.0\.1)\b/.test(base);
 
 /**
- * Starts `next dev` of site/ on the base's port and waits for it; returns a stop function. The caller owns the child.
- * Not `npm run dev`: its predev rewrites tracked files (site/lib/lastmod.json), which would dirty the tree of every shot.
+ * Starts `next dev` of the site checkout on the base's port and waits for it; returns a stop function. The caller owns the child.
+ * Not `npm run dev`: its predev rewrites tracked files (site/lib/lastmod.json), which would dirty the site checkout.
  * Only vendor-assets runs, because the fonts and copies it writes are ignored and the pages need them.
  */
 async function startSite(base) {
+  const dir = siteDir();
+  if (!dir) throw new Error('the vawe.dev site is not here: clone vawe-hq/vawe-site next to this repo (../vawe-site), set VAWE_SITE_DIR, or pass --base https://vawe.dev');
   const port = new URL(base).port || '80';
   const logFile = scratch('site-server', `dev-${port}.log`);
   const log = fs.openSync(logFile, 'w');
-  const vendor = spawnSync('node', ['scripts/site/vendor-assets.mjs'], { cwd: REPO_ROOT, encoding: 'utf8' });
-  if (vendor.status !== 0) throw new Error(`scripts/site/vendor-assets.mjs failed: ${vendor.stderr || vendor.stdout}`);
-  const next = path.join(REPO_ROOT, 'site', 'node_modules', 'next', 'dist', 'bin', 'next');
-  if (!fs.existsSync(next)) throw new Error('next is not installed in site/: run npm --prefix site install');
-  const child = spawn('node', [next, 'dev', '-p', port], { cwd: path.join(REPO_ROOT, 'site'), detached: true, stdio: ['ignore', log, log] });
+  const vendor = spawnSync('node', [VENDOR_ASSETS], { cwd: dir, encoding: 'utf8' });
+  if (vendor.status !== 0) throw new Error(`${VENDOR_ASSETS} failed: ${vendor.stderr || vendor.stdout}`);
+  const next = path.join(dir, 'site', 'node_modules', 'next', 'dist', 'bin', 'next');
+  if (!fs.existsSync(next)) throw new Error('next is not installed in the site checkout: run npm ci in its site/ folder');
+  const child = spawn('node', [next, 'dev', '-p', port], { cwd: path.join(dir, 'site'), detached: true, stdio: ['ignore', log, log] });
   const stop = () => { try { process.kill(-child.pid, 'SIGTERM'); } catch { /* already gone */ } };
   process.on('exit', stop);
   const t0 = Date.now();

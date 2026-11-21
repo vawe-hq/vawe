@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
-  "ignorePatterns": ["node_modules", "site", "out", "**/*.expanded.json"],
+  "ignorePatterns": ["node_modules", "out", "**/*.expanded.json"],
   "categories": { "correctness": "error" },
   "rules": {
     "complexity": ["error", { "max": 20 }],

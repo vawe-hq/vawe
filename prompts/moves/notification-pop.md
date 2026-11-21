@@ -5,7 +5,7 @@ of a real phone notification banner: a phone with a photo wallpaper and a home s
 with the app icon, a bold title, the time (`now`), a two-line body and the small grab handle. The
 banner is a translucent material over a blurred backdrop. It drops from above the screen on a
 spring with a small settle, is read for about three seconds, then swipes up and out. Clip:
-[notification-pop.mp4](../../site/public/moves/notification-pop.mp4) (5.6 s, light; `notification-pop-dark.mp4` is the dark
+[notification-pop.mp4](clips/notification-pop.mp4) (5.6 s, light; `notification-pop-dark.mp4` is the dark
 theme). Demo: [demo/notification-pop.html](demo/notification-pop.html).
 
 ```js

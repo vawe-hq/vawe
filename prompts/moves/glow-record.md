@@ -5,7 +5,7 @@ clip copies a screen recorder over a document. A dark recorder bar waits at the 
 and "Start recording". The cursor presses it. The bar goes, a round countdown (25 u wide, top right, clear of the text) shows 3, 2, 1 at the top right of the
 screen, and the bar returns as a recording pill: the red dot (now pulsing), a timer that counts and the stop
 button. The red dot is the object that carries the idea from "ready" to "live". There is no flood and no glow:
-the real UI is the effect. Clip: [glow-record.mp4](../../site/public/moves/glow-record.mp4). Demo:
+the real UI is the effect. Clip: [glow-record.mp4](clips/glow-record.mp4). Demo:
 [demo/glow-record.html](demo/glow-record.html).
 
 ```js

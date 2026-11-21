@@ -3,7 +3,7 @@
 **Use when** the film shows a product doing its job: a cursor travels to a control, the control
 answers the click, and the cursor leaves. The path bows like a hand (x and y ease on different
 curves), the button lights on hover, both dip on the press, and the label rolls into a confirmed
-state. Clip: [cursor-click.mp4](../../site/public/moves/cursor-click.mp4). Demo: [demo/cursor-click.html](demo/cursor-click.html).
+state. Clip: [cursor-click.mp4](clips/cursor-click.mp4). Demo: [demo/cursor-click.html](demo/cursor-click.html).
 
 ```html
 <div class="btn"><span class="l idle">Export PDF</span><span class="l done">Exported</span></div>

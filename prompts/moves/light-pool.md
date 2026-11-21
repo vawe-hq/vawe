@@ -1,7 +1,7 @@
 # Light pool
 
 **Use when** a held, matte frame needs one slow event behind the type: a single soft key light that
-wanders over a lit surface. Clip: [light-pool.mp4](../../site/public/moves/light-pool.mp4). Demo: [demo/light-pool.html](demo/light-pool.html).
+wanders over a lit surface. Clip: [light-pool.mp4](clips/light-pool.mp4). Demo: [demo/light-pool.html](demo/light-pool.html).
 
 Look: a warm grey wall of vertical ribs. Each rib has a bright left edge, a flat middle and a dark right edge. A second
 layer holds the same ribs in a lighter tone and shows only inside a soft round mask, so each rib lights where the pool

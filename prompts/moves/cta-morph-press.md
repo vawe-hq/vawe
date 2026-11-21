@@ -4,7 +4,7 @@
 shape into a button: width, height and radius share one curve, and the fill goes from white to ink. A cursor
 arrives on a bowed path and the button shows the real states of a button: hover (the fill lightens), pressed
 (a dip, the fill darkens), loading (the label gives way to a spinner) and done (a check and "You're in").
-One action, one element, no surrounding UI. Clip: [cta-morph-press.mp4](../../site/public/moves/cta-morph-press.mp4). Demo:
+One action, one element, no surrounding UI. Clip: [cta-morph-press.mp4](clips/cta-morph-press.mp4). Demo:
 [demo/cta-morph-press.html](demo/cta-morph-press.html).
 
 ```js

@@ -5,7 +5,7 @@ is five layers of warm colour with crisp edges, drawn on a canvas. Each edge is 
 and speed, so the layers drift across the frame and never cross. The colour fades to the flat ground on the left,
 under the copy, and reaches full strength on the right. One thin darker sand layer widens once, at 1.6 s. Each
 edge has a 1 px highlight and a soft contact shadow, as layers of paper have. The copy enters with a masked rise
-and a blur cascade. Clip: [gradient-mesh-field.mp4](../../site/public/moves/gradient-mesh-field.mp4). Demo:
+and a blur cascade. Clip: [gradient-mesh-field.mp4](clips/gradient-mesh-field.mp4). Demo:
 [demo/gradient-mesh-field.html](demo/gradient-mesh-field.html).
 
 ```js

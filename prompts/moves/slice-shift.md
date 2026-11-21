@@ -4,7 +4,7 @@
 off left and right in alternation and uncover shot B, which settles from 1.07x. The detail that sells
 it is that no two bands move alike: each starts a few frames after its neighbour with seeded jitter
 and its own duration, and each carries its own speed blur, so the frame tears apart instead of
-sliding as one sheet. Clip: [slice-shift.mp4](../../site/public/moves/slice-shift.mp4). Demo:
+sliding as one sheet. Clip: [slice-shift.mp4](clips/slice-shift.mp4). Demo:
 [demo/slice-shift.html](demo/slice-shift.html).
 
 ```js

@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { tokenMatches, parseDays, logFilesFor } from '../../site/lib/bot-log-download.ts';
 import { buildActions, botSummary, changeEffect, changeWindows, diffRows, flatRows, renderReport, titleLacksQuery, toPath, totalsFor, windowDates } from '../../harness/lib/seo-report.mjs';
 
 const row = (page, query, impressions, clicks, position) => ({ page, query, impressions, clicks, position });
@@ -106,19 +105,6 @@ test('the report says when there is no earlier snapshot and when the bot part is
   assert.match(text, /no earlier snapshot/);
   assert.match(text, /bot log skipped: no token/);
   assert.doesNotMatch(text, new RegExp(String.fromCharCode(0x2014)));
-});
-
-test('the bot log download checks the token in constant time form and picks files by day', () => {
-  assert.equal(tokenMatches('Bearer abc', 'abc'), true);
-  assert.equal(tokenMatches('Bearer abd', 'abc'), false);
-  assert.equal(tokenMatches('Bearer ab', 'abc'), false);
-  assert.equal(tokenMatches('abc', 'abc'), false);
-  assert.equal(tokenMatches(null, 'abc'), false);
-  assert.equal(tokenMatches('Bearer abc', undefined), false);
-  assert.equal(tokenMatches('Bearer ', ''), false);
-  assert.deepEqual([parseDays(null), parseDays('x'), parseDays('0'), parseDays('28'), parseDays('500')], [7, 7, 7, 28, 90]);
-  const names = ['bots-2026-10-01.jsonl', 'bots-2026-10-30.jsonl', 'bots-2026-11-02.jsonl', 'other.txt'];
-  assert.deepEqual(logFilesFor(names, 7, new Date('2026-11-03T10:00:00Z')), ['bots-2026-10-30.jsonl', 'bots-2026-11-02.jsonl']);
 });
 
 test('githubLines shows stars with the change since the last snapshot, views and the referrers', async () => {

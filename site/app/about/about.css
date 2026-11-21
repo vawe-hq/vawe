@@ -1,4 +1,0 @@
-.ab-film{position:relative;border-radius:var(--r);box-shadow:var(--ring);overflow:hidden;background:var(--bg);aspect-ratio:16/9}
-.ab-film video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.ab-cap{display:block;margin-top:var(--sp-3);color:var(--muted);white-space:normal;overflow-wrap:anywhere}
-.ab-who a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2);display:inline-flex;align-items:center;min-height:var(--hit)}

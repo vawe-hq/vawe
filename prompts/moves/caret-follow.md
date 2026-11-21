@@ -4,7 +4,7 @@
 frame. The camera does not pan on a timer: it is a spring behind the caret, so it trails by a
 fraction of a second, speeds up on a burst of letters and rests on a pause. The text behind the caret
 stays in view and the text ahead of it is never shown early. It is the terminal camera of the
-vawe-flow-2 film. Clip: [caret-follow.mp4](../../site/public/moves/caret-follow.mp4). Demo: [demo/caret-follow.html](demo/caret-follow.html).
+vawe-flow-2 film. Clip: [caret-follow.mp4](clips/caret-follow.mp4). Demo: [demo/caret-follow.html](demo/caret-follow.html).
 
 ```js
 import '../../core/engine/page-api.js';

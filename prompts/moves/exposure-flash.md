@@ -4,7 +4,7 @@
 out for 3 frames, the shot swaps inside the peak, and the new shot starts over-bright and settles in 0.15 s.
 A 0.3 s white div at partial opacity is not this: it is a fade, not a flash. The clip cuts between three
 photographs, each with a caption, a slow push and a running timecode. Clip:
-[exposure-flash.mp4](../../site/public/moves/exposure-flash.mp4). Demo: [demo/exposure-flash.html](demo/exposure-flash.html). The helper
+[exposure-flash.mp4](clips/exposure-flash.mp4). Demo: [demo/exposure-flash.html](demo/exposure-flash.html). The helper
 is `core/motion/exposure.js`. The flash is a real exposure change, not a CSS look. The glow, mask and colour
 fringe of a screen are lens work: do not fake them with CSS.
 

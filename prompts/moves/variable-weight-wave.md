@@ -3,7 +3,7 @@
 **Use when** one hero word must feel alive on arrival: a crest of weight and width travels through
 its letters from left to right, then every letter settles at a firm weight. The axes are real
 (Anybody carries `wght` 100 to 900 and `wdth` 75 to 125), so stems thicken and glyphs widen, and the
-word breathes in width as the crest passes. Clip: [variable-weight-wave.mp4](../../site/public/moves/variable-weight-wave.mp4).
+word breathes in width as the crest passes. Clip: [variable-weight-wave.mp4](clips/variable-weight-wave.mp4).
 Demo: [demo/variable-weight-wave.html](demo/variable-weight-wave.html).
 
 ```css

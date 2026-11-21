@@ -2,7 +2,7 @@
 
 **Use when** the frame wants a rich, liquid ground, like ink spreading in water, and the copy is short
 and large. One shader folds noise into itself (a domain warp): a body colour and a thin vein colour
-flow in marbled shapes, thinner behind the copy. Clip: [ink-warp.mp4](../../site/public/moves/ink-warp.mp4). Demo:
+flow in marbled shapes, thinner behind the copy. Clip: [ink-warp.mp4](clips/ink-warp.mp4). Demo:
 [demo/ink-warp.html](demo/ink-warp.html).
 
 ```js

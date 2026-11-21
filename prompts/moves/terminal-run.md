@@ -1,7 +1,7 @@
 # Terminal run
 
 **Use when** a coding agent does a task in a terminal. A copy of a real Claude Code session in a macOS terminal window: an earlier turn is already in the log, the task is typed in the ruled composer, Enter reprints it in place, a status line counts seconds and tokens, then tool calls print one by one (Read, Update with a red and green diff, Bash with a result that swaps from Running to Tests passed) and the answer prints. A terminal never eases its text: every character, row and swap lands in whole steps on one frame. Only the window's entrance and exit are clip framing. Clip:
-[terminal-run.mp4](../../site/public/moves/terminal-run.mp4) (6 s, light; `terminal-run-dark.mp4` is the dark theme). Demo: [demo/terminal-run.html](demo/terminal-run.html).
+[terminal-run.mp4](clips/terminal-run.mp4) (6 s, light; `terminal-run-dark.mp4` is the dark theme). Demo: [demo/terminal-run.html](demo/terminal-run.html).
 
 ```js
 import { arrive, show, runDot, typeTimes, typedCount, leave } from '../../prompts/moves/demo/assets/stage.js';

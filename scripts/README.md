@@ -1,6 +1,6 @@
 ---
-when: writing or changing repo maintenance tooling: a brand-capture script or a site build helper
-answers: "what scripts/ is: brand/ (capture a site into a kit: palette, sections, photos), site/ (build helpers for the marketing site)"
+when: writing or changing repo maintenance tooling: a brand-capture script
+answers: "what scripts/ is: brand/ (capture a site into a kit: palette, sections, photos)"
 group: process
 ---
 
@@ -12,6 +12,4 @@ tools and hooks).
 - `brand/`: reflects a website into `assets/brands/<name>/`. `node scripts/brand/kit.mjs <url> <name>`
   runs the steps in one go and writes `kit.json` (palette, fonts, favicon, section captures).
   The steps run alone: `sections.mjs`, `palette.mjs`, `photos.mjs`, `localize-assets.mjs`.
-- `site/`: builds what the marketing site consumes (`vendor-assets.mjs`,
-  `dev-all.mjs`). `easing.mjs` builds `site/lib/easing.json`; `easing-clips.mjs` renders the clip on each
-  `/easing` page into `site/public/easing/`.
+The marketing site and its build helpers (`scripts/site/`) live in vawe-hq/vawe-site.

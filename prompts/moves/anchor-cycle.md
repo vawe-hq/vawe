@@ -3,7 +3,7 @@
 **Use when** the claim is "it works for everyone" or "everything changes, this stays". One phrase is
 pinned and never moves; a tape beside it is slapped over with a new word on each hard cut, slow at first
 and then faster until it is a flurry, and the last phrase holds. Then a brand lockup drops in below the
-still anchor. The stillness of the anchor is what the viewer reads. Clip: [anchor-cycle.mp4](../../site/public/moves/anchor-cycle.mp4).
+still anchor. The stillness of the anchor is what the viewer reads. Clip: [anchor-cycle.mp4](clips/anchor-cycle.mp4).
 Demo: [demo/anchor-cycle.html](demo/anchor-cycle.html).
 
 ```css

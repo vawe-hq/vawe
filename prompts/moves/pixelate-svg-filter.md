@@ -2,7 +2,7 @@
 
 **Use when** a photo or a clip must break into blocks and clear again: a censor, a retro reveal, a resolve from
 mosaic to sharp, a scrub of the pixel size with the cursor. The block size is one number, and the picture stays live
-under it. Clip: [pixelate-svg-filter.mp4](../../site/public/moves/pixelate-svg-filter.mp4). Demo: [demo/pixelate-svg-filter.html](demo/pixelate-svg-filter.html).
+under it. Clip: [pixelate-svg-filter.mp4](clips/pixelate-svg-filter.mp4). Demo: [demo/pixelate-svg-filter.html](demo/pixelate-svg-filter.html).
 
 Credit: port of fancy by Daniel Petho, MIT. Source:
 [pixelate-svg-filter](https://www.fancycomponents.dev/docs/components/filter/pixelate-svg-filter)

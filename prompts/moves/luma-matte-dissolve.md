@@ -1,6 +1,6 @@
 # Luma matte dissolve
 
-**Use when** the next shot should arrive through its own light: its bright areas appear first, its midtones follow and its dark ground fills in last. The matte is not a shape: it is the next shot's luminance, blurred, mixed with soft noise and thresholded by a value that falls from above white to below black. Clip: [luma-matte-dissolve.mp4](../../site/public/moves/luma-matte-dissolve.mp4) (4.2 s). Demo: [demo/luma-matte-dissolve.html](demo/luma-matte-dissolve.html).
+**Use when** the next shot should arrive through its own light: its bright areas appear first, its midtones follow and its dark ground fills in last. The matte is not a shape: it is the next shot's luminance, blurred, mixed with soft noise and thresholded by a value that falls from above white to below black. Clip: [luma-matte-dissolve.mp4](clips/luma-matte-dissolve.mp4) (4.2 s). Demo: [demo/luma-matte-dissolve.html](demo/luma-matte-dissolve.html).
 
 ```html
 <filter id="luma" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">

@@ -62,7 +62,7 @@ function codeQuality(file) {
   const top = checkoutOf(file);
   const rel = path.relative(top, file);
   // A film page is authored work judged by its frames, not framework code judged by its shape.
-  if (rel.startsWith('..') || rel.startsWith('site/') || rel.startsWith('films/') || rel.includes('node_modules')) return null;
+  if (rel.startsWith('..') || rel.startsWith('films/') || rel.includes('node_modules')) return null;
 
   const found = lintContent(rel, fs.readFileSync(file, 'utf8'));
   if (!found.length) return null;

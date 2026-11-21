@@ -1,7 +1,7 @@
 # Halftone field
 
 **Use when** a quiet ground should have texture and one soft form: a title card, an editorial or print-led film.
-Clip: [halftone-field.mp4](../../site/public/moves/halftone-field.mp4). Demo: [demo/halftone-field.html](demo/halftone-field.html).
+Clip: [halftone-field.mp4](clips/halftone-field.mp4). Demo: [demo/halftone-field.html](demo/halftone-field.html).
 
 Look: warm bone paper with one ink, like a newspaper print. A 45 degree dot screen of 28 px cells covers the frame.
 The dot area follows the shade of one lit sphere at the right, so the size ramp from tiny to nearly touching dots is the

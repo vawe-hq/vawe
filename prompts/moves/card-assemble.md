@@ -5,7 +5,7 @@ in whole. The clip copies a hosted invoice page in a browser window: the amount 
 the left, a card payment form on the right. The window lands first. Then each part travels in from the side
 its slot is on: the left column from the left, the form from the right, the items and the totals from
 below. The parts start 110 ms apart, the rule draws, and the pay button lands last on a pop. After that the
-email field types, so the page stays alive. Clip: [card-assemble.mp4](../../site/public/moves/card-assemble.mp4). Demo:
+email field types, so the page stays alive. Clip: [card-assemble.mp4](clips/card-assemble.mp4). Demo:
 [demo/card-assemble.html](demo/card-assemble.html).
 
 ```js

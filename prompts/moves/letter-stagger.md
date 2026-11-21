@@ -2,7 +2,7 @@
 
 **Use when** one word is the beat and should land letter by letter. 45 ms per letter is inside the 30
 to 80 ms band, so the group never lands on one frame; every letter rides the same exact curve. Clip:
-[letter-stagger.mp4](../../site/public/moves/letter-stagger.mp4). Demo: [demo/letter-stagger.html](demo/letter-stagger.html).
+[letter-stagger.mp4](clips/letter-stagger.mp4). Demo: [demo/letter-stagger.html](demo/letter-stagger.html).
 
 ```html
 <h1>staggered</h1>

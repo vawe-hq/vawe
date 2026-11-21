@@ -3,7 +3,7 @@
 **Use when** a cuboid must turn to show another face: a product block with a message on each side,
 a block that turns to the next fact. A solid matte blue block with six real faces, sharp lit edges,
 big clean white type (12.5 u) on each side and a soft shadow on the table. It turns a quarter turn at a time on a
-stiff, overdamped spring and stops with no overshoot. Clip: [css-box.mp4](../../site/public/moves/css-box.mp4) (5.6 s,
+stiff, overdamped spring and stops with no overshoot. Clip: [css-box.mp4](clips/css-box.mp4) (5.6 s,
 light; `css-box-dark.mp4` is the dark theme). Demo: [demo/css-box.html](demo/css-box.html).
 
 The spring values (stiffness 100, damping 30) come from the CSSBox component of fancy by Daniel

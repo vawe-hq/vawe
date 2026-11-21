@@ -4,7 +4,7 @@
 dot, a cursor, the word that becomes the panel) so the eye is already there when the expansion starts. The clip
 copies a course page: a lesson card with a play dot on its thumbnail. The cursor presses the dot and a circle
 grows from it into a full-bleed video player with a title, a chaptered scrubber, the time and the controls. The
-video then plays: the time and the scrubber advance. Clip: [clip-expand.mp4](../../site/public/moves/clip-expand.mp4). Demo:
+video then plays: the time and the scrubber advance. Clip: [clip-expand.mp4](clips/clip-expand.mp4). Demo:
 [demo/clip-expand.html](demo/clip-expand.html).
 
 ```js

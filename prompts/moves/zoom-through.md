@@ -5,7 +5,7 @@
 moving in the same direction. Needs no shape match (unlike `match-cut`) and no cut. The detail that
 sells it is real zoom blur: eight copies of the frame at slightly different scales, stacked at
 opacities 1, 1/2, 1/3 and so on so they average to one exposure, spread over half of one frame's
-travel. An SVG blur cannot do a radial streak; this can. Clip: [zoom-through.mp4](../../site/public/moves/zoom-through.mp4).
+travel. An SVG blur cannot do a radial streak; this can. Clip: [zoom-through.mp4](clips/zoom-through.mp4).
 Demo: [demo/zoom-through.html](demo/zoom-through.html).
 
 ```js

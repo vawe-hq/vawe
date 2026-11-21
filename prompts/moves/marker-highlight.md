@@ -1,7 +1,7 @@
 # Marker highlight
 
 **Use when** one phrase in a line of text must be picked out the way a person does it on a page: with a highlighter pen.
-Clip: [marker-highlight.mp4](../../site/public/moves/marker-highlight.mp4). Demo: [demo/marker-highlight.html](demo/marker-highlight.html).
+Clip: [marker-highlight.mp4](clips/marker-highlight.mp4). Demo: [demo/marker-highlight.html](demo/marker-highlight.html).
 
 Look: dark text on the flat neutral ground. The mark is translucent yellow with `mix-blend-mode: multiply`, so the text
 stays dark and the ground shows through. It covers the lower two thirds of the line, tilts about half a degree and has

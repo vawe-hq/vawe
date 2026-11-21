@@ -1,3 +1,0 @@
-{"title":"Same page, same CSS: transform: translateX(600px)","parts":[
-{"kind":"compare","panels":[{"title":"Before: the draft changes the layout viewport","lines":["draft: 960x540 CSS px, box at 62.5%","final: 1920x1080 CSS px, box at 31.25%"],"mark":"lo"}]},
-{"kind":"compare","panels":[{"title":"After: same layout viewport, smaller capture","lines":["draft: 1920x1080 CSS px, scale 0.5","final: 1920x1080 CSS px, scale 1"],"mark":"hi"}]}]}

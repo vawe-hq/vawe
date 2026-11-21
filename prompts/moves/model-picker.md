@@ -1,7 +1,7 @@
 # Model picker
 
 **Use when** a model or tier choice is the point. A copy of the claude.ai new-chat screen in a Chrome window: a prompt is typed (the suggestion chips leave with the first key, as in the product), a pointer travels to the model name, the menu opens with a short fade and scale, the pointer moves to Opus, the press moves the check from Sonnet to Opus in one frame, the menu closes and the label swaps to the new name in one frame. Clip:
-[model-picker.mp4](../../site/public/moves/model-picker.mp4) (6 s, light; `model-picker-dark.mp4` is the dark theme). Demo: [demo/model-picker.html](demo/model-picker.html).
+[model-picker.mp4](clips/model-picker.mp4) (6 s, light; `model-picker-dark.mp4` is the dark theme). Demo: [demo/model-picker.html](demo/model-picker.html).
 
 ```js
 import { arrive, show, typeTimes, typedCount, between, leave } from '../../prompts/moves/demo/assets/stage.js';

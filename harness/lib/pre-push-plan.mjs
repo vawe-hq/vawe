@@ -1,11 +1,9 @@
 // Pure parts of the pre-push hook (harness/dev/pre-push.mjs): which checks a set of changed files can affect, and the e2e cache key.
 // The guards (push-guard, no-emdash, doc-refs, bench) always run and are not planned here.
 
-export const CHECKS = ['site', 'unit', 'e2e'];
+export const CHECKS = ['unit', 'e2e'];
 
 const RULES = [
-  { re: /^(site|scripts\/site)\//, kind: 'site', checks: ['site'] },
-  { re: /^(Dockerfile|\.dockerignore)$/, kind: 'site', checks: ['site'] },
   { re: /^(README|CONTRIBUTING)\.md$|^(LICENSE|NOTICE|context7\.json)$|^(guides|research|research_notes)\//, kind: 'docs', checks: [] },
   { re: /^(AGENTS|CLAUDE)\.md$|^(skills|prompts|taste)\/.*\.md$/, kind: 'agent docs', checks: ['unit'] },
   { re: /^(films|assets|resources)\//, kind: 'render input', checks: ['e2e'] },
@@ -15,7 +13,7 @@ const RULES = [
 const EXAMPLES = 3;
 
 /**
- * The checks the changed files can affect: { checks: ['site' | 'unit' | 'e2e'], reasons: { check: 'why' } }.
+ * The checks the changed files can affect: { checks: ['unit' | 'e2e'], reasons: { check: 'why' } }.
  * An empty list or a path no rule names runs every check.
  */
 export function planChecks(files) {
@@ -37,7 +35,7 @@ export function planChecks(files) {
   return { checks, reasons };
 }
 
-const NOT_RENDER_INPUT = /^(site|guides|research|research_notes|skills|\.github)$|^[^/]*\.md$|^(LICENSE|NOTICE|context7\.json|\.oxlintrc\.json)$/;
+const NOT_RENDER_INPUT = /^(guides|research|research_notes|skills|\.github)$|^[^/]*\.md$|^(LICENSE|NOTICE|context7\.json|\.oxlintrc\.json)$/;
 
 /** The top-level entries of `git ls-tree HEAD` that can change a render: everything except a short list of dirs and files no render reads. */
 export function renderEntries(lsTree) {

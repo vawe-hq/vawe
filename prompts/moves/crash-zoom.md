@@ -6,7 +6,7 @@ it slams in to 2.6x on the detail, overshoots 5 percent and recoils in 0.32 s. W
 opposite of a normal entrance, because the stop is the impact. The detail that sells it is real zoom
 blur: 16 copies of the frame at scales fanned across half of one frame's change, stacked at
 opacities 1, 1/2, 1/3 and so on so they average to one exposure. The streaks point at the detail and
-vanish the frame the camera stops. It breaks rule entrance-ease on purpose, so declare it in the page: `"allow": ["entrance-ease"], "_why": {"entrance-ease": "at 0.55 s the push accelerates for 0.13 s into the hit; the stop is the impact"}`. Clip: [crash-zoom.mp4](../../site/public/moves/crash-zoom.mp4). Demo: [demo/crash-zoom.html](demo/crash-zoom.html).
+vanish the frame the camera stops. It breaks rule entrance-ease on purpose, so declare it in the page: `"allow": ["entrance-ease"], "_why": {"entrance-ease": "at 0.55 s the push accelerates for 0.13 s into the hit; the stop is the impact"}`. Clip: [crash-zoom.mp4](clips/crash-zoom.mp4). Demo: [demo/crash-zoom.html](demo/crash-zoom.html).
 
 ```js
 import '../../core/engine/page-api.js';

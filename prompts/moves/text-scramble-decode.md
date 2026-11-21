@@ -4,7 +4,7 @@
 wrong glyphs and resolves one letter at a time, left to right, then a verified line appears under it.
 It suits an operator, a model name or an access screen. It differs from [flap-resolve](flap-resolve.md),
 which is a physical board: here the glyphs are plain mono characters and the lock is a colour flash.
-Clip: [text-scramble-decode.mp4](../../site/public/moves/text-scramble-decode.mp4). Demo:
+Clip: [text-scramble-decode.mp4](clips/text-scramble-decode.mp4). Demo:
 [demo/text-scramble-decode.html](demo/text-scramble-decode.html).
 
 ```js

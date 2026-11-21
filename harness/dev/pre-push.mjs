@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The checks of .githooks/pre-push, scoped to what the push changes. The hook runs push-guard and the site build check itself.
+// The checks of .githooks/pre-push, scoped to what the push changes. The hook runs push-guard itself.
 //
 //   node harness/dev/pre-push.mjs --range <remote..local | sha> [--range ...]   run the guards and the planned checks
 //   node harness/dev/pre-push.mjs --files a b c --dry-run                       print the plan for a file list, run nothing
@@ -74,7 +74,6 @@ function runE2e() {
 }
 
 const STEPS = {
-  site: () => runInherit('site typography gate', ['quality/gates/site-typography.mjs']),
   unit: () => runInherit(`unit tests (${UNIT_DIRS.join(', ')})`, ['--test', ...UNIT_DIRS.flatMap(testFiles).sort()]),
   e2e: runE2e,
 };
@@ -87,7 +86,7 @@ function main(argv) {
   const { checks, reasons } = planChecks(files);
   console.log(`pre-push: ${files.length} changed file(s). Always: push-guard, em dash scan, doc refs, bench.`);
   for (const c of checks) console.log(`pre-push: run ${c} (${reasons[c]})`);
-  for (const c of ['site', 'unit', 'e2e'].filter((c) => !checks.includes(c))) console.log(`pre-push: skip ${c} (no changed file can affect it)`);
+  for (const c of ['unit', 'e2e'].filter((c) => !checks.includes(c))) console.log(`pre-push: skip ${c} (no changed file can affect it)`);
   if (dryRun) return 0;
   const pending = operationInProgress(path.resolve(ROOT, git(['rev-parse', '--git-dir']).stdout.trim()));
   if (pending) { console.error(pending); return 1; }

@@ -3,7 +3,7 @@
 **Use when** a click, a cursor or a mark is the thing the eye is on and the next scene should answer
 it. Shot A is clipped to a circle that closes on that point, and shot B waits underneath and settles
 from 1.1x to 1 as it is uncovered. It is the closing iris of silent film, so it says "this action
-caused that scene". Clip: [iris-wipe.mp4](../../site/public/moves/iris-wipe.mp4). Demo: [demo/iris-wipe.html](demo/iris-wipe.html).
+caused that scene". Clip: [iris-wipe.mp4](clips/iris-wipe.mp4). Demo: [demo/iris-wipe.html](demo/iris-wipe.html).
 
 ```js
 import { EASE } from '../../core/motion/presets.js';

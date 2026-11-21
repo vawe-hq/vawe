@@ -2,7 +2,7 @@
 
 **Use when** a beat needs weight before a change: motion slows to a near hold on the hit frame, then snaps on at more
 than full speed. It is a time remap, not an easing: story time is the integral of a speed curve, so the ball, its squash
-and the camera push all slow, stop and restart together. Clip: [speed-ramp-freeze.mp4](../../site/public/moves/speed-ramp-freeze.mp4). Demo:
+and the camera push all slow, stop and restart together. Clip: [speed-ramp-freeze.mp4](clips/speed-ramp-freeze.mp4). Demo:
 [demo/speed-ramp-freeze.html](demo/speed-ramp-freeze.html).
 
 Look: a matte terracotta ball on a warm bone floor, lit by one soft key light from the top left (a gentle radial shade, no

@@ -42,14 +42,14 @@ const FONTS = [
   // against. Bump it deliberately, re-save the baselines, never as a side effect of a fetch.
   ['GeistMono.woff2',               '@fontsource-variable/geist-mono',          '5.2.8', 'geist-mono-latin-wght-normal.woff2',          'OFL 1.1'],
   ['JetBrainsMono.woff2',           '@fontsource-variable/jetbrains-mono',      '5.3.0', 'jetbrains-mono-latin-wght-normal.woff2',      'OFL 1.1'],
-  // STATIC .woff INSTANCES, for the OG cards only. site/app/components/ogCard.tsx renders with
+  // STATIC .woff INSTANCES, for the OG cards only. The vawe.dev site (vawe-hq/vawe-site) renders its share cards with
   // next/og (Satori), which needs real font BYTES and reads ttf, otf and woff but NOT woff2, which
   // is the only format the variable packages above ship. The first attempt cut static TTFs out of
   // those woff2 files with fonttools and COMMITTED them, which breaks this repo's oldest asset rule:
   // "no font binary ships from this repo, paid or not" (.gitignore:10). Fontsource's non-variable
   // packages already publish exactly these instances as .woff, so they are fetched here like every
-  // other face, land in the gitignored assets/fonts/, and are vendored into the site by
-  // scripts/site/vendor-assets.mjs. Nothing is converted and nothing is committed.
+  // other face, land in the gitignored assets/fonts/, and are vendored into the site by vawe-hq/vawe-site
+  // (its vendor-assets script). Nothing is converted and nothing is committed.
   ['JetBrainsMono-400.woff',        '@fontsource/jetbrains-mono',              '5.3.0', 'jetbrains-mono-latin-400-normal.woff',        'OFL 1.1'],
   ['Archivo-800.woff',              '@fontsource/archivo',                     '5.3.0', 'archivo-latin-800-normal.woff',               'OFL 1.1'],
   ['Archivo-400.woff',              '@fontsource/archivo',                     '5.3.0', 'archivo-latin-400-normal.woff',               'OFL 1.1'],

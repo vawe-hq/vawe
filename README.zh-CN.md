@@ -66,7 +66,7 @@ bin/vawe dev films/<name>/page.html --studio    # open the printed address
 每次修改都是对 `page.html` 的文本补丁，所以智能体可以继续在同一个文件上工作。更多内容见
 [vawe.dev/studio](https://vawe.dev/studio) 和 `studio/README.md`。
 
-![vawe studio：预览画面、关键帧时间轴和 Key 面板](site/public/studio/studio-main.webp)
+![vawe studio：预览画面、关键帧时间轴和 Key 面板](https://vawe.dev/studio/studio-main.webp)
 
 ## 用 vawe 做的影片
 
@@ -74,9 +74,9 @@ bin/vawe dev films/<name>/page.html --studio    # open the printed address
 
 | | |
 |---|---|
-| [![showcase：黑色背景上，用发光的金色粒子画出的鹦鹉螺壳](site/public/examples/showcase.webp)](https://vawe.dev/examples/showcase.mp4) | [![CINDRE：黑色背景上，一朵柔光构成的红色莲花缓缓绽放，一支香水影片](site/public/examples/cindre.webp)](https://vawe.dev/examples/cindre.mp4) |
+| [![showcase：黑色背景上，用发光的金色粒子画出的鹦鹉螺壳](https://vawe.dev/examples/showcase.webp)](https://vawe.dev/examples/showcase.mp4) | [![CINDRE：黑色背景上，一朵柔光构成的红色莲花缓缓绽放，一支香水影片](https://vawe.dev/examples/cindre.webp)](https://vawe.dev/examples/cindre.mp4) |
 | **showcase**，14 秒：一个页面渲染成 16:9、9:16、1:1、4:5 和 4:3 | **CINDRE**，10 秒：一支香水影片，一个页面 |
-| [![tracking HUD：文字 "every frame" 配有跟踪框、色散边缘和扫描线，背景是一片坐标](site/public/examples/tracking-hud.webp)](https://vawe.dev/examples/tracking-hud.mp4) | [![retro remix：绿色山坡上的桌面窗口，写着 learn After Effects、buy a template、hire a studio、keyframe for 3 days](site/public/examples/retro-remix.webp)](https://vawe.dev/examples/retro-remix.mp4) |
+| [![tracking HUD：文字 "every frame" 配有跟踪框、色散边缘和扫描线，背景是一片坐标](https://vawe.dev/examples/tracking-hud.webp)](https://vawe.dev/examples/tracking-hud.mp4) | [![retro remix：绿色山坡上的桌面窗口，写着 learn After Effects、buy a template、hire a studio、keyframe for 3 days](https://vawe.dev/examples/retro-remix.webp)](https://vawe.dev/examples/retro-remix.mp4) |
 | **tracking HUD**：透过镜头着色器拍摄的屏幕（`films/examples/tracking-hud/`） | **retro remix**：桌面窗口风格的混剪 |
 
 更多：超过 120 个可直接复制的动作（move），每个都带一段视频，见 [vawe.dev/moves](https://vawe.dev/moves)

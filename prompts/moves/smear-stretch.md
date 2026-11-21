@@ -5,7 +5,7 @@ stretches toward the exit on `carry` until it is streaks of its own colours, the
 peak, and shot B's content arrives as the same streak from the other side and snaps back to shape on
 `pop`. The detail that sells it is volume: the content thins as it stretches (scaleY
 0.9) and bulges a few percent as the pop passes rest (scaleX 0.91, scaleY 1.08), so it reads as
-rubber, not as a scaled picture. Clip: [smear-stretch.mp4](../../site/public/moves/smear-stretch.mp4). Demo: [demo/smear-stretch.html](demo/smear-stretch.html).
+rubber, not as a scaled picture. Clip: [smear-stretch.mp4](clips/smear-stretch.mp4). Demo: [demo/smear-stretch.html](demo/smear-stretch.html).
 
 ```html
 <svg width="0" height="0" style="position: absolute"><filter id="smear" x="-5%" width="110%"><feGaussianBlur id="mb" stdDeviation="0 0"/></filter></svg>

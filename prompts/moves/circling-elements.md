@@ -2,7 +2,7 @@
 
 **Use when** a handful of cards, logos or photos must orbit one point and stay upright: a ring around a
 product, a halo of integrations, a carousel that never ends. Items sit evenly on a circle and turn
-as one wheel, linearly, forever. Clip: [circling-elements.mp4](../../site/public/moves/circling-elements.mp4).
+as one wheel, linearly, forever. Clip: [circling-elements.mp4](clips/circling-elements.mp4).
 Demo: [demo/circling-elements.html](demo/circling-elements.html).
 
 Credit: port of fancy by Daniel Petho, MIT. Source:

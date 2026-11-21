@@ -1,7 +1,7 @@
 # Diff card
 
 **Use when** a code review or a merged change is the proof. A copy of a GitHub pull request, Files changed tab, in a Chrome window: the page is already there (GitHub does not animate its rows in), the checks chip swaps from pending to passed in one frame, the Open badge and its sentence swap to a purple Merged badge in one frame, and the reviewer ticks Viewed. Clip:
-[diff-card.mp4](../../site/public/moves/diff-card.mp4) (6 s, light; `diff-card-dark.mp4` is the dark theme). Demo: [demo/diff-card.html](demo/diff-card.html).
+[diff-card.mp4](clips/diff-card.mp4) (6 s, light; `diff-card-dark.mp4` is the dark theme). Demo: [demo/diff-card.html](demo/diff-card.html).
 
 ```js
 import { arrive, show, leave } from '../../prompts/moves/demo/assets/stage.js';

@@ -4,7 +4,7 @@
 move starts at 60 to 70 percent of the previous one, and one element hands off: here a dot widens into
 a bar, the bar closes to the rule under the headline, and the headline rises out of that rule. One
 object carries the film, so the beats read as one gesture, not a list. Clip:
-[chain-beats.mp4](../../site/public/moves/chain-beats.mp4). Demo: [demo/chain-beats.html](demo/chain-beats.html).
+[chain-beats.mp4](clips/chain-beats.mp4). Demo: [demo/chain-beats.html](demo/chain-beats.html).
 
 Use once per film: the bar and the rule is a stock device (rule no-tells), never the idea.
 

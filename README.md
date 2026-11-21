@@ -66,7 +66,7 @@ A live editor for one page: scrub the film, drag keys on the timeline, change co
 aspect. Every edit is a text patch in `page.html`, so the agent keeps working on the same file. More at
 [vawe.dev/studio](https://vawe.dev/studio) and in `studio/README.md`.
 
-![The vawe studio: a preview, a timeline of keys and the Key panel](site/public/studio/studio-main.webp)
+![The vawe studio: a preview, a timeline of keys and the Key panel](https://vawe.dev/studio/studio-main.webp)
 
 ## Films made with vawe
 
@@ -74,9 +74,9 @@ Each film is one `page.html`. Click a still to play the mp4.
 
 | | |
 |---|---|
-| [![showcase: a nautilus shell drawn in glowing gold particles on black](site/public/examples/showcase.webp)](https://vawe.dev/examples/showcase.mp4) | [![CINDRE: a red lotus of soft light opens on black, a perfume film](site/public/examples/cindre.webp)](https://vawe.dev/examples/cindre.mp4) |
+| [![showcase: a nautilus shell drawn in glowing gold particles on black](https://vawe.dev/examples/showcase.webp)](https://vawe.dev/examples/showcase.mp4) | [![CINDRE: a red lotus of soft light opens on black, a perfume film](https://vawe.dev/examples/cindre.webp)](https://vawe.dev/examples/cindre.mp4) |
 | **showcase**, 14 s: one page rendered to 16:9, 9:16, 1:1, 4:5 and 4:3 | **CINDRE**, 10 s: a perfume film, one page |
-| [![tracking HUD: the words "every frame" with tracking boxes, colour fringes and scan lines over a field of coordinates](site/public/examples/tracking-hud.webp)](https://vawe.dev/examples/tracking-hud.mp4) | [![retro remix: desktop windows on a green hill read learn After Effects, buy a template, hire a studio, keyframe for 3 days](site/public/examples/retro-remix.webp)](https://vawe.dev/examples/retro-remix.mp4) |
+| [![tracking HUD: the words "every frame" with tracking boxes, colour fringes and scan lines over a field of coordinates](https://vawe.dev/examples/tracking-hud.webp)](https://vawe.dev/examples/tracking-hud.mp4) | [![retro remix: desktop windows on a green hill read learn After Effects, buy a template, hire a studio, keyframe for 3 days](https://vawe.dev/examples/retro-remix.webp)](https://vawe.dev/examples/retro-remix.mp4) |
 | **tracking HUD**: a screen filmed through the lens shader (`films/examples/tracking-hud/`) | **retro remix**: a desktop-window style remix |
 
 More: over 120 moves to copy, each with a clip, at [vawe.dev/moves](https://vawe.dev/moves) and in
@@ -237,7 +237,7 @@ out/               rendered mp4s (gitignored)
 
 ## Docs
 
-- [vawe.dev](https://vawe.dev): the site, [features](https://vawe.dev/features), [moves](https://vawe.dev/moves),
+- [vawe.dev](https://vawe.dev): the site (source in [vawe-hq/vawe-site](https://github.com/vawe-hq/vawe-site); the docs app is [vawe-hq/vawe-docs](https://github.com/vawe-hq/vawe-docs)), [features](https://vawe.dev/features), [moves](https://vawe.dev/moves),
   [blog](https://vawe.dev/blog), [Remotion alternatives](https://vawe.dev/remotion-alternatives) and
   [HyperFrames alternatives](https://vawe.dev/hyperframes-alternatives).
 - In the repo: `AGENTS.md` (the map), `guides/ROUTING.md` (film types), `prompts/moves/README.md`,

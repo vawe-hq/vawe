@@ -3,7 +3,7 @@
 **Use when** the film ends on an action. The line is already on screen; the button pops in under it
 on the overshoot curve, growing from the line's left edge and 3vh below its slot, and it is the
 only accent in the frame. After it lands the arrow leans right and returns twice, so the button
-invites a click and the tail is never still. Clip: [cta-pop.mp4](../../site/public/moves/cta-pop.mp4). Demo:
+invites a click and the tail is never still. Clip: [cta-pop.mp4](clips/cta-pop.mp4). Demo:
 [demo/cta-pop.html](demo/cta-pop.html).
 
 ```html

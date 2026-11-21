@@ -5,7 +5,7 @@ camera comes down from a steep view above the keyboard to a three-quarter view a
 laptop is a real CSS 3D object: an aluminium body with a keyboard deck (black keys in ANSI rows, a
 trackpad, a hinge), a thin lid with a black bezel, a notch and a menu bar, and a real app on the
 screen. A soft shadow lies on the table under it. Clip:
-[device-tilt-stage.mp4](../../site/public/moves/device-tilt-stage.mp4) (4.2 s, light; `device-tilt-stage-dark.mp4` is the
+[device-tilt-stage.mp4](clips/device-tilt-stage.mp4) (4.2 s, light; `device-tilt-stage-dark.mp4` is the
 dark theme). Demo: [demo/device-tilt-stage.html](demo/device-tilt-stage.html).
 
 ```js

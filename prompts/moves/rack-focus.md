@@ -2,7 +2,7 @@
 
 **Use when** two things at different depths share a frame and the story passes from one to the other: the
 draft in front, the shipped result behind. The lens pulls focus: one plane resolves while the others go soft. Clip:
-[rack-focus.mp4](../../site/public/moves/rack-focus.mp4). Demo: [demo/rack-focus.html](demo/rack-focus.html). Code: `core/surfaces/lens.js`.
+[rack-focus.mp4](clips/rack-focus.mp4). Demo: [demo/rack-focus.html](demo/rack-focus.html). Code: `core/surfaces/lens.js`.
 
 Look: a real photo as the far plane, always soft, with two pale paper cards over it at two depths (0.2 and 0.55; the photo
 sits at 0.95). The cards are drawn on a 2D canvas with a soft contact shadow, a mono label, a large word and a status

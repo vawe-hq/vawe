@@ -159,9 +159,6 @@ assets/icons/*
 assets/icons/ui/brew-logo.svg
 assets/icons/ui/cursor.svg
 
-# The site's generated fonts (fetched by generators/media/fonts.mjs), copied in by scripts/site/vendor-assets.mjs.
-site/public/assets/fonts/
-
 # local scratch (agent shell logs): never commit
 /scratchpad/
 
@@ -219,8 +216,6 @@ quality/refs/*/grid/
 # Reference films downloaded for study (refs/ above) plus any stray render at the repo root.
 /*.mp4
 
-# The site ships no rendered films beyond the moves in site/public/moves and the share loops in site/public/og.
-site/public/assets/films/
 
 # Brand-recreation themes: a palette is not a protected work, but a theme that recreates a real
 # company's look is a statement this repo does not need to publish. A theme declares itself as one
@@ -300,7 +295,7 @@ assets/edit-montage/
 films/recreations/
 # draft key-frame sheets that bin/vawe-dev moves leaves next to each clip
 prompts/moves/*.png
-# the master clips: bin/vawe-dev moves renders them, site/public/moves holds the web encode
+# the master clips: bin/vawe-dev moves renders them, prompts/moves/clips holds the web encode
 prompts/moves/*.mp4
 # render-page keeps a failed render's frames next to the output so a resume finds them; never source
 *.mp4.frames-*/

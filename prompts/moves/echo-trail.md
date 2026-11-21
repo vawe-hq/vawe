@@ -2,7 +2,7 @@
 
 **Use when** one element flies in fast and stops on a beat, and you want the After Effects Echo
 effect: five time-offset copies trail it with falling opacity, then fold into it on the hit frame.
-Clip: [echo-trail.mp4](../../site/public/moves/echo-trail.mp4). Demo: [demo/echo-trail.html](demo/echo-trail.html).
+Clip: [echo-trail.mp4](clips/echo-trail.mp4). Demo: [demo/echo-trail.html](demo/echo-trail.html).
 
 Use on the one moving object of the beat. Copies are the same element shown a few frames in the past,
 never hand-placed, so the trail bends wherever the path bends.

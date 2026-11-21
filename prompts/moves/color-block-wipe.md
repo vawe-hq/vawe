@@ -5,7 +5,7 @@ and sweeps on, and the next shot is behind it. The block is the cut, so shot A i
 while the frame is one flat colour. Unlike `iris-wipe` it has a direction and carries the accent. The
 details that sell it are the slanted leading edge with speed blur, the wordmark that rides the block,
 and a second, darker block that follows 80 ms behind, so the exit shows two colour steps instead of
-one flat edge. Clip: [color-block-wipe.mp4](../../site/public/moves/color-block-wipe.mp4). Demo:
+one flat edge. Clip: [color-block-wipe.mp4](clips/color-block-wipe.mp4). Demo:
 [demo/color-block-wipe.html](demo/color-block-wipe.html).
 
 ```js

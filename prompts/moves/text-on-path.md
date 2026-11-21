@@ -2,7 +2,7 @@
 
 **Use when** a line must travel and settle on a curve: words ride an SVG path like beads on a wire,
 the lead word first, and stop where the line reads. The path is a rail, so the move gives a long
-S-curve to a title without a camera. Clip: [text-on-path.mp4](../../site/public/moves/text-on-path.mp4).
+S-curve to a title without a camera. Clip: [text-on-path.mp4](clips/text-on-path.mp4).
 Demo: [demo/text-on-path.html](demo/text-on-path.html).
 
 `startOffset` is an attribute, not a CSS property, so Web Animations cannot drive it. Set it from

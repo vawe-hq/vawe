@@ -139,7 +139,7 @@ export const VERBS = [
       { name: 'from-url', type: 'string', help: 'the website the film shows, or a route (/blog) or a static .html file, a comma list shoots each: with a name, the film is started from prompts/brand-launch-from-url.md and the PNGs of the site go to films/<name>/assets/site/ (an existing film gets only the captures); without a name, only the PNGs, to out/shot' },
       { name: 'w', type: 'string', default: '1440,390', help: 'with --from-url: comma list of viewport widths' },
       { name: 'full', type: 'bool', help: 'with --from-url: the whole page height, not the first screen' },
-      { name: 'base', type: 'string', default: 'http://localhost:3080', help: 'with --from-url: the site server for routes; a localhost one that is down is started and stopped by this verb' },
+      { name: 'base', type: 'string', default: 'http://localhost:3080', help: 'with --from-url: the vawe.dev server for routes; a localhost one that is down is started from a vawe-hq/vawe-site checkout (../vawe-site or VAWE_SITE_DIR) and stopped by this verb' },
       { name: 'tour', type: 'path', help: 'with --from-url: a steps file (JSON list of { t, move | click | scrollTo | scroll, dur }, see harness/media/tour-math.mjs): drives a drawn macOS cursor with real mouse events through one route or url, at a 16:9 viewport of the first --w, and writes an mp4 to films/<name>/assets/tour.mp4' },
       { name: 'fps', type: 'number', default: 60, help: 'with --tour: the frame rate of the mp4' },
       { name: 'scale', type: 'number', default: 1, help: 'with --tour: the device scale factor (3 gives a 3840 by 2160 mp4 of a 1280 wide page, sharp enough for a macro close-up)' },

@@ -5,7 +5,7 @@ a Cmd+K palette drops in from above on a pop, its rows rise 40 ms apart, three k
 a real typist's pace, the rows that stop matching collapse to zero height, and Enter turns the chosen
 row accent before the palette leaves faster than it came. The detail that sells it is the collapse:
 rows lose their height, so the list squeezes shut under the query; a fade would leave holes. Clip:
-[command-palette-summon.mp4](../../site/public/moves/command-palette-summon.mp4). Demo: [demo/command-palette-summon.html](demo/command-palette-summon.html).
+[command-palette-summon.mp4](clips/command-palette-summon.mp4). Demo: [demo/command-palette-summon.html](demo/command-palette-summon.html).
 
 ```css
 /* product sizes: --px is one CSS pixel of a 1080 px tall screen; the page and the palette share it */

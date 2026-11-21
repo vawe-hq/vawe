@@ -4,7 +4,7 @@
 only when it passes. The clip is a flat neutral ground with a field of ink dots, 2.4 percent of the frame
 height apart. A band of larger, darker dots travels across the field on a diagonal, twice in 5 s. The dots behind
 the copy fade to 30 percent, so the title stays clean. The copy rises in a mask and the lead resolves word by word.
-It is SVG with the look's ink, no shader. Clip: [dot-grid-wave.mp4](../../site/public/moves/dot-grid-wave.mp4). Demo:
+It is SVG with the look's ink, no shader. Clip: [dot-grid-wave.mp4](clips/dot-grid-wave.mp4). Demo:
 [demo/dot-grid-wave.html](demo/dot-grid-wave.html).
 
 ```js

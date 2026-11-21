@@ -71,7 +71,7 @@ fade its wrapper. A feature you did not see on the site is a feature you must no
 
 Ask in this order; the first changes the film most. A skipped question takes its default; never wait.
 
-1. **URL**: which site or product is the subject? Default: `site/app/` (vawe's own site, served locally). Why: the kit, every capture and every colour come from it; nothing invented may appear.
+1. **URL**: which site or product is the subject? Default: https://vawe.dev (vawe's own site). Why: the kit, every capture and every colour come from it; nothing invented may appear.
 2. **Promise**: the one line the film proves, under 12 words? Default: the site's own hero headline, verbatim. Why: it is the first frame and the hook, and every beat has to prove it.
 3. **Moments**: which 3 to 5 things does the film show the product doing? Default: the first three surfaces the hero links to. Why: density is information per frame; each moment is one beat with one real capture.
 4. **Platform**: 16:9 or 9:16, and how long? Default: 16:9, 16 s. Why: the canvas decides the layout and the pace; a reel is one column, a launch is a stage.
@@ -89,7 +89,7 @@ A claim that needs a source (a number, a customer name) gets its source before t
 
 ## Worked example (vawe)
 
-URL `site/app/` (local), promise "Write a scene. Get a film.", moments: the editor diff, the same
+URL https://vawe.dev, promise "Write a scene. Get a film.", moments: the editor diff, the same
 scene on five canvases, frame 412 rendered twice, `bin/vawe ship`. Kit: `themes/vawe.css`. The vawe
 brand is a black ground `#000`, white, the accent `#3291ff` sparingly, Geist and IBM Plex Mono.
 

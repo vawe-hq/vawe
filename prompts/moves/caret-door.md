@@ -4,7 +4,7 @@
 shell: the command runs, the output prints, and the block caret waits on the next prompt. Then the caret
 grows tall and becomes the hinge of a door. The door turns open under perspective and shows the next
 screen (a video player with its controls and the three formats). There is no cut and no crossfade.
-Clip: [caret-door.mp4](../../site/public/moves/caret-door.mp4). Demo: [demo/caret-door.html](demo/caret-door.html).
+Clip: [caret-door.mp4](clips/caret-door.mp4). Demo: [demo/caret-door.html](demo/caret-door.html).
 
 ```js
 import { easeFn } from '../../core/motion/presets.js';

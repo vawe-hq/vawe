@@ -9,5 +9,5 @@ its face and surface from the kit (`node scripts/brand/kit.mjs <url> <name> --in
 - Faces: Geist (headings at weight 600, tracking -0.045em to -0.06em at display sizes; body 400) and IBM Plex Mono for numbers and labels. Not Anybody, Inter or Space Grotesk. The film frame radius is 28px.
 - Evidence: the vawe sting held a full cobalt field from 2.3 s to 5.0 s (anti-pattern D,
   `taste/anti-patterns/D-one-field-held.md`).
-- Source of truth: `site/app/globals.css` and `site/app/layout.tsx`. Re-check them before you rely on
+- Source of truth: `site/app/globals.css` and `site/app/layout.tsx` in vawe-hq/vawe-site. Re-check them before you rely on
   these values.

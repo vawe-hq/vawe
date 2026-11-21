@@ -84,7 +84,7 @@ Ask in this order; the first changes the film most. A skipped question takes its
 
 1. **Reference**: the mp4 to match? Default: `quality/refs/kinetic-promo/source.mp4`. Why: the SPEC comes from it, frame by frame.
 2. **Privacy**: does the film stay private with its reference? Default: private; references are in-house and never published. Why: it decides where the film lives (`films/recreations/` is ignored by git).
-3. **Content**: the strings and captures that replace the reference's? Default: vawe's own strings and captures from `site/app/`. Why: every SWAP line needs its replacement before the rebuild.
+3. **Content**: the strings and captures that replace the reference's? Default: vawe's own strings and captures from https://vawe.dev. Why: every SWAP line needs its replacement before the rebuild.
 4. **Kit**: the brand kit? Default: `themes/vawe.css`. Why: every colour on a SWAP line comes from it.
 5. **Threshold**: the match score that ends the loop? Default: 0.70 combined, then the frame-locked critique. Why: three passes without progress stop the loop; a number says when it is done.
 

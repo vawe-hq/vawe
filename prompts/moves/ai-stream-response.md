@@ -1,7 +1,7 @@
 # AI stream response
 
 **Use when** an AI product answers a question. A copy of the real ChatGPT screen inside a Chrome window: the prompt is typed in the centred composer, sent up into the thread as a tinted bubble that snaps on a spring (the reference clip shows x1.11), the model thinks (one dot fades in), and a bold heading and the answer stream in chunk by chunk with a dot riding the newest chunk. The round button reads waveform, up arrow, stop square, waveform, as the product does. Clip:
-[ai-stream-response.mp4](../../site/public/moves/ai-stream-response.mp4) (6 s, light; `ai-stream-response-dark.mp4` is the dark theme). Demo: [demo/ai-stream-response.html](demo/ai-stream-response.html).
+[ai-stream-response.mp4](clips/ai-stream-response.mp4) (6 s, light; `ai-stream-response-dark.mp4` is the dark theme). Demo: [demo/ai-stream-response.html](demo/ai-stream-response.html).
 
 ```js
 import { arrive, show, flipFrom, typeTimes, typedCount, leave } from '../../prompts/moves/demo/assets/stage.js';

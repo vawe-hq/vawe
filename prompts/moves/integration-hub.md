@@ -4,7 +4,7 @@
 tool logos fly in from past the frame edges on curved paths and land on a ring around it, then every
 wire draws in the same frames and a pulse rides each wire into the hub. Two beats: the tools land
 (staggered 50 ms), then they connect together, so the ecosystem reads as one gesture, not six deals.
-Clip: [integration-hub.mp4](../../site/public/moves/integration-hub.mp4). Demo: [demo/integration-hub.html](demo/integration-hub.html).
+Clip: [integration-hub.mp4](clips/integration-hub.mp4). Demo: [demo/integration-hub.html](demo/integration-hub.html).
 
 ```js
 import '../../core/engine/page-api.js';

@@ -3,7 +3,7 @@
 //
 // Proves harness/dev/recreation-new.mjs (make dev-tool X=new TYPE=recreation) writes a working
 // page.html (correct duration, an animation that actually runs) plus a `see` pass on the reference, and
-// prints exactly one next step, against the repo's own site/public/moves/overwhelm-collapse.mp4 clip.
+// prints exactly one next step, against the repo's own prompts/moves/clips/overwhelm-collapse.mp4 clip.
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -13,7 +13,7 @@ function assert(cond, msg) { if (!cond) throw new Error(`FAIL: ${msg}`); }
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const SCRIPT = path.join(ROOT, 'harness/dev/recreation-new.mjs');
-const REF = path.join(ROOT, 'site/public/moves/overwhelm-collapse.mp4');
+const REF = path.join(ROOT, 'prompts/moves/clips/overwhelm-collapse.mp4');
 const NAME = `_test-${process.pid}`;
 const outDir = path.join(ROOT, 'films/recreations', NAME);
 

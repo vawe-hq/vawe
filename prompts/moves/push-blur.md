@@ -3,7 +3,7 @@
 **Use when** a panel pushes in and should feel fast. The blur follows the panel's speed on the same
 curve: SVG filters cannot be keyframed, so `vawe.onFrame` sets `stdDeviation` every frame to half of
 one frame's travel, x only. A still panel gets zero blur; a moving one blurs along its motion, never
-across it. Clip: [push-blur.mp4](../../site/public/moves/push-blur.mp4). Demo: [demo/push-blur.html](demo/push-blur.html).
+across it. Clip: [push-blur.mp4](clips/push-blur.mp4). Demo: [demo/push-blur.html](demo/push-blur.html).
 
 ```html
 <svg width="0" height="0" style="position: absolute"><filter id="motion" x="-30%" width="160%"><feGaussianBlur id="mb" stdDeviation="0 0"/></filter></svg>

@@ -2,7 +2,7 @@
 
 **Use when** a tab, a pill or a panel must melt into the next one: a tab bar whose active tab is
 joined to the page below it, a blob that stretches to a new slot, a menu that pours out of a button.
-Shapes that touch merge into one soft outline with rounded joins. Clip: [gooey-filter.mp4](../../site/public/moves/gooey-filter.mp4).
+Shapes that touch merge into one soft outline with rounded joins. Clip: [gooey-filter.mp4](clips/gooey-filter.mp4).
 Demo: [demo/gooey-filter.html](demo/gooey-filter.html).
 
 Credit: port of fancy by Daniel Petho, MIT. Source:

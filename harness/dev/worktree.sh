@@ -52,7 +52,7 @@ BASE="$(git -C "$ROOT" rev-parse --verify -q origin/main || git -C "$ROOT" rev-p
 echo "  base: $(git -C "$ROOT" log --oneline -1 "$BASE")"
 git -C "$ROOT" worktree add -q -b "wt-$name" "$WT" "$BASE"
 # shared, read-only
-for d in node_modules site/node_modules; do
+for d in node_modules; do
   [ -d "$ROOT/$d" ] && ln -sfn "$ROOT/$d" "$WT/$d"
 done
 mkdir -p "$WT/bin" && ln -sf "$ROOT/bin/vawe" "$WT/bin/vawe" 2>/dev/null || true

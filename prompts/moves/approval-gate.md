@@ -1,7 +1,7 @@
 # Approval gate
 
 **Use when** an agent must ask before it acts. A copy of the real Claude Code permission prompt: the agent says what it will do, names a command, the prompt replaces the input box in one frame, the selection marker steps to option 2, Enter runs the command, the input box returns and the work continues to the answer. Nothing in the terminal eases: no pop, no scale, no fade. Clip:
-[approval-gate.mp4](../../site/public/moves/approval-gate.mp4) (6 s, light; `approval-gate-dark.mp4` is the dark theme). Demo: [demo/approval-gate.html](demo/approval-gate.html).
+[approval-gate.mp4](clips/approval-gate.mp4) (6 s, light; `approval-gate-dark.mp4` is the dark theme). Demo: [demo/approval-gate.html](demo/approval-gate.html).
 
 ```js
 import { arrive, show, runDot, leave } from '../../prompts/moves/demo/assets/stage.js';
