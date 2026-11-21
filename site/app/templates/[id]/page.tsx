@@ -102,7 +102,7 @@ export default async function TemplatePage({ params }: Params) {
             <>
               <p className="tpl-p">Buy the template to get a license key. Then run the command with your key.</p>
               <div className="tpl-buy">
-                <a className="btn btn-primary" href={checkoutUrl(t.id)}>Buy this template <span className="arw">→</span></a>
+                <a className="btn btn-primary" href={checkoutUrl()}>Get vawe Pro <span className="arw">→</span></a>
               </div>
               <CopyCommand command={`${newCommand(t.id)} --key <your-key>`} />
             </>

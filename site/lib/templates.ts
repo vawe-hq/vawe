@@ -41,8 +41,7 @@ export { templateFiles } from "./template-urls";
 
 export const newCommand = (id: string) => `npx vawe new my-film --template ${id}`;
 
-export const checkoutEnvName = (id: string) => `NEXT_PUBLIC_POLAR_CHECKOUT_${id.toUpperCase().replace(/-/g, "_")}`;
-export const checkoutUrl = (id: string, env: Record<string, string | undefined> = process.env) => env[checkoutEnvName(id)] || "/templates#pro";
+export const checkoutUrl = () => process.env.NEXT_PUBLIC_POLAR_CHECKOUT_PRO || "/templates#pro";
 
 export const templateSource = (id: string) => fs.readFileSync(path.join(process.cwd(), "public", "templates", `${id}.page.html`), "utf8");
 
