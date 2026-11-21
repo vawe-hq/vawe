@@ -10,7 +10,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { resolveFrame, readPageMeta } from './render-page.mjs';
+import { resolveFrame, readPageMeta, COLOUR_TAGS } from './render-page.mjs';
 import { ensureFonts, fontFilesIn } from '../lib/ensure-fonts.mjs';
 import { JOBS } from '../../core/motion/ease-jobs.js';
 import { pageAuthoring } from '../lib/motion-stamp.mjs';
@@ -215,7 +215,7 @@ function fitBudget(name) {
   const file = path.join(MOVES, `${name}.mp4`), fit = path.join(MOVES, `${name}.fit.mp4`);
   const sizeAt = (crf) => {
     if (crf === RENDER_CRF) return fs.statSync(file).size;
-    const r = spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', file, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-preset', 'fast', '-crf', String(crf), '-x264-params', 'aq-mode=3', '-movflags', '+faststart', '-f', 'mp4', fit]);
+    const r = spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', file, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-preset', 'fast', '-crf', String(crf), '-x264-params', 'aq-mode=3', ...COLOUR_TAGS, '-movflags', '+faststart', '-f', 'mp4', fit]);
     if (r.status !== 0) throw new Error(`ffmpeg re-encode of ${name} at crf ${crf} failed: ${r.stderr}`);
     return fs.statSync(fit).size;
   };
