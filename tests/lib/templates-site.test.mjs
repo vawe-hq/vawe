@@ -98,7 +98,7 @@ const card = (over = {}) => ({
   structure: 'hook, mark, title, hold', inputs: [{ key: 'title', label: 'Headline', default: 'Say it', where: 'h1 in world hook' }], tags: ['logo'], ...over,
 });
 
-function fixtureRoot({ free = [card()], pro = [] } = {}) {
+function fixtureRoot({ free = [card()], pro = [], extra = {} } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'templates-'));
   fs.mkdirSync(path.join(root, 'site', 'lib'), { recursive: true });
   fs.writeFileSync(path.join(root, 'site', 'lib', 'templates-pro.json'), JSON.stringify(pro));
@@ -108,8 +108,39 @@ function fixtureRoot({ free = [card()], pro = [] } = {}) {
     fs.writeFileSync(path.join(dir, 'template.json'), JSON.stringify(c));
     for (const f of ['page.html', 'preview.mp4', 'poster.webp']) fs.writeFileSync(path.join(dir, f), `${c.id} ${f}`);
   }
+  for (const [file, text] of Object.entries(extra)) {
+    fs.mkdirSync(path.dirname(path.join(root, 'templates', file)), { recursive: true });
+    fs.writeFileSync(path.join(root, 'templates', file), text);
+  }
   return root;
 }
+
+const slot = (over = {}) => ({ key: 'screen-1', label: 'Main app screen', kind: 'image', size: '1600x1000', file: 'assets/slots/screen-1.png', where: 'the laptop in world tour', ...over });
+const slotFiles = { 'title-sting/assets/slots/screen-1.png': 'x' };
+
+test('slots reach templates.json with their size, kind and span', () => {
+  const root = fixtureRoot({ free: [card({ slots: [slot(), slot({ key: 'clip', kind: 'video', file: 'assets/slots/clip.mp4', span: 4 })] })], extra: { ...slotFiles, 'title-sting/assets/slots/clip.mp4': 'x' } });
+  const [built] = buildTemplates({ root });
+  assert.deepEqual(built.slots.map((s) => [s.key, s.kind, s.size, s.span]), [['screen-1', 'image', '1600x1000', undefined], ['clip', 'video', '1600x1000', 4]]);
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, 'site', 'lib', 'templates.json'), 'utf8')).templates[0].slots[0].file, 'assets/slots/screen-1.png');
+});
+
+test('a card with no slots gets an empty list', () => {
+  assert.deepEqual(buildTemplates({ root: fixtureRoot() })[0].slots, []);
+});
+
+test('a bad slot names the slot and the problem, and a slot without its placeholder file is refused', () => {
+  for (const [over, want] of [[{ kind: 'audio' }, /slots\[0\] \(screen-1\): kind must be image or video/], [{ size: '16:10' }, /size must look like/], [{ file: 'assets/slots/screen-1.mp4' }, /is not a image file/]]) {
+    assert.throws(() => buildTemplates({ root: fixtureRoot({ free: [card({ slots: [slot(over)] })] }) }), want);
+  }
+  assert.throws(() => buildTemplates({ root: fixtureRoot({ free: [card({ slots: [slot()] })] }) }), /slot screen-1 has no placeholder file at assets\/slots\/screen-1\.png/);
+  assert.throws(() => buildTemplates({ root: fixtureRoot({ free: [card({ slots: [slot(), slot()] })], extra: slotFiles }) }), /key screen-1 is used twice/);
+});
+
+test('a template whose page loads a file outside its folder and ../../core/ is refused', () => {
+  const root = fixtureRoot({ extra: { 'title-sting/page.html': `<script type="module">import a from '../../prompts/moves/a.js'</script>` } });
+  assert.throws(() => buildTemplates({ root }), /templates\/title-sting: page\.html loads \.\.\/\.\.\/prompts\/moves\/a\.js/);
+});
 
 test('one free template is copied to site/public/templates and listed in templates.json', () => {
   const root = fixtureRoot();

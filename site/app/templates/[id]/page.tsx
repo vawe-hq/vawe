@@ -5,7 +5,7 @@ import { Footer } from "../../components/Footer";
 import { Clip } from "../../components/Clip";
 import { Next } from "../../components/Xp";
 import { pageMetadata } from "../../components/seo";
-import { TEMPLATES, categoryLabel, checkoutUrl, newCommand, templateById, templateFiles, templateSource } from "../../../lib/templates";
+import { TEMPLATES, categoryLabel, checkoutUrl, newCommand, slotCommand, templateById, templateFiles, templateSource } from "../../../lib/templates";
 import { jsonLdScript } from "../../../lib/schema";
 import { templateBreadcrumbSchema, templateSchema } from "../../../lib/schema-content";
 import { MiscSvg } from "../../video-components/icons";
@@ -94,6 +94,36 @@ export default async function TemplatePage({ params }: Params) {
                   </tbody>
                 </table>
               </div>
+            </>
+          ) : null}
+
+          {t.slots.length ? (
+            <>
+              <h2 className="tpl-h">Media slots</h2>
+              <p className="tpl-p">Swap your own pictures and clips in with <code>--slot</code>. vawe resizes each one to the slot size and crops from the centre.</p>
+              <div className="tpl-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Slot</th>
+                      <th scope="col">Type</th>
+                      <th scope="col">Size</th>
+                      <th scope="col">Where</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {t.slots.map((s) => (
+                      <tr key={s.key}>
+                        <th scope="row">{s.label} <code>{s.key}</code></th>
+                        <td>{s.kind === "video" ? `Video${s.span ? `, ${s.span} s` : ""}` : "Image"}</td>
+                        <td><code>{s.size}</code></td>
+                        <td>{s.where}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <CopyCommand command={`${slotCommand(t.id, t.slots)}${pro ? " --key <your-key>" : ""}`} />
             </>
           ) : null}
 

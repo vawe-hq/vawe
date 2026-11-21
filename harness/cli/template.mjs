@@ -6,6 +6,9 @@ import { EXIT, ExitError } from '../lib/exit-codes.mjs';
 import { STEP } from '../live/stage-say.mjs';
 import { say } from '../lib/next-step.mjs';
 import { nextLine } from '../lib/verb-log.mjs';
+import { parseSlotArgs, planSlots, placeholderLines } from '../lib/template-slots.mjs';
+import { templateImportProblems } from '../lib/template-imports.mjs';
+import { fillSlot } from '../media/template-slot.mjs';
 
 const SITE = 'https://vawe.dev';
 const SKIP = new Set(['template.json', 'preview.mp4', 'poster.webp']);
@@ -114,8 +117,49 @@ function inputLines(card) {
   return ['', 'change these in page.html:', ...inputs.map((i) => `  ${i.label ?? i.key}: "${i.default}" (${i.where})`)];
 }
 
-/** `vawe new <name> --template <id>`: writes films/<name>/ from a free template in templates/ or a Pro one from vawe.dev; returns the lines to print. */
-export async function templateFilm({ id, name, key, work, engine, env = process.env, home = os.homedir() }) {
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** The brief of a copied template names the template's own folders: in the copy they name the new film. */
+export function renameInBrief(text, id, name) {
+  const own = escapeRegExp(id);
+  return text
+    .replace(new RegExp(`\\b(?:films|templates)/${own}(?![a-z0-9-])`, 'g'), `films/${name}`)
+    .replace(new RegExp(`\\bout/${own}(?![a-z0-9])`, 'g'), `out/${name}`);
+}
+
+function rewriteBrief(dest, id, name) {
+  const file = path.join(dest, 'brief.md');
+  if (id === name || !fs.existsSync(file)) return;
+  fs.writeFileSync(file, renameInBrief(fs.readFileSync(file, 'utf8'), id, name));
+}
+
+function slotPlan(card, slots, home) {
+  try {
+    const planned = planSlots(card, parseSlotArgs(slots, home));
+    const missing = planned.find((p) => !fs.existsSync(p.path));
+    if (missing) throw new Error(`slot ${missing.slot.key}: no such file ${missing.path}`);
+    return planned;
+  } catch (e) {
+    throw new UsageError(e.message);
+  }
+}
+
+function fillSlots(dest, planned) {
+  try {
+    return planned.map((p) => {
+      fillSlot(dest, p);
+      return `slot ${p.slot.key}: ${path.basename(p.path)} fitted to ${p.slot.size} at ${p.slot.file}`;
+    });
+  } catch (e) {
+    fs.rmSync(dest, { recursive: true, force: true });
+    throw new ExitError(EXIT.IO, e.message);
+  }
+}
+
+const importWarnings = (dest) => templateImportProblems(dest).map((p) => `warning: ${p}`);
+
+/** `vawe new <name> --template <id>`: writes films/<name>/ from a free template in templates/ or a Pro one from vawe.dev; returns the lines to print. `slots`: the `--slot key=path` values. */
+export async function templateFilm({ id, name, key, slots = [], work, engine, env = process.env, home = os.homedir() }) {
   if (id === 'list') return listLines({ engine, env });
   if (!name) throw new UsageError('missing <name>; usage: vawe new <name> --template <id>');
   if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) throw new UsageError(`film name "${name}" must be lowercase letters, digits and dashes`);
@@ -125,9 +169,12 @@ export async function templateFilm({ id, name, key, work, engine, env = process.
   const src = path.join(templatesDir(engine, env), id);
   const local = fs.existsSync(path.join(src, 'page.html'));
   const files = local ? null : await fetchPro({ id, name, key: proKey({ key, env, home }), env });
+  const card = local ? readCard(src) : cardOf(files);
+  const planned = slotPlan(card, slots, home);
   if (local) copyLocal(src, dest);
   else writeFiles(dest, files);
+  rewriteBrief(dest, id, name);
+  const filled = fillSlots(dest, planned);
   const page = `films/${name}/page.html`;
-  const card = local ? readCard(src) : cardOf(files);
-  return [`wrote ${page} and its assets from template ${id}`, ...inputLines(card), '', nextLine(say`${STEP.dev(name, page)}`)];
+  return [`wrote ${page} and its assets from template ${id}`, ...filled, ...importWarnings(dest), ...inputLines(card), ...placeholderLines(card, planned), '', nextLine(say`${STEP.dev(name, page)}`)];
 }

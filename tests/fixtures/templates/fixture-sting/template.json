@@ -10,5 +10,9 @@
   "inputs": [
     { "key": "title", "label": "Headline", "default": "Say the one thing", "where": "h1 in world hook" }
   ],
+  "slots": [
+    { "key": "screen-1", "label": "Main app screen", "kind": "image", "size": "320x200", "file": "assets/slots/screen-1.png", "where": "the laptop in world hook" },
+    { "key": "clip-1", "label": "Screen recording", "kind": "video", "size": "320x180", "file": "assets/slots/clip-1.mp4", "span": 1, "where": "the phone in world hook" }
+  ],
   "tags": ["test"]
 }

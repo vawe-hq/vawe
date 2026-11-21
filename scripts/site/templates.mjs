@@ -7,6 +7,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { clipHash } from '../../harness/lib/clip-hash.mjs';
+import { slotListProblem } from '../../harness/lib/template-slots.mjs';
+import { templateImportProblems } from '../../harness/lib/template-imports.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const CATEGORIES = [
@@ -36,6 +38,8 @@ function check(card, origin) {
   if (!Array.isArray(card.inputs)) fail('inputs must be a list');
   for (const input of card.inputs) for (const key of ['key', 'label', 'default', 'where']) if (typeof input[key] !== 'string') fail(`every input needs ${key}`);
   if (card.tags !== undefined && !Array.isArray(card.tags)) fail('tags must be a list');
+  const slotProblem = slotListProblem(card.slots);
+  if (slotProblem) fail(slotProblem);
 }
 
 const pick = (card) => ({
@@ -48,6 +52,7 @@ const pick = (card) => ({
   aspect: card.aspect,
   structure: card.structure,
   inputs: card.inputs,
+  slots: (card.slots ?? []).map(({ key, label, kind, size, file, where, span }) => ({ key, label, kind, size, file, where, ...(span ? { span } : {}) })),
   tags: card.tags ?? [],
 });
 
@@ -75,6 +80,9 @@ export function buildTemplates({ root }) {
     if (card.id !== dir) throw new Error(`templates/${dir}/template.json: id ${card.id} must equal the folder name`);
     if (card.tier !== 'free') throw new Error(`templates/${dir}/template.json: a template in this repo must be free`);
     for (const f of ['page.html', 'preview.mp4', 'poster.webp']) if (!fs.existsSync(path.join(folder, f))) throw new Error(`templates/${dir}: ${f} is missing`);
+    for (const slot of card.slots ?? []) if (!fs.existsSync(path.join(folder, slot.file))) throw new Error(`templates/${dir}: slot ${slot.key} has no placeholder file at ${slot.file}`);
+    const outside = templateImportProblems(folder);
+    if (outside.length) throw new Error(`templates/${dir}: ${outside[0]}`);
     copyIfChanged(path.join(folder, 'preview.mp4'), path.join(outDir, `${card.id}.mp4`));
     copyIfChanged(path.join(folder, 'poster.webp'), path.join(outDir, `${card.id}.webp`));
     copyIfChanged(path.join(folder, 'page.html'), path.join(outDir, `${card.id}.page.html`));

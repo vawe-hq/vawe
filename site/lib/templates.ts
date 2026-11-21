@@ -7,6 +7,7 @@ import { SITE_URL } from "./site";
 // metadata and a public preview here; its files live in a private repo (lib/templates-pro-api.ts).
 
 export type TemplateInput = { key: string; label: string; default: string; where: string };
+export type TemplateSlot = { key: string; label: string; kind: "image" | "video"; size: string; file: string; where: string; span?: number };
 export type Template = {
   id: string;
   title: string;
@@ -17,6 +18,7 @@ export type Template = {
   aspect: string;
   structure: string;
   inputs: TemplateInput[];
+  slots: TemplateSlot[];
   tags: string[];
   hash: string;
   hasSource: boolean;
@@ -40,6 +42,9 @@ export const toCard = ({ id, title, summary, category, tier, length, hash }: Tem
 export { templateFiles } from "./template-urls";
 
 export const newCommand = (id: string) => `npx vawe new my-film --template ${id}`;
+
+export const slotCommand = (id: string, slots: TemplateSlot[]) =>
+  `${newCommand(id)}${slots.slice(0, 2).map((s) => ` --slot ${s.key}=~/path/to/${s.kind === "video" ? "clip.mp4" : "picture.png"}`).join("")}`;
 
 export const checkoutUrl = () => process.env.NEXT_PUBLIC_POLAR_CHECKOUT_PRO || "/templates#pro";
 

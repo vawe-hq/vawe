@@ -117,7 +117,7 @@ async function execute(verb, rest, call) {
 
 async function startFilm(values, name, call) {
   if (values.template !== undefined) {
-    say(call, (await templateFilm({ id: values.template, name, key: values.key, work: WORK, engine: ROOT })).join('\n'));
+    say(call, (await templateFilm({ id: values.template, name, key: values.key, slots: values.slot ?? [], work: WORK, engine: ROOT })).join('\n'));
     return 0;
   }
   const site = values['from-url'] ? siteStep(values, name) : null;
