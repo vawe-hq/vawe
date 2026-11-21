@@ -1,0 +1,17 @@
+{
+  "id": "title-sting",
+  "title": "Title sting",
+  "summary": "A 5 s sting for any product name: wind streaks, a needle, the name sliced in, then a tagline.",
+  "category": "titles",
+  "tier": "free",
+  "length": 5,
+  "aspect": "16:9",
+  "structure": "needle and wind streaks, the name slices in band by band, the tagline rises, one edge turns night to paper",
+  "inputs": [
+    { "key": "name", "label": "Product name", "default": "Northwind", "where": "h1.word in .lockup.night and in .lockup.paper (write it in both)" },
+    { "key": "tagline-1", "label": "Tagline, word 1", "default": "Find", "where": "first span of p.line in both lockups" },
+    { "key": "tagline-2", "label": "Tagline, word 2", "default": "your", "where": "second span of p.line in both lockups" },
+    { "key": "tagline-3", "label": "Tagline, word 3", "default": "way", "where": "third span of p.line in both lockups" }
+  ],
+  "tags": ["logo", "wordmark", "sting", "wipe"]
+}

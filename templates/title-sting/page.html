@@ -1,0 +1,153 @@
+<!doctype html>
+<html data-aspect="16:9">
+<head>
+<meta charset="utf-8">
+<meta name="duration" content="5">
+<meta name="aspect" content="16:9">
+<meta name="message" content="northwind: find your way">
+<meta name="spectacle" content="1.7">
+<meta name="signature" content="band=professional; ease=land; stagger=60; seam=wipe; palette=duotone; thread=wind streaks">
+<title>Northwind</title>
+<!-- a title sting: wind streaks blow past a needle, the wind slices the name in, one edge turns night to paper and the same lockup turns its ink with it.
+  Replace the name, the tagline and the two colours; keep the beats. The lockup is written twice (night and paper): change both texts. -->
+<style>
+  @font-face { font-family: "Bricolage Grotesque"; src: url("assets/BricolageGrotesque.woff2") format("woff2"); font-weight: 200 800; }
+  :root {
+    --beat-1: 0s;      /* the needle and the streaks */
+    --beat-2: 1.3s;    /* the wind slices the name in */
+    --beat-3: 3.2s;    /* one edge turns the ground to paper */
+    --beat-4: 2.4s;    /* the line rises */
+    --night: #0c1e33;
+    --night-lit: #1a3f66;
+    --paper: #f4efe4;
+    --paper-lit: #fffaf0;
+    --needle: #ff6b35;
+  }
+  html, body { margin: 0; height: 100%; background: var(--night); overflow: clip; }
+  .glow { position: absolute; left: -25%; top: -25%; width: 150%; height: 150%; background: radial-gradient(circle closest-side at 50% 50%, var(--night-lit) 0, transparent 100%); opacity: 0.9; }
+  .world { position: absolute; inset: 0; isolation: isolate; overflow: hidden; color: var(--paper); }
+  .pw { background: radial-gradient(circle farthest-corner at 55% 40%, var(--paper-lit) 0, var(--paper) 100%); color: var(--night); clip-path: inset(0 0 0 100%); }
+  .streak { position: absolute; left: 0; height: calc(var(--vh) * 0.007); border-radius: 999px; background: linear-gradient(90deg, currentColor 0, transparent 100%); }
+  .pw .streak { opacity: 0.55; }
+  .lockup { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: calc(var(--vh) * 0.05); font-family: "Bricolage Grotesque", sans-serif; }
+  .lockup.night { color: var(--paper); }
+  .row { display: flex; align-items: center; gap: calc(var(--vh) * 0.05); }
+  .mark { width: calc(var(--vh) * 0.26); height: calc(var(--vh) * 0.26); }
+  .wordwrap { position: relative; }
+  .word, .band { margin: 0; font-size: min(calc(var(--vh) * 0.23), calc(var(--vw) * 0.115)); font-weight: 800; line-height: 1.1; letter-spacing: -0.035em; white-space: nowrap; }
+  .band { position: absolute; left: 0; top: 0; }
+  .line { margin: 0; display: flex; gap: 0.3em; font-size: min(calc(var(--vh) * 0.095), calc(var(--vw) * 0.06)); font-weight: 500; letter-spacing: -0.02em; }
+  .line span { display: inline-block; }
+  .edge { position: absolute; top: 0; left: 0; width: calc(var(--vh) * 0.012); height: 100%; background: var(--needle); z-index: 5; translate: var(--vw) 0; }
+  .grain { position: absolute; inset: 0; opacity: 0.1; background-size: 256px 256px; mix-blend-mode: overlay; pointer-events: none; z-index: 6; }
+</style>
+</head>
+<body>
+<div class="glow" aria-hidden="true"></div>
+<div class="world" data-world="hook"><div class="streaks" aria-hidden="true"></div></div>
+<div class="world" data-world="name"><div class="streaks" aria-hidden="true"></div></div>
+<div class="world" data-world="line"></div>
+<div class="lockup night">
+  <div class="row">
+    <svg class="mark" viewBox="0 0 100 100" role="img" aria-label="needle"><polygon points="50,6 72,62 50,50 28,62" fill="#ff6b35"/><circle cx="50" cy="82" r="7" fill="currentColor"/></svg>
+    <div class="wordwrap"><h1 class="word">Northwind</h1></div>
+  </div>
+  <p class="line"><span>Find</span><span>your</span><span>way</span></p>
+</div>
+<div class="world pw" data-world="tag">
+  <div class="streaks" aria-hidden="true"></div>
+  <div class="lockup paper">
+    <div class="row">
+      <svg class="mark" viewBox="0 0 100 100"><polygon points="50,6 72,62 50,50 28,62" fill="#ff6b35"/><circle cx="50" cy="82" r="7" fill="currentColor"/></svg>
+      <div class="wordwrap"><h1 class="word">Northwind</h1></div>
+    </div>
+    <p class="line"><span>Find</span><span>your</span><span>way</span></p>
+  </div>
+</div>
+<div class="edge" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<audio data-synth="tap" data-at="0.85"></audio>
+<audio data-synth="swoosh-long" data-at="1.3"></audio>
+<audio data-synth="sub-thump" data-at="3.35"></audio>
+<script type="module">
+import { EASE } from '../../core/motion/presets.js';
+import { rng } from '../../core/motion/springs.js';
+await document.fonts.load('800 1em "Bricolage Grotesque"');
+const root = document.documentElement;
+const beat = (n) => parseFloat(getComputedStyle(root).getPropertyValue('--beat-' + n));
+const end = parseFloat(document.querySelector('meta[name="duration"]').content);
+const $ = (s) => document.querySelector(s);
+const B2 = beat(2), B3 = beat(3);
+const WIPE = 450;
+
+// the light of the night ground drifts for the whole night half, so no cut is needed to move it
+$('.glow').animate([{ translate: 'calc(var(--vw) * 0.18) calc(var(--vh) * -0.12)' }, { translate: 'calc(var(--vw) * -0.2) calc(var(--vh) * 0.2)' }], { duration: B3 * 1000, easing: EASE.glide, fill: 'both' });
+
+// the wind: [y percent, length in frame widths, start s, run s]
+const WIND = [[18, 0.5, 0.05, 0.9], [27, 0.3, 0.2, 0.8], [36, 0.6, 0.1, 1.0], [44, 0.35, 0.35, 0.75], [56, 0.55, 0.15, 0.95], [64, 0.3, 0.3, 0.7], [73, 0.5, 0.0, 0.9], [82, 0.4, 0.25, 0.85], [90, 0.25, 0.4, 0.65], [31, 0.45, 0.6, 0.7], [60, 0.4, 0.55, 0.75]];
+const AFTER = [[10, 0.4, 3.7, 1.2], [90, 0.55, 3.85, 1.1], [20, 0.3, 4.05, 0.9], [84, 0.35, 4.25, 0.75], [16, 0.5, 4.3, 0.7], [94, 0.45, 4.5, 0.5]];
+const streak = (host, [y, len, at, run]) => {
+  const el = document.createElement('i');
+  el.className = 'streak';
+  el.style.top = y + '%';
+  el.style.width = `calc(var(--vw) * ${len})`;
+  host.appendChild(el);
+  el.animate([{ translate: 'calc(var(--vw) * 1.1) 0' }, { translate: `calc(var(--vw) * ${-len - 0.1}) 0` }], { delay: at * 1000, duration: run * 1000, easing: EASE.glide, fill: 'both' });
+};
+WIND.forEach((s) => streak($('[data-world="hook"] .streaks'), s));
+AFTER.forEach((s) => streak($('.pw .streaks'), s));
+[[47, 0.7, 1.3, 0.55], [40, 0.4, 1.45, 0.5], [55, 0.5, 1.4, 0.5]].forEach((s) => streak($('[data-world="name"] .streaks'), s));
+
+const cutTo = (el, visibility, at, fill) => el.animate([{ visibility: visibility === 'visible' ? 'hidden' : 'visible' }, { visibility }], { delay: at * 1000, duration: 1, fill });
+cutTo($('[data-world="hook"]'), 'hidden', B2, 'forwards');
+cutTo($('[data-world="name"]'), 'visible', B2, 'both'); cutTo($('[data-world="name"]'), 'hidden', beat(4), 'forwards');
+cutTo($('[data-world="tag"]'), 'visible', B3, 'both');
+cutTo($('[data-world="line"]'), 'visible', beat(4), 'both'); cutTo($('[data-world="line"]'), 'hidden', B3, 'forwards');
+
+// the wipe: the paper world, with the same lockup in night ink, opens from the right behind an orange edge
+const wipe = { delay: B3 * 1000, duration: WIPE, easing: EASE.land, fill: 'both' };
+$('.pw').animate([{ clipPath: 'inset(0 0 0 100%)' }, { clipPath: 'inset(0 0 0 0%)' }], wipe);
+$('.edge').animate([{ translate: 'var(--vw) 0' }, { translate: 'calc(var(--vw) * -0.02) 0' }], wipe);
+$('.edge').animate([{ opacity: 1 }, { opacity: 0 }], { delay: (B3 * 1000) + WIPE - 40, duration: 1, fill: 'forwards' });
+
+// both lockups share one set of moves, so the paper copy matches the night one frame for frame
+document.querySelectorAll('.lockup').forEach((lock) => {
+  const q = (s) => lock.querySelector(s);
+  const mark = q('.mark');
+  mark.animate([{ scale: 0.4 }, { scale: 1 }], { delay: 0, duration: 700, easing: EASE.pop, fill: 'both' });
+  mark.animate([{ rotate: '-35deg', offset: 0, easing: EASE.land }, { rotate: '0deg', offset: 0.9 / end, easing: EASE.glide }, { rotate: '-6deg', offset: 2.2 / end, easing: EASE.glide }, { rotate: '0deg', offset: 3.2 / end, easing: EASE.glide }, { rotate: '12deg', offset: 3.9 / end, easing: EASE.glide }, { rotate: '-8deg', offset: 4.5 / end, easing: EASE.glide }, { rotate: '3deg', offset: 1 }], { duration: end * 1000, fill: 'both' });
+  mark.animate([{ opacity: 0 }, { opacity: 1 }], { delay: 0, duration: 120, fill: 'both' });
+
+  // the spectacle: the row slides the name out from behind the needle while the wind slices it into seven bands
+  const word = q('.word'), wrap = q('.wordwrap'), row = q('.row');
+  const gap = parseFloat(getComputedStyle(row).columnGap);
+  const shift = (word.getBoundingClientRect().width + gap) / 2;
+  row.animate([{ translate: shift + 'px 0' }, { translate: '0 0' }], { delay: (B2 - 0.1) * 1000, duration: 520, easing: EASE.land, fill: 'both' });
+  const BANDS = 7, STEP = 40, REVEAL = 450;   // each band opens from its right edge to the left, the way the wind blows
+  for (let k = 0; k < BANDS; k++) {
+    const el = k === 0 ? word : wrap.appendChild(word.cloneNode(true));
+    if (k) { el.className = 'band'; el.removeAttribute('style'); el.setAttribute('aria-hidden', 'true'); }
+    const top = k === 0 ? -30 : k * 100 / BANDS - 0.3, bottom = k === BANDS - 1 ? -30 : 100 - (k + 1) * 100 / BANDS - 0.3;
+    const rest = `${top}% -0.3em ${bottom}% -0.3em`;
+    el.style.clipPath = `inset(${rest})`;
+    const at = (B2 + 0.2) * 1000 + (BANDS - 1 - k) * STEP;
+    el.animate([{ clipPath: `inset(${top}% -0.3em ${bottom}% 100%)` }, { clipPath: `inset(${rest})` }], { delay: at, duration: REVEAL, easing: EASE.land, fill: 'both' });
+  }
+
+  // the tagline: three words rise one after another
+  [...q('.line').children].forEach((w, i) => {
+    w.animate([{ translate: '0 0.5em', opacity: 0 }, { translate: '0 0', opacity: 1 }], { delay: 2.45 * 1000 + i * 90, duration: 520, easing: i === 1 ? EASE.nudge : EASE.land, fill: 'both' });
+    w.animate([{ scale: 1.05 }, { scale: 1 }], { delay: 2.45 * 1000 + i * 90 + 400, duration: 360, easing: EASE.land, fill: 'both' });
+  });
+});
+
+// seeded grain at 1:1 pixels so the gradients do not band
+const tile = document.createElement('canvas');
+tile.width = tile.height = 256;
+const g = tile.getContext('2d'), img = g.createImageData(256, 256), rand = rng(11);
+for (let i = 0; i < img.data.length; i += 4) { const v = rand() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+g.putImageData(img, 0, 0);
+$('.grain').style.backgroundImage = `url(${tile.toDataURL()})`;
+</script>
+</body>
+</html>
