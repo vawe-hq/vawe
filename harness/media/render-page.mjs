@@ -590,11 +590,13 @@ function pinnedSliceFrames(dir, wanted) {
   return wanted;
 }
 
-// ffmpeg's RGB to YUV default is the BT.601 matrix with no tag, and players read untagged HD as BT.709.
-// Measured on flat patches (tests/media/render-colour.test.mjs) decoded as BT.709, the 8-bit error of a final before: green 38,
-// red 25, blue 15, brand #3b82f6 7, grey 1; after: every patch within 2. Each encode converts with the BT.709 matrix to limited range and tags it.
-const toBt709 = (format) => `scale=out_color_matrix=bt709:out_range=tv,format=${format},setparams=colorspace=bt709:color_primaries=bt709:color_trc=bt709:range=tv`;
-const COLOUR_TAGS = ['-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv'];
+// ffmpeg's RGB to YUV default is the BT.601 matrix with no tag, and players read untagged HD as BT.709: on the flat
+// patches of tests/media/render-colour.test.mjs that default is off by green 38, red 25, blue 15, brand #3b82f6 7 levels.
+const toBt709 = (format, ...onYuv) => [`scale=out_color_matrix=bt709:out_range=tv,format=${format}`, ...onYuv,
+  'setparams=colorspace=bt709:color_primaries=bt709:color_trc=bt709:range=tv'].join(',');
+export const COLOUR_TAGS = ['-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv'];
+const resizeTo = (size) => size && `scale=${size[0]}:${size[1]}:flags=area`;
+const chain = (...filters) => filters.filter(Boolean).join(',');
 
 // Same libx264 settings the Go renderer uses for its final and draft encodes (renderer/internal/encode/
 // encode.go), except CRF 16 where encode.go uses 20: a page is captured lossless and CRF 16 keeps thin
@@ -603,29 +605,27 @@ const COLOUR_TAGS = ['-colorspace', 'bt709', '-color_primaries', 'bt709', '-colo
 // A small draft (dev --small) is a file to post, such as a share loop: preset fast at CRF 24 measured 1.0 MB against
 // 4.7 MB for the plain draft on a 5 s print-grain loop at 960x504, 37.6 dB PSNR.
 function x264Args(final, small = false) {
-  return [...x264Settings(final, small), ...COLOUR_TAGS];
+  const settings = final
+    ? ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-preset', 'fast', '-crf', '16', '-x264-params', 'aq-mode=3', '-movflags', '+faststart']
+    : small
+      ? ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-preset', 'fast', '-crf', '24', '-movflags', '+faststart']
+      : ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-preset', 'ultrafast', '-crf', '20', '-movflags', '+faststart'];
+  return [...settings, ...COLOUR_TAGS];
 }
 
-function x264Settings(final, small) {
-  if (final) return ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-preset', 'fast', '-crf', '16', '-x264-params', 'aq-mode=3', '-movflags', '+faststart'];
-  return small
-    ? ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-preset', 'fast', '-crf', '24', '-movflags', '+faststart']
-    : ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-preset', 'ultrafast', '-crf', '20', '-movflags', '+faststart'];
-}
-
-// The web copy: AV1 10-bit needs no dither, since 10 bits do not band. Measured on a 1080p dark ramp and
-// two 5 s films: 1.7 and 3.6 MB, and the ramp's longest flat run 20 px with the BT.601 conversion, 32 px with the BT.709 one (lossless 14, undithered 8-bit 98).
+// The web copy: AV1 10-bit of the dithered 8-bit frames. On the ramp of render-banding.test.mjs the longest flat run is
+// 27 px, 32 px undithered (lossless 14); on 5 s of a 1080p film the dither costs 0.60 MB against 0.56 MB.
 // An 8-bit x264 copy at that size bands (CRF 22: 121 px).
 const WEB_ARGS = ['-c:v', 'libsvtav1', '-pix_fmt', 'yuv420p10le', '-crf', '30', '-preset', '8', '-svtav1-params', 'lp=2', '-movflags', '+faststart', ...COLOUR_TAGS];
 
-// 8-bit yuv420p bands a dark gradient into visible rings; a faint fixed-seed temporal noise before the
-// master encode dithers them away (the final only, so draft pixels stay comparable). Measured on a dark
-// ramp: strength 3 with aq-mode=3 left a 14 px longest flat run with the BT.601 conversion and 40 px with the BT.709 one; strength 4 leaves 21 px.
+// 8-bit yuv420p bands a dark gradient into visible rings; a faint fixed-seed temporal noise on the YUV frames
+// dithers them away (finals only, so draft pixels stay comparable). On the ramp of render-banding.test.mjs, strength 3
+// leaves a 13 px longest flat run; the same noise on the RGB frames leaves 40 px, because the matrix weights it down.
 // Chromium saves some frames as RGBA (mix-blend-mode, for one); a pixel-format change mid-sequence makes
 // ffmpeg rebuild the filter graph, which resets the trims and drops frames. Keep one graph, one format.
 const ONE_FORMAT_IN = ['-reinit_filter', '0'];
 
-const DITHER = 'noise=alls=4:allf=t:all_seed=7';
+const DITHER = 'noise=alls=3:allf=t:all_seed=7';
 
 // One trim+tmix+select chain per run of equal subframe counts, concatenated to [blend].
 // A layer keeps its alpha: subframes are blended premultiplied, in float, so a moving edge fades instead of darkening (straight
@@ -665,27 +665,22 @@ function blendEncode(tmpDir, fps, kArr, subframeStart, final, tail, codecArgs, o
 // One ffmpeg pass over the blended frames: the master (x264).
 // `size` is the output [width, height] when the capture is larger: the browser's own downscale gave different pixels run to run.
 export function ffmpegEncode(tmpDir, fps, kArr, subframeStart, tmpOut, { final, size = null, small = false, alpha = false }) {
-  if (alpha) {
-    const tail = `${UNPREMULTIPLY}${size ? `,scale=${size[0]}:${size[1]}:flags=area` : ''}`;
-    return blendEncode(tmpDir, fps, kArr, subframeStart, final, tail, PRORES_4444_ARGS, tmpOut, true);
-  }
-  const resize = size ? `scale=${size[0]}:${size[1]}:flags=area` : `null${final ? `,${DITHER}` : ''}`;
-  const tail = `${resize},${toBt709('yuv420p')}`;
+  if (alpha) return blendEncode(tmpDir, fps, kArr, subframeStart, final, chain(UNPREMULTIPLY, resizeTo(size)), PRORES_4444_ARGS, tmpOut, true);
+  // An animatic encodes as a resized final and stays undithered.
+  const tail = chain(resizeTo(size), toBt709('yuv420p', ...(final && !size ? [DITHER] : [])));
   return blendEncode(tmpDir, fps, kArr, subframeStart, final, tail, x264Args(final, small), tmpOut);
 }
 
 const PRORES_422HQ_ARGS = ['-c:v', 'prores_ks', '-profile:v', '3', '-pix_fmt', 'yuv422p10le', '-vendor', 'apl0', ...COLOUR_TAGS];
 const PRORES_4444_ARGS = ['-c:v', 'prores_ks', '-profile:v', '4', '-pix_fmt', 'yuva444p10le', '-alpha_bits', '16', '-vendor', 'apl0', ...COLOUR_TAGS];
 
-// The opt-in ProRes 422 HQ master (--master prores): its own pass over the same frames, beside the mp4.
 export function ffmpegProresEncode(tmpDir, fps, kArr, subframeStart, out, size = null) {
-  const resize = size ? `scale=${size[0]}:${size[1]}:flags=area,` : '';
-  return blendEncode(tmpDir, fps, kArr, subframeStart, true, `${resize}${toBt709('yuv422p10le')}`, PRORES_422HQ_ARGS, out);
+  return blendEncode(tmpDir, fps, kArr, subframeStart, true, chain(resizeTo(size), toBt709('yuv422p10le')), PRORES_422HQ_ARGS, out);
 }
 
 // The web copy is its own pass, run after the master is delivered.
-export function ffmpegWebEncode(tmpDir, fps, kArr, subframeStart, webOut) {
-  return blendEncode(tmpDir, fps, kArr, subframeStart, true, `${toBt709('yuv420p10le')}`, WEB_ARGS, webOut);
+export function ffmpegWebEncode(tmpDir, fps, kArr, subframeStart, webOut, size = null) {
+  return blendEncode(tmpDir, fps, kArr, subframeStart, true, chain(resizeTo(size), toBt709('yuv420p', DITHER, 'format=yuv420p10le')), WEB_ARGS, webOut);
 }
 
 // The cost table `--profile` prints. Subframes and screenshots per film second are a pure function of the
@@ -858,7 +853,7 @@ async function muxPageAudio(read, pagePath, { video, out, duration, explicit, fa
     throw e;
   }
   if (fault) fault();
-  const muxed = `${out}.mux-${process.pid}.mp4`;
+  const muxed = `${out}.mux-${process.pid}${path.extname(out) || '.mp4'}`;
   try { await audio.mixAndMux({ specs: read.specs, duration, video, out: muxed, loudness: read.loudness }); } catch (e) { fs.rmSync(muxed, { force: true }); throw e; }
   fs.renameSync(muxed, out);
   return true;
@@ -954,7 +949,7 @@ export async function renderPage(pagePath, outPath, opts = {}) {
 
     const tmpOut = `${outPath}.tmp-${process.pid}${layer ? '.mov' : '.mp4'}`;
     const webPath = final && !layer ? webOut(outPath) : null;
-    const tmpWeb = webPath && `${webPath}.tmp-${process.pid}.mp4`;
+    const proresPath = final && !layer && opts.master === 'prores' ? proresOut(outPath) : null;
     const encodeSize = final && frame.outWidth === Math.round(frame.width * frame.scale) && frame.outHeight === Math.round(frame.height * frame.scale) ? null : [frame.outWidth, frame.outHeight];
     const t1 = Date.now();
     const res = ffmpegEncode(tmpDir, fps, kArr, subframeStart, tmpOut, { final, alpha: Boolean(layer), small: opts.small, size: encodeSize });
@@ -994,35 +989,31 @@ export async function renderPage(pagePath, outPath, opts = {}) {
     };
     const result = { length, frames, subframes: totalSub, reused: reusedFrames, prepassMs, captureMs, encodeMs, dur, audio: Boolean(mixed), restarted, resumed, advice, ...timing };
     opts.onMaster?.(result);
-    if (final && !layer && opts.master === 'prores') {
-      const proresPath = proresOut(outPath);
-      const tmpProres = `${proresPath}.tmp-${process.pid}.mov`;
-      const proresRes = ffmpegProresEncode(tmpDir, fps, kArr, subframeStart, tmpProres, encodeSize);
-      if (proresRes.status !== 0 || proresRes.error) {
-        fs.rmSync(tmpProres, { force: true });
-        throw new RenderError(`ffmpeg ProRes master failed, the mp4 ${outPath} is complete (${proresRes.error ? proresRes.error.message : `exit ${proresRes.status}`}):\n${(proresRes.stderr || '').trim().split('\n').slice(-15).join('\n')}`, EXIT.IO);
-      }
-      await place(tmpProres, proresPath);
-    }
-    if (tmpWeb) {
-      const webRes = ffmpegWebEncode(tmpDir, fps, kArr, subframeStart, tmpWeb);
-      if (webRes.status !== 0 || webRes.error) {
-        fs.rmSync(tmpWeb, { force: true });
-        throw new RenderError(`ffmpeg web copy failed, the master ${outPath} is complete (${webRes.error ? webRes.error.message : `exit ${webRes.status}`}):\n`
-          + `${(webRes.stderr || '').trim().split('\n').slice(-15).join('\n')}`, EXIT.IO);
-      }
-      await place(tmpWeb, webPath);
-    }
-    if (!process.env.LOCAL_KEEP) fs.rmSync(tmpDir, { recursive: true, force: true });
     const cues = (audioRead.read?.specs ?? []).map((s) => ({ voice: voiceOf(s), role: s.role, at: s.at, gain: s.gain }));
     if (opts.sidecars !== false) writeRenderMeta(outPath, {
       pageDigest: digest, renderKey: key, final, fps, width: frame.outWidth, height: frame.outHeight, duration: length.seconds, from, to: +(from + dur).toFixed(4),
       worlds: probe?.worlds ? worldRows(probe.worlds).map(({ id, start, end }) => ({ id, start, end })) : [],
       clips, audio: { mixed: Boolean(mixed), loudness: audioRead.read?.loudness ?? null, cues }, createdAt: new Date().toISOString(),
     });
+    const extraOutput = async (what, out, encode) => {
+      const tmp = `${out}.tmp-${process.pid}${path.extname(out)}`;
+      const res = encode(tmp);
+      if (res.status !== 0 || res.error) {
+        fs.rmSync(tmp, { force: true });
+        throw new RenderError(`ffmpeg ${what} failed, the master ${outPath} is complete (${res.error ? res.error.message : `exit ${res.status}`}):\n`
+          + `${(res.stderr || '').trim().split('\n').slice(-15).join('\n')}`, EXIT.IO);
+      }
+      try { await place(tmp, out); } catch (e) {
+        fs.rmSync(tmp, { force: true });
+        throw Object.assign(e, { stage: `${what} audio mux`, progress: 1, framesDir: tmpDir });
+      }
+    };
+    if (webPath) await extraOutput('web copy', webPath, (tmp) => ffmpegWebEncode(tmpDir, fps, kArr, subframeStart, tmp, encodeSize));
+    if (proresPath) await extraOutput('ProRes master', proresPath, (tmp) => ffmpegProresEncode(tmpDir, fps, kArr, subframeStart, tmp, encodeSize));
+    if (!process.env.LOCAL_KEEP) fs.rmSync(tmpDir, { recursive: true, force: true });
     const level = opts.checks && !mixed && from === 0 && durArg == null ? await opts.checks.run('sound', () => mixLevel(audioRead.read, dur)) : null;
     const profile = costLines({ kArr, reused, fps, from, prepassMs, captureMs, encodeMs });
-    return { ...result, probe, level, motion, profile, web: webPath };
+    return { ...result, probe, level, motion, profile, web: webPath, prores: proresPath };
   } finally {
     await close();
     slot.release();
@@ -1064,7 +1055,7 @@ export function assertFinalReady(pagePath) {
     + `Waivable only in the page: ${waiverHint(code)}`, EXIT.REFUSED);
 }
 
-// A final writes two files: the master (x264, dithered) and next to it a small web copy (AV1 10-bit).
+// A final writes the master (x264, dithered), next to it a small web copy (AV1 10-bit) and, with --master prores, a ProRes 422 HQ master.
 export const proresOut = (outPath) => outPath.replace(/(\.mp4)?$/, '.prores.mov');
 export const webOut = (outPath) => outPath.replace(/(\.mp4)?$/, '.web.mp4');
 
@@ -1301,7 +1292,7 @@ async function main() {
   const drift = briefProblems(pagePath);
   if (drift.length) console.error(adviceBlock(drift.map((p) => `${p}; the render uses the page: update the brief's length and aspect lines to match`)).join('\n'));
   const final = argv.includes('--final');
-  const master = flag('--master', undefined);
+  const master = flag('--master');
   if (master !== undefined && master !== 'prores') die(`unknown --master ${master}; valid: prores`, EXIT.USAGE);
   if (master && !final) die('--master needs --final (a draft has no master)', EXIT.USAGE);
   if (final) assertFinalReady(pagePath);
@@ -1353,6 +1344,7 @@ async function main() {
     if (!final) console.log([...lengthLines(r.length, pagePath), masterLine(r)].join('\n'));
     if (argv.includes('--lock-length')) console.log(lockPageLength(pagePath, r.length));
     if (r.web) console.log(`  web copy: ${r.web} (${(fs.statSync(r.web).size / 1e6).toFixed(1)} MB; master ${(fs.statSync(outPath).size / 1e6).toFixed(1)} MB)`);
+    if (r.prores) console.log(`  ProRes master: ${r.prores} (${(fs.statSync(r.prores).size / 1e6).toFixed(1)} MB)`);
     if (!final) await printDraft(outPath, pagePath, r, { checks: opts.checks, taste: argv.includes('--taste'), next: flag('--next', null), opts, from });
     else {
       if (!argv.includes('--job')) appendRun(pagePath, shipEvent({ verdict: null, renderS: (r.prepassMs + r.captureMs + r.encodeMs) / 1000 }));

@@ -256,6 +256,7 @@ export const VERBS = [
     ],
     example: 'vawe ship films/my-launch/page.html --aspect all   (then: vawe wait films/my-launch/page.html)',
     build: (v, [page]) => {
+      if (v.master !== undefined && v.master !== 'prores') throw new UsageError(`unknown --master ${v.master}; valid: prores`);
       const args = [page, ...(v.out ? [v.out] : []), ...(v.profile ? ['--profile'] : []), ...opt('--master', v.master)];
       const before = [{ script: 'harness/live/ship-approval.mjs', args: [page] }, { script: 'harness/live/ship-warn.mjs', args: [page] }];
       if (v.wait) return [...before, { script: 'harness/media/render-page.mjs', args: [...args, '--final', ...opt('--aspect', v.aspect)] }];

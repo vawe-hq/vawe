@@ -351,7 +351,7 @@ export function measureMixLevel({ specs, duration }) {
  */
 export async function mixAndMux({ specs, duration, video, out, loudness = null }) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-audio-'));
-  const tmpOut = `${out}.tmp-${process.pid}.mp4`;
+  const tmpOut = `${out}.tmp-${process.pid}${path.extname(out) || '.mp4'}`;
   try {
     fs.mkdirSync(path.dirname(path.resolve(out)), { recursive: true });
     if (!specs.length) {

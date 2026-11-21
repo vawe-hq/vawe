@@ -147,6 +147,18 @@ test('ship --status is a one-line usage error that names wait, and the help does
   assert.throws(() => parseArgs(ship, []), /missing <page>; usage: vawe ship <page>/);
 });
 
+test('ship --master reaches the render in the foreground and the background job, and refuses anything but prores before a job starts', () => {
+  const ship = verb('ship');
+  const build = (argv) => { const { values, positional } = parseArgs(ship, argv); return ship.build(values, positional).at(-1); };
+  const wait = build(['films/f/page.html', '--master', 'prores', '--wait']);
+  assert.equal(wait.script, 'harness/media/render-page.mjs');
+  assert.deepEqual(wait.args.slice(wait.args.indexOf('--master'), wait.args.indexOf('--master') + 2), ['--master', 'prores']);
+  const job = build(['films/f/page.html', '--master', 'prores']);
+  assert.equal(job.script, 'harness/media/ship-job.mjs');
+  assert.deepEqual(job.args.slice(job.args.indexOf('--master'), job.args.indexOf('--master') + 2), ['--master', 'prores']);
+  assert.throws(() => build(['films/f/page.html', '--master', 'dnxhr']), (e) => e instanceof UsageError && e.message === 'unknown --master dnxhr; valid: prores');
+});
+
 test('bin/vawe ship --status exits 2 with the wait command, and logs a usage error', () => {
   const run = spawnSync(process.execPath, ['bin/vawe', 'ship', '--status', 'films/f/page.html'], { cwd: ROOT, encoding: 'utf8' });
   assert.equal(run.status, 2);

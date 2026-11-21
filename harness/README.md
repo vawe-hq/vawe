@@ -69,7 +69,7 @@ If two of the first three fail, fall back to three verbs: `still` (absorbs `--bo
 
 ## Encode settings
 
-Every encode of a page (draft, master, web copy, layer clip, ProRes master) converts RGB with the BT.709 matrix to limited range and tags bt709 for matrix, primaries and transfer. Render Chrome runs with `--force-color-profile=srgb`. `vawe ship --master prores` also writes `<name>.prores.mov` (ProRes 422 HQ) next to the mp4. `tests/media/render-colour.test.mjs` and `tests/fixtures/pages/colour-patches.html` guard it in every e2e.
+Every encode of a page (draft, master, web copy, layer clip, ProRes master) converts RGB with the BT.709 matrix to limited range and tags bt709 for matrix, primaries and transfer. Render Chrome runs with `--force-color-profile=srgb`. A final adds a fixed-seed noise to the 8-bit YUV frames of the master and the web copy, after the matrix, so dark gradients do not band (`tests/media/render-banding.test.mjs`). `vawe ship --master prores` also writes `<name>.prores.mov` (ProRes 422 HQ, with the sound) next to the mp4. `tests/media/render-colour.test.mjs` and `tests/fixtures/pages/colour-patches.html` guard it in every e2e.
 
 ## Template export
 
