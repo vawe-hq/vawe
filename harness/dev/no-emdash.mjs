@@ -14,7 +14,6 @@ export const SCOPE = [
 
 // Exported so harness/live's write-time twin checks the same allowlist instead of growing its own copy.
 export const EXCLUDE = [
-  (f) => f.startsWith('site/'),
   (f) => f.startsWith('assets/vendor/') || f.includes('/vendor/') || f.includes('node_modules/'),
 ];
 

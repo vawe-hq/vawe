@@ -1,5 +1,0 @@
-{ "title": "Waiting for one final", "kind": "compare",
-  "sides": [
-    { "label": "Before", "items": ["poll", "poll", "poll", "poll", "poll", "poll", "poll", "poll", "poll"], "note": "Each poll blocked for up to 100 s." },
-    { "label": "After", "items": ["ship --status --wait"], "note": "one call, up to 9 min, a progress line each minute", "hi": true }
-  ] }

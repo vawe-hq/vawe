@@ -4,7 +4,7 @@
 read as an impact, not a dissolve: "your work lives in a spreadsheet, a doc thread, a chat app" and then
 the product crashes in and shoves the whole line off the frame. The line types in, the word in its slot
 rolls through three values, then the hero arrives from the right on a long decelerating slide and pushes
-the text group out by its left edge. Clip: [ticker-takeover.mp4](../../site/public/moves/ticker-takeover.mp4). Demo:
+the text group out by its left edge. Clip: [ticker-takeover.mp4](clips/ticker-takeover.mp4). Demo:
 [demo/ticker-takeover.html](demo/ticker-takeover.html).
 
 ```js

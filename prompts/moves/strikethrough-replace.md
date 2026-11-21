@@ -4,7 +4,7 @@
 value writes in beside it. The detail that sells it is that the rejection is a physical line: it is
 drawn left to right, tilted 3 degrees like a pen, and the old value dims and shrinks the moment the
 line passes it, so the eye moves to the new one. Clip:
-[strikethrough-replace.mp4](../../site/public/moves/strikethrough-replace.mp4). Demo:
+[strikethrough-replace.mp4](clips/strikethrough-replace.mp4). Demo:
 [demo/strikethrough-replace.html](demo/strikethrough-replace.html).
 
 ```js

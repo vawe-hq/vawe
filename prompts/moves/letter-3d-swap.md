@@ -1,7 +1,7 @@
 # Letter 3D swap
 
 **Use when** a line of text changes its words and each letter should turn over like a block: a status, a
-headline that updates, a changing word. Clip: [letter-3d-swap.mp4](../../site/public/moves/letter-3d-swap.mp4). Demo:
+headline that updates, a changing word. Clip: [letter-3d-swap.mp4](clips/letter-3d-swap.mp4). Demo:
 [demo/letter-3d-swap.html](demo/letter-3d-swap.html).
 
 Look: a row of pale blocks on warm bone paper, one letter on each block, a hairline edge and a top highlight. Each block is

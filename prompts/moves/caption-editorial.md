@@ -2,7 +2,7 @@
 
 **Use when** captions or a short quote must read like a magazine: each line carries one or two key
 words set in a contrasting face (an italic serif inside a bold grotesk), and the next caption replaces
-the last on a cut with a short mask, line by line. Clip: [caption-editorial.mp4](../../site/public/moves/caption-editorial.mp4).
+the last on a cut with a short mask, line by line. Clip: [caption-editorial.mp4](clips/caption-editorial.mp4).
 Demo: [demo/caption-editorial.html](demo/caption-editorial.html).
 
 ```css

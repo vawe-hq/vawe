@@ -4,7 +4,7 @@ import { RAW_TOOLS } from './calls.mjs';
 
 const HAND_KINDS = new Set([...Object.keys(RAW_TOOLS), 'pil', 'nodeEval']);
 const SCRIPT_WRITE = /\.(?:mjs|js|py|sh)$/;
-const VAWE_DIR = /(?:^|\/)(?:films|harness|core|studio|tests|scripts|site)\//;
+const VAWE_DIR = /(?:^|\/)(?:films|harness|core|studio|tests|scripts)\//;
 const FILM = /films\/([a-z0-9][\w-]*)\//;
 const SHAPE_TOKENS = 14;
 const LEADING = /^\s*(?:cd\s+\S+\s*(?:&&|;)\s*|(?:[A-Z_][A-Z0-9_]*=\S*\s+)+|rtk\s+)+/;

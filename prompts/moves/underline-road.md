@@ -1,6 +1,6 @@
 # Underline road
 
-**Use when** a line must become a route: one blue stroke draws along real streets from a start dot to a destination pin, and the result card shows the time. The stroke is one path with one dash offset, so its head never jumps at a corner. Clip: [underline-road.mp4](../../site/public/moves/underline-road.mp4) (5 s). Demo: [demo/underline-road.html](demo/underline-road.html).
+**Use when** a line must become a route: one blue stroke draws along real streets from a start dot to a destination pin, and the result card shows the time. The stroke is one path with one dash offset, so its head never jumps at a corner. Clip: [underline-road.mp4](clips/underline-road.mp4) (5 s). Demo: [demo/underline-road.html](demo/underline-road.html).
 
 ```js
 const pts = [[VX[1], HY[3]], [VX[1], HY[2]], [VX[3], HY[2]], [VX[3], HY[1]], [VX[4], HY[1]]];   // street centres: start, three turns, destination

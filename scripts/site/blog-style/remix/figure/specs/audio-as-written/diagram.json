@@ -1,3 +1,0 @@
-{"title":"The mix, as written","parts":[{"kind":"flow","dir":"row","steps":[
-{"name":"audio tags","note":"src, data-at,\ndata-gain, fade-out"},{"name":"sum","note":"gains as written"},{"name":"limiter","note":"-1 dBTP, only\nlowers peaks"},{"name":"video","note":"muxed","mark":"hi"}]},
-{"kind":"text","text":"every draft: measure\nLUFS and true peak, printed with the band"}]}

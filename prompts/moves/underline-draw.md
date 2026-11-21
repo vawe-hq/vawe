@@ -1,7 +1,7 @@
 # Underline draw
 
 **Use when** one key word needs emphasis after it lands: a line draws under it from left to right,
-fast at the start and slow at the end, like a pen. Clip: [underline-draw.mp4](../../site/public/moves/underline-draw.mp4).
+fast at the start and slow at the end, like a pen. Clip: [underline-draw.mp4](clips/underline-draw.mp4).
 Demo: [demo/underline-draw.html](demo/underline-draw.html).
 
 ```css

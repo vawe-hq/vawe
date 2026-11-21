@@ -2,7 +2,7 @@
 
 **Use when** the eye must go to one word or one part of a UI: four corner brackets fly in from
 outside, snap onto the target box and land with a small overshoot. Clip:
-[bracket-callout.mp4](../../site/public/moves/bracket-callout.mp4). Demo: [demo/bracket-callout.html](demo/bracket-callout.html).
+[bracket-callout.mp4](clips/bracket-callout.mp4). Demo: [demo/bracket-callout.html](demo/bracket-callout.html).
 
 ```css
 .frame { position: absolute; inset: calc(var(--u) * -1.6); --far: calc(var(--u) * 13); --arm: calc(var(--u) * 3.6); --w: calc(var(--u) * 0.7); --rad: calc(var(--u) * 0.8); }

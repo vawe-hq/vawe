@@ -4,7 +4,7 @@
 depths in CSS 3D; the camera moves forward through them, so near layers rush past the frame edge, mid
 cards drift outward and the far dots barely move. The title starts small and deep and ends at scale 1.
 The speed differences are the depth; nothing is faked with per-layer offsets. Clip:
-[parallax-dive.mp4](../../site/public/moves/parallax-dive.mp4). Demo: [demo/parallax-dive.html](demo/parallax-dive.html).
+[parallax-dive.mp4](clips/parallax-dive.mp4). Demo: [demo/parallax-dive.html](demo/parallax-dive.html).
 
 ```css
 .stage { position: absolute; inset: 0; perspective: 80vh; perspective-origin: 50% 50%; }

@@ -1,7 +1,7 @@
 # Toggle horizon
 
 **Use when** a setting switches the whole product into a new state: dark mode, focus, night. The clip shows a settings
-screen, one switch, and the screen restyling itself in place. Clip: [toggle-horizon.mp4](../../site/public/moves/toggle-horizon.mp4). Demo:
+screen, one switch, and the screen restyling itself in place. Clip: [toggle-horizon.mp4](clips/toggle-horizon.mp4). Demo:
 [demo/toggle-horizon.html](demo/toggle-horizon.html).
 
 Look: a phone screen (80 u wide, 45 percent of the frame width, cropped by the frame bottom) on the flat neutral ground, in the style of a mobile settings list: a large title,

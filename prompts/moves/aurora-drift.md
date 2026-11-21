@@ -2,7 +2,7 @@
 
 **Use when** a held title needs a ground that is alive but stays at the edge of attention: three soft
 bands of light hang from the top of the frame and fold slowly, in one fragment shader, while the copy
-sits low and the light thins out above it. Clip: [aurora-drift.mp4](../../site/public/moves/aurora-drift.mp4). Demo:
+sits low and the light thins out above it. Clip: [aurora-drift.mp4](clips/aurora-drift.mp4). Demo:
 [demo/aurora-drift.html](demo/aurora-drift.html).
 
 ```js

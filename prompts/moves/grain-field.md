@@ -4,7 +4,7 @@
 fine film grain that turns over 24 times a second on top. The type stays clean. The grain is a hash of the pixel
 cell and the frame number, taken from the seek time, so every render draws the same grain. It rises from a trace to
 its full strength over the first 1.4 s, so the viewer sees the film "switch on". Clip:
-[grain-field.mp4](../../site/public/moves/grain-field.mp4). Demo: [demo/grain-field.html](demo/grain-field.html).
+[grain-field.mp4](clips/grain-field.mp4). Demo: [demo/grain-field.html](demo/grain-field.html).
 
 ```js
 import '../../core/engine/page-api.js';

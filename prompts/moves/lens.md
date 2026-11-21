@@ -3,7 +3,7 @@
 **Use when** a screen (a terminal, a dashboard, a tracking HUD, a type line shown as a monitor) must read as a
 real object filmed by a camera: tilted, soft at one end, bright glyphs blooming, LED cells and colour fringes
 visible when the camera pushes in. Render the flat screen, then let one shader film it. Clip:
-[lens.mp4](../../site/public/moves/lens.mp4). Demo: [demo/lens.html](demo/lens.html). Code: `core/surfaces/lens.js`.
+[lens.mp4](clips/lens.mp4). Demo: [demo/lens.html](demo/lens.html). Code: `core/surfaces/lens.js`.
 
 The six stages of the clip, each turned on for one second: flat, perspective, depth of field, palette and
 aberration, bloom and LED grid, tear and grain with the camera tracker.

@@ -5,7 +5,7 @@
 **Use when** a screen with several parts is on and one of them is the point. A rounded hole starts
 as the whole frame and closes onto the target; its own `box-shadow` is the dim, so everything
 outside the hole falls to 20 percent and the target is the only thing lit. The target leans in 4
-percent on the same curve. Clip: [spotlight-dim.mp4](../../site/public/moves/spotlight-dim.mp4).
+percent on the same curve. Clip: [spotlight-dim.mp4](clips/spotlight-dim.mp4).
 Demo: [demo/spotlight-dim.html](demo/spotlight-dim.html).
 
 ```css

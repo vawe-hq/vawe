@@ -77,6 +77,7 @@ Set `VAWE_AGENT=<name>` (one per agent) and `VAWE_MODEL=<model>` in your shell: 
 
 | need | doc |
 |---|---|
+| the vawe.dev site and its SEO gates | not here: [vawe-hq/vawe-site](https://github.com/vawe-hq/vawe-site) (`../vawe-site` or `VAWE_SITE_DIR` serves `new --from-url /route`) |
 | a film type and its template | `guides/ROUTING.md` |
 | page code, contract details, waivers, sound, springs, moves, lens, every doc by job | `skills/vawe-page/SKILL.md` |
 | edit a person's clips | `bin/vawe new <name> --footage <folder>` |

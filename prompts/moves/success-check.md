@@ -4,7 +4,7 @@
 A button takes the press, closes to its own circle, a check draws inside it, and the finished circle
 lands with a small press pop while one ring leaves it. The detail that sells it is the order:
 press, resolve, draw, land, each starting before the last one has finished. Clip:
-[success-check.mp4](../../site/public/moves/success-check.mp4). Demo: [demo/success-check.html](demo/success-check.html).
+[success-check.mp4](clips/success-check.mp4). Demo: [demo/success-check.html](demo/success-check.html).
 
 ```js
 import { EASE } from '../../core/motion/presets.js';

@@ -2,7 +2,7 @@
 
 **Use when** two shots are about the same word: the word grows in shot A, holds its exact place, the
 frame cuts around it (new ground, new ink), and in shot B it is part of a new line. The word is one
-node that lives above both shots, so the cut cannot move it. Clip: [type-match-cut.mp4](../../site/public/moves/type-match-cut.mp4).
+node that lives above both shots, so the cut cannot move it. Clip: [type-match-cut.mp4](clips/type-match-cut.mp4).
 Demo: [demo/type-match-cut.html](demo/type-match-cut.html).
 
 ```html

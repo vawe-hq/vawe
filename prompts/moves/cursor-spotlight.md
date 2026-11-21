@@ -5,7 +5,7 @@ The clip copies an app window. A reports list shows an "Open report" button. Aft
 born at the cursor tip and grows. The report page loads inside it, in the same window: the bars draw, the
 source rows appear and the number counts up. The list stays outside the circle until it covers the frame.
 The press and the circle share one point, so the viewer reads "this click opened that page". Clip:
-[cursor-spotlight.mp4](../../site/public/moves/cursor-spotlight.mp4). Demo: [demo/cursor-spotlight.html](demo/cursor-spotlight.html).
+[cursor-spotlight.mp4](clips/cursor-spotlight.mp4). Demo: [demo/cursor-spotlight.html](demo/cursor-spotlight.html).
 
 ```js
 import { easeFn } from '../../core/motion/presets.js';

@@ -8,7 +8,7 @@ group: reference
 
 [RECIPES.md](RECIPES.md) joins these moves into fourteen films (three brand stings and three product
 stings, one per direction family, a 15 s launch, a kinetic type line, and six complete videos of 20 to 30 s: problem to fix, AI demo, feature tour, proof, manifesto, brand reveal) and one spectacle beat for any film (quiet, the big moment, the release), with the beat table, the sound cues and the traps at each seam.
-The clips are not tracked as masters. Open a clip at `site/public/moves/<move>.mp4` (the web encode of the same render). `bin/vawe-dev moves --only <move>` renders the master to `prompts/moves/<move>.mp4`, and `node scripts/site/moves.mjs --clips` encodes it into `site/public/moves`.
+The clips are not tracked as masters. Open a clip at `clips/<move>.mp4` (the web encode of the same render). `bin/vawe-dev moves --only <move>` renders the master to `prompts/moves/<move>.mp4`. vawe-hq/vawe-site encodes the web copy (`VAWE_DIR=<this checkout> node moves.mjs --clips` in its scripts/site folder) and publishes it at https://vawe.dev/moves/<move>.mp4; copy the mp4 here to `clips/`.
 Each move file has a `Sound:` line under its snippet: the voice and the second to cue it, or none.
 
 Scope: a move animates designed things (type, shapes, UI, illustration, colour fields). A photo may be content in a

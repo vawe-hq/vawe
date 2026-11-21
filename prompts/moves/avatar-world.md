@@ -1,6 +1,6 @@
 # Avatar world
 
-**Use when** a person, a brand or a place is the way into a picture: a profile, a creator page. On a real profile page a press on the avatar opens its picture large over the dimmed page. The picture grows from the avatar to the middle of the page, so the avatar is the way into the larger world. Clip: [avatar-world.mp4](../../site/public/moves/avatar-world.mp4) (4.4 s). Demo: [demo/avatar-world.html](demo/avatar-world.html).
+**Use when** a person, a brand or a place is the way into a picture: a profile, a creator page. On a real profile page a press on the avatar opens its picture large over the dimmed page. The picture grows from the avatar to the middle of the page, so the avatar is the way into the larger world. Clip: [avatar-world.mp4](clips/avatar-world.mp4) (4.4 s). Demo: [demo/avatar-world.html](demo/avatar-world.html).
 
 ```js
 // FLIP: the big picture sits centred at its end size; it starts on the avatar

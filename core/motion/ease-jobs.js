@@ -1,5 +1,5 @@
 // Which ease for which job, with its time and what to avoid: every number read from core/motion. The /easing page
-// (scripts/site/easing.mjs), the craft doc (taste/craft/motion-craft.md, written by harness/dev/taste-build.mjs) and the
+// (scripts/site/easing.mjs in vawe-hq/vawe-site), the craft doc (taste/craft/motion-craft.md, written by harness/dev/taste-build.mjs) and the
 // named-eases advice in bin/vawe dev all read this one table.
 import { easeFn, UI, BANDS } from './presets.js';
 import LIMITS from './taste-limits.js';

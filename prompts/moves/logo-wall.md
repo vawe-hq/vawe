@@ -1,7 +1,7 @@
 # Logo wall
 
 **Use when** a film needs social proof: "Trusted by 4,200 teams" over a wall of customer logos. Clip:
-[logo-wall.mp4](../../site/public/moves/logo-wall.mp4). Demo: [demo/logo-wall.html](demo/logo-wall.html).
+[logo-wall.mp4](clips/logo-wall.mp4). Demo: [demo/logo-wall.html](demo/logo-wall.html).
 
 Look: the flat neutral ground. A centred heading in two lines (the first muted, the number in ink). Under it, three lanes
 of logos with hairlines between them. Every logo is the same mid grey at one optical size (a wide or mono face sets a

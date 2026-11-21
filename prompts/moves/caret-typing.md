@@ -3,7 +3,7 @@
 **Use when** a command, a prompt or a name is typed in. The clip copies a shell window: earlier
 commands above, a block caret that follows each typed character, and output that prints in whole
 rows. When the command runs, the caret moves to the next prompt line. Clip:
-[caret-typing.mp4](../../site/public/moves/caret-typing.mp4). Demo: [demo/caret-typing.html](demo/caret-typing.html).
+[caret-typing.mp4](clips/caret-typing.mp4). Demo: [demo/caret-typing.html](demo/caret-typing.html).
 
 ```js
 import { typeTimes, typedCount, show } from '../../prompts/moves/demo/assets/stage.js';

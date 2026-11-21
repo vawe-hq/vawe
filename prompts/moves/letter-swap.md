@@ -5,7 +5,7 @@ slides in behind it, so the word seems to roll once. Options give four looks fro
 (the swap plays once and resets) or `pingpong` (it holds, then plays back on `leave`), in stagger
 order or in seeded `random` order. It is a port of the `letter-swap` and `random-letter-swap`
 components of fancy. The hover trigger becomes a time: `at` is the second the swap starts, `leave`
-the second it plays back. Clip: [letter-swap.mp4](../../site/public/moves/letter-swap.mp4). Demo:
+the second it plays back. Clip: [letter-swap.mp4](clips/letter-swap.mp4). Demo:
 [demo/letter-swap.html](demo/letter-swap.html).
 
 The function is in the demo page (about 55 lines): copy it with the CSS.

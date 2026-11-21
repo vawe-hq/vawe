@@ -3,7 +3,7 @@
 **Use when** one hero word is the beat and has to hit: a number, a verb, the product name on the
 music accent. The word lands from 1.4x on the overshoot curve, which dips to about 0.97 and comes
 back; that recoil is what reads as impact, where a plain ease-out reads as a fade. Clip:
-[scale-punch.mp4](../../site/public/moves/scale-punch.mp4). Demo: [demo/scale-punch.html](demo/scale-punch.html).
+[scale-punch.mp4](clips/scale-punch.mp4). Demo: [demo/scale-punch.html](demo/scale-punch.html).
 
 ```css
 h1 { scale: 1.4; opacity: 0;

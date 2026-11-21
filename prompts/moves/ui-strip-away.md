@@ -3,7 +3,7 @@
 **Use when** the last beat hands the product over to the brand. The UI leaves layer by layer, top
 layer first (toast, widgets, top bar, sidebar, window), each outward and blurring on an accelerating
 curve, while the one mark that lived in the sidebar travels to the middle and becomes the lockup.
-Clip: [ui-strip-away.mp4](../../site/public/moves/ui-strip-away.mp4). Demo: [demo/ui-strip-away.html](demo/ui-strip-away.html).
+Clip: [ui-strip-away.mp4](clips/ui-strip-away.mp4). Demo: [demo/ui-strip-away.html](demo/ui-strip-away.html).
 
 ```html
 <div class="app">...<div class="slot"></div>...<div class="card peel" data-to="-5 -5">...</div></div>

@@ -67,7 +67,7 @@ bin/vawe dev films/<name>/page.html --studio    # open the printed address
 アスペクト比を切り替えられます。編集はすべて `page.html` へのテキストパッチなので、エージェントは同じファイルで作業を続けられます。
 詳しくは [vawe.dev/studio](https://vawe.dev/studio) と `studio/README.md` を見てください。
 
-![vawe studio: プレビュー、キーのタイムライン、Key パネル](site/public/studio/studio-main.webp)
+![vawe studio: プレビュー、キーのタイムライン、Key パネル](https://vawe.dev/studio/studio-main.webp)
 
 ## vawe で作られた映像
 
@@ -75,9 +75,9 @@ bin/vawe dev films/<name>/page.html --studio    # open the printed address
 
 | | |
 |---|---|
-| [![showcase: 黒い背景に、光る金色の粒子で描かれたオウムガイの殻](site/public/examples/showcase.webp)](https://vawe.dev/examples/showcase.mp4) | [![CINDRE: 黒い背景に、やわらかな光でできた赤い蓮が開く香水の映像](site/public/examples/cindre.webp)](https://vawe.dev/examples/cindre.mp4) |
+| [![showcase: 黒い背景に、光る金色の粒子で描かれたオウムガイの殻](https://vawe.dev/examples/showcase.webp)](https://vawe.dev/examples/showcase.mp4) | [![CINDRE: 黒い背景に、やわらかな光でできた赤い蓮が開く香水の映像](https://vawe.dev/examples/cindre.webp)](https://vawe.dev/examples/cindre.mp4) |
 | **showcase**、14 秒: 1 枚のページを 16:9、9:16、1:1、4:5、4:3 にレンダリング | **CINDRE**、10 秒: 香水の映像、ページ 1 枚 |
-| [![tracking HUD: 座標の海の上に、トラッキングボックス、色のにじみ、走査線をまとった文字 "every frame"](site/public/examples/tracking-hud.webp)](https://vawe.dev/examples/tracking-hud.mp4) | [![retro remix: 緑の丘の上のデスクトップウィンドウに learn After Effects、buy a template、hire a studio、keyframe for 3 days と書かれている](site/public/examples/retro-remix.webp)](https://vawe.dev/examples/retro-remix.mp4) |
+| [![tracking HUD: 座標の海の上に、トラッキングボックス、色のにじみ、走査線をまとった文字 "every frame"](https://vawe.dev/examples/tracking-hud.webp)](https://vawe.dev/examples/tracking-hud.mp4) | [![retro remix: 緑の丘の上のデスクトップウィンドウに learn After Effects、buy a template、hire a studio、keyframe for 3 days と書かれている](https://vawe.dev/examples/retro-remix.webp)](https://vawe.dev/examples/retro-remix.mp4) |
 | **tracking HUD**: レンズシェーダー越しに撮った画面（`films/examples/tracking-hud/`） | **retro remix**: デスクトップウィンドウ風のリミックス |
 
 ほかにも、そのままコピーして使える 120 以上のムーブ（move）が、それぞれクリップ付きで [vawe.dev/moves](https://vawe.dev/moves)

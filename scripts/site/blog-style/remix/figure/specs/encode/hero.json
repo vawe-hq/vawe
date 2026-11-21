@@ -1,4 +1,0 @@
-{"title":"One capture, two encodes","parts":[{"kind":"flow","dir":"row","steps":[
-{"name":"captured frames","note":"lossless PNG\nblend subframes"},
-{"name":"master: x264, 8-bit","note":"noise dither, CRF 16, aq-mode=3\npreset fast","tag":"ship: rendered, judge starts now"},
-{"name":"web copy: SVT-AV1, 10-bit","note":"no dither, CRF 30, preset 8\nown pass, after the master","tag":"site gets this: 1.7 and 3.6 MB","mark":"hi"}]}]}

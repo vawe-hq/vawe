@@ -3,7 +3,7 @@
 **Use when** a line of type must arrive hard-edged and fast: every character (or word, or line) rises
 from under its own invisible edge, one after another, and the stagger can start at the first item, the
 last, the middle or any index. It is a port of the `vertical-cut-reveal` component of fancy, so the
-numbers below are the original's. Clip: [vertical-cut-reveal.mp4](../../site/public/moves/vertical-cut-reveal.mp4). Demo:
+numbers below are the original's. Clip: [vertical-cut-reveal.mp4](clips/vertical-cut-reveal.mp4). Demo:
 [demo/vertical-cut-reveal.html](demo/vertical-cut-reveal.html).
 
 The function is in the demo page (about 30 lines): copy it with the CSS. Time is the seek: there is no

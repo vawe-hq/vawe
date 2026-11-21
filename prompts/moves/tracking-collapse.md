@@ -2,7 +2,7 @@
 
 **Use when** a title or a wordmark arrives: the letters converge from wide tracking while the
 word sharpens from a blur. This is the After Effects tracking animator, the most used text move in
-title sequences and brand stings. Clip: [tracking-collapse.mp4](../../site/public/moves/tracking-collapse.mp4). Demo:
+title sequences and brand stings. Clip: [tracking-collapse.mp4](clips/tracking-collapse.mp4). Demo:
 [demo/tracking-collapse.html](demo/tracking-collapse.html).
 
 ```css

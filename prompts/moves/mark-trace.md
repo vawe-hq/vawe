@@ -3,7 +3,7 @@
 **Use when** the logo mark is a line shape and should draw itself. A thin white line traces the
 mark with an accent dot on its leading end; the line then thickens to the final weight, the dot
 sinks into it, and an accent bar runs the finished mark to the last frame. Clip:
-[mark-trace.mp4](../../site/public/moves/mark-trace.mp4). Demo: [demo/mark-trace.html](demo/mark-trace.html).
+[mark-trace.mp4](clips/mark-trace.mp4). Demo: [demo/mark-trace.html](demo/mark-trace.html).
 
 Use once per film: the accent bar is a stock device (rule no-tells), never the idea.
 

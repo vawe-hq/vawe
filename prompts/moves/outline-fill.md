@@ -2,7 +2,7 @@
 
 **Use when** one hero word is the beat. It arrives as an outline, each letter rising 45 ms after the
 last, readable at once. Then, on the beat, a solid accent floods each letter from its baseline up.
-No blur and no mask hides the word at any point. Clip: [outline-fill.mp4](../../site/public/moves/outline-fill.mp4). Demo:
+No blur and no mask hides the word at any point. Clip: [outline-fill.mp4](clips/outline-fill.mp4). Demo:
 [demo/outline-fill.html](demo/outline-fill.html).
 
 ```html

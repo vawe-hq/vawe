@@ -3,7 +3,7 @@
 **Use when** a film opens on a detail and the whole should arrive as an answer: a status dot, a
 letter, one number. The first frame is tight on the detail (9x), and the camera pulls back to the
 full composition. The detail is the hook and the wide frame is the payoff. Clip:
-[pull-back-reveal.mp4](../../site/public/moves/pull-back-reveal.mp4). Demo: [demo/pull-back-reveal.html](demo/pull-back-reveal.html).
+[pull-back-reveal.mp4](clips/pull-back-reveal.mp4). Demo: [demo/pull-back-reveal.html](demo/pull-back-reveal.html).
 
 ```js
 import '../../core/engine/page-api.js';

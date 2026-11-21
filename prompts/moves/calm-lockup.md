@@ -4,7 +4,7 @@
 flat warm ground with one soft light from the top edge, a dark app tile with a light edge and a layered shadow,
 a light wordmark and one line. The brand settles over 1 s with a blur that clears, and the line follows 140 ms
 later. Then the mark draws itself on the tile, a hairline draws under the line, and one sheen crosses the tile.
-The lockup holds still after that. Clip: [calm-lockup.mp4](../../site/public/moves/calm-lockup.mp4). Demo:
+The lockup holds still after that. Clip: [calm-lockup.mp4](clips/calm-lockup.mp4). Demo:
 [demo/calm-lockup.html](demo/calm-lockup.html).
 
 ```js

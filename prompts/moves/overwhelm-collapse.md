@@ -5,7 +5,7 @@ frame, then all of them are pulled into one point and one clean element opens wh
 The chaos is the contrast, so it has to be real: 26 items that overlap, tilt and cross the frame
 edge. The detail that sells it is the rhythm: the flood accelerates (each gap shorter than the last),
 holds one beat, and the collapse is faster than any arrival. Clip:
-[overwhelm-collapse.mp4](../../site/public/moves/overwhelm-collapse.mp4). Demo:
+[overwhelm-collapse.mp4](clips/overwhelm-collapse.mp4). Demo:
 [demo/overwhelm-collapse.html](demo/overwhelm-collapse.html).
 
 ```js

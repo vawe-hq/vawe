@@ -4,7 +4,7 @@
 work. The clip copies an agent session in a terminal window: a todo list of four items, a status
 line with a spinner, a verb, the elapsed time and a token count, and a tool call below the list. The
 items close one by one, 0.8 s apart. The last item stays open, so the work reads as ongoing. Clip:
-[agent-progress.mp4](../../site/public/moves/agent-progress.mp4). Demo: [demo/agent-progress.html](demo/agent-progress.html).
+[agent-progress.mp4](clips/agent-progress.mp4). Demo: [demo/agent-progress.html](demo/agent-progress.html).
 
 ```js
 import { show, runDot } from '../../prompts/moves/demo/assets/stage.js';

@@ -1,6 +1,6 @@
 #!/bin/sh
-# pre-push: push-guard and the site build check on the pushed range, then harness/dev/pre-push.mjs: the guards that always run
-# (em dash scan, doc references, bench) and only the checks the changed paths can affect (site gate, unit tests, e2e). It prints
+# pre-push: push-guard on the pushed range, then harness/dev/pre-push.mjs: the guards that always run
+# (em dash scan, doc references, bench) and only the checks the changed paths can affect (unit tests, e2e). It prints
 # what it chose and why; a path it does not know runs everything. Ratchets and doc references warn, they do not block.
 # Bypass with `git push --no-verify` when you know better. Installed by `make install-hooks`.
 
@@ -13,8 +13,7 @@ esac
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_PREFIX GIT_CONFIG_PARAMETERS
 
 # push-guard reads the refs git hands this hook on stdin and scans the whole pushed range for an
-# assistant attribution or a force-added ignored file. The site build check runs only when the range
-# touches something the site build reads.
+# assistant attribution or a force-added ignored file.
 ranges=""
 while read -r _local_ref local_sha _remote_ref remote_sha; do
   [ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
@@ -25,7 +24,6 @@ while read -r _local_ref local_sha _remote_ref remote_sha; do
   fi
   ranges="$ranges --range $range"
   node harness/dev/push-guard.mjs "$range" || { echo "pre-push blocked by push-guard." >&2; exit 1; }
-  node quality/gates/site-build-check.mjs "$range" || { echo "pre-push blocked: the site would not have built." >&2; exit 1; }
 done
 
 # shellcheck disable=SC2086

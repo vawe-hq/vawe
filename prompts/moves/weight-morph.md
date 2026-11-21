@@ -3,7 +3,7 @@
 **Use when** one word changes its meaning on screen: a claim gets heavier, a name becomes the brand.
 The `wght` axis of a variable font is a real interpolation, so the glyphs reshape (stems thicken,
 counters close) instead of a fake bold from stroke or scale. Archivo carries 100 to 900; Anybody,
-Geist, Inter and Fraunces in `assets/fonts` do too. Clip: [weight-morph.mp4](../../site/public/moves/weight-morph.mp4).
+Geist, Inter and Fraunces in `assets/fonts` do too. Clip: [weight-morph.mp4](clips/weight-morph.mp4).
 Demo: [demo/weight-morph.html](demo/weight-morph.html).
 
 ```css

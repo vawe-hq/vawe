@@ -2,7 +2,7 @@
 
 **Use when** a row of things must travel a curve for a whole beat: a loop-the-loop of tiles, a ribbon
 of logos or posters, a stream that rides an S-curve behind a title. Every item sits on the same SVG
-path at an even gap and moves forever; the path can show or hide. Clip: [marquee-along-path.mp4](../../site/public/moves/marquee-along-path.mp4).
+path at an even gap and moves forever; the path can show or hide. Clip: [marquee-along-path.mp4](clips/marquee-along-path.mp4).
 Demo: [demo/marquee-along-path.html](demo/marquee-along-path.html).
 
 Credit: port of fancy by Daniel Petho, MIT. Source:

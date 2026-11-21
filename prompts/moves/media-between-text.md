@@ -1,7 +1,7 @@
 # Media between text
 
 **Use when** a line of text has a gap that a picture can fill on hover or on a beat: "that's a nice ( ) chair!".
-The line stays one line and the picture opens inside it. Clip: [media-between-text.mp4](../../site/public/moves/media-between-text.mp4). Demo:
+The line stays one line and the picture opens inside it. Clip: [media-between-text.mp4](clips/media-between-text.mp4). Demo:
 [demo/media-between-text.html](demo/media-between-text.html).
 
 Look: one line of light grotesque type, large, on warm bone paper. A rounded photo, 28 u tall (2.8 times the type size of 10 u, so taller than the cap

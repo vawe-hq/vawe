@@ -3,7 +3,7 @@
 **Use when** a film ends on the brand, or opens on it, in under 2 s. The mark lands on the overshoot
 curve, one light band crosses it, then the word opens out from behind the mark while the lockup
 re-centres. A slow push runs to the last frame, so the lockup is never frozen. Clip:
-[logo-sting.mp4](../../site/public/moves/logo-sting.mp4). Demo: [demo/logo-sting.html](demo/logo-sting.html).
+[logo-sting.mp4](clips/logo-sting.mp4). Demo: [demo/logo-sting.html](demo/logo-sting.html).
 
 Use once per film: the sheen band is a stock device (rule no-tells), never the idea.
 

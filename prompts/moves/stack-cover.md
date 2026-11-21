@@ -1,6 +1,6 @@
 # Stack cover
 
-**Use when** a new panel must lie over the screen you are on: a form, a composer, a detail. The sheet rises from the bottom edge. The page behind scales back a little, rounds its corners and dims, so the two sit at different depths. Clip: [stack-cover.mp4](../../site/public/moves/stack-cover.mp4) (5 s). Demo: [demo/stack-cover.html](demo/stack-cover.html).
+**Use when** a new panel must lie over the screen you are on: a form, a composer, a detail. The sheet rises from the bottom edge. The page behind scales back a little, rounds its corners and dims, so the two sit at different depths. Clip: [stack-cover.mp4](clips/stack-cover.mp4) (5 s). Demo: [demo/stack-cover.html](demo/stack-cover.html).
 
 ```js
 import { springDuration, springLinear } from '../../core/motion/springs.js';

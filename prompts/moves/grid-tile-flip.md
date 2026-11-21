@@ -4,7 +4,7 @@
 of tiles, each carrying its slice of shot A on the front and shot B on the back, and a wave of flips
 crosses the wall from one corner. The detail that sells it is the 3D: one perspective on the whole
 grid (not one per tile), each tile rises toward the camera as it turns and darkens as it goes
-edge-on, so the wave has depth and light. Clip: [grid-tile-flip.mp4](../../site/public/moves/grid-tile-flip.mp4). Demo:
+edge-on, so the wave has depth and light. Clip: [grid-tile-flip.mp4](clips/grid-tile-flip.mp4). Demo:
 [demo/grid-tile-flip.html](demo/grid-tile-flip.html).
 
 ```js

@@ -5,7 +5,7 @@ letter, in the next shot's colour, until the stem is the whole frame; that colou
 shot B, so there is no cut to hide. The detail that sells it is the geometry: the zoom is aimed at the
 middle of a stem (an `I`, an `L`, a `T`), the other letters fly off the frame as it grows, and the
 letter drifts to the middle of the frame so the fill is even. Clip:
-[type-fill-transition.mp4](../../site/public/moves/type-fill-transition.mp4). Demo:
+[type-fill-transition.mp4](clips/type-fill-transition.mp4). Demo:
 [demo/type-fill-transition.html](demo/type-fill-transition.html).
 
 ```js

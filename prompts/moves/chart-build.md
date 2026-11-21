@@ -3,7 +3,7 @@
 **Use when** a trend is the claim: growth, a launch month, a benchmark. The gridlines draw first,
 then the bars rise from the baseline 70 ms apart, all grey; the newest bar then turns accent and
 its value tag pops onto it. Only one bar and one number are bright, so the chart says one thing.
-Clip: [chart-build.mp4](../../site/public/moves/chart-build.mp4). Demo: [demo/chart-build.html](demo/chart-build.html).
+Clip: [chart-build.mp4](clips/chart-build.mp4). Demo: [demo/chart-build.html](demo/chart-build.html).
 
 ```html
 <div class="plot"><div class="grid"><span>10k</span></div> ... <div class="col"><div class="bar"></div><div class="mo">Mar</div></div> ...</div>

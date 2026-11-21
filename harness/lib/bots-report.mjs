@@ -1,4 +1,4 @@
-// vawe-dev bots: reads the site's bot log (site/lib/bots.ts writes it) into per-bot lines.
+// vawe-dev bots: reads the site's bot log (site/lib/bots.ts in vawe-hq/vawe-site writes it) into per-bot lines.
 import fs from 'node:fs';
 import path from 'node:path';
 

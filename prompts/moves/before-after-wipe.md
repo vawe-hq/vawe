@@ -1,7 +1,7 @@
 # Before and after wipe
 
 **Use when** the claim is a change and the change should be a picture: the same dashboard in two states, and a scan line carries the after over the before. A copy of the real Vercel Web Analytics screen (Geist, the triangle mark, the Visitors, Page Views and Bounce Rate cards, a blue bar chart) in a Chrome window. Every reading and every bar changes the moment the line is over it, so no glyph is ever half of two numbers. Clip:
-[before-after-wipe.mp4](../../site/public/moves/before-after-wipe.mp4) (5 s, light; `before-after-wipe-dark.mp4` is the dark theme). Demo: [demo/before-after-wipe.html](demo/before-after-wipe.html).
+[before-after-wipe.mp4](clips/before-after-wipe.mp4) (5 s, light; `before-after-wipe-dark.mp4` is the dark theme). Demo: [demo/before-after-wipe.html](demo/before-after-wipe.html).
 
 ```js
 import { arrive, crossAt, rollSwap } from '../../prompts/moves/demo/assets/stage.js';

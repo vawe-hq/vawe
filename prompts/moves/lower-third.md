@@ -4,7 +4,7 @@
 speaker. A thin accent rule grows up at the lower left, a plate wipes open from it, the name rises out
 of a mask, then the role rises 140 ms behind. It holds for about 1.7 s, the text drops, and the plate
 closes toward the rule faster than it opened. The photo keeps a slow push underneath, so the frame is
-alive while the name holds. Clip: [lower-third.mp4](../../site/public/moves/lower-third.mp4). Demo:
+alive while the name holds. Clip: [lower-third.mp4](clips/lower-third.mp4). Demo:
 [demo/lower-third.html](demo/lower-third.html).
 
 ```css

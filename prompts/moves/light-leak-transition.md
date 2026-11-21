@@ -6,7 +6,7 @@
 soft end of a beat. Three warm layers swell over the frame on their own clocks (about 0.4 s up), the cut
 lands on the peak where nothing else is visible, and the layers die faster than they rose while the new
 shot climbs out of the light. The warm flare reads against a dark ground, so use a dark look. Everything is generated gradients, so no image asset ships with it. Clip:
-[light-leak-transition.mp4](../../site/public/moves/light-leak-transition.mp4). Demo:
+[light-leak-transition.mp4](clips/light-leak-transition.mp4). Demo:
 [demo/light-leak-transition.html](demo/light-leak-transition.html).
 
 ```css

@@ -1,7 +1,7 @@
 # Simple marquee
 
 **Use when** a film shows a crowd, a team or a list of names that is longer than the frame: contributors, customers,
-guests. Rows of name tags drift past in opposite directions. Clip: [simple-marquee.mp4](../../site/public/moves/simple-marquee.mp4). Demo:
+guests. Rows of name tags drift past in opposite directions. Clip: [simple-marquee.mp4](clips/simple-marquee.mp4). Demo:
 [demo/simple-marquee.html](demo/simple-marquee.html).
 
 Look: the flat neutral ground and a centred heading. Three lanes of white name tags with a hairline ring and a faint shadow.

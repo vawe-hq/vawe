@@ -2,7 +2,7 @@
 
 **Use when** a title should arrive as if seen through moving water and then settle to perfectly sharp
 type: an SVG turbulence map bends the letters, and the bend drains to zero. Clip:
-[liquid-displace.mp4](../../site/public/moves/liquid-displace.mp4). Demo: [demo/liquid-displace.html](demo/liquid-displace.html).
+[liquid-displace.mp4](clips/liquid-displace.mp4). Demo: [demo/liquid-displace.html](demo/liquid-displace.html).
 
 Use on one title per film. The type must hold readable and sharp for at least 1.2 s after it settles.
 

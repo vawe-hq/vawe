@@ -1,7 +1,7 @@
 # Spin rotation
 
 **Use when** a loading state turns into the loaded state and the spinner should carry over: the ring that was waiting
-becomes the status mark of the result. Clip: [spin-rotation.mp4](../../site/public/moves/spin-rotation.mp4). Demo:
+becomes the status mark of the result. Clip: [spin-rotation.mp4](clips/spin-rotation.mp4). Demo:
 [demo/spin-rotation.html](demo/spin-rotation.html).
 
 Look: a browser window on the flat neutral ground. First a centred ring spinner (a grey track and a green arc, rounded ends) with a muted

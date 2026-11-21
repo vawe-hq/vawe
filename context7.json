@@ -9,7 +9,6 @@
   ],
   "excludeFolders": [
     "quality",
-    "site",
     "harness",
     "assets",
     "films",

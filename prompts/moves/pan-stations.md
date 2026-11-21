@@ -5,7 +5,7 @@ sit on one wide canvas, and the camera pans from station to station and holds at
 that sells the space is what lies between the stations: a dashed rail runs node to node under the
 cards and past both ends, a dot grid behind moves at 55 percent of the camera (parallax), and each
 node lights as the camera arrives. Without them the pans read as slides pushed sideways. Clip:
-[pan-stations.mp4](../../site/public/moves/pan-stations.mp4). Demo: [demo/pan-stations.html](demo/pan-stations.html).
+[pan-stations.mp4](clips/pan-stations.mp4). Demo: [demo/pan-stations.html](demo/pan-stations.html).
 
 ```js
 import '../../core/engine/page-api.js';

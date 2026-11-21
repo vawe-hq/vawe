@@ -2,7 +2,7 @@
 
 **Use when** a brand mark should be built like an After Effects shape layer: a thin outline draws on
 (trim paths) as an object the brand is about, here a delivery route, then the line morphs into the real mark on one pop and the name lands.
-Clip: [shape-trace-morph.mp4](../../site/public/moves/shape-trace-morph.mp4). Demo:
+Clip: [shape-trace-morph.mp4](clips/shape-trace-morph.mp4). Demo:
 [demo/shape-trace-morph.html](demo/shape-trace-morph.html).
 
 Use once per film, as the brand reveal. For a mark that is a line only, use [mark-trace.md](mark-trace.md).

@@ -5,7 +5,7 @@ status locking in. A copy of a real split-flap board: five rows (time, destinati
 frame, each character on its own matte slat with a light condensed letter and a split line across
 the middle. Every slat turns through its drum in order (blank, then A to Z, or 0 to 9) and stops on
 the real character, so a far letter takes longer than a near one and the rows settle one after the
-other. Clip: [flap-resolve.mp4](../../site/public/moves/flap-resolve.mp4) (6 s, light; `flap-resolve-dark.mp4` is the dark
+other. Clip: [flap-resolve.mp4](clips/flap-resolve.mp4) (6 s, light; `flap-resolve-dark.mp4` is the dark
 theme). Demo: [demo/flap-resolve.html](demo/flap-resolve.html).
 
 ```js

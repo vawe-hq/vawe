@@ -4,7 +4,7 @@
 The cursor lands on the part first, then the whole screen scales until that part fills about a third
 of the frame width and its centre sits in the middle. The camera is one `translate` and one `scale`
 on the same ease, so the target travels straight to the centre. Clip:
-[ui-focus-zoom.mp4](../../site/public/moves/ui-focus-zoom.mp4). Demo: [demo/ui-focus-zoom.html](demo/ui-focus-zoom.html).
+[ui-focus-zoom.mp4](clips/ui-focus-zoom.mp4). Demo: [demo/ui-focus-zoom.html](demo/ui-focus-zoom.html).
 (The window in the demo is a stand-in; on a real film the world is the capture.)
 
 ```js

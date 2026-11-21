@@ -3,7 +3,7 @@
 **Use when** a hard cut should not feel like one. One shape rides one path across both scenes; the
 scene under it changes at 50% with a step, and the shape only flips colour. A symmetric curve puts
 the shape mid-frame at peak speed exactly on the cut, which is what hides the cut. Clip:
-[cut-on-motion.mp4](../../site/public/moves/cut-on-motion.mp4). Demo: [demo/cut-on-motion.html](demo/cut-on-motion.html).
+[cut-on-motion.mp4](clips/cut-on-motion.mp4). Demo: [demo/cut-on-motion.html](demo/cut-on-motion.html).
 
 ```css
 .scene { position: absolute; inset: 0; }

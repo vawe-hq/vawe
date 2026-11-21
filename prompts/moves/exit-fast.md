@@ -3,7 +3,7 @@
 **Use when** anything enters and later leaves, which is every beat. In: 0.55 s, arrives fast and lands
 soft (`EASE.land`). Out: 0.22 s, accelerates, and travels less than half the entrance distance. The
 exit keyframe has no `from`: a `from` would fill backwards over the entrance and hide it. Clip:
-[exit-fast.mp4](../../site/public/moves/exit-fast.mp4). Demo: [demo/exit-fast.html](demo/exit-fast.html).
+[exit-fast.mp4](clips/exit-fast.mp4). Demo: [demo/exit-fast.html](demo/exit-fast.html).
 
 ```css
 h1 { animation-name: land, leave; animation-duration: 0.55s, 0.22s;

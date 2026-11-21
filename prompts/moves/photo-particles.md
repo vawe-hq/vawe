@@ -3,7 +3,7 @@
 **Use when** a particle film needs the real detail of a subject (veins, scales, fibres, filaments) that a hand-modelled
 shape cannot give: sample a photo into 120 000 points, let them gather from a seeded scatter into the photo's form over
 1.5 s, then hold them breathing for 1.5 s. Each point keeps its photo colour and a normal from the luma gradient, so a key light
-shapes the form. Clip: [photo-particles.mp4](../../site/public/moves/photo-particles.mp4). Demo: [demo/photo-particles.html](demo/photo-particles.html).
+shapes the form. Clip: [photo-particles.mp4](clips/photo-particles.mp4). Demo: [demo/photo-particles.html](demo/photo-particles.html).
 Code: `core/surfaces/image-points.js`.
 
 ```js

@@ -2,7 +2,7 @@
 
 **Use when** a spoken line runs as captions and the eye must follow the voice: the word being said
 turns solid yellow on its own spoken second, and the rest of the page stays white. The page never
-re-wraps and no word moves. Clip: [caption-karaoke.mp4](../../site/public/moves/caption-karaoke.mp4) (4.4 s).
+re-wraps and no word moves. Clip: [caption-karaoke.mp4](clips/caption-karaoke.mp4) (4.4 s).
 Demo: [demo/caption-karaoke.html](demo/caption-karaoke.html).
 
 ```js

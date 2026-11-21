@@ -1,7 +1,7 @@
 # Grid stagger wave
 
 **Use when** a title needs "many things" around it: integrations, apps, customers. Clip:
-[grid-stagger-wave.mp4](../../site/public/moves/grid-stagger-wave.mp4). Demo: [demo/grid-stagger-wave.html](demo/grid-stagger-wave.html).
+[grid-stagger-wave.mp4](clips/grid-stagger-wave.mp4). Demo: [demo/grid-stagger-wave.html](demo/grid-stagger-wave.html).
 
 Look: a white sheet on the flat neutral ground. Tiles are flat grey squares with one generic mark
 each (drawn in `demo/assets/logos.js`, never a real logo), even gaps, no bevel. The title block sits

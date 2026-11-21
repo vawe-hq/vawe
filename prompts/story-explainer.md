@@ -77,7 +77,7 @@ labelled as it enters, with its measure. Under 15 seconds this is one continuous
 
 Ask in this order; the first changes the film most. A skipped question takes its default; never wait.
 
-1. **Source**: the material (a link, a paper, a recipe, an outline)? Default: `site/app/determinism/` (vawe's own page on determinism). Why: every claim is copied from it; without a source there is no facts list.
+1. **Source**: the material (a link, a paper, a recipe, an outline)? Default: https://vawe.dev/determinism (vawe's own page on determinism). Why: every claim is copied from it; without a source there is no facts list.
 2. **Audience**: who watches, in one line? Default: an engineer who has used one video tool. Why: it sets the vocabulary and how much each scene explains.
 3. **Takeaways**: the three things they must be able to explain afterwards? Default: the source's first three headings, verbatim. Why: one scene per takeaway is the structure.
 4. **Length and canvas**: seconds and aspect? Default: 16:9, 30 s. Why: over 60 s the director's brief takes over, and the canvas sets the caption band.

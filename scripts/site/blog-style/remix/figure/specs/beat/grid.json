@@ -1,7 +1,0 @@
-{"title":"What the cut table checks (schematic)","note":"Positions are illustrative, not from a real film.","parts":[
-{"kind":"text","text":"grid lines and hits (black bars)"},
-{"kind":"compare","panels":[
-{"title":"on beat","lines":["Within 1 frame of a hit or beat line."],"mark":"hi"},
-{"title":"near","lines":["Within 3 frames."]},
-{"title":"off","lines":["Beyond.","the table gives the second to move it to"],"mark":"lo"}]},
-{"kind":"text","text":"Each hit is named: click, pop, swish, impact or sustained."}]}

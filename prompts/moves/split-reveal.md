@@ -4,7 +4,7 @@
 doors. Shot A is drawn twice, each copy showing one half, so the seam is invisible until they part.
 The detail that sells it is the light in the gap: shot B waits in the dark, a shadow is cast beside
 each door, and B lights up and settles from 1.12x as the doors clear. Clip:
-[split-reveal.mp4](../../site/public/moves/split-reveal.mp4). Demo: [demo/split-reveal.html](demo/split-reveal.html).
+[split-reveal.mp4](clips/split-reveal.mp4). Demo: [demo/split-reveal.html](demo/split-reveal.html).
 
 ```js
 import { EASE } from '../../core/motion/presets.js';

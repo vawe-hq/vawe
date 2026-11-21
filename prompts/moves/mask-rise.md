@@ -1,6 +1,6 @@
 # Mask rise
 
-**Use when** a line of type enters from under an invisible edge, and something in the scene can time it: a walker, a hand, a door passes and the word rises behind it. The mask box is taller than the line: 0.25em below for descenders (g, y, p) and 0.2em above for the overshoot, pulled back with negative margins so the layout does not move. Without that padding the descenders are cut on the way up and the settled word still looks clipped. Clip: [mask-rise.mp4](../../site/public/moves/mask-rise.mp4) (6 s, real footage). Demo: [demo/mask-rise.html](demo/mask-rise.html).
+**Use when** a line of type enters from under an invisible edge, and something in the scene can time it: a walker, a hand, a door passes and the word rises behind it. The mask box is taller than the line: 0.25em below for descenders (g, y, p) and 0.2em above for the overshoot, pulled back with negative margins so the layout does not move. Without that padding the descenders are cut on the way up and the settled word still looks clipped. Clip: [mask-rise.mp4](clips/mask-rise.mp4) (6 s, real footage). Demo: [demo/mask-rise.html](demo/mask-rise.html).
 
 ```css
 .mask { display: block; overflow: hidden; padding: 0.2em 0.1em 0.25em; margin: -0.2em -0.1em -0.25em; }

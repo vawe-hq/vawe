@@ -5,7 +5,7 @@ shot. Eight bars with round heads run in from the left, each at its own speed, a
 by a hard alpha contrast (the goo filter) fuses them into one wet edge with lumps and meniscus
 between rows. The detail that sells it is the second edge: an accent band leads the next shot by
 7 percent of the width, so the liquid has a body and a colour of its own. Clip:
-[liquid-wipe.mp4](../../site/public/moves/liquid-wipe.mp4). Demo: [demo/liquid-wipe.html](demo/liquid-wipe.html).
+[liquid-wipe.mp4](clips/liquid-wipe.mp4). Demo: [demo/liquid-wipe.html](demo/liquid-wipe.html).
 
 ```js
 import { rng } from '../../core/motion/springs.js';

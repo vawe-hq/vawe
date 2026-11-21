@@ -114,7 +114,7 @@ export const DEV_VERBS = [
     },
   },
   {
-    name: 'moves', summary: 'render the stale prompts/moves/demo/<move>.html clips to prompts/moves/<move>.mp4 (1280 px, 60 fps) in parallel; the masters are not tracked, the web copy is site/public/moves/<move>.mp4; a clip is stale when its demo, demo.css or a core/ import changed; a demo with a variants meta also renders <move>-<theme>.mp4',
+    name: 'moves', summary: 'render the stale prompts/moves/demo/<move>.html clips to prompts/moves/<move>.mp4 (1280 px, 60 fps) in parallel; the masters are not tracked, the web copy is prompts/moves/clips/<move>.mp4 (encoded by vawe-hq/vawe-site); a clip is stale when its demo, demo.css or a core/ import changed; a demo with a variants meta also renders <move>-<theme>.mp4',
     positional: [],
     flags: [
       { name: 'only', type: 'string', help: 'render one move by name, for example weight-morph, even when current; also writes a 12-frame contact sheet to out/moves/<move>-sheet.png' },
@@ -122,7 +122,7 @@ export const DEV_VERBS = [
     ],
     example: 'vawe-dev moves --only weight-morph',
     build: (v) => [{ script: 'harness/media/render-moves.mjs', args: [...opt('--only', v.only), ...(v.all ? ['--all'] : [])] }],
-    next: () => 'look at the clip in prompts/moves/ and run node scripts/site/moves.mjs --clips to encode its web copy',
+    next: () => 'look at the clip in prompts/moves/ and encode its web copy in vawe-hq/vawe-site (its moves.mjs --clips, with VAWE_DIR=<this checkout>), then copy its mp4 to prompts/moves/clips/',
   },
   {
     name: 'sync-agent-tools', summary: 'rewrite the tools line of agents/vawe.md from the MCP server tool list (run after you add or rename a vawe tool)',

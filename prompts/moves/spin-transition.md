@@ -6,7 +6,7 @@ from -45 to 0 and lands soft. Two details sell it. The frame scales up by exactl
 angle needs to keep covering the frame (2.0x at 45 degrees for 16:9), so no corner of the ground ever
 shows. And the blur is rotational: 16 copies of the frame at angles fanned across half of one frame's
 turn, stacked at opacities 1, 1/2, 1/3 and so on, so the edges streak in arcs and the centre stays
-sharp. Clip: [spin-transition.mp4](../../site/public/moves/spin-transition.mp4). Demo: [demo/spin-transition.html](demo/spin-transition.html).
+sharp. Clip: [spin-transition.mp4](clips/spin-transition.mp4). Demo: [demo/spin-transition.html](demo/spin-transition.html).
 
 ```js
 import '../../core/engine/page-api.js';

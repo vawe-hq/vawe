@@ -3,7 +3,7 @@
 **Use when** a held line needs the margin notes of a person: a loose circle around one word, an arrow
 from a written label to it, and an underline under another, each drawn on like a pen. Every stroke
 is an SVG path revealed with `stroke-dashoffset`, built with a seeded wobble, so the marks are
-uneven and the same on every render. Clip: [hand-drawn-notes.mp4](../../site/public/moves/hand-drawn-notes.mp4).
+uneven and the same on every render. Clip: [hand-drawn-notes.mp4](clips/hand-drawn-notes.mp4).
 Demo: [demo/hand-drawn-notes.html](demo/hand-drawn-notes.html).
 
 ```js

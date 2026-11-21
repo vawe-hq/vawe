@@ -1,6 +1,6 @@
 # Word portal
 
-**Use when** a typed word is on screen and the next scene should appear inside its letters: the word grows until one stem is the whole frame, and scene B shows through the letterforms the whole way. The word is the shared element, and it is a window, not a filled shape. The detail that sells it is that B is fixed and the letters move over it, so the view through the glyphs slides like a real window until the stem is wider than the frame and B is all there is. Clip: [word-portal.mp4](../../site/public/moves/word-portal.mp4). Demo: [demo/word-portal.html](demo/word-portal.html). [type fill transition](type-fill-transition.md) fills the frame with a flat colour; this one keeps a live scene inside the type.
+**Use when** a typed word is on screen and the next scene should appear inside its letters: the word grows until one stem is the whole frame, and scene B shows through the letterforms the whole way. The word is the shared element, and it is a window, not a filled shape. The detail that sells it is that B is fixed and the letters move over it, so the view through the glyphs slides like a real window until the stem is wider than the frame and B is all there is. Clip: [word-portal.mp4](clips/word-portal.mp4). Demo: [demo/word-portal.html](demo/word-portal.html). [type fill transition](type-fill-transition.md) fills the frame with a flat colour; this one keeps a live scene inside the type.
 
 ```html
 <svg width="0" height="0"><defs><clipPath id="portal" clipPathUnits="userSpaceOnUse"><text id="ptext"></text></clipPath></defs></svg>

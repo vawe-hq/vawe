@@ -1,3 +1,0 @@
-{"title":"What a final render costs (seconds)","note":"Figures from our trace reviews of agent sessions. The two groups come from different sessions.","parts":[{"kind":"bars","max":4000,"rows":[
-{"label":"Final 1","value":390,"text":"390 s"},{"label":"Final 2","value":400,"text":"400 s"},{"label":"Final 3","value":421,"text":"421 s"},
-{"label":"One session","value":3922,"text":"3,922 s in 12 status calls for 4 finals","mark":"hi"}]}]}

@@ -4,7 +4,7 @@
 the same shape at the same place, size and angle, doing a different job. Here a spinner ring on the
 dark ground becomes the completed ring around "41 s" on the light one. The world flips in one
 millisecond; the ring does not move, so the eye reads a change of meaning, not a cut. Clip:
-[match-cut.mp4](../../site/public/moves/match-cut.mp4). Demo: [demo/match-cut.html](demo/match-cut.html).
+[match-cut.mp4](clips/match-cut.mp4). Demo: [demo/match-cut.html](demo/match-cut.html).
 
 ```html
 <section class="shot a"><svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" pathLength="100" stroke-dasharray="28 72"/></svg></section>

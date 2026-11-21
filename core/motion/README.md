@@ -190,10 +190,9 @@ Use `easing: EASE.land` on a plain `el.animate` for one segment. In per-frame co
 `linear` on a move over 0.3 s: the motion lint says which `EASE` name to use.
 
 Every `EASE` name, the 30 classic eases and the CSS keywords have a page with the curve, the velocity,
-the `linear()` string and the handle data: <https://vawe.dev/easing>. `node scripts/site/easing.mjs`
-builds its data from this library.
+the `linear()` string and the handle data: <https://vawe.dev/easing>. vawe-hq/vawe-site builds its data from this library (its `easing.mjs`, on a vendored copy of `core/motion`).
 
-Which ease for which job is the table at the top of that page (`JOBS` in `scripts/site/easing.mjs`). Two choices the table makes that this README does not state elsewhere: a camera move under 2 s takes `land`, because `settle` and `glide` look dead for their first 14 to 20 per cent (a 1.6 s pull-back measured 0.43 s settled on `land`, 1.28 s on `settle`); a scan or wipe line travels on `settle` and `swap` is only for the value it flips (`swap`'s steep middle blurs a long travel).
+Which ease for which job is the table at the top of that page (`JOBS` in `core/motion/ease-jobs.js`, laid out by `easing.mjs` in vawe-hq/vawe-site). Two choices the table makes that this README does not state elsewhere: a camera move under 2 s takes `land`, because `settle` and `glide` look dead for their first 14 to 20 per cent (a 1.6 s pull-back measured 0.43 s settled on `land`, 1.28 s on `settle`); a scan or wipe line travels on `settle` and `swap` is only for the value it flips (`swap`'s steep middle blurs a long travel).
 
 ## 1. CSS and WAAPI: a spring as an easing
 

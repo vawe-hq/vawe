@@ -2,7 +2,7 @@
 
 **Use when** a line of copy arrives word by word and must feel soft, not sliced: each word resolves
 from blur with a slight rise, one after another. There is no mask and no clip, so nothing cuts a
-descender. Clip: [blur-word-cascade.mp4](../../site/public/moves/blur-word-cascade.mp4). Demo:
+descender. Clip: [blur-word-cascade.mp4](clips/blur-word-cascade.mp4). Demo:
 [demo/blur-word-cascade.html](demo/blur-word-cascade.html).
 
 ```css

@@ -6,7 +6,7 @@ window with a dashboard). The window is the subject, a fine grid is the ground b
 tooltip floats in front. The three layers scale by different amounts, so they separate the way real depth
 does. Each move is a transform on one wrapper (or on one layer, see the layered depth section of
 [parallax-dive](parallax-dive.md)), so it is deterministic under the seek. Clip:
-[camera-moves.mp4](../../site/public/moves/camera-moves.mp4). Demo: [demo/camera-moves.html](demo/camera-moves.html).
+[camera-moves.mp4](clips/camera-moves.mp4). Demo: [demo/camera-moves.html](demo/camera-moves.html).
 
 **The camera holds still by default.** It moves only with a reason: the spectacle, a reveal. A camera that
 moves in every beat is the lazy way to keep a hold alive. The taste rule constant-camera names a camera

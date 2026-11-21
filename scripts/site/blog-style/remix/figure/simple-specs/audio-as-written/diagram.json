@@ -1,2 +1,0 @@
-{ "title": "The mix, as written", "kind": "flow", "hi": 3,
-  "steps": [["audio tags", "src, data-at, data-gain, fade-out"], ["sum", "gains as written"], ["limiter", "-1 dBTP, only lowers peaks"], ["video", "muxed"]] }

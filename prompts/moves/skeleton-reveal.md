@@ -3,7 +3,7 @@
 **Use when** a real UI should arrive without pop-in. A copy of a real store dashboard loading in a
 browser window: the shell (top bar, side list) is already there, and the main area shows flat light
 grey blocks in the shape of the content under one faint moving light. Then each region loads and its
-real content fades in. Clip: [skeleton-reveal.mp4](../../site/public/moves/skeleton-reveal.mp4) (6 s, light;
+real content fades in. Clip: [skeleton-reveal.mp4](clips/skeleton-reveal.mp4) (6 s, light;
 `skeleton-reveal-dark.mp4` is the dark theme). Demo: [demo/skeleton-reveal.html](demo/skeleton-reveal.html).
 
 Use once per film: the moving light is a stock device (rule no-tells), never the idea.

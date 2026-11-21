@@ -4,7 +4,7 @@
 that rolls to its value, so the digits never change width and never scramble; the wheels on the
 right spin further and land last, and each wheel carries a vertical blur that follows its own
 speed. A delta chip slides in when the number lands and a sparkline draws to the end. Clip:
-[count-up.mp4](../../site/public/moves/count-up.mp4). Demo: [demo/count-up.html](demo/count-up.html).
+[count-up.mp4](clips/count-up.mp4). Demo: [demo/count-up.html](demo/count-up.html).
 
 ```html
 <div class="num" id="num"><span class="sym">$</span></div>

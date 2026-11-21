@@ -4,7 +4,7 @@
 a rich image, and the image keeps moving inside the fixed letters. The clip opens tight, so the
 frame is mostly image, and pulls back until the letters read as a title. The image here is made in
 CSS and SVG (a sky gradient, a sun, two ridges); use the product shot or a capture the same way.
-Clip: [text-as-mask.mp4](../../site/public/moves/text-as-mask.mp4). Demo: [demo/text-as-mask.html](demo/text-as-mask.html).
+Clip: [text-as-mask.mp4](clips/text-as-mask.mp4). Demo: [demo/text-as-mask.html](demo/text-as-mask.html).
 
 ```css
 .title { font: 900 33vh/0.86 var(--sans); font-stretch: 125%; text-transform: uppercase; white-space: nowrap;

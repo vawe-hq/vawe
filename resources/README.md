@@ -50,7 +50,7 @@ Sites for the material a film is made of. Each line: name, link, what it has. Ch
 
 ## Design craft
 
-Rules for interface and site work (type, motion, interaction, taste). `site/DESIGN.md` records what the vawe site took from each.
+Rules for interface and site work (type, motion, interaction, taste). `site/DESIGN.md` in vawe-hq/vawe-site records what the vawe site took from each.
 
 - Practical Typography: https://practicaltypography.com/summary-of-key-rules.html : body size, line spacing, line length, caps tracking, quotes
 - Interfaces cheat sheet: https://interfaces.dev/cheat-sheet : hit areas, focus, press scale, spacing between groups, font smoothing

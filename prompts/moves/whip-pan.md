@@ -3,7 +3,7 @@
 **Use when** the next shot is to the side of this one and a cut would feel abrupt. Both shots sit on
 one horizontal strip; the strip slides one screen width and a horizontal blur follows its speed, so at
 the fastest frame both shots are a streak and the eye never sees the seam. The pan eases in, peaks at
-the midpoint and lands soft. Clip: [whip-pan.mp4](../../site/public/moves/whip-pan.mp4). Demo: [demo/whip-pan.html](demo/whip-pan.html).
+the midpoint and lands soft. Clip: [whip-pan.mp4](clips/whip-pan.mp4). Demo: [demo/whip-pan.html](demo/whip-pan.html).
 
 ```html
 <svg width="0" height="0" style="position: absolute"><filter id="motion" x="-10%" width="120%"><feGaussianBlur id="mb" stdDeviation="0 0"/></filter></svg>

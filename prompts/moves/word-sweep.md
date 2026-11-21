@@ -3,7 +3,7 @@
 **Use when** a headline is already on screen and one word is the point. The accent runs word by
 word in reading order, lifting each from dim to white as it passes, and stays on the target word.
 Every device directs the eye; this one names its target in the markup. Clip:
-[word-sweep.mp4](../../site/public/moves/word-sweep.mp4). Demo: [demo/word-sweep.html](demo/word-sweep.html).
+[word-sweep.mp4](clips/word-sweep.mp4). Demo: [demo/word-sweep.html](demo/word-sweep.html).
 
 ```html
 <h1>every device directs the eye</h1>

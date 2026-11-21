@@ -6,7 +6,7 @@ squares off into a rounded card and on past the frame edges. Unlike `iris-wipe`,
 changes on the way. The detail that sells it is the order: size first, shape second. The circle
 stays round for the first third, then the width outruns the height and the corners tighten, so the
 viewer sees a circle turn into a card, not a box that was always a box. Clip:
-[shape-morph-wipe.mp4](../../site/public/moves/shape-morph-wipe.mp4). Demo: [demo/shape-morph-wipe.html](demo/shape-morph-wipe.html).
+[shape-morph-wipe.mp4](clips/shape-morph-wipe.mp4). Demo: [demo/shape-morph-wipe.html](demo/shape-morph-wipe.html).
 
 ```js
 import '../../core/engine/page-api.js';

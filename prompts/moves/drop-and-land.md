@@ -3,7 +3,7 @@
 **Use when** an action in scene A has its result in scene B: the user presses "Add to cart", the
 product tile drops out of the card and lands in the cart on the next screen. One item carries the
 handoff. It falls under gravity the whole way, so its speed never steps at the seam, while one camera
-tilt brings the cart up to meet it and stops before it lands. Clip: [drop-and-land.mp4](../../site/public/moves/drop-and-land.mp4).
+tilt brings the cart up to meet it and stops before it lands. Clip: [drop-and-land.mp4](clips/drop-and-land.mp4).
 Demo: [demo/drop-and-land.html](demo/drop-and-land.html).
 
 ```js
