@@ -14,6 +14,7 @@
   @font-face { font-family: "{{family}}"; src: url("assets/{{font}}") format("woff2"); font-weight: 100 900; }
   :root { --ground: {{ground}} /* unchosen: palette dial */; --ink: {{ink}} /* unchosen: palette dial */; --key: {{key}} /* the one hue: palette dial */; {{beats}} }
   html, body { margin: 0; height: 100%; background: var(--ground); overflow: hidden; }
+  #stage { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: var(--ground); }
   .world { position: absolute; inset: 0; isolation: isolate; }
 {{groundCss}}
   .lockup { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: calc(var(--vh) * 0.04); color: var(--ink); font-family: "{{family}}", sans-serif; }
@@ -24,6 +25,7 @@
 </style>
 <script type="module">
 import { enter, EASE } from '../../core/motion/presets.js';
+import { lens, htmlSource } from '../../core/surfaces/lens.js';
 await document.fonts.load('700 1em "{{family}}"');
 const root = document.documentElement;
 const beat = (n) => parseFloat(getComputedStyle(root).getPropertyValue('--beat-' + n));
@@ -56,9 +58,13 @@ $('.word').animate([{ translate: '-1em 0' }, { translate: '0 0' }], { ...open, d
 $('.word').animate([{ opacity: 0 }, { opacity: 1 }], { ...open, duration: 100, easing: 'linear' });
 // a longer line needs more read time before the last frame: 0.6 s a word from 4 words (taste/rules/readable-hold.md), so enter it earlier, never later
 enter($('.line'), { at: beat(2) + 0.8, band: 'professional', from: '0 0.4em' });
+// the product look: a slow push-in and a small tilt, so the frame has depth (prompts/moves/lens.md); delete this block for a flat page
+const cam = lens(htmlSource($('#stage')), { look: 'product', zoom: (t) => 1 + 0.04 * (t / end), tiltY: (t) => 0.06 * Math.sin(t * 0.6), fit: { cover: true } });
+vawe.onFrame((t) => cam.draw(t));
 </script>
 </head>
 <body>
+<div id="stage">
 {{worlds}}
 <div class="lockup">
   <div class="row">
@@ -66,6 +72,7 @@ enter($('.line'), { at: beat(2) + 0.8, band: 'professional', from: '0 0.4em' });
     <h1 class="word">{{title}}</h1>
   </div>
   <p class="line">why it matters</p>
+</div>
 </div>
 </body>
 </html>
