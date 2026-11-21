@@ -379,6 +379,39 @@ export async function mixAndMux({ specs, duration, video, out, loudness = null }
   }
 }
 
+const stemName = (spec, i) => `cue-${String(i + 1).padStart(2, '0')}-${(spec.synth || path.parse(spec.src).name).replace(/[^A-Za-z0-9_-]+/g, '-')}.wav`;
+
+// One cue as the mix plays it (trim, gain, fades, the music duck), shifted so the file starts on the second the cue is heard.
+function writeCue(track, i, duration, windows, dir) {
+  const at = track.spec.at;
+  const local = windows.map((w) => ({ ...w, a: w.a - at, b: w.b - at }));
+  const chain = trackChain({ ...track, spec: { ...track.spec, at: 0 } }, 0, Math.max(0.01, duration - at), local);
+  const file = path.join(dir, stemName(track.spec, i));
+  run('ffmpeg', ['-y', '-loglevel', 'error', '-i', track.file, '-filter_complex', chain, '-map', '[a0]', '-c:a', 'pcm_s24le', file]);
+  return { file, at, seconds: probeSeconds(file), name: track.spec.synth || path.basename(track.spec.src), role: track.spec.role };
+}
+
+/**
+ * writeStems({ specs, duration, loudness = null, dir }) -> { mix, cues: [{ file, at, seconds, name, role }] }: 48 kHz 24-bit wavs in `dir`
+ * for an editor. `mix` (mix.wav) is the sound track of the final: the mix as written, `loudness` when set, the -1 dBTP limiter.
+ * Each cue file holds one cue alone and starts at its `at`. With no specs: { mix: null, cues: [] }.
+ */
+export function writeStems({ specs, duration, loudness = null, dir }) {
+  if (!specs.length) return { mix: null, cues: [] };
+  fs.mkdirSync(dir, { recursive: true });
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-stems-'));
+  try {
+    const { mixWav, tracks } = writeMix(specs, duration, tmp);
+    const af = loudness === null ? `${LIMITER},aresample=${RATE}` : `${normaliseFilter(mixWav, loudness)},${LIMITER}`;
+    const mix = path.join(dir, 'mix.wav');
+    run('ffmpeg', ['-y', '-loglevel', 'error', '-i', mixWav, '-af', af, '-c:a', 'pcm_s24le', mix]);
+    const windows = duckWindows(tracks, duration);
+    return { mix, cues: tracks.map((t, i) => writeCue(t, i, duration, windows, dir)) };
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
 async function cli([pagePath, video, out]) {
   if (!pagePath || !video || !out) {
     console.error('usage: node harness/media/page-audio.mjs <page.html> <video.mp4> <out.mp4>');

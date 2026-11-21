@@ -2,7 +2,8 @@
 // A render is current when its sidecar's pageDigest equals the page's now; a render with no sidecar (made before sidecars) falls back to mtimes, here and nowhere else.
 import fs from 'node:fs';
 
-export const metaPath = (mp4) => mp4.replace(/\.mp4$/, '.meta.json');
+// A render that is not an .mp4 (a layer .mov) still gets a sidecar of its own: a name with no match would make the sidecar the video.
+export const metaPath = (mp4) => (/\.(mp4|mov)$/.test(mp4) ? mp4.replace(/\.(mp4|mov)$/, '.meta.json') : `${mp4}.meta.json`);
 
 const mtime = (p) => { try { return fs.statSync(p).mtimeMs; } catch { return 0; } };
 
