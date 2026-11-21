@@ -1,5 +1,6 @@
 // What `--out` means in every `vawe frame` mode: a path ending in .png is a file (for a set of grids, the name they start with),
 // any other path is a folder that holds the files under their default names.
+import fs from 'node:fs';
 import path from 'node:path';
 
 /** { dir, file } of `out`: `file` is the absolute .png path, or null when `out` is a folder. Null when `out` is not given. Pure. */
@@ -22,8 +23,11 @@ export function outFile(out, fallback) {
   return target.file ?? path.join(target.dir, path.basename(fallback));
 }
 
-/** Whether a draft written at `outPath` gets its key-frame sheet and .meta.json beside it: only in out/, where the verbs that read them look. A path anywhere else (a template folder) gets the mp4 alone. Pure. */
-export const writesSidecars = (outPath, cwd = process.cwd()) => path.dirname(path.resolve(cwd, outPath)) === path.resolve(cwd, 'out');
+// macOS /var is a symlink to /private/var and process.cwd() returns the resolved form, so compare real paths.
+const realDir = (dir) => { try { return fs.realpathSync(dir); } catch { return dir; } };
+
+/** Whether a draft written at `outPath` gets its key-frame sheet and .meta.json beside it: only in out/, where the verbs that read them look. A path anywhere else (a template folder) gets the mp4 alone. */
+export const writesSidecars = (outPath, cwd = process.cwd()) => realDir(path.dirname(path.resolve(cwd, outPath))) === realDir(path.resolve(cwd, 'out'));
 
 /** The file for the `label` of one of `count` files that share `file`: `file` itself for one, `<name>-<label>.png` for several. Pure. */
 export function numbered(file, label, count) {
