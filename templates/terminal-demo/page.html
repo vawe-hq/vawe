@@ -20,48 +20,49 @@
   .ground i:nth-child(2) { right: -10%; bottom: -55%; background: radial-gradient(closest-side, rgba(70, 150, 214, 0.12), transparent); }
   .world { position: absolute; inset: 0; font-family: var(--mono); color: var(--ink); font-variant-ligatures: none; }
 
-  .win { position: absolute; inset: 0; margin: auto; width: calc(var(--u) * 140); height: calc(var(--u) * 64); transform-origin: 50% 80%; display: flex; flex-direction: column; overflow: hidden;
+  .win { position: absolute; inset: 0; margin: auto; width: calc(var(--u) * 158); height: calc(var(--u) * 88); transform-origin: 50% 80%; display: flex; flex-direction: column; overflow: hidden;
          border-radius: calc(var(--u) * 1.8); background: var(--win); box-shadow: 0 0 0 1px var(--line), 0 calc(var(--u) * 1) calc(var(--u) * 2) rgb(0 0 0 / 0.3), 0 calc(var(--u) * 4) calc(var(--u) * 9) rgb(0 0 0 / 0.5); }
-  .tbar { flex: none; display: flex; align-items: center; height: calc(var(--u) * 4.6); padding: 0 calc(var(--u) * 2.2); background: var(--bar); box-shadow: 0 1px 0 var(--line); }
-  .ttl { position: absolute; left: 0; right: 0; text-align: center; font-size: calc(var(--u) * 2.2); color: var(--muted); pointer-events: none; }
+  .tbar { flex: none; display: flex; align-items: center; height: calc(var(--u) * 6); padding: 0 calc(var(--u) * 2.6); background: var(--bar); box-shadow: 0 1px 0 var(--line); }
+  .ttl { position: absolute; left: 0; right: 0; text-align: center; font-size: calc(var(--u) * 4.6); color: var(--muted); pointer-events: none; }
   .tbar { position: relative; }
   .lights { display: flex; gap: calc(var(--u) * 1.3); }
-  .lights i { width: calc(var(--u) * 1.9); height: calc(var(--u) * 1.9); border-radius: 50%; background: #ff5f57; }
+  .lights i { width: calc(var(--u) * 2.3); height: calc(var(--u) * 2.3); border-radius: 50%; background: #ff5f57; }
   .lights i:nth-child(2) { background: #febc2e; }
   .lights i:nth-child(3) { background: #28c840; }
-  .body { flex: 1; min-height: 0; overflow: hidden; font-size: calc(var(--u) * 4); }
-  .log { position: relative; padding: calc(var(--u) * 2) calc(var(--u) * 3.2) 0; }
-  .row { display: flex; align-items: center; white-space: pre; height: calc(var(--u) * 5.8); }
-  .row.gap { height: calc(var(--u) * 2.4); }
+  .body { flex: 1; min-height: 0; overflow: hidden; font-size: calc(var(--u) * 4.9); }
+  .log { position: relative; padding: calc(var(--u) * 2) calc(var(--u) * 4) 0; }
+  .row { display: flex; align-items: center; white-space: pre; height: calc(var(--u) * 7.4); }
+  .row.gap { height: calc(var(--u) * 3); }
   .dir { color: var(--ink); }
   .br { color: var(--muted); }
   .gt { color: var(--muted); margin: 0 1ch; }
   .out { color: var(--muted); }
   .warn { color: var(--warn); }
-  .cur { display: inline-block; width: 1ch; height: calc(var(--u) * 4.6); background: var(--accent); }
-  #gcaret { position: absolute; left: 0; top: 0; visibility: hidden; z-index: 5; font-family: var(--mono); font-size: calc(var(--u) * 4); }
+  .cur { display: inline-block; width: 1ch; height: calc(var(--u) * 6); background: var(--accent); }
+  #gcaret { position: absolute; left: 0; top: 0; visibility: hidden; z-index: 5; font-family: var(--mono); font-size: calc(var(--u) * 4.9); }
   .step { display: grid; grid-template-columns: 1fr auto; width: 46ch; }
   .slot { display: grid; }
   .slot > * { grid-area: 1 / 1; white-space: pre; display: flex; align-items: center; }
   .ok { color: var(--accent); margin-right: 1ch; }
   .tm { color: var(--faint); }
   .sp { display: inline-block; width: 1ch; margin-right: 1ch; color: var(--accent); font-weight: 600; text-align: center; }
-  .track { display: inline-block; width: 10ch; height: calc(var(--u) * 1.3); margin: 0 1.5ch; border-radius: calc(var(--u) * 0.3); background: var(--line); position: relative; overflow: hidden; }
+  .track { display: inline-block; width: 10ch; height: calc(var(--u) * 1.7); margin: 0 1.5ch; border-radius: calc(var(--u) * 0.3); background: var(--line); position: relative; overflow: hidden; }
   .track i { position: absolute; inset: 0 auto 0 0; background: var(--accent); width: 0; }
-  .band { display: flex; align-items: center; gap: 2ch; height: calc(var(--u) * 9.4); margin: 0 calc(var(--u) * -3.2); padding: 0 calc(var(--u) * 3.2); background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: calc(var(--u) * 5.6); }
+  .band { display: flex; align-items: center; gap: 2ch; height: calc(var(--u) * 12.5); margin: 0 calc(var(--u) * -4); padding: 0 calc(var(--u) * 4); background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: calc(var(--u) * 7.2); }
   .url { text-decoration: underline; text-underline-offset: calc(var(--u) * 0.5); text-decoration-thickness: 1px; }
   .strong { font-weight: 600; }
+  .band span:first-child { background: var(--on-accent); color: var(--accent); padding: 0 1.2ch; border-radius: calc(var(--u) * 0.8); font-size: 0.62em; letter-spacing: 0.08em; line-height: 1.7; }
 
-  .mark { position: absolute; left: 0; right: 0; top: 11%; margin: 0; text-align: center; font: 600 calc(var(--u) * 17) / 1 var(--sans); letter-spacing: -0.045em; color: var(--ink); }
+  .mark { position: absolute; left: 14%; right: auto; top: 11%; margin: 0; text-align: left; font: 600 calc(var(--u) * 17) / 1 var(--sans); letter-spacing: -0.045em; color: var(--ink); }
   .mark b { color: var(--accent); font-weight: 600; }
-  .tag { position: absolute; left: 0; right: 0; top: 33%; margin: 0; text-align: center; font: 400 calc(var(--u) * 8.6) / 1.2 var(--sans); letter-spacing: -0.03em; color: var(--muted); }
-  .install { position: absolute; left: 0; right: 0; top: 55%; margin: 0 auto; width: max-content; box-sizing: border-box; padding: calc(var(--u) * 1.6) calc(var(--u) * 3.4); border-radius: calc(var(--u) * 1.6);
-             font-size: calc(var(--u) * 4); }
+  .tag { position: absolute; left: 14%; right: auto; top: 33%; margin: 0; text-align: left; font: 400 calc(var(--u) * 8.6) / 1.2 var(--sans); letter-spacing: -0.03em; color: var(--muted); }
+  .install { position: absolute; left: 14%; right: auto; top: 53%; margin: 0; width: max-content; box-sizing: border-box; padding: calc(var(--u) * 1.6) calc(var(--u) * 3.4); border-radius: calc(var(--u) * 1.6);
+             font-size: calc(var(--u) * 4.9); }
   .install .gt { margin: 0 1ch 0 0; }
   .install .row { position: relative; }
   .install .bg { position: absolute; left: 0; right: 0; top: 0; border-radius: calc(var(--u) * 1.6); background: var(--win); box-shadow: 0 0 0 1px var(--line), 0 calc(var(--u) * 2) calc(var(--u) * 5) rgb(0 0 0 / 0.4); }
 </style>
-<script type="application/json" id="authoring">{"allow": ["world-held@0-8.833", "text-breathing", "dead-stop", "spectacle-weak", "anticipation", "static-window@6.3-7.1", "tile-run@0-7", "tail-tiles@8.8-11.8"], "_why": {"world-held@0-8.833": "world run holds 8.8 s: the command types to 2.0 s, rows print every 0.4 to 1.0 s to 7.4 s and the window folds shut at 8.55 s", "text-breathing": "worlds run and close are one shell and its lockup: text shows 96% of the film, 8.5 s in one run, because a terminal always shows text", "dead-stop": "world run steps typed text one character per frame as a real terminal does: 648 px/s at 0.84 s, no easing on text", "spectacle-weak": "world run has the big moment: the LIVE band at 7.2 s prints 9.4u tall across the window in one frame so nothing eases; tried a bigger band and a scroll, a real terminal has no wind-up, after 1.1 s of a turning spinner", "anticipation": "world run prints the LIVE band at 7.2 s in whole rows: a real terminal has no wind-up, the health check spinner is the 1.1 s lead-in", "static-window@6.3-7.1": "world run holds 0.8 s on the health check while only the spinner turns in 45 degree steps", "tile-run@0-7": "world run changes by whole text rows of under 4% of the frame for 7.0 s, so 36 tiles look alike while the session prints", "tail-tiles@8.8-11.8": "world close holds the lockup and changes only by typed rows and a blinking caret: 16 near-identical tiles from 8.8 s to 11.8 s"}}</script>
+<script type="application/json" id="authoring">{"allow": ["world-held@0-8.833", "text-breathing", "dead-stop", "spectacle-weak", "anticipation", "static-window@6.3-7.1", "tile-run@0-7", "tail-tiles@8.8-11.8"], "_why": {"world-held@0-8.833": "world run holds 8.8 s: the command types to 2.0 s, rows print every 0.4 to 1.0 s to 7.4 s and the window folds shut at 8.55 s; tried a split into two worlds and kept one because the shell is one object", "text-breathing": "worlds run and close are one shell and its lockup: text shows 96% of the film, 8.5 s in one run, because a terminal always shows text; tried a wordless beat and kept the text because a terminal always shows text", "dead-stop": "world run steps typed text one character per frame as a real terminal does: 648 px/s at 0.84 s, no easing on text; tried easing the typed text and kept steps because a real terminal does not ease", "spectacle-weak": "world run has the big moment: the LIVE band at 7.2 s prints 12.5u tall across the window in one frame so nothing eases; tried a bigger band and a scroll, a real terminal has no wind-up, after 1.1 s of a turning spinner", "anticipation": "world run prints the LIVE band at 7.2 s in whole rows: a real terminal has no wind-up, the health check spinner is the 1.1 s lead-in; tried a wind-up and kept none because a terminal prints with no wind-up", "static-window@6.3-7.1": "world run holds 0.8 s on the health check while only the spinner turns in 45 degree steps", "tile-run@0-7": "world run changes by whole text rows of under 4% of the frame for 7.0 s, so 36 tiles look alike while the session prints; tried bigger rows and a scroll from 3.9 s", "tail-tiles@8.8-11.8": "world close holds the lockup and changes only by typed rows and a blinking caret: 16 near-identical tiles from 8.8 s to 11.8 s; tried a later output row at 11.55 s"}}</script>
 </head>
 <body>
 <div class="ground" aria-hidden="true"><i></i><i></i></div>
@@ -80,11 +81,11 @@
       <div class="row out lay" id="l2">  b81d07e   3.1 MB</div>
       <div class="row out lay" id="l3">  c40e5a9   0.8 MB</div>
       <div class="row step" id="s3"><span class="slot"><span class="r"><i class="sp">|</i>Running migrations</span><span class="d"><span class="ok">✓</span>Ran 2 migrations</span></span><span class="tm">0.4s</span></div>
-      <div class="row warn" id="warn">! DEBUG_SQL is set in production</div>
+      <div class="row warn" id="warn">! DEBUG_SQL was on: turned off for production</div>
       <div class="row step" id="s4"><span class="slot"><span class="r"><i class="sp">|</i>Rolling out<span class="track"><i></i></span><span id="cnt">0/4</span></span><span class="d"><span class="ok">✓</span>Rolled out 4 of 4 instances</span></span><span class="tm">1.5s</span></div>
       <div class="row step" id="s5"><span class="slot"><span class="r"><i class="sp">|</i>Checking health</span><span class="d"><span class="ok">✓</span>Health checks passed</span></span><span class="tm">1.1s</span></div>
       <div class="row gap"></div>
-      <div class="row band" id="res1"><span>LIVE</span><span>api is live in 4.2s</span></div>
+      <div class="row band" id="res1"><span>LIVE</span><span>api deployed in 5.7s</span></div>
       <div class="row" id="res2"><span class="url">https://api.acme.dev</span></div>
       <div class="row out" id="res3">undo any time with halcyon rollback</div>
       <div class="row gap"></div>
@@ -109,15 +110,15 @@
 <script type="module">
 import '../../core/engine/page-api.js';
 import { EASE } from '../../core/motion/presets.js';
-import { typeTimes, typedCount, show } from '../../prompts/moves/demo/assets/stage.js';
+import { typeTimes, typedCount, show } from './assets/stage.js';
 const q = (s) => document.querySelector(s), all = (s) => [...document.querySelectorAll(s)];
 const END = 12000;
-const TYPE_AT = 600, ENTER_AT = 2050, WORLD_SWAP = 8800;
+const TYPE_AT = 600, ENTER_AT = 2050, WORLD_SWAP = 8830;
 const STEPS = [['#s1', 2150, 3000], ['#s2', 3000, 3800], ['#s3', 4000, 4500], ['#s4', 4600, 6050], ['#s5', 6050, 7200]];
 const LAYER_AT = 3850, WARN_AT = 4500, ROLL = [4900, 5300, 5650, 6000];
-const RESULT_AT = 7200, PROMPT_AT = 7900, LEAVE_AT = 8550, FLIGHT_MS = 700, ARRIVE_AT = LEAVE_AT + FLIGHT_MS;
-const MARK_AT = 8800, TAG_AT = 9100, BOX_AT = 8950, INST_AT = 9650, ENTER2_AT = 10700, OUT2_AT = 10800, INIT_AT = 11300, NEXT_AT = 11550;
-const PRINT = [['#cmdrow', 0], ['#head', ENTER_AT + 50], ...STEPS.map(([s, from]) => [s, from]), ['#l1', LAYER_AT], ['#l2', LAYER_AT + 40], ['#l3', LAYER_AT + 80], ['#warn', WARN_AT], ['#res1', RESULT_AT], ['#res2', RESULT_AT], ['#res3', RESULT_AT], ['#row2', PROMPT_AT]];
+const RESULT_AT = 7200, PROMPT_AT = 7900, LEAVE_AT = 8550, FLIGHT_DELAY = 220, FLIGHT_MS = 700, ARRIVE_AT = LEAVE_AT + FLIGHT_DELAY + FLIGHT_MS;
+const MARK_AT = 8650, TAG_AT = 8950, BOX_AT = 9320, INST_AT = 9650, ENTER2_AT = 10700, OUT2_AT = 10800, INIT_AT = 11300, NEXT_AT = 11550;
+const PRINT = [['#cmdrow', 0], ['#head', ENTER_AT + 50], ...STEPS.map(([s, from]) => [s, from]), ['#l1', LAYER_AT], ['#l2', LAYER_AT + 40], ['#l3', LAYER_AT + 80], ['#warn', WARN_AT], ['#res1', RESULT_AT], ['#res2', RESULT_AT], ['#res3', RESULT_AT], ['#row2', RESULT_AT]];
 
 // measure first, before any animation moves anything: the final prompt caret and the install caret
 const log = q('#log'), body = q('.body'), unit = window.innerHeight / 100;
@@ -125,8 +126,8 @@ const bottoms = PRINT.map(([sel, at]) => { const el = q(sel); return [at, el.off
 const capacity = body.clientHeight - 1.6 * unit;
 const tops = [...log.children].map((el) => el.offsetTop);
 const scrollAt = (ms) => {
-  const need = Math.max(0, Math.max(...bottoms.filter(([at]) => at <= ms).map(([, b]) => b)) - capacity);
-  return need === 0 ? 0 : (tops.find((t) => t >= need) ?? need);
+  const need = Math.max(0, Math.max(...bottoms.filter(([at]) => at < ms).map(([, b]) => b)) - capacity);
+  return need === 0 ? 0 : (tops.slice(1).find((t) => t >= need) ?? need);
 };
 const instEl = q('#inst'), instText = instEl.textContent;
 instEl.textContent = '';
@@ -141,9 +142,10 @@ const move = (el, at, ms, from, ease = EASE.land) => {
 
 // worlds: the terminal session, then the lockup
 const [runWorld, closeWorld] = all('[data-world]');
-show(closeWorld, WORLD_SWAP);
+show(closeWorld, 8600);
 show(runWorld, null, WORLD_SWAP);
 
+q('.win').animate([{ scale: 0.94 }, { scale: 1 }], { duration: 600, easing: EASE.land, fill: 'both' });
 // ground: two soft lights drift all film long
 all('.ground i').forEach((el, k) => el.animate([{ translate: '0 0' }, { translate: `calc(var(--vw) * ${k ? -0.06 : 0.08}) calc(var(--vh) * ${k ? -0.08 : 0.1})` }], { duration: END, easing: EASE.glide, fill: 'both' }));
 
@@ -166,9 +168,9 @@ vawe.onFrame((s) => {
   q('#inst').textContent = inst.slice(0, typedCount(instTimes, ms));
   q('#cur3').style.visibility = ms >= ARRIVE_AT && ms < ENTER2_AT && lit(ms, Math.max(ARRIVE_AT, lastKey(instTimes, ms))) ? 'visible' : 'hidden';
   const rows = 1 + (ms >= OUT2_AT) + (ms >= INIT_AT) + (ms >= NEXT_AT);
-  q('#bg').style.height = `${rows * 5.8 * unit + 3.2 * unit}px`;
+  q('#bg').style.height = `${rows * 7.4 * unit + 3.2 * unit}px`;
   q('#cur4').style.visibility = ms >= NEXT_AT && lit(ms, NEXT_AT) ? 'visible' : 'hidden';
-  gcaret.style.visibility = ms >= PROMPT_AT + 40 && ms < ARRIVE_AT && (ms >= LEAVE_AT || lit(ms, PROMPT_AT)) ? 'visible' : 'hidden';
+  gcaret.style.visibility = ms >= RESULT_AT && ms < ARRIVE_AT && (ms >= LEAVE_AT || lit(ms, RESULT_AT)) ? 'visible' : 'hidden';
 });
 
 // Enter reprints the prompt in place: the header and the steps print whole rows
@@ -187,12 +189,14 @@ show(q('#warn'), WARN_AT);
 show(q('#res1'), RESULT_AT);
 show(q('#res2'), RESULT_AT);
 show(q('#res3'), RESULT_AT);
-show(q('#row2'), PROMPT_AT);
+show(q('#row2'), RESULT_AT);
 
 // the caret is the thread: it waits at the last prompt, the window folds shut, and the caret travels to the install line
-gcaret.animate([{ translate: `${A.x}px ${A.y}px` }], { duration: 1, fill: 'both' });
-gcaret.animate([{ translate: `${A.x}px ${A.y}px` }, { translate: `${B.x}px ${B.y}px` }], { duration: FLIGHT_MS, delay: LEAVE_AT, easing: EASE.land, fill: 'forwards' });
-q('.win').animate([{ scale: '1 1', opacity: 1 }, { scale: '1 0.02', opacity: 1, offset: 0.7 }, { scale: '1 0.02', opacity: 0 }], { duration: 170, delay: LEAVE_AT, easing: EASE.launch, fill: 'forwards' });
+gcaret.style.left = `${A.x}px`;
+gcaret.style.top = `${A.y}px`;
+gcaret.animate([{ left: `${A.x}px` }, { left: `${B.x}px` }], { duration: FLIGHT_MS, delay: LEAVE_AT + FLIGHT_DELAY, easing: EASE.land, fill: 'forwards' });
+gcaret.animate([{ top: `${A.y}px` }, { top: `${B.y}px` }], { duration: FLIGHT_MS, delay: LEAVE_AT + FLIGHT_DELAY, easing: EASE.glide, fill: 'forwards' });
+q('.win').animate([{ scale: '1 1', opacity: 1 }, { scale: '1 0.6', opacity: 0 }], { duration: 280, delay: LEAVE_AT, easing: EASE.launch, fill: 'forwards' });
 
 // the lockup: the name lands, the line follows, the install box takes its place and the command types
 move(q('#mark'), MARK_AT, 600, '0 calc(var(--vh) * 0.035)');

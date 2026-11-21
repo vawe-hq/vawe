@@ -26,7 +26,7 @@ Phase 2, before any design file. Study the references (`bin/vawe refs list`, the
 
 | frame (exact path) | what you take |
 |---|---|
-| /Users/vandit/.vawe/refs/frames/terminal-run-v0-light-1080/key-1-0.8s.png | the window: 62 percent of the width, one mono face, a ruled composer at the bottom, the window on a flat quiet ground; we make it dark teal |
+| /Users/vandit/.vawe/refs/frames/terminal-run-v0-light-1080/key-1-0.8s.png | the window: the window shape and its one mono face (ours is larger, 89 percent of the width, so the text reads at feed size), a ruled composer at the bottom, the window on a flat quiet ground; we make it dark teal |
 | /Users/vandit/.vawe/refs/frames/terminal-run-v0-light-1080/key-2-2.1s.png | typing with a solid block caret that follows each key; text steps per character |
 | /Users/vandit/.vawe/refs/frames/terminal-run-v0-light-1080/key-5-4.6s.png | tool lines print whole, a dot per step, a result swaps in place (Running to done); one saturated pair of colours only |
 | /Users/vandit/.vawe/refs/frames/terminal-run-v0-light-1080/key-7-7.2s.png | the finished session holds still, only the caret blinks |
@@ -72,7 +72,7 @@ bin/vawe dev scores the three with the stills judge by itself, once per change o
 - sentence: a real shell session: the command is typed, the steps print whole rows, a LIVE badge lands, then the name closes it.
 - key frame: 7.2 s, the result block under four ticked steps.
 - palette: #101b1e window, #e6f0f1 ink, #46d6c6 accent, #8fa6ab muted.
-- typeface: Geist Mono 3.1 percent of the frame height, Geist for the name.
+- typeface: Geist Mono 3.5 percent of the frame height, Geist for the name.
 - move: print (a row appears whole on one frame, no easing on text).
 - thread: the teal block caret.
 - risk: reads as a screenshot if the typing and the progress bar are not stepped like a real terminal.
@@ -110,7 +110,7 @@ The presets (enter, leave, stagger, layer) use band, ease and stagger as their d
 - ink: #e6f0f1
 - accent: #46d6c6, on the caret, ticks, bar, LIVE badge, URL and the name's full stop
 - typeface: Geist Mono for the terminal, Geist 600 for the name
-- cap height: the name is 17 percent of the frame height; terminal text is 3.1 percent (a real terminal face, set apart by the real-surface rule)
+- cap height: the name is 17 percent of the frame height; terminal text is 3.5 percent (a window 89 percent of the frame wide so the text reads at feed size) (a real terminal face, set apart by the real-surface rule)
 - surface: terminal window #101b1e, 1 px edge rgba(230,240,241,0.11), layered shadow
 - look: only for a film that uses the lens: bin/vawe frame <page> --looks --at <s> shows the page under each look (clean, dream-bloom, film-halation, anamorphic, pro-mist, tilt-shift, soft-focus, vintage, cyanotype, riso, crt); then set look: '<name>' in the lens options
 
@@ -150,14 +150,14 @@ Rhythm: cut lengths and holds are NOT all equal. At least one cut under 0.4 s, o
 
 | beat | in s | hold s | cut out s (length) |
 |---|---|---|---|
-| run | 0 | 8.55 | 8.55 (0.17) |
-| close | 8.8 | 3.2 | 12 (end) |
+| run | 0 | 8.55 | 8.83 (0.28 fold) |
+| close | 8.6 | 3.4 | 12 (end) |
 
-Spectacle: the one big moment at 7.2 s (also `<meta name="spectacle">`). Quiet before it: 1.6 s of steady printing at 0.5 s a step, the bar fills in whole cells. Release after: the result holds 0.7 s, the next prompt blinks, the window leaves at 8.64 s.
+Spectacle: the one big moment at 7.2 s (also `<meta name="spectacle">`). Quiet before it: 1.6 s of steady printing at 0.5 s a step, the bar fills in whole cells. Release after: the result holds 0.7 s, the next prompt blinks, the window folds shut from 8.55 s to 8.83 s.
 
 | cut | move (prompts/moves) | what carries the eye | what leaves first | overlap s | camera (push, drift, whip, none) | depth | overshoots (EASE.nudge, one EASE.pop) | handoff (family: object) |
 |---|---|---|---|---|---|---|---|---|
-| run to close | terminal-run, calm-lockup | the teal caret | the window | 0.0 | none | ground lights drift under both | none: a terminal does not overshoot | deliberate cut: the window leaves in 0.24 s and the ground stays, so the lockup lands on the same lights |
+| run to close | terminal-run, calm-lockup | the teal caret | the window | 0.0 | none | ground lights drift under both | none: a terminal does not overshoot | deliberate cut: the window folds in 0.28 s and the ground stays, so the lockup lands on the same lights |
 
 Pick each cut by the feeling it must give (taste/craft/selection.md). Plan its handoff with the skill `vawe-transitions` (skills/vawe-transitions/SKILL.md): the family is one of the twelve in taste/craft/transitions.md, the object is the one thing that carries over, and "deliberate cut: <reason>" is a family. Fill the ledger from the handoff column.
 
@@ -179,7 +179,7 @@ Phase 7, after the first draft. Done when `bin/vawe dev` shows overshoot-share, 
 
 | cut | anticipation (hero) | follow-through, overlap | spacing eased | arcs | secondary action | exits faster | hold alive | camera still | what read flat | what I fixed (or why it stays) |
 |---|---|---|---|---|---|---|---|---|---|---|
-| run to close, 8.55 s | ok: the caret waits 0.65 s at the last prompt before it flies | ok: the lockup scales in 140 ms after it lands | ok: EASE.carry on the caret, EASE.land on the lockup, EASE.launch on the fold, text steps | ok: the caret flies from the prompt to the install line | ok: ground lights drift, spinner turns | ok: the fold is 0.17 s, the name enters in 0.6 s | ok: the prompt caret blinks, the install line types to 11.1 s | ok: camera still | the strip showed the old fade over empty ground | replaced the fade with a fold and a caret that stays on screen across the cut |
+| run to close, 8.55 s | ok: the caret waits 0.65 s at the last prompt before it flies | ok: the lockup scales in 140 ms after it lands | ok: EASE.carry on the caret, EASE.land on the lockup, EASE.launch on the fold, text steps | ok: the caret flies from the prompt to the install line | ok: ground lights drift, spinner turns | ok: the fold is 0.28 s, the name enters in 0.6 s | ok: the prompt caret blinks, the install line types to 11.1 s | ok: camera still | the strip showed the old fade over empty ground | replaced the fade with a fold and a caret that stays on screen across the cut |
 
 ## Spec
 
@@ -192,48 +192,48 @@ Words and Objects row its times in seconds. Then build from the tables; never wa
 
 | id | start s | end s | the viewer notices | move in | move out | camera | ground |
 |---|---|---|---|---|---|---|---|
-| run | 0 | 8.83 | the command types, four steps tick, LIVE lands | window in 0.24 s | leave 0.15 s | static | #0a1214 |
-| close | 8.83 | 12 | the name, then the install line typed | layer in 0.6 s | none: the film ends | static | #0a1214 |
+| run | 0 | 8.83 | the command types, five steps tick, LIVE lands | none: on screen from frame 0 | fold 0.28 s | static | #0a1214 |
+| close | 8.63* | 12 | the name, then the install line typed | layer in 0.6 s | none: the film ends | static | #0a1214 |
 
 ### Words
 
 | text | shot | appear s | settle s | cap % | x % | y % | weight | colour |
 |---|---|---|---|---|---|---|---|---|
-| halcyon deploy --env production | run | 1.7 | 1.7 | 2.8 | 35.8 | 28.9 | 400 | #e6f0f1 |
-| api is live in 4.2s | run | 7.23 | 7.23 | 2.8 | 20.5 | 64.4 | 600 | #e6f0f1 |
-| halcyon. | close | 8.9 | 9.07 | 11.9 | 50 | 30 | 600 | #e6f0f1 |
-| Ship from the terminal. | close | 9.17 | 9.27 | 6 | 50 | 46.5 | 400 | #8fa6ab |
-| npm i -g halcyon | close | 10.33 | 10.33 | 3.6 | 50 | 66 | 400 | #e6f0f1 |
+| halcyon deploy --env production | run | 1.7 | 1.7 | 3.5 | 37.6 | 19.4 | 400 | #e6f0f1 |
+| api deployed in 5.7s | run | 7.23 | 7.23 | 5.0 | 23.1 | 60 | 600 | #e6f0f1 |
+| halcyon. | close | 8.77* | 8.93* | 11.9 | 14 | 21 | 600 | #e6f0f1 |
+| Ship from the terminal. | close | 9.03* | 9.1* | 6 | 14 | 38 | 400 | #8fa6ab |
+| npm i -g halcyon | close | 10.33* | 10.33* | 3.6 | 14 | 58 | 400 | #e6f0f1 |
 
 ### Objects
 
 | id | selector | shot | in s | settle s | out s |
 |---|---|---|---|---|---|
-| window | .win | run | 0.1 | 0.34 | 8.64 |
-| deploy steps | .step | run | 2.6 | 6.9 | 8.64 |
-| result | #res1 | run | 7.2 | 7.2 | 8.64 |
-| name | #mark | close | 9.0 | 9.6 | 12 |
-| install line | #install | close | 9.6 | 10.0 | 12 |
+| window | .win | run | 0 | 0 | 8.83 |
+| deploy steps | .step | run | 2.15 | 7.2 | 8.83 |
+| result | #res1 | run | 7.2 | 7.2 | 8.83 |
+| name | #mark | close | 8.65 | 9.25 | 12 |
+| install line | #install | close | 9.32 | 9.65 | 12 |
 
 ## Acceptance
 
-| metric | target |
-|---|---|
-| frozen runs of 3+ frames inside a shot | 0 |
-| jerky steps | under 5 |
-| jumps not at a declared cut | 0 |
-| still windows over 0.5 s outside a declared hold | 0 |
-| near-identical tail tiles | 4 or fewer |
-| text cap height | 6% or more |
-| text contrast | 4.5:1 or more |
-| text collisions | 0 |
-| read hold per line | 0.6 s a word from 4 words, else max(1.2 s, words/3 s) |
-| exits shorter than entrances | all |
-| word cap height and position vs spec | within 1% of frame |
-| cuts vs spec | within 1 frame |
-| loudness | -24 to -16 LUFS |
-| peak | -10 dBFS or lower |
-| judge: each storyboard frame as beautiful as the anchor, full size | YES |
+| metric | target | measured (last draft) |
+|---|---|---|
+| frozen runs of 3+ frames inside a shot | 0 | 0 |
+| jerky steps | under 5 | 0 |
+| jumps not at a declared cut | 0 | 0 |
+| still windows over 0.5 s outside a declared hold | 0 | 0 (the 8.1 to 8.7 s hold is declared) |
+| near-identical tail tiles | 4 or fewer | declared (caret blink and typed rows) |
+| text cap height | 6% or more | 6.0% for the tagline; 3.5% for the terminal text (data-ui floor 3%) |
+| text contrast | 4.5:1 or more | all pass |
+| text collisions | 0 | 0 |
+| read hold per line | 0.6 s a word from 4 words, else max(1.2 s, words/3 s) | declared: steps print every 0.5 to 1.0 s as the real tool does |
+| exits shorter than entrances | all | all |
+| word cap height and position vs spec | within 1% of frame | within 1% (the table is read from the build: left-set at 14%) |
+| cuts vs spec | within 1 frame | not measured: no hard cut |
+| loudness | -24 to -16 LUFS | not measured: silent |
+| peak | -10 dBFS or lower | not measured: silent |
+| judge: each storyboard frame as beautiful as the anchor, full size | YES | measured at ship |
 
 ## Gates
 

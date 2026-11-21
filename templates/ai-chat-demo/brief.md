@@ -152,7 +152,7 @@ Rhythm: cut lengths and holds are NOT all equal. At least one cut under 0.4 s, o
 |---|---|---|---|
 | chat | 0 | 10 | 10 (end) |
 
-Spectacle: the one big moment at 6.4 s (also `<meta name="spectacle">`). Quiet before it: 0.4 s after the stream ends, the answer holds still while the action row arrives. Release after: the label lands at 6.8 s, then the answer holds 2.7 s with a caret blinking in the composer.
+Spectacle: the one big moment at 6.4 s (also `<meta name="spectacle">`). Quiet before it: 0.4 s after the stream ends, the answer holds still while the action row arrives. Release after: the label lands at 6.96 s, then the answer holds 2.7 s with a caret blinking in the composer.
 
 | cut | move (prompts/moves) | what carries the eye | what leaves first | overlap s | camera (push, drift, whip, none) | depth | overshoots (EASE.nudge, one EASE.pop) | handoff (family: object) |
 |---|---|---|---|---|---|---|---|---|
@@ -178,7 +178,7 @@ Phase 7, after the first draft. Done when `bin/vawe dev` shows overshoot-share, 
 
 | cut | anticipation (hero) | follow-through, overlap | spacing eased | arcs | secondary action | exits faster | hold alive | camera still | what read flat | what I fixed (or why it stays) |
 |---|---|---|---|---|---|---|---|---|---|---|
-| chat, 3.0 s send and 6.4 s call-out (no cut) | ok: the bubble leaves the composer on a spring, the corner marks start 1.35x out | ok: the label lands 0.34 s after the marks, the composer docks 0.32 s under the bubble | ok: EASE.land on the dock, spring on the bubble, EASE.pop on the marks | ok: the marks converge on the key part | ok: ground lights drift, the label breathes 4% for 2.4 s, the composer caret blinks | n/a: the film ends on the product, there is no exit | ok: the label breathes through the hold | ok: camera still | the first draft opened on an empty chat and the corner marks were four separate arrivals | the chat now opens full on frame 0; the four corners are one frame element so the overshoot share drops to 2 arrivals (onion at 6.4 s shows the ghosts bunched at the end and one 15.5 percent overshoot) |
+| chat, 3.0 s send and 6.4 s call-out (no cut) | ok: the bubble leaves the composer on a spring, the corner marks start 1.12x out | ok: the label lands 0.34 s after the marks, the composer docks 0.32 s under the bubble | ok: EASE.land on the dock, spring on the bubble, EASE.pop on the marks | ok: the marks converge on the key part | ok: ground lights drift, the label breathes 4% for 2.4 s, the composer caret blinks | ok: the window shrinks back to the opening size over the last 0.6 s | ok: the label breathes through the hold | ok: camera still | the first draft opened on an empty chat and the corner marks were four separate arrivals | the chat now opens full on frame 0; the four corners are one frame element so the overshoot share drops to 2 arrivals (onion at 6.4 s shows the ghosts bunched at the end and one 15.5 percent overshoot) |
 
 ## Spec
 
@@ -191,24 +191,24 @@ Words and Objects row its times in seconds. Then build from the tables; never wa
 
 | id | start s | end s | the viewer notices | move in | move out | camera | ground |
 |---|---|---|---|---|---|---|---|
-| chat | 0 | 10 | the question is typed and sent, the answer streams, the number is marked | window in 0.24 s | none: the film ends on the product | static | #efebe4 |
+| chat | 0 | 10 | the question is typed and sent, the answer streams, the number is marked | window settles in 0.8 s | none: the film ends on the product | static | #efebe4 |
 
 ### Words
 
 | text | shot | appear s | settle s | cap % | x % | y % | weight | colour |
 |---|---|---|---|---|---|---|---|---|
-| Save for a €30k car in 2 years? | chat | 2.2 | 2.2 | 2.8 | 41.6 | 25.7 | 400 | #17140f |
-| You need to save €1,250 a month | chat | 4.83 | 4.83 | 2.8 | 39.3 | 55 | 650 | #17140f |
-| Monthly target | chat | 6.83 | 6.83 | 2.1 | 68 | 55 | 600 | #ffffff |
+| Save for a €30k car in 2 years? | chat | 2.2 | 2.2 | 3.0 | 64 | 14 | 400 | #17140f |
+| €1,250 a month | chat | 4.47 | 4.47 | 6.0 | 49 | 58 | 700 | #17140f |
+| Your goal | chat | 7.03* | 7.03* | 2.8 | 75 | 61 | 600 | #ffffff |
 
 ### Objects
 
 | id | selector | shot | in s | settle s | out s |
 |---|---|---|---|---|---|
-| window | .win | chat | 0.1 | 0.48 | 9.74 |
+| window | .win | chat | 0 | 0.8 | 10 |
 | composer | #composer | chat | 0.3 | 3.32 | 9.74 |
 | answer | #answer | chat | 3.55 | 6.0 | 9.74 |
-| corner marks | .frame | chat | 6.44 | 6.96 | 9.74 |
+| corner marks | .frame | chat | 6.52 | 7.04 | 10 |
 
 ## Acceptance
 
