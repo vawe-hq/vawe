@@ -6,6 +6,7 @@
 // (HTTP traces of nine agents). Unknown on purpose: Codex CLI and Gemini CLI (no published UA), and
 // Cline, Junie and Antigravity, whose UAs (curl/8.4.0, Go-http-client/2.0) are too generic to claim.
 
+
 export type BotClass =
   | "ai-training"
   | "ai-search"
@@ -13,6 +14,8 @@ export type BotClass =
   | "coding-agent"
   | "search-engine"
   | "ai-referral"
+  | "visit"
+  | "action"
   | "other";
 
 export type Classified = { class: BotClass; bot: string };
@@ -83,7 +86,47 @@ export type RequestFacts = {
   referer?: string | null;
   accept?: string | null;
   utmSource?: string | null;
+  method?: string | null;
+  secFetchDest?: string | null;
+  purpose?: string | null;
 };
+
+const SITE_HOST = /(^|\.)vawe\.dev$/;
+
+const SOURCE_HOSTS: [RegExp, string][] = [
+  [/(^|\.)google\.[a-z.]+$/, "google"],
+  [/(^|\.)bing\.com$/, "bing"],
+  [/(^|\.)duckduckgo\.com$/, "duckduckgo"],
+  [/(^|\.)search\.brave\.com$/, "brave"],
+  [/(^|\.)github\.com$/, "github"],
+  [/^(t\.co|x\.com|twitter\.com)$/, "x"],
+  [/(^|\.)reddit\.com$/, "reddit"],
+  [/^news\.ycombinator\.com$/, "hn"],
+  [/(^|\.)linkedin\.com$/, "linkedin"],
+  [/(^|\.)youtube\.com$/, "youtube"],
+];
+
+// Where a person came from: an AI answer, a search engine, a site, "direct" or "internal" (a page of vawe.dev).
+export function sourceOf(host: string, utmSource?: string | null): string {
+  const utm = (utmSource ?? "").toLowerCase().replace(/[^a-z0-9.-]/g, "").slice(0, 40);
+  if (utm) return AI_REFERRER_HOSTS[utm] ?? SOURCE_HOSTS.find(([re]) => re.test(utm))?.[1] ?? utm;
+  if (!host) return "direct";
+  if (SITE_HOST.test(host)) return "internal";
+  return AI_REFERRER_HOSTS[host] ?? SOURCE_HOSTS.find(([re]) => re.test(host))?.[1] ?? host.slice(0, 100);
+}
+
+const BROWSER_UA = /^Mozilla\/5\.0 \(/;
+const NOT_A_PERSON = /bot|crawl|spider|slurp|headless|preview|fetch|scan|monitor|python|curl|wget|axios|node/i;
+
+// A page a person's browser loaded: a GET for a document, not a prefetch or prerender. Next's client-side
+// navigations are fetches (Sec-Fetch-Dest: empty), so a person who clicks through the site counts once.
+export function isPageView(r: RequestFacts): boolean {
+  const ua = r.userAgent ?? "";
+  if (!BROWSER_UA.test(ua) || NOT_A_PERSON.test(ua)) return false;
+  if ((r.method ?? "GET").toUpperCase() !== "GET") return false;
+  if ((r.secFetchDest ?? "").toLowerCase() !== "document") return false;
+  return !/prefetch|prerender/i.test(r.purpose ?? "");
+}
 
 export function refererHost(referer?: string | null): string {
   if (!referer) return "";
@@ -107,7 +150,8 @@ export function classifyRequest(r: RequestFacts): Classified {
     return { class: rule.class, bot: rule.bot };
   }
   const bot = AI_REFERRER_HOSTS[refererHost(r.referer)] ?? (/^chatgpt\.com$/i.test(r.utmSource ?? "") ? "chatgpt" : "");
-  return bot ? { class: "ai-referral", bot } : { class: "other", bot: "" };
+  if (bot) return { class: "ai-referral", bot };
+  return isPageView(r) ? { class: "visit", bot: sourceOf(refererHost(r.referer), r.utmSource) } : { class: "other", bot: "" };
 }
 
 export type BotEvent = {
@@ -119,6 +163,7 @@ export type BotEvent = {
   served: "html" | "md";
   wantsMd: boolean;
   refHost: string;
+  src?: string;
   ip?: string;
 };
 
@@ -130,7 +175,7 @@ export type EventInput = RequestFacts & {
   now?: Date;
 };
 
-// A human who arrives from an AI answer is logged without an IP; only the bot classes keep one.
+// A person (a page view, an action, an arrival from an AI answer) is logged without an IP; only the bot classes keep one.
 // Coding agents run on a person's machine, so their IP is a person's IP and is never kept.
 const KEEPS_IP: ReadonlySet<BotClass> = new Set(["ai-training", "ai-search", "ai-user-fetch", "search-engine"]);
 
@@ -153,6 +198,24 @@ export function buildBotEvent(i: EventInput): BotEvent | null {
   if (i.status !== undefined) event.status = i.status;
   if (KEEPS_IP.has(c.class) && i.ip) event.ip = i.ip;
   return event;
+}
+
+// The things a visitor does that count as a step toward using vawe: lib/track.ts sends one, app/api/event logs it.
+export const ACTIONS = ["copy-install", "copy-prompt", "copy-code", "copy-markdown", "github", "npm", "docs"] as const;
+
+export type ActionName = (typeof ACTIONS)[number];
+
+export function isAction(name: unknown): name is ActionName {
+  return typeof name === "string" && (ACTIONS as readonly string[]).includes(name);
+}
+
+// An action from the beacon: `bot` is the action, `src` where the visitor came from.
+export function buildActionEvent(body: unknown, now = new Date()): BotEvent | null {
+  if (!body || typeof body !== "object") return null;
+  const { a, p, r } = body as Record<string, unknown>;
+  if (!isAction(a) || typeof p !== "string" || !p.startsWith("/")) return null;
+  const host = refererHost(typeof r === "string" ? r : "");
+  return { t: now.toISOString(), class: "action", bot: a, path: p.slice(0, MAX_PATH), served: "html", wantsMd: false, refHost: host, src: sourceOf(host) };
 }
 
 const RETENTION_DAYS = 90;
@@ -181,6 +244,7 @@ export async function appendBotEvent(dir: string, event: BotEvent): Promise<void
 }
 
 type MiddlewareRequest = {
+  method?: string;
   headers: { get(name: string): string | null };
   nextUrl: { pathname: string; searchParams: { get(name: string): string | null } };
 };
@@ -196,6 +260,9 @@ export function logBotRequest(req: MiddlewareRequest, served?: "html" | "md", st
     referer: req.headers.get("referer"),
     accept: req.headers.get("accept"),
     utmSource: req.nextUrl.searchParams.get("utm_source"),
+    method: req.method,
+    secFetchDest: req.headers.get("sec-fetch-dest"),
+    purpose: req.headers.get("sec-purpose") ?? req.headers.get("purpose"),
     ip: req.headers.get("x-real-ip") ?? forwarded,
     path: req.nextUrl.pathname,
     served,

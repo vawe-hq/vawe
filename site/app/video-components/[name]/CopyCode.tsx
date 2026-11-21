@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { track } from "../../../lib/track";
 
 // The copy buttons arrive in the generated markdown HTML (scripts/site/moves.mjs), so one delegated
 // listener serves every code block instead of the page shipping the markdown twice.
@@ -12,6 +13,7 @@ export function CopyCode({ rootId }: { rootId: string }) {
       const button = (e.target as Element).closest<HTMLButtonElement>("[data-copy]");
       const code = button?.closest(".mv-code")?.querySelector("pre");
       if (!button || !code) return;
+      track("copy-code");
       void navigator.clipboard.writeText(code.textContent ?? "").then(
         () => flash(button, "Copied"),
         () => flash(button, "Select and copy"),
@@ -36,6 +38,7 @@ export function CopyMarkdown({ href }: { href: string }) {
   const [label, setLabel] = useState("Copy markdown");
   const copy = async () => {
     try {
+      track("copy-markdown");
       const text = await fetch(href).then((r) => r.text());
       await navigator.clipboard.writeText(text);
       setLabel("Copied");

@@ -59,7 +59,7 @@ export default function Home() {
               <div className="lp-install">
                 <div className="lp-install-row">
                   <code className="lp-install-cmd">{hero.install.cmd}</code>
-                  <CopyBtn className="lp-install-copy" value={hero.install.cmd} label="Copy" />
+                  <CopyBtn className="lp-install-copy" value={hero.install.cmd} label="Copy" action="copy-install" />
                 </div>
                 <span className="lp-install-next">{hero.install.next}</span>
               </div>

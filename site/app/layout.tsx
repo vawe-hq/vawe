@@ -3,6 +3,7 @@ import { Geist, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { SITE_URL } from "../lib/site";
 import { HOME } from "../lib/content/home";
+import { ClickTracker } from "./components/ClickTracker";
 
 // Two faces, two jobs (site/IDENTITY.md): Geist for headings and body, IBM Plex Mono for every number and label.
 const sans = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         {children}
+        <ClickTracker />
       </body>
     </html>
   );

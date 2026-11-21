@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { classifyRequest, buildBotEvent, appendBotEvent, logBotRequest } from '../../site/lib/bots.ts';
+import { classifyRequest, buildBotEvent, appendBotEvent, logBotRequest, buildActionEvent, isPageView, sourceOf } from '../../site/lib/bots.ts';
+import { linkAction } from '../../site/lib/actions.ts';
 import { cidrsFromJson, ipInList, readEvents, reportLines } from '../../harness/lib/bots-report.mjs';
 import config from '../../site/next.config.mjs';
 import { ALIAS_HOST_PATTERN } from '../../site/lib/redirects.mjs';
@@ -159,4 +160,59 @@ test('alias hosts redirect to the apex with a 301; own and loopback hosts do not
   for (const h of ['167.233.71.93', 'vawe-abc.workers.dev', 'example.com', '167.233.71.93:3000']) assert.ok(re.test(h), h);
   for (const h of ['vawe.dev', 'localhost', 'localhost:3000', '127.0.0.1:3000', '0.0.0.0:3000', '[::1]:3000']) assert.ok(!re.test(h), h);
   assert.ok(rules.findIndex((r) => r.has?.[0]?.value === 'www.vawe.dev') < rules.indexOf(rule));
+});
+
+test('a person loading a page is a visit, named by where they came from', () => {
+  const page = { userAgent: UA.chrome, secFetchDest: 'document', method: 'GET' };
+  assert.deepEqual(classifyRequest({ ...page, referer: 'https://www.google.com/' }), { class: 'visit', bot: 'google' });
+  assert.deepEqual(classifyRequest(page), { class: 'visit', bot: 'direct' });
+  assert.deepEqual(classifyRequest({ ...page, referer: 'https://vawe.dev/blog' }), { class: 'visit', bot: 'internal' });
+  assert.deepEqual(classifyRequest({ ...page, referer: 'https://dev.to/x' }), { class: 'visit', bot: 'dev.to' });
+  assert.deepEqual(classifyRequest({ ...page, utmSource: 'GitHub' }), { class: 'visit', bot: 'github' });
+  assert.deepEqual(classifyRequest({ ...page, referer: 'https://chatgpt.com/' }), { class: 'ai-referral', bot: 'chatgpt' });
+});
+
+test('prefetches, client navigations, HEAD requests and scripts are not page views', () => {
+  const page = { userAgent: UA.chrome, secFetchDest: 'document', method: 'GET' };
+  assert.equal(isPageView(page), true);
+  assert.equal(isPageView({ ...page, secFetchDest: 'empty' }), false);
+  assert.equal(isPageView({ ...page, secFetchDest: null }), false);
+  assert.equal(isPageView({ ...page, purpose: 'prefetch;prerender' }), false);
+  assert.equal(isPageView({ ...page, method: 'HEAD' }), false);
+  assert.equal(isPageView({ ...page, userAgent: 'curl/8.4.0' }), false);
+  assert.equal(isPageView({ ...page, userAgent: 'Mozilla/5.0 (X11; Linux x86_64) HeadlessChrome/131.0.0.0' }), false);
+  const visit = buildBotEvent({ ...page, path: '/a', ip: '203.0.113.9' });
+  assert.equal(visit.class, 'visit');
+  assert.equal(visit.ip, undefined);
+});
+
+test('sourceOf names search engines, sites and AI hosts, and caps an unknown host', () => {
+  assert.equal(sourceOf('www.google.co.in'), 'google');
+  assert.equal(sourceOf('news.ycombinator.com'), 'hn');
+  assert.equal(sourceOf('t.co'), 'x');
+  assert.equal(sourceOf('perplexity.ai'), 'perplexity');
+  assert.equal(sourceOf('', 'chatgpt.com'), 'chatgpt');
+  assert.equal(sourceOf('a'.repeat(300)).length, 100);
+});
+
+test('the beacon body becomes an action event only with a known action and a path', () => {
+  const now = new Date('2026-11-21T00:00:00Z');
+  assert.deepEqual(buildActionEvent({ a: 'copy-install', p: '/', r: 'https://chatgpt.com/' }, now), {
+    t: '2026-11-21T00:00:00.000Z', class: 'action', bot: 'copy-install', path: '/', served: 'html', wantsMd: false, refHost: 'chatgpt.com', src: 'chatgpt',
+  });
+  assert.equal(buildActionEvent({ a: 'copy-install', p: '/', r: '' }, now).src, 'direct');
+  assert.equal(buildActionEvent({ a: 'rm -rf', p: '/' }), null);
+  assert.equal(buildActionEvent({ a: 'github', p: 'https://evil.example/' }), null);
+  assert.equal(buildActionEvent(null), null);
+  assert.equal(buildActionEvent({ a: 'docs', p: '/' + 'x'.repeat(900) }).path.length, 512);
+});
+
+test('linkAction counts the repo, the npm package and the docs, nothing else', () => {
+  assert.equal(linkAction('https://github.com/vawe-hq/vawe', 'vawe.dev'), 'github');
+  assert.equal(linkAction('https://github.com/other/repo', 'vawe.dev'), null);
+  assert.equal(linkAction('https://www.npmjs.com/package/@vawe/cli', 'vawe.dev'), 'npm');
+  assert.equal(linkAction('https://vawe.dev/docs/quickstart', 'vawe.dev'), 'docs');
+  assert.equal(linkAction('https://vawe.dev/docsx', 'vawe.dev'), null);
+  assert.equal(linkAction('https://vawe.dev/blog', 'vawe.dev'), null);
+  assert.equal(linkAction('not a url', 'vawe.dev'), null);
 });

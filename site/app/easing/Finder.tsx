@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { SpacingChart, spacingDomain } from "./Spacing";
+import { track } from "../../lib/track";
 
 type Pick = { slug: string; name: string; ez: string; sp: number[] };
 
@@ -59,6 +60,7 @@ export function Finder({ children, total, jobs }: { children: ReactNode; total: 
     if (target.closest(".ez-copy")) {
       const button = target.closest<HTMLButtonElement>(".ez-copy")!;
       const label = button.dataset.label ?? "Copy";
+      track("copy-code");
       void navigator.clipboard.writeText(card.style.getPropertyValue("--ez")).then(
         () => flash(button, "Copied", label),
         () => flash(button, "Select and copy", label),

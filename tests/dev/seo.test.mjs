@@ -144,3 +144,48 @@ test('npmLines shows downloads, the change since the last snapshot, and a skip n
   assert.deepEqual(npmLines({ note: 'npm skipped: x' }).at(-1), '  npm skipped: x');
   assert.deepEqual(npmLines(undefined).at(-1), '  not collected');
 });
+
+test('pageTable joins Google, Bing, AI reads, visits and actions per page, leaving out visits from inside the site', async () => {
+  const { pageTable, pageCsv } = await import('../../harness/lib/seo-report.mjs');
+  const bots = {
+    visitPages: { '/a': { google: 4, internal: 9, direct: 1 } },
+    referralPages: { '/a': 2 },
+    actionPages: { '/a': { 'copy-install': 1, 'copy-code': 2 } },
+    aiReads: { '/b': 30 },
+  };
+  const t = pageTable({ gscPages: [{ page: '/a', clicks: 3, impressions: 40, position: 6.2 }], bingPages: [{ page: '/b', clicks: 1, impressions: 9 }], bots });
+  assert.deepEqual(t.map((r) => r.page), ['/a', '/b']);
+  assert.deepEqual({ ...t[0] }, { page: '/a', visits: 7, aiVisits: 2, actions: 3, installs: 1, aiReads: 0, gscClicks: 3, gscImpressions: 40, gscPosition: 6.2, bingClicks: 0, bingImpressions: 0 });
+  assert.equal(t[1].aiReads, 30);
+  assert.equal(t[1].bingImpressions, 9);
+  assert.equal(pageCsv(t).split('\n')[1], '/a,7,2,3,1,0,3,40,6.2,0,0');
+  assert.equal(pageCsv([{ ...t[1], page: '/a,"b"' }]).split('\n')[1].split(',"')[0], '"/a');
+});
+
+test('page actions wait for the first beacon, then flag busy pages with no action and pages that convert', () => {
+  const gsc = { pageQuery: [], pages: [] };
+  const table = [{ page: '/busy', visits: 12, actions: 0, installs: 0 }, { page: '/good', visits: 10, actions: 4, installs: 3 }, { page: '/quiet', visits: 2, actions: 0, installs: 0 }];
+  const base = { crawlers: Object.fromEntries(['GPTBot', 'OAI-SearchBot', 'ClaudeBot', 'Claude-SearchBot', 'PerplexityBot', 'Googlebot', 'Bingbot'].map((b) => [b, { hits: 99 }])), referrals: {}, referralPages: {}, notFound: {} };
+  assert.deepEqual(buildActions({ gsc, bots: { ...base, actionPages: {} }, table }), []);
+  const kinds = buildActions({ gsc, bots: { ...base, actionPages: { '/good': { github: 3 } } }, table }).map((a) => `${a.kind} ${a.text.split(' ')[0]}`);
+  assert.deepEqual(kinds.sort(), ['converts /good', 'no-action /busy']);
+});
+
+test('Bing rows are summed per page and query inside the window', async () => {
+  const { bingDate, sumBingRows } = await import('../../harness/lib/bing.mjs');
+  assert.equal(bingDate('/Date(1731456000000-0800)/'), '2024-11-13');
+  assert.equal(bingDate('nope'), null);
+  const at = (d) => `/Date(${Date.parse(d)})/`;
+  const rows = [
+    { Query: 'https://vawe.dev/a/', Date: at('2026-11-10'), Clicks: 1, Impressions: 10 },
+    { Query: 'https://vawe.dev/a', Date: at('2026-11-12'), Clicks: 2, Impressions: 5 },
+    { Query: 'https://vawe.dev/a', Date: at('2026-10-01'), Clicks: 9, Impressions: 99 },
+  ];
+  assert.deepEqual(sumBingRows(rows, { start: '2026-11-01', end: '2026-11-20' }, 'page'), [{ page: '/a', clicks: 3, impressions: 15 }]);
+});
+
+test('pageTable adds up GSC rows that share a path and weights their position', async () => {
+  const { pageTable } = await import('../../harness/lib/seo-report.mjs');
+  const [r] = pageTable({ gscPages: [{ page: '/', clicks: 0, impressions: 1, position: 7 }, { page: '/', clicks: 20, impressions: 9, position: 4 }] });
+  assert.deepEqual([r.gscClicks, r.gscImpressions, r.gscPosition], [20, 10, 4.3]);
+});

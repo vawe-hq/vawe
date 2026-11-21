@@ -4,8 +4,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { parseEvents } from '../lib/bots-report.mjs';
+import { bingStats } from '../lib/bing.mjs';
 import { gscClient } from '../lib/gsc.mjs';
-import { MIN_IMPRESSIONS, botSummary, buildActions, changeEffect, changeWindows, flatRows, renderReport, windowDates } from '../lib/seo-report.mjs';
+import { MIN_IMPRESSIONS, botSummary, buildActions, changeEffect, changeWindows, flatRows, pageCsv, pageTable, renderReport, windowDates } from '../lib/seo-report.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name) => (args.includes(`--${name}`) ? args[args.indexOf(`--${name}`) + 1] : undefined);
@@ -117,6 +118,16 @@ async function npm() {
   }
 }
 
+async function bing() {
+  const key = process.env.BING_WEBMASTER_KEY;
+  if (!key) return { note: 'Bing skipped: BING_WEBMASTER_KEY is not set' };
+  try {
+    return await bingStats({ key, siteUrl: `${ORIGIN}/`, window });
+  } catch (e) {
+    return { note: `Bing skipped: ${e.message}` };
+  }
+}
+
 const log = await botEvents().catch((e) => ({ note: `bot log skipped: ${e.message}` }));
 const snapshot = {
   date: today, window,
@@ -124,17 +135,21 @@ const snapshot = {
   bots: log.events ? botSummary(log.events) : null,
   github: github(),
   npm: await npm(),
+  bing: await bing(),
 };
 const prev = previousSnapshot();
 const candidates = [...new Set(pageQuery.filter((r) => r.impressions >= MIN_IMPRESSIONS).map((r) => r.page))].slice(0, 25);
-const actions = buildActions({ gsc: snapshot.gsc, bots: snapshot.bots, prevBots: prev?.bots, titles: await pageTitles(candidates), days });
-const report = renderReport({ snapshot, prev, effects, actions, botNote: log.note }).join('\n');
+const table = pageTable({ gscPages: pages, bingPages: snapshot.bing.pages ?? [], bots: snapshot.bots });
+const actions = buildActions({ gsc: snapshot.gsc, bots: snapshot.bots, prevBots: prev?.bots, titles: await pageTitles(candidates), days, table });
+const report = renderReport({ snapshot, prev, effects, actions, botNote: log.note, table }).join('\n');
 
 if (!noSave) {
   fs.mkdirSync(path.join(SEO_DIR, 'snapshots'), { recursive: true });
   fs.mkdirSync(path.join(SEO_DIR, 'reports'), { recursive: true });
   fs.writeFileSync(path.join(SEO_DIR, 'snapshots', `${today}.json`), JSON.stringify(snapshot));
   fs.writeFileSync(path.join(SEO_DIR, 'reports', `${today}.md`), `${report}\n`);
+  fs.mkdirSync(path.join(SEO_DIR, 'pages'), { recursive: true });
+  fs.writeFileSync(path.join(SEO_DIR, 'pages', `${today}.csv`), pageCsv(table));
 }
 console.log(report);
 console.log(noSave ? '\nnot saved (--no-save)' : `\nsaved to ${SEO_DIR}`);

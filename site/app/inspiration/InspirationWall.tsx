@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 import { Icon } from "../components/Icon";
+import { track } from "../../lib/track";
 import { MatTile } from "../components/MatTile";
 import { INSPIRATION_PAGE, MAKERS, PROMPTS_PATH, recreatePrompt, titleOf, type InspirationCard, type InspirationType } from "../../lib/inspiration-shared";
 
@@ -88,6 +89,7 @@ function usePrompts() {
 }
 
 async function copyText(text: string) {
+  track("copy-prompt");
   try {
     await navigator.clipboard.writeText(text);
     return true;

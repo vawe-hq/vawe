@@ -87,11 +87,20 @@ const bump = (m, k) => m.set(k, (m.get(k) ?? 0) + 1);
 export function summarize(events, lists = {}) {
   const groups = new Map();
   const referrals = new Map();
+  const visits = new Map();
+  const actions = new Map();
+  const nested = (outer, k) => outer.get(k) ?? outer.set(k, new Map()).get(k);
   for (const e of events) {
     if (e.class === 'ai-referral') {
-      const m = referrals.get(e.path) ?? new Map();
-      bump(m, e.bot);
-      referrals.set(e.path, m);
+      bump(nested(referrals, e.path), e.bot);
+      continue;
+    }
+    if (e.class === 'visit') {
+      if (e.status !== 404) bump(nested(visits, e.path), e.bot);
+      continue;
+    }
+    if (e.class === 'action') {
+      bump(nested(actions, e.path), `${e.bot}\t${e.src ?? ''}`);
       continue;
     }
     const key = `${e.class}/${e.bot}`;
@@ -112,12 +121,12 @@ export function summarize(events, lists = {}) {
     groups.set(key, g);
   }
   const rows = [...groups.values()].sort((a, b) => (a.class < b.class ? -1 : a.class > b.class ? 1 : b.hits - a.hits));
-  return { rows, referrals };
+  return { rows, referrals, visits, actions };
 }
 
 export function reportLines(events, lists) {
   if (!events.length) return ['no bot events'];
-  const { rows, referrals } = summarize(events, lists);
+  const { rows, referrals, visits, actions } = summarize(events, lists);
   const ts = events.map((e) => e.t).sort();
   const out = [`${events.length} events, ${ts[0].slice(0, 10)} to ${ts.at(-1).slice(0, 10)}`];
   let cls = '';
@@ -133,5 +142,11 @@ export function reportLines(events, lists) {
     const sorted = [...referrals.entries()].map(([p, m]) => [p, m, [...m.values()].reduce((a, b) => a + b, 0)]).sort((a, b) => b[2] - a[2]);
     for (const [p, m, n] of sorted.slice(0, 15)) out.push(`  ${p}: ${n} (${top(m, 5).map(([b, c]) => `${b} ${c}`).join(', ')})`);
   }
+  const bySource = new Map();
+  for (const m of visits.values()) for (const [src, n] of m) if (src !== 'internal') bySource.set(src, (bySource.get(src) ?? 0) + n);
+  if (bySource.size) out.push('', 'visits by source (internal left out)', ...top(bySource, 12).map(([src, n]) => `  ${src}: ${n}`));
+  const byAction = new Map();
+  for (const m of actions.values()) for (const [k, n] of m) { const a = k.split('\t')[0]; byAction.set(a, (byAction.get(a) ?? 0) + n); }
+  if (byAction.size) out.push('', 'actions', ...top(byAction, 10).map(([a, n]) => `  ${a}: ${n}`));
   return out;
 }
