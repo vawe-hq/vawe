@@ -5,7 +5,7 @@ import { boxMotion, deadStop, staging, anticipation, spectacleWeak, speedCeiling
 import { unwaived } from '../../harness/lib/motion-lint.mjs';
 import { firedRules, firedLines } from '../../harness/lib/taste-steps.mjs';
 import { probeTracks, readHoldProblems, lineNeed } from '../../harness/lib/read-hold.mjs';
-import { worldLimit, readNeed } from '../../harness/lib/worlds.mjs';
+import { worldLimit, readNeed, READ_MARGIN_S } from '../../harness/lib/worlds.mjs';
 import { EASE } from '../../core/motion/presets.js';
 import LIMITS from '../../taste/build/limits.json' with { type: 'json' };
 
@@ -171,20 +171,20 @@ test('textLingers: words of one element that arrive one after another are one li
   assert.match(textLingers(slow, CTX)[0].what, /stays on screen 9\.\d s; it needs 6\.0 s to read, so it may stay 7\.5 s/);
 });
 
-test('text-lingers, readable-hold and the world limit agree for lines of 1, 4 and 8 words (past 8 the rule says cut the line)', () => {
+test('text-lingers, readable-hold and the read-time hold of a world agree for lines of 1, 4 and 8 words (past 8 the rule says cut the line)', () => {
   for (const n of [1, 4, 8]) {
     const text = Array.from({ length: n }, (_, i) => `w${i}`).join(' ');
     const need = lineNeed(n);
-    const cap = worldLimit({ readNeed: readNeed([text]) });
+    const cap = Math.min(worldLimit({ readNeed: readNeed([text]) }), readNeed([text]) + READ_MARGIN_S);
     const ceiling = lingerCeiling(need);
     assert.ok(0.9 * need < ceiling, `${n} words: the readable-hold minimum is under the ceiling`);
     assert.ok(0.9 * need <= cap, `${n} words: the readable-hold minimum fits in a world`);
-    assert.ok(cap <= ceiling, `${n} words: a line that fills its world stays under the ceiling`);
+    assert.ok(cap <= ceiling, `${n} words: a line held for its read time and the margin stays under the ceiling`);
     const steps = Math.round(cap / CTX.step);
     const samples = shown(steps + 40, 2, steps, text);
     const tracks = probeTracks(samples, CTX);
-    assert.deepEqual(readHoldProblems(tracks), [], `${n} words: held for the world limit passes readable-hold`);
-    assert.deepEqual(textLingers(samples, CTX), [], `${n} words: held for the world limit passes text-lingers`);
+    assert.deepEqual(readHoldProblems(tracks), [], `${n} words: held for its read time and the margin passes readable-hold`);
+    assert.deepEqual(textLingers(samples, CTX), [], `${n} words: held for its read time and the margin passes text-lingers`);
   }
 });
 

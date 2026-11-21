@@ -373,7 +373,7 @@ export function textLingers(samples, ctx) {
 }
 
 /**
- * A camera that never rests (rule constant-camera): whole-frame moves over share_max_pct of the film, or over worlds_max worlds in a row. The move
+ * A camera that never rests, checked only for a film whose DESIGN.md says `camera: still` (rule constant-camera): whole-frame moves over share_max_pct of the film, or over worlds_max worlds in a row. The move
  * that holds the spectacle second is the one deliberate move and is not counted. `film` is { dur, worlds }; null when the length is not known.
  */
 export function constantCamera(records, film, spectacle = null) {
@@ -388,8 +388,8 @@ export function constantCamera(records, film, spectacle = null) {
     'hold the camera still and give each hold an element motion (a line typing, a counter, a glint, a secondary action); keep one deliberate camera move for the spectacle or a reveal')];
 }
 
-/** Every bar finding in time order. `camera` is the camera: line of DESIGN.md (free turns the constant-camera finding off). `boxes` is boxMotion of the sampled element boxes, or null when they were not sampled; `text` is { samples, ctx } or null for a window draft. */
+/** Every bar finding in time order. `camera` is the camera: line of DESIGN.md (still turns the constant-camera finding on; a camera that eases once per shot is the default and is never flagged). `boxes` is boxMotion of the sampled element boxes, or null when they were not sampled; `text` is { samples, ctx } or null for a window draft. */
 export function barLint({ records, boxes, text, spectacle = null, film = null, camera = null }) {
-  return [...(camera === 'free' ? [] : constantCamera(records, film, spectacle)), ...speedCeiling(boxes?.peaks), ...spectacleWeak(boxes?.peaks, spectacle, boxes?.span, boxes?.scales), ...deadStop(boxes?.stops), ...staging(boxes?.runs), ...anticipation(boxes?.runs, spectacle, boxes?.span), ...overshootShare(records, boxes?.arrivals), ...(text ? [...textBreathing(text.samples, text.ctx), ...textLingers(text.samples, text.ctx)] : [])]
+  return [...(camera === 'still' ? constantCamera(records, film, spectacle) : []), ...speedCeiling(boxes?.peaks), ...spectacleWeak(boxes?.peaks, spectacle, boxes?.span, boxes?.scales), ...deadStop(boxes?.stops), ...staging(boxes?.runs), ...anticipation(boxes?.runs, spectacle, boxes?.span), ...overshootShare(records, boxes?.arrivals), ...(text ? [...textBreathing(text.samples, text.ctx), ...textLingers(text.samples, text.ctx)] : [])]
     .sort((a, b) => a.at - b.at);
 }

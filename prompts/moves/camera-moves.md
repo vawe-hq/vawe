@@ -8,9 +8,10 @@ does. Each move is a transform on one wrapper (or on one layer, see the layered 
 [parallax-dive](parallax-dive.md)), so it is deterministic under the seek. Clip:
 [camera-moves.mp4](clips/camera-moves.mp4). Demo: [demo/camera-moves.html](demo/camera-moves.html).
 
-**The camera holds still by default.** It moves only with a reason: the spectacle, a reveal. A camera that
-moves in every beat is the lazy way to keep a hold alive. The taste rule constant-camera names a camera
-that moves for over 60 percent of the film or over 4 worlds in a row.
+**One slow camera ease per shot is the house default.** A push, pull or glide of 1 to 2 s or more on
+`EASE.glide` or `settle`, under about 400 px/s, keeps a hold alive and is never flagged. A film that must hold
+still says `camera: still` in DESIGN.md, and then the taste rule constant-camera names a camera that moves
+for over 60 percent of the film or over 4 worlds in a row.
 
 ```js
 import { camera, EASE } from '../../core/motion/presets.js';
@@ -40,7 +41,7 @@ Push 8 to 20 percent over the beat. Under 5 percent the eye reads a mistake. Ove
 punch-in ([crash-zoom](crash-zoom.md)) and needs a faster curve. A camera move under 2 s takes
 `EASE.land`. A move of 2 s or more takes `EASE.glide`, which keeps the lean going to the last frame. End the
 push before the hold, and keep the hold alive with a part that moves (here a hover that steps from one bar to
-the next), never a camera drift. Never blur a push: the subject is the sharpest thing in frame.
+the next) or one slow camera ease over the shot.
 
 Common mistake: one scale on a flat card over a flat ground. Nothing separates, so the push reads as a zoom.
 Give the move a real page, a ground that scales less and a part in front that scales more.

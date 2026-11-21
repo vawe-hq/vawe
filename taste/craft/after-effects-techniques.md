@@ -55,7 +55,7 @@ follow-through: stagger delays siblings, follow-through makes a child lag a pare
 **Arcs.** Bow a straight travel 10 to 20 % of its length. Wrong for UI motion and for travel under about
 100 px.
 
-**Hold.** Never freeze a settled pose, and never fill it with a slow scale or position drift on the pose or the stage: that is a camera drift, the check leaves it out and it teaches the wrong habit (rule [live-hold](../rules/live-hold.md)). Give the hold an element motion on a part (type a line, tick a counter, pass a glint, blink a caret). Wrong on precise data: a chart whose bars drift lies.
+**Hold.** Never freeze a settled pose, and a slow scale or position ease on the stage (under 400 px/s) is a camera move and counts as life (rule [live-hold](../rules/live-hold.md)). Or give the hold an element motion on a part (type a line, tick a counter, pass a glint, blink a caret). Wrong on precise data: a chart whose bars drift lies.
 
 **Animate on twos.** Step the clock at 12 fps in a 24 fps film (15 fps on twos and 10 fps on threes at
 30 fps). Works on line work and character-ish motion, wrong on camera moves. The stepped thing must be

@@ -9,11 +9,19 @@ const camera = (delay, duration, over = {}) => rec({ id: 'camera', props: ['scal
 const stats = (cameraOnly, duration = 6) => ({ duration, turns: [], static: withCameraStills([], cameraOnly) });
 const stillProblems = (records, duration) => problemsOf(stats(cameraOnlySpans(records), duration), [], undefined, {}, [{ id: 'a', start: 0, end: duration }]).filter((p) => p.startsWith('static window'));
 
-test('a hold kept alive only by camera drift is a still window', () => {
-  const records = [camera(0, 6), rec({ target: 1, delay: 0, duration: 0.4, opacity: [0, 1] })];
+test('a hold kept alive only by a fast whole-frame move is a still window', () => {
+  const records = [camera(0, 6, { kf: { scale: ['1', '10'] } }), rec({ target: 1, delay: 0, duration: 0.4, opacity: [0, 1] })];
   const problems = stillProblems(records, 6);
   assert.equal(problems.length, 1);
   assert.match(problems[0], /only the camera moves/);
+});
+
+test('a slow camera ease keeps a hold alive, a fast one does not', () => {
+  const slow = camera(0, 6, { kf: { scale: ['1', '1.2'] } });
+  assert.deepEqual(cameraOnlySpans([slow]), []);
+  assert.deepEqual(stillProblems([slow], 6), []);
+  assert.deepEqual(cameraOnlySpans([camera(0, 2, { kf: { translate: ['0px 0px', '900px 0px'] } })]), [[0, 2]]);
+  assert.deepEqual(cameraOnlySpans([camera(0, 6)]), []);
 });
 
 test('the same hold with a counter or typing in it is not a still window', () => {
@@ -23,7 +31,7 @@ test('the same hold with a counter or typing in it is not a still window', () =>
 });
 
 test('a scale or translate on an element that covers the frame is a camera move, a small element is not', () => {
-  assert.deepEqual(cameraOnlySpans([rec({ props: ['translate'], delay: 1, duration: 3, fullFrame: true })]), [[1, 4]]);
+  assert.deepEqual(cameraOnlySpans([rec({ props: ['translate'], delay: 1, duration: 3, fullFrame: true, kf: { translate: ['0px 0px', '3000px 0px'] } })]), [[1, 4]]);
   assert.deepEqual(cameraOnlySpans([rec({ props: ['translate'], delay: 1, duration: 3 })]), []);
   assert.deepEqual(cameraOnlySpans([rec({ props: ['clipPath'], delay: 1, duration: 3, fullFrame: true })]), []);
 });
@@ -55,10 +63,10 @@ test('withCameraStills merges the camera seconds into the pixel runs and drops s
   assert.deepEqual(withCameraStills([{ a: 1, b: 2, len: 1 }], []), [{ a: 1, b: 2, len: 1 }]);
 });
 
-test('a camera: free declaration in DESIGN.md turns the constant-camera finding off', () => {
+test('a camera: still declaration in DESIGN.md turns the constant-camera finding on, and nothing else does', () => {
   const sting = { dur: 5, worlds: null };
   const run = (decl) => barLint({ records: [camera(0, 4.5)], boxes: null, text: null, film: sting, camera: decl }).map((f) => f.code);
-  assert.deepEqual(run(null), ['constant-camera']);
+  assert.deepEqual(run(null), []);
   assert.deepEqual(run('still'), ['constant-camera']);
   assert.deepEqual(run('free'), []);
 });

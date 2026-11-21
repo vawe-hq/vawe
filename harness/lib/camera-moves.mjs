@@ -1,14 +1,28 @@
 // The whole-frame moves of a film (a camera push, pull or drift, a transform on a world or stage root, parallax on the whole ground),
-// read from the motion records (harness/lib/motion-lint.mjs). They are not element motion: live-hold counts a hold as alive only through
-// a part moving inside the frame, and constant-camera asks for a camera that holds still by default.
+// read from the motion records (harness/lib/motion-lint.mjs). A slow move (under slow_px_per_s) keeps a hold alive, as one slow ease per shot is
+// the house default; a fast whole-frame move is not element motion, so the seconds where only it runs still count as still.
 import LIMITS from '../../taste/build/limits.json' with { type: 'json' };
-import { CUT, moveProps } from './motion-records.mjs';
+import { CUT, moveProps, translateXY } from './motion-records.mjs';
 
 const CAM = LIMITS['constant-camera'];
 const FRAME = /^(transform|translate|scale|rotate)$/;
 
 /** A whole-frame transform: the camera() preset, or a scale/translate/rotate on an element that covers most of the frame, for at least move_min_s. */
 export const isCameraMove = (r) => r.duration >= CAM.move_min_s && (r.id === 'camera' || r.fullFrame) && moveProps(r).some((p) => FRAME.test(p));
+
+const FRAME_PX = 1080;
+const frameShare = (s) => (/calc|%|v[wh]/.test(String(s)) ? FRAME_PX / 100 : 1);
+
+/** The travel of a camera move in px per second, on a 1080 px frame: its largest translate or scale change over its duration. A record with no readable values counts as 0, a slow move. */
+export function cameraSpeed(r) {
+  const kf = r.kf ?? {};
+  const [a, b] = (kf.translate ?? []).map((v) => translateXY(v).map((x) => x * frameShare(v)));
+  const travel = a && b ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 0;
+  const zoom = kf.scale ? Math.abs(parseFloat(kf.scale[1]) - parseFloat(kf.scale[0])) * FRAME_PX || 0 : 0;
+  return Math.max(travel, zoom) / r.duration;
+}
+
+export const isSlowCamera = (r) => cameraSpeed(r) < CAM.slow_px_per_s;
 
 /** The seconds [a, b] covered by `spans`, overlapping spans merged. */
 function unionOf(spans) {
@@ -37,12 +51,12 @@ const minus = (spans, cut) => spans.flatMap(([a, b]) => {
 export const cameraSpans = (records) => unionOf(records.filter(isCameraMove).map(spanOf));
 
 /**
- * The seconds where the camera moves and no part of the frame moves by itself: [a, b] pairs. An element move is any other record on a part
- * that does not cover the frame.
+ * The seconds where a fast camera move runs and no part of the frame moves by itself: [a, b] pairs. An element move is any other record on a part
+ * that does not cover the frame, and a slow camera move (cameraSpeed) is one too.
  */
 export function cameraOnlySpans(records) {
-  const alive = records.filter((r) => !isCameraMove(r) && !r.fullFrame && r.duration > CUT && r.props.length);
-  return minus(cameraSpans(records), unionOf(alive.map(spanOf)));
+  const alive = records.filter((r) => (!isCameraMove(r) && !r.fullFrame && r.duration > CUT && r.props.length) || (isCameraMove(r) && isSlowCamera(r)));
+  return minus(unionOf(records.filter((r) => isCameraMove(r) && !isSlowCamera(r)).map(spanOf)), unionOf(alive.map(spanOf)));
 }
 
 const round2 = (x) => +x.toFixed(2);

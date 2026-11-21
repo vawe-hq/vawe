@@ -183,6 +183,7 @@
   "share_max_pct": 60,
   "worlds_max": 4,
   "move_min_s": 0.6,
+  "slow_px_per_s": 400,
   "still_min_s": 0.3
  },
  "entrance-ease": {

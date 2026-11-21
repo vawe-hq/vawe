@@ -30,7 +30,7 @@ test('a bare static-window covers the film, a waiver with no reason covers nothi
 });
 
 test('stillText names the seconds, the limit and both fixes', () => {
-  assert.equal(stillText({ a: 2, b: 2.7, len: 0.7 }), 'static window 2-2.7 s (0.7 s, limit 0.5 s): nothing moves; give the hold an element motion (glint(el, { at, dur }) or breathe(el, { at, dur }) from core/motion/alive.js, a counter or typing), not a camera drift; waive: "allow": ["static-window@2-2.7"], "_why": {"static-window@2-2.7": "<where: a world id or a second, and what you measured, with its unit>"} in <script id="authoring">');
+  assert.equal(stillText({ a: 2, b: 2.7, len: 0.7 }), 'static window 2-2.7 s (0.7 s, limit 0.5 s): nothing moves; give the hold an element motion (glint(el, { at, dur }) or breathe(el, { at, dur }) from core/motion/alive.js, a counter or typing, or one slow camera ease (under 400 px/s)); waive: "allow": ["static-window@2-2.7"], "_why": {"static-window@2-2.7": "<where: a world id or a second, and what you measured, with its unit>"} in <script id="authoring">');
 });
 
 test('a still at the opening also names the first-frame default', () => {

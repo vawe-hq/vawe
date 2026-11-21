@@ -1,19 +1,19 @@
 ---
 id: constant-camera
 step: motion
-principle: The camera holds still by default and moves only with a reason: the spectacle, a reveal. A hold stays alive through a part that moves inside the frame, not through a camera drift on every beat.
+principle: One slow camera ease per shot is the house default. The check runs only when DESIGN.md says `camera: still`: then the camera moves only with a reason, the spectacle or a reveal, and a hold stays alive through a part that moves inside the frame.
 limit: the camera moves for 60 percent of the film or less, and for 4 worlds in a row at most
 range: one deliberate camera move at the spectacle second (it is not counted); the reference films move the camera for a median 36 percent of their time, p90 95
 break-when: a film built as one continuous shot (a tracking move through a space) the brief names
-instead: hold the camera still and give the hold an element motion: a line typing, a counter, a glint, a secondary action. Keep camera() for the spectacle or a reveal.
-more-motion: hold the camera still and give the hold an element motion, moving it for at most 60 percent of the film and 4 worlds in a row, not a drift on every beat
+instead: for a film declared still, give the hold an element motion: a line typing, a counter, a glint, a secondary action. Keep camera() for the spectacle or a reveal. Otherwise one slow ease per shot is fine.
+more-motion: ease the camera once per shot, not on every beat of a film declared `camera: still` (at most 60 percent of the film and 4 worlds in a row)
 check: constant-camera
-judge: Does the camera move in every beat, or only where the film earns it?
+judge: Only for a film declared `camera: still`: does the camera move in every beat, or only where the film earns it?
 prevents: agents satisfied live-hold the lazy way, with a slow camera drift on every hold, so every film had a constantly moving camera (owner, 2026-10-10).
 status: active
 scored: no
-numbers: {"share_max_pct":60,"worlds_max":4,"move_min_s":0.6,"still_min_s":0.3}
-digest: The camera holds still; one move at the spectacle at most. A part moving inside the frame keeps a hold alive.
+numbers: {"share_max_pct":60,"worlds_max":4,"move_min_s":0.6,"slow_px_per_s":400,"still_min_s":0.3}
+digest: One slow camera ease per shot is the default; `camera: still` keeps it to the spectacle.
 craft: motion-craft
 ---
 

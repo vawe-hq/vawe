@@ -16,7 +16,7 @@ Every command prints the lines of its step again. All rules: `taste/README.md`. 
 - Lens, blur, bloom and fringe are real optics (the lens surface), never a CSS fake. (real-optics)
 - Use the kit's face and ground, or one the direction chose; not Inter or Space Grotesk by habit. (typeface-default)
 - Feedback follows its cause (a burst after the press); a sound lands on its action. (cause-first)
-- The camera holds still; one move at the spectacle at most. A part moving inside the frame keeps a hold alive. (constant-camera)
+- One slow camera ease per shot is the default; `camera: still` keeps it to the spectacle. (constant-camera)
 - Exits are faster than entrances: shorter, on EASE.launch (EASE.leave only for a settle or hand-off the page names). (exits-shorter)
 - No tells unless the brief asks: gradient text, corner labels, borders, glow on UI, bursts, RGB split, shake, flares, template chrome. (no-tells)
 - Sound is real recorded effects on the action's frame; no synth bed, pad or drone. (sound-voices)

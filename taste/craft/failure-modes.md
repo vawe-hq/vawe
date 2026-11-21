@@ -35,7 +35,7 @@ Borrowed from reference motion-design notes, with the receipts from this repo.
 - **The white flash**: a moving cut or a fading background reveals a light page behind dark content. Match the ground to the content, and never fade a full-bleed background out ([ground-jump-cover](../rules/ground-jump-cover.md)).
 - **The monotone**: every entrance is the same duration. It reads as a machine narrating. Timing is a voice ([speed-bands](../rules/speed-bands.md)).
 - **The chord that should be an arpeggio**, and the reverse: a group that all lands at once, or a stagger too wide ([stagger](../rules/stagger.md)).
-- **Cheap aliveness**: something loops or breathes near text being read. Stillness with one part moving slowly is the only honest "alive"; a camera drift on every hold is the lazy version ([constant-camera](../rules/constant-camera.md)).
+- **Cheap aliveness**: something loops or breathes near text being read. Stillness with one part moving slowly, or one slow camera ease, is honest "alive"; a slow camera ease over each shot is the house default ([constant-camera](../rules/constant-camera.md)).
 - **The invisible effect**: a displacement wash on smooth material, a glow on dark content, a blinds slat nobody can perceive ([legible-effect](../rules/legible-effect.md)).
 - **The unearned claim**: copy says "26 looks" and 26 looks do not appear ([claim-backed](../rules/claim-backed.md)).
 - **Centred everything**: one size, everything centred, a generic face, a blue to purple gradient. Asymmetry over centred; one huge hero and one tiny caption; a committed non-generic face; one accent hue ([asymmetry](../rules/asymmetry.md), [typeface-default](../rules/typeface-default.md), [no-tells](../rules/no-tells.md)).

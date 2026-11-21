@@ -86,7 +86,7 @@ One rule per file in `taste/rules/<id>.md`. Ids never change. Everything else he
 - [blur-follows-motion](rules/blur-follows-motion.md): Blur follows motion: a still thing never blurs. Check: judge.
 - [blur-out-dense](rules/blur-out-dense.md): Faces, cards and dense grids leave through focus, not through space. Check: judge.
 - [cause-first](rules/cause-first.md): Feedback follows its cause: a click burst after the press, a pop after the window starts, a sound on its own action, never before it. Check: judge.
-- [constant-camera](rules/constant-camera.md): The camera holds still by default and moves only with a reason: the spectacle, a reveal. Check: constant-camera.
+- [constant-camera](rules/constant-camera.md): One slow camera ease per shot is the house default. Check: constant-camera.
 - [entrance-ease](rules/entrance-ease.md): An entrance is a landing: it decelerates on EASE.land and shows most of its move by frame 1. Check: judge.
 - [entrance-origin](rules/entrance-origin.md): Motion explains: one entrance per beat, and it says where the thing came from (origin at its trigger, a wipe on the motion, a match on a shape). Check: judge, entrance-direction.
 - [exits-shorter](rules/exits-shorter.md): An exit is a launch: it runs shorter than its entrance and accelerates. Check: exit-length.

@@ -142,9 +142,9 @@ An exit is a launch: it runs shorter than its entrance and accelerates. A card t
 
 ### live-hold
 
-A hold keeps life through a part that moves inside the frame: a line typing, a counter, a glint, a secondary action. A readable hold is good; a frozen frame is not a hold. A camera drift or push does not count, the camera holds still by default.
+A hold keeps life through a part that moves inside the frame: a line typing, a counter, a glint, a secondary action. A readable hold is good; a frozen frame is not a hold. A slow camera ease (under 400 px/s) counts as motion: one slow ease per shot keeps a hold alive.
 
-- Limit: no span longer than 0.5 s outside a declared hold where no part of the frame moves by itself (a whole-frame move does not count); a move never jumps speed from one frame to the next: stopping within one step from over 600 px/s (position) or 0.6 scale units per second (zoom) is a jolt
+- Limit: no span longer than 0.5 s outside a declared hold where no part of the frame moves by itself (a slow whole-frame move, under 400 px/s, counts; a fast one does not); a move never jumps speed from one frame to the next: stopping within one step from over 600 px/s (position) or 0.6 scale units per second (zoom) is a jolt
 - Range: an element move with slow ease at both ends; a rest of 0.4 to 0.6 s after an element settles; ambient motion is the smallest of the three motion levels (primary, secondary, ambient): a glint or a colour shift on a part, a field at about 0.3 intensity, one overlay per film (VHS, CRT, film grain, or a real lens effect from prompts/moves/lens.md) at 0.6 to 0.9, never behind small body copy, never two together
 - Judge: Is there a 0.5 s span where nothing moves and no hold is declared? Does any move stop within one frame? Is the same ambient on every scene, or does anything loop near text?
 

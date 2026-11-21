@@ -73,7 +73,7 @@ const ROWS = {
   'frozen runs of 3+ frames inside a shot': (m, pass) => countRow(m.smooth?.frozen, pass, (f) => `${f.t.toFixed(2)} s: ${f.frames} frames still between moves`, 'keep the motion going through those frames, or finish the move before the stop'),
   'jerky steps': (m, pass) => countRow(m.smooth?.jerky, pass, (j) => `${j.t.toFixed(2)} s: speed changes ${j.ratio.toFixed(1)}x in one frame`, 'ease the start and the stop of the move instead of a sudden speed change'),
   'jumps not at a declared cut': (m, pass) => countRow(m.smooth?.jumps, pass, (j) => `${j.t.toFixed(2)} s: the picture jumps (${j.mag.toFixed(0)} of 255) with no cut declared`, 'move the cut to a Shots boundary, or soften the jump'),
-  'still windows over 0.5 s outside a declared hold': (m, pass) => countRow(m.stills, pass, (r) => `${r.a}-${r.b} s ${r.camera ? 'only the camera moves' : 'held still'}`, 'give the hold an element motion (a camera drift does not count), or declare the hold with static-window@a-b and a _why'),
+  'still windows over 0.5 s outside a declared hold': (m, pass) => countRow(m.stills, pass, (r) => `${r.a}-${r.b} s ${r.camera ? 'only the camera moves' : 'held still'}`, 'give the hold an element motion (a slow camera ease counts), or declare the hold with static-window@a-b and a _why'),
   'near-identical tail tiles': (m, pass) => (m.tail == null ? skip('the draft video was not read') : done(pass(m.tail), String(m.tail), m.tail ? ['the last tiles of the judge sheet barely change: add a move near the end'] : [])),
   'text cap height': (m, pass) => {
     if (!m.caps) return skip('no text probe');

@@ -49,9 +49,9 @@ test('honest: a lit ground, element motion in every hold and a moving tail pass 
   assert.deepEqual(heldWorlds(r.probe.worlds, 2, pageAuthoring(pagePath('honest'))), []);
 });
 
-test('trick: a camera drift on every hold is a constant camera, and does not keep the tail alive', async () => {
+test('a slow camera ease on every hold is the house default, not a constant camera; it still does not keep the tail alive', async () => {
   const r = await readFixture('drift-every-hold');
-  assert.ok(has(r, /constant-camera: the camera moves for 100% of the film/));
+  assert.ok(!has(r, /constant-camera/));
   assert.equal(tailMoving(r.probe.tail), false);
 });
 

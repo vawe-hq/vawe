@@ -4,12 +4,12 @@ import { worldSpans, heldWorlds } from '../../harness/lib/worlds.mjs';
 import { firedFor } from '../../harness/lib/plan-parts.mjs';
 
 const world = (clips) => ({ id: 's3', visible: true, ground: '#111111', texts: [], shape: ['video.|||x'], clips });
-const samples = (clips, seconds = 4) => Array.from({ length: seconds * 10 + 1 }, (_, i) => ({ t: i / 10, worlds: [world(clips)] }));
-const held = (clips) => heldWorlds(worldSpans(samples(clips), { step: 0, dur: 4 }));
+const samples = (clips, seconds = 8) => Array.from({ length: seconds * 10 + 1 }, (_, i) => ({ t: i / 10, worlds: [world(clips)] }));
+const held = (clips) => heldWorlds(worldSpans(samples(clips), { step: 0, dur: 8 }));
 
 test('a world that plays a video clip is not held still', () => {
-  assert.equal(held([{ rate: 1, range: 4 }]).length, 0);
-  assert.equal(held([{ rate: 0.5, range: 3 }]).length, 0);
+  assert.equal(held([{ rate: 1, range: 8 }]).length, 0);
+  assert.equal(held([{ rate: 0.5, range: 6 }]).length, 0);
   assert.equal(held([{ rate: 1, range: null }]).length, 0, 'an unknown range counts as playing');
 });
 

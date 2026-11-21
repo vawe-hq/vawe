@@ -12,20 +12,20 @@ test('samePage: relative and absolute spellings of one page match', () => {
 });
 
 test('problemsOf: worst first, seconds named, small things ignored', () => {
-  const out = problemsOf(stats({ duration: 10, turns: [{ t: 6.5 }], static: [{ a: 1, b: 2.5, len: 1.5 }, { a: 8, b: 8.5, len: 0.5 }] }), [{ a: 4, b: 4.4 }]);
-  assert.deepEqual(out, ['world held 0.0-6.5 s (6.5 s)', 'world held 6.5-10.0 s (3.5 s)', 'static window 1-2.5 s (1.5 s, limit 0.5 s): nothing moves; give the hold an element motion (glint(el, { at, dur }) or breathe(el, { at, dur }) from core/motion/alive.js, a counter or typing), not a camera drift; ' + waiverHint('static-window@1-2.5'), 'blank frame 4.0-4.4 s']);
+  const out = problemsOf(stats({ duration: 15, turns: [{ t: 7.5 }], static: [{ a: 1, b: 2.5, len: 1.5 }, { a: 8, b: 8.5, len: 0.5 }] }), [{ a: 4, b: 4.4 }]);
+  assert.deepEqual(out, ['world held 0.0-7.5 s (7.5 s)', 'world held 7.5-15.0 s (7.5 s)', 'static window 1-2.5 s (1.5 s, limit 0.5 s): nothing moves; give the hold an element motion (glint(el, { at, dur }) or breathe(el, { at, dur }) from core/motion/alive.js, a counter or typing, or one slow camera ease (under 400 px/s)); ' + waiverHint('static-window@1-2.5'), 'blank frame 4.0-4.4 s']);
 });
 
 test('problemsOf: measured data-world spans replace the pixel turns', () => {
-  const worlds = [{ id: 'a', start: 0, end: 2, ground: '#fff' }, { id: 'b', start: 2, end: 6, ground: '#fff' }];
-  const out = problemsOf(stats({ turns: [], duration: 6 }), [], undefined, {}, worlds);
-  assert.deepEqual(out, [`world held b 2-6 s (4 s, limit 2 s); ${waiverHint('world-held@2-6')}`]);
+  const worlds = [{ id: 'a', start: 0, end: 2, ground: '#fff' }, { id: 'b', start: 2, end: 10, ground: '#fff' }];
+  const out = problemsOf(stats({ turns: [], duration: 10 }), [], undefined, {}, worlds);
+  assert.deepEqual(out, [`world held b 2-10 s (8 s, limit 7 s); ${waiverHint('world-held@2-10')}`]);
 });
 
 test('problemsOf: a swap the pixels see is no turn when the worlds are measured, and a page with no worlds keeps the pixel turns', () => {
   const worlds = [{ id: 'a', start: 0, end: 2, ground: '#fff' }, { id: 'b', start: 2, end: 4, ground: '#fff' }];
   assert.deepEqual(problemsOf(stats({ turns: [{ t: 5.5 }], duration: 6 }), [], undefined, {}, worlds), []);
-  assert.deepEqual(problemsOf(stats({ turns: [], duration: 6 }), [], undefined, {}, []), ['world held 0.0-6.0 s (6.0 s)']);
+  assert.deepEqual(problemsOf(stats({ turns: [], duration: 8 }), [], undefined, {}, []), ['world held 0.0-8.0 s (8.0 s)']);
 });
 
 test('problemsOf: a clean film has none', () => {

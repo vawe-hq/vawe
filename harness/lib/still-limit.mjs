@@ -35,8 +35,8 @@ export function stillText(r, limit = STILL_SEC) {
 
 const stillMeasured = (r, limit) => `static window ${r.a}-${r.b} s (${r.len} s, limit ${limit} s)`;
 const OPENING_S = 0.3;
-const LIVE = 'glint(el, { at, dur }) or breathe(el, { at, dur }) from core/motion/alive.js, a counter or typing';
-const stillFix = (r) => `${r.a < OPENING_S ? 'start the first entrance at 0 to 0.3 s (rule first-frame), or ' : ''}give the hold an element motion (${LIVE}), not a camera drift; ${waiverHint(`static-window@${r.a}-${r.b}`)}`;
+const LIVE = 'glint(el, { at, dur }) or breathe(el, { at, dur }) from core/motion/alive.js, a counter or typing, or one slow camera ease (under 400 px/s)';
+const stillFix = (r) => `${r.a < OPENING_S ? 'start the first entrance at 0 to 0.3 s (rule first-frame), or ' : ''}give the hold an element motion (${LIVE}); ${waiverHint(`static-window@${r.a}-${r.b}`)}`;
 
 /** The { kind, at, measured, fix } of one still run (the same run stillText words). Pure. */
 export const stillItem = (r, limit = STILL_SEC) => ({ kind: 'static-window', at: r.a, measured: stillMeasured(r, limit), fix: stillFix(r) });

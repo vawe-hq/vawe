@@ -364,7 +364,7 @@
    },
    {
     "rule": "live-hold",
-    "text": "keep one part moving in every hold (typing, a counter, glint() or breathe() from core/motion/alive.js), not a frozen frame and not a camera drift",
+    "text": "keep one part moving in every hold (typing, a counter, glint() or breathe() from core/motion/alive.js), or one slow camera ease over the shot, not a frozen frame",
     "craft": "motion-craft"
    },
    {
@@ -421,7 +421,7 @@
    },
    {
     "rule": "constant-camera",
-    "text": "hold the camera still and give the hold an element motion, moving it for at most 60 percent of the film and 4 worlds in a row, not a drift on every beat",
+    "text": "ease the camera once per shot, not on every beat of a film declared `camera: still` (at most 60 percent of the film and 4 worlds in a row)",
     "craft": "motion-craft"
    },
    {

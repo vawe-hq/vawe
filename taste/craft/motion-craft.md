@@ -38,7 +38,7 @@ effect choice is in [selection.md](selection.md). Restraint by film type is belo
 | Settle and hold | A clip, card or line of text stays still long enough to read. | [readable-hold](../rules/readable-hold.md) |
 | One hero motion per beat | One element owns the motion; the rest supports quietly. Two competing animations read as none. | [one-hero-motion](../rules/one-hero-motion.md) |
 | Rotate layout archetypes | Never the same archetype twice in a row. | [archetype-rotation](../rules/archetype-rotation.md) |
-| Velocity contrast between beats | A fast beat earns a still one. The still keeps one part moving (not a camera drift). | [live-hold](../rules/live-hold.md) |
+| Velocity contrast between beats | A fast beat earns a still one. The still keeps one part moving, or one slow camera ease. | [live-hold](../rules/live-hold.md) |
 | Cover the hard cut | A background jump (dark to light) wants a sting that peaks at the cut. Same-background scenes can whip or slide raw. | [ground-jump-cover](../rules/ground-jump-cover.md) |
 | Type moves like it reads | Text enters in reading order, rises from its own baseline, and never crosses another line's path. | [arrival-rhythm](../rules/arrival-rhythm.md) |
 
@@ -60,7 +60,7 @@ effect choice is in [selection.md](selection.md). Restraint by film type is belo
 
 - **Primary** drives the beat: the one hero motion.
 - **Secondary** reacts to the primary and stays quieter (a shadow settles a beat after its card).
-- **Ambient** keeps a held frame alive without asking to be watched: a slow breathe or glint on a part, or the ground. Not a camera drift: the camera holds still unless the beat earns a move ([constant-camera](../rules/constant-camera.md)). It is the
+- **Ambient** keeps a held frame alive without asking to be watched: a slow breathe or glint on a part, or the ground. A slow camera ease over the shot counts ([constant-camera](../rules/constant-camera.md)). It is the
   smallest of the three by design ([live-hold](../rules/live-hold.md)).
 
 Time them by offset, not simultaneity: motions sharing a beat start at different moments, in

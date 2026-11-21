@@ -52,14 +52,14 @@ test('the Spec and Acceptance tables have the fixed header rows', () => {
 });
 
 test('Shots has one row per starter world with its span; Words and Objects one guessed example each', () => {
-  const { text } = briefFor('beat-sheet.md', { length: 10, title: 'Ship faster' });
+  const { text } = briefFor('beat-sheet.md', { length: 30, title: 'Ship faster' });
   const spec = text.split('## Spec')[1].split('## Acceptance')[0];
   const rows = spec.split('\n').filter((l) => l.includes(GUESS));
-  assert.equal(rows.length, 7);
-  assert.match(rows[0], /^\| s1 \| 0 \| 2\.33 \| Ship faster \(guess: change me\) \|/);
-  assert.match(rows[2], /^\| s3 \| 4\.\d+ \| 6\.1\d \| one fact \(guess: change me\) \|/);
-  assert.match(rows[3], /^\| s4 \| 6\.1\d \| 8\.1\d \| no words: the ground carries it \(guess: change me\) \| ground bloom \|/);
-  assert.match(rows[5], /^\| Ship faster \(guess: change me\) \| s1 \|/);
+  assert.equal(rows.length, 8);
+  assert.match(rows[0], /^\| s1 \| 0 \| 5 \| Ship faster \(guess: change me\) \|/);
+  assert.match(rows[2], /^\| s3 \| 10 \| 15 \| one fact \(guess: change me\) \|/);
+  assert.match(rows[3], /^\| s4 \| 15 \| 20 \| no words: the ground carries it \(guess: change me\) \| ground bloom \|/);
+  assert.match(rows[6], /^\| Ship faster \(guess: change me\) \| s1 \|/);
 });
 
 test('every field the request does not answer is a marked guess, and one line names them', () => {
