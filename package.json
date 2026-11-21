@@ -13,6 +13,7 @@
     "core",
     "harness",
     "prompts",
+    "!prompts/moves/clips",
     "taste",
     "guides",
     "skills",
