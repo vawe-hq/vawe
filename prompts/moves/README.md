@@ -201,7 +201,7 @@ One row per job, best move first. Every built move is in this table.
 | [parallax dive](parallax-dive.md) | the camera flies forward through layers at real depths: near layers rush past, the far ground barely moves; also one camera move on ground, mid and front layers by depth (`parallax()`) |
 | [exposure flash](exposure-flash.md) | a cut on a screen film reads as over-exposure: 3 frames of white, the swap inside the peak, the new shot starts at 2x brightness and settles in 0.15 s; at most 3 flashes a second |
 | [lens](lens.md) | a screen filmed as a real object: tilt, depth, bloom, LED grid, fringes, done as lens work and never faked with CSS layers |
-| [camera moves](camera-moves.md) | a whole world as one wrapper: push toward a subject (the ground scales less so the layers separate), pull, whip between worlds (`camera()`); the camera holds still by default |
+| [camera moves](camera-moves.md) | a whole world as one wrapper: push toward a subject (the ground scales less so the layers separate), pull, whip between worlds (`camera()`); one slow ease per shot by default |
 | [depth resolve](depth-resolve.md) | far words small and soft resolve as the camera arrives; a focus pull (`focus()`) |
 | [scale through](scale-through.md) | fly into a plain element and its colour is the next world, in Web Animations only |
 | [direction wipe](direction-wipe.md) | a mask edge moves the way the last move went and reveals the next beat |

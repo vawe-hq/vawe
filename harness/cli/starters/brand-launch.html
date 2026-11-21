@@ -10,7 +10,7 @@
 <title>{{title}}</title>
 <!-- a brand launch: s1 hook, s2 the product working (statuses change on screen), s3 a second moment (a rule switches on), s4 the number, s5 and s6 proof (no words: the bars and the line carry it), s7 the end card with the brand (the spectacle: the mark lands on it).
   The mark is the thread: it rides over every cut and ends as the end card's mark. Replace the stand-in rows with the product's real screen and
-  numbers, the square with the brand mark, the grey with the palette and the face with the brand's; keep the order. -->
+  numbers, the square with the brand mark, the dark placeholder ground and key with the palette and the face with the brand's; keep the order. -->
 <style>
   @font-face { font-family: "{{family}}"; src: url("assets/{{font}}") format("woff2"); font-weight: 100 900; }
   :root { --ground: {{ground}} /* unchosen: palette dial */; --ink: {{ink}} /* unchosen: palette dial */; --key: {{key}} /* the one hue: palette dial */; --unit: min(var(--vh), calc(var(--vw) * 0.56)); {{beats}} }
@@ -83,14 +83,14 @@ $('.thread').animate([{ rotate: '0deg' }, { rotate: '90deg' }], { delay: (beat(w
 const MOVES = {};
 // s1 hook: rises from below
 MOVES.s1 = () => {
-  layer($('h1'), $('.hook .line'), { at: 0.05, band: 'gravity', blur: 10, from: '0 0.4em', secondary: { blur: 6 } });
+  layer($('h1'), $('.hook .line'), { at: 0.05, blur: 10, from: '0 0.4em', secondary: { blur: 6 } });
 };
 
 // s2 the product working: the panel slides in from the right and its rows follow; the meter fills slowly and the statuses change together
 MOVES.s2 = (i) => {
   const [ui] = span[i];
-  enter($('.shipments'), { at: ui, band: 'gravity', from: '3em 0' });
-  stagger($$('.shipments header, .shipments li'), { at: when(i, 0.17), band: 'gravity', from: '0 0.6em' });
+  enter($('.shipments'), { at: ui, from: '3em 0' });
+  stagger($$('.shipments header, .shipments li'), { at: when(i, 0.17), from: '0 0.6em' });
   $('.meter i').animate([{ scale: '0.15 1' }, { scale: '1 1' }], { delay: when(i, 0.3) * 1000, duration: over(i, 0.57) * 1000, easing: EASE.glide, fill: 'both' });
   const flip = when(i, 0.55);
   $$('.status > :first-child').forEach((old, k) => old.animate([{ opacity: 1 }, { opacity: 0 }], { delay: (flip + k * 0.08) * 1000, duration: 150, easing: EASE.land, fill: 'both' }));
@@ -103,9 +103,9 @@ MOVES.s2 = (i) => {
 
 // s3 a second moment: the rules card slides in from the left, its rows follow and each switch flips on with a spring
 MOVES.s3 = (i) => {
-  enter($('.rules'), { at: span[i][0], band: 'gravity', from: '-3em 0' });
-  stagger($$('.rules header, .rules li'), { at: when(i, 0.17), band: 'gravity', from: '-1.5em 0' });
-  $$('.switch i').forEach((knob, k) => knob.animate([{ translate: '0 0' }, { translate: '1em 0' }], { delay: when(i, 0.43 + k * 0.22) * 1000, duration: over(i, 0.2) * 1000, easing: EASE.pop, fill: 'both' }));
+  enter($('.rules'), { at: span[i][0], from: '-3em 0' });
+  stagger($$('.rules header, .rules li'), { at: when(i, 0.17), from: '-1.5em 0' });
+  $$('.switch i').forEach((knob, k) => knob.animate([{ translate: '0 0' }, { translate: '1em 0' }], { delay: when(i, 0.43 + k * 0.22) * 1000, duration: over(i, 0.2) * 1000, easing: EASE.land, fill: 'both' }));
 
   const rulesPunch = (at, to) => $('.rules').animate([{ scale: to[0] }, { scale: to[1] }], { delay: at * 1000, duration: over(i, 0.22) * 1000, easing: EASE.land, fill: 'both' });
   rulesPunch(when(i, 0.43), [1, 1.14]);
@@ -115,8 +115,8 @@ MOVES.s3 = (i) => {
 // s4 the number: it drops in from above and its line rises under it
 MOVES.s4 = (i) => {
   const [count] = span[i];
-  enter($('.count .big'), { at: count, band: 'gravity', from: '0 -0.5em' });
-  enter($('.count .line'), { at: when(i, 0.23), band: 'gravity', from: '0 0.4em' });
+  enter($('.count .big'), { at: count, from: '0 -0.5em' });
+  enter($('.count .line'), { at: when(i, 0.23), from: '0 0.4em' });
   const figures = [...$$('.big span')];
   figures.forEach((figure, k) => {
     figure.animate([{ opacity: 0 }, { opacity: 1 }], { delay: when(i, k * 0.27) * 1000, duration: 1, fill: 'both' });
@@ -138,8 +138,8 @@ MOVES.s6 = (i) => {
 // s7 end card: the mark lands, the name and one line arrive with it (the spectacle: the mark lands)
 MOVES.s7 = (i) => {
   const [card] = span[i];
-  enter($('.card h1'), { at: card + 0.05, band: 'gravity', from: '0 0.4em' });
-  enter($('.card .line'), { at: when(i, 0.55), band: 'gravity', from: '0 0.4em' });
+  enter($('.card h1'), { at: card + 0.05, from: '0 0.4em' });
+  enter($('.card .line'), { at: when(i, 0.55), from: '0 0.4em' });
 };
 
 worlds.forEach((world, i) => MOVES[world.dataset.world]?.(i));

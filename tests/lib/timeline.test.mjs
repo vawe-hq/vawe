@@ -38,10 +38,10 @@ test('a cut lasts until the next world starts', () => {
   assert.deepEqual(worldRows(spans).map((w) => [w.id, w.cut]), [['a', 0.5], ['b', 1.5], ['c', 3]]);
 });
 
-test('the rhythm line flags equal cuts, no quick cut and no slow cut with the board checks', () => {
+test('the rhythm line flags equal cuts and no slow cut with the board checks', () => {
   const t = (cuts) => timelineOf({ spans: cuts.map((c, i) => ({ id: `w${i}`, start: cuts.slice(0, i).reduce((a, b) => a + b, 0), end: cuts.slice(0, i + 1).reduce((a, b) => a + b, 0) })), specs: [], duration: 9, spectacle: null }).rhythm.advice;
-  assert.deepEqual(t([0.6, 0.6, 0.6]), ['all 3 cuts last 0.6 s; vary them', 'no cut under 0.4 s; add one quick cut', 'no cut over 0.9 s; add one slow cut']);
-  assert.deepEqual(t([0.3, 1.5, 0.7]), []);
+  assert.deepEqual(t([0.6, 0.6, 0.6]), ['all 3 cuts last 0.6 s; vary them', 'no cut over 0.9 s; add one slow cut']);
+  assert.deepEqual(t([0.5, 1.5, 0.7]), []);
 });
 
 test('the timeline puts the spectacle and every cue in its world, the bed apart', () => {

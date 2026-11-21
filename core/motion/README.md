@@ -80,7 +80,7 @@ Advice only; each is waived in the page with a reason. The numbers and their sou
 - Arcs: `vawe see` prints how far a move bows off its straight line. It is a number, never a gate: straight moves read clean on type and UI.
 - Squash and stretch: only for a named physical object (a ball, a blob, a rubber stamp): scale along the travel axis, the cross axis inverse, volume kept. Never on type, a logo or UI, which have no mass.
 
-The camera holds still by default and moves only with a reason: the spectacle, a reveal. Nothing here starts a camera for you, and a drift on every hold is not a live hold: the live-hold check leaves whole-frame moves out and constant-camera flags a camera that never rests. Keep a hold alive with an element motion (typing, a counter, a glint, a secondary action).
+One slow camera ease per shot (under 400 px/s) is the house default, and it keeps a hold alive; a fast whole-frame move does not, so the live-hold check leaves it out. Nothing here starts a camera for you. constant-camera flags a camera that never rests only in a film whose DESIGN.md says `camera: still`. An element motion (typing, a counter, a glint, a secondary action) also keeps a hold alive.
 
 `camera(wrapper, { kind, at, band | duration, from, to, origin, strength, dir })` is one camera move on the element that holds a whole world,
 in transforms only, so the seek runs it. `kind`: `push` (scale 1 to 1.12 on `glide`), `pull` (1.15 to 1 on `settle`), `drift` (a slow slide

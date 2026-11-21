@@ -231,7 +231,7 @@ export function staggerTimes(n, { at = 0, gap = signedGap(), seed = 1 } = {}) {
   return times;
 }
 
-// Every nth arrival (the nth, 2nth, ...) overshoots by about 6 per cent; the reference films overshoot 21 to 41 per cent of theirs.
+// Every nth arrival (the nth, 2nth, ...) overshoots by about 6 per cent.
 const springs = (nudgeEvery, i, ease) => (nudgeEvery > 0 && (i + 1) % nudgeEvery === 0 ? 'nudge' : ease);
 
 /** enter() on each element in order, on staggerTimes. opts: enter's, plus gap, seed and nudgeEvery (every nth element lands on EASE.nudge). */

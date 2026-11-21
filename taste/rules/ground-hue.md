@@ -19,7 +19,7 @@ craft: color
 
 ## Example
 
-Wrong: six worlds on blue-grey grounds from L 18 to L 64. Right: two of the six worlds on a warm or green ground from the palette.
+Wrong: a ground that flips from light grey to dark on every cut. Right: one tinted near-black ground with one key light; when a named reference turns its ground, two of the six worlds on a warm or green ground from the palette.
 
 Draft check: `bin/vawe dev` reads the ground of every world (the median colour of the frame edge, the measure that read the reference films) and prints one line when three or more worlds stay within 40 degrees of hue. A ground with Lab chroma under 6 is neutral and has no hue, so a film that mixes neutral and tinted grounds is not flagged. When the brief names a reference, the line adds where that reference turns its ground. Advice only.
 

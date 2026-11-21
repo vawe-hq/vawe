@@ -41,7 +41,7 @@ had to be replanned. So when the question is how something moves, take a contigu
 
 A good reference does these and our defaults do not. Reach for them on purpose, and name the target of each.
 
-1. Never dead. A part of every beat is in motion (a line typing, a counter, a glint, a secondary action): that is the alive-versus-slideshow lever. The camera holds still unless the beat earns a move; scale with `transform`, never font-size (reflow jitters).
+1. Never dead. A part of every beat is in motion (a line typing, a counter, a glint, a secondary action): that is the alive-versus-slideshow lever. The camera makes one slow ease per shot, and a faster move only when the beat earns it; scale with `transform`, never font-size (reflow jitters).
 2. Motion carries through the seam: the outgoing beat zooms out as the incoming zooms in, not a
    background swap.
 3. Massive scale and frame bleed. One huge word, tiny everything else, reads as confident. A timid

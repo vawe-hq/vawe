@@ -3,7 +3,6 @@
 import { cellsOf, numberOf } from './brief-tables.mjs';
 import { metaOf } from './page-meta.mjs';
 
-export const CUT_SHORT_S = 0.4;
 export const CUT_LONG_S = 0.9;
 export const SPECTACLE_TOLERANCE_S = 0.25;
 export const LENGTH_TOLERANCE_S = 0.5;
@@ -97,12 +96,11 @@ export function lockedSpectacle(brief, pageSpectacle) {
 
 const s1 =(x) => `${Math.round(x * 100) / 100}`;
 
-/** Rhythm advice for cut lengths in seconds: all equal, none under CUT_SHORT_S, none over CUT_LONG_S. [] for fewer than 2 cuts. Pure. */
+/** Rhythm advice for cut lengths in seconds: all equal, or none over CUT_LONG_S (no cut breathes longer). [] for fewer than 2 cuts. Pure. */
 export function cutAdvice(cuts) {
   if (cuts.length < 2) return [];
   const lines = [];
   if (cuts.every((c) => c === cuts[0])) lines.push(`all ${cuts.length} cuts last ${s1(cuts[0])} s; vary them`);
-  if (cuts.every((c) => c >= CUT_SHORT_S)) lines.push(`no cut under ${CUT_SHORT_S} s; add one quick cut`);
   if (cuts.every((c) => c <= CUT_LONG_S)) lines.push(`no cut over ${CUT_LONG_S} s; add one slow cut`);
   return lines;
 }

@@ -11,7 +11,7 @@
 <!-- a story: s1 the problem, s2 the mechanism (a token runs the steps), s3 a rule picks the route, s4 the ledger (statuses change), s5 the number, s6 the gap closing (no words),
   s7 the figures, s8 the check (no words), s9 the claim in five words, s10 the dots (no words), s11 the bars (no words), s12 the end with the brand (the spectacle: the mark lands).
   The mark is the thread: it rides over every cut and ends as the end card's mark. Replace the steps with the real mechanism, the numbers with the real ones,
-  the square with the brand mark, the grey with the palette and the face with the brand's; keep the order. Every move inside a world is timed as a share of that world. -->
+  the square with the brand mark, the dark placeholder ground and key with the palette and the face with the brand's; keep the order. Every move inside a world is timed as a share of that world. -->
 <style>
   @font-face { font-family: "{{family}}"; src: url("assets/{{font}}") format("woff2"); font-weight: 100 900; }
   :root { --ground: {{ground}} /* unchosen: palette dial */; --ink: {{ink}} /* unchosen: palette dial */; --key: {{key}} /* the one hue: palette dial */; --unit: min(var(--vh), calc(var(--vw) * 0.56)); {{beats}} }
@@ -92,13 +92,13 @@ $('.thread').animate([{ rotate: '0deg' }, { rotate: '90deg' }], { delay: (beat(w
 const MOVES = {};
 // s1 the problem: rises from below
 MOVES.s1 = (i) => {
-  layer($('h1'), [...$$('.problem .line')], { at: 0.05, overlap: 0.6, band: 'gravity', blur: 10, from: '0 0.4em', secondary: { blur: 6 } });
+  layer($('h1'), [...$$('.problem .line')], { at: 0.05, overlap: 0.6, blur: 10, from: '0 0.4em', secondary: { blur: 6 } });
 };
 
 // s2 the mechanism: the steps arrive from the right and the links draw; the token runs step to step and each step lights as it arrives
 MOVES.s2 = (i) => {
   const nodes = [...$$('.node')];
-  stagger(nodes, { at: span[i][0], band: 'gravity', from: '2em 0' });
+  stagger(nodes, { at: span[i][0], from: '2em 0' });
   $$('.link').forEach((link, k) => link.animate([{ scale: '0 1' }, { scale: '1 1' }], { delay: when(i, 0.1 + k * 0.08) * 1000, duration: over(i, 0.2) * 1000, easing: EASE.land, fill: 'both' }));
   const left = (el) => el.getBoundingClientRect().left;
   const [HOP, REST] = [over(i, 0.19), over(i, 0.06)];
@@ -115,15 +115,15 @@ MOVES.s2 = (i) => {
 
 // s3 a rule picks the route: the chips drop in from above, the chosen one fills and the others shrink
 MOVES.s3 = (i) => {
-  stagger($$('.chip'), { at: span[i][0], band: 'gravity', from: '0 -1em' });
+  stagger($$('.chip'), { at: span[i][0], from: '0 -1em' });
   $('.chip.chosen').animate([{ scale: '1', backgroundColor: 'transparent' }, { scale: '1.25', backgroundColor: 'var(--ink)', color: 'var(--ground)' }, { scale: '1.15', backgroundColor: 'var(--ink)', color: 'var(--ground)' }], { delay: when(i, 0.3) * 1000, duration: over(i, 0.3) * 1000, easing: EASE.pop, fill: 'both' });
   $$('.chip:not(.chosen)').forEach((chip) => chip.animate([{ scale: '1', translate: '0 0' }, { scale: '0.8', translate: '0 0.3em' }], { delay: when(i, 0.55) * 1000, duration: over(i, 0.33) * 1000, easing: EASE.land, fill: 'both' }));
 };
 
 // s4 the ledger: the rows rise in, then the statuses change together
 MOVES.s4 = (i) => {
-  enter($('.ledger'), { at: span[i][0], band: 'gravity', from: '3em 0' });
-  stagger($$('.ledger li'), { at: when(i, 0.12), band: 'gravity', from: '0 0.6em' });
+  enter($('.ledger'), { at: span[i][0], from: '3em 0' });
+  stagger($$('.ledger li'), { at: when(i, 0.12), from: '0 0.6em' });
   const flip = when(i, 0.5);
   $$('.status > :first-child').forEach((old, k) => old.animate([{ opacity: 1 }, { opacity: 0 }], { delay: (flip + k * 0.08) * 1000, duration: 150, easing: EASE.land, fill: 'both' }));
   stagger($$('.status > :last-child'), { at: flip + 0.2, band: 'energy', from: '0 0.4em' });
@@ -134,8 +134,8 @@ MOVES.s4 = (i) => {
 
 // s5 the number counts up: it drops in, the figure changes twice and its line rises under it
 MOVES.s5 = (i) => {
-  enter($('.count h2'), { at: span[i][0], band: 'gravity', from: '0 -0.5em' });
-  enter($('.count .line'), { at: when(i, 0.2), band: 'gravity', from: '0 0.4em' });
+  enter($('.count h2'), { at: span[i][0], from: '0 -0.5em' });
+  enter($('.count .line'), { at: when(i, 0.2), from: '0 0.4em' });
   [...$$('.count h2 span')].forEach((figure, k, all) => {
     figure.animate([{ opacity: 0 }, { opacity: 1 }], { delay: when(i, k * 0.27) * 1000, duration: 1, fill: 'both' });
     if (k + 1 < all.length) figure.animate([{ opacity: 1 }, { opacity: 0 }], { delay: when(i, (k + 1) * 0.27) * 1000, duration: 1, fill: 'forwards' });
@@ -144,14 +144,14 @@ MOVES.s5 = (i) => {
 
 // s6 the gap closes, with no words: the long bar slides in from the right, the short one lands and pops
 MOVES.s6 = (i) => {
-  $$('.gap > div').forEach((row, k) => enter(row, { at: when(i, k * 0.25), band: 'gravity', from: '3em 0' }));
+  $$('.gap > div').forEach((row, k) => enter(row, { at: when(i, k * 0.25), from: '3em 0' }));
   $('.gap .after i').animate([{ scale: '1' }, { scale: '1.15 1.4' }, { scale: '1' }], { delay: when(i, 0.55) * 1000, duration: over(i, 0.3) * 1000, easing: EASE.pop, fill: 'both' });
 };
 
 // s7 the figures: the days drop in, the figure counts down and its line rises
 MOVES.s7 = (i) => {
-  enter($('.days h2'), { at: span[i][0], band: 'gravity', from: '0 -0.5em' });
-  enter($('.days .line'), { at: when(i, 0.2), band: 'gravity', from: '0 0.4em' });
+  enter($('.days h2'), { at: span[i][0], from: '0 -0.5em' });
+  enter($('.days .line'), { at: when(i, 0.2), from: '0 0.4em' });
   [...$$('.days h2 span')].forEach((figure, k, all) => {
     figure.animate([{ opacity: 0 }, { opacity: 1 }], { delay: when(i, k * 0.2) * 1000, duration: 1, fill: 'both' });
     if (k + 1 < all.length) figure.animate([{ opacity: 1 }, { opacity: 0 }], { delay: when(i, (k + 1) * 0.2) * 1000, duration: 1, fill: 'forwards' });
@@ -166,7 +166,7 @@ MOVES.s8 = (i) => {
 
 // s9 the claim: the words arrive one after another and a line draws under them
 MOVES.s9 = (i) => {
-  $$('.claim span').forEach((word, k, all) => enter(word, { at: when(i, 0.04 + k * 0.1), band: 'gravity', from: k % 2 ? '0 -0.5em' : '0 0.5em', ease: 'land' }));
+  $$('.claim span').forEach((word, k, all) => enter(word, { at: when(i, 0.04 + k * 0.1), from: k % 2 ? '0 -0.5em' : '0 0.5em', ease: 'land' }));
 
   $('.rule').animate([{ scale: '0 1' }, { scale: '1 1' }], { delay: when(i, 0.55) * 1000, duration: over(i, 0.3) * 1000, easing: EASE.land, fill: 'both' });
 };
@@ -184,8 +184,8 @@ MOVES.s11 = (i) => {
 // s12 the end card: the mark lands, the name and one line arrive with it (the spectacle: the mark lands)
 MOVES.s12 = (i) => {
   const [card] = span[i];
-  enter($('.card h1'), { at: card + 0.05, band: 'gravity', from: '0 0.4em' });
-  enter($('.card .line'), { at: when(i, 0.5), band: 'gravity', from: '0 0.4em' });
+  enter($('.card h1'), { at: card + 0.05, from: '0 0.4em' });
+  enter($('.card .line'), { at: when(i, 0.5), from: '0 0.4em' });
 };
 
 worlds.forEach((world, i) => MOVES[world.dataset.world]?.(i));

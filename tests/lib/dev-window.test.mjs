@@ -23,7 +23,8 @@ function film(brief) {
 test('an empty plan prints one line that says the whole film renders anyway', () => {
   const f = film(EMPTY);
   assert.match(planAdvice(f.page, { root: f.root }), /Ideas is empty.*whole film renders anyway/);
-  assert.equal(planAdvice(film(FILLED).page, { root: film(FILLED).root }), null);
+  const filled = film(FILLED);
+  assert.equal(planAdvice(filled.page, { root: filled.root }), null);
 });
 
 test('no line once a full draft exists', () => {

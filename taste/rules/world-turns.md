@@ -2,7 +2,7 @@
 id: world-turns
 step: look
 principle: The world (ground, palette, composition) turns at each beat, about every 4 to 6 s; a beat holds one slow camera ease. Tone changes per beat; the backdrop is always a decision, never a default.
-limit: at most 8 near-identical tiles in a row on the 5 fps sheet, at most 4 at the tail; no data-world element visible longer than 7 s (longer when its text needs it to read, at most the readable-hold ceiling of 5 s plus 0.8 s); adjacent worlds with the same ground and the same words are one world
+limit: at most 8 near-identical tiles in a row on the 5 fps sheet, at most 4 at the tail; no data-world element visible longer than 7 s; adjacent worlds with the same ground and the same words are one world
 range: a scene of 4 to 6 s; a new element, a cut or a ground swap at each scene
 break-when: a declared hold (world-held@a-b, tile-run@a-b waiver with a reason) for a held wordmark or a camera-travel film whose subject never stops moving
 instead: start a new data-world with a new object and words at each beat, 4 to 6 s apart; a world past 7 s needs a cut (taste/craft/film-structure.md). Change the ground at a cut the film already has; carry the change across the join (a colour that follows the content), never a cold flash. Judge a moving backdrop at 4 or more timestamps, never one still. A ruled grid is a design tool's canvas: use it only if you can say what it does in one clause.

@@ -57,7 +57,7 @@ function fromTransform(tf) {
 }
 
 // A transform's translate and scale, as the values the translate and scale properties would hold.
-function expandTransform(kf) {
+export function expandTransform(kf) {
   if (!kf.transform) return kf;
   const [a, b] = [fromTransform(kf.transform[0]), fromTransform(kf.transform[1])];
   const out = { ...kf };

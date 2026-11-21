@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cameraOnlySpans, cameraLoad, withCameraStills } from '../../harness/lib/camera-moves.mjs';
+import { cameraOnlySpans, cameraLoad, withCameraStills, cameraSpeed, isSlowCamera } from '../../harness/lib/camera-moves.mjs';
 import { barLint, constantCamera } from '../../harness/lib/bar-lint.mjs';
 import { problemsOf } from '../../harness/lib/ship-status.mjs';
 
@@ -22,6 +22,15 @@ test('a slow camera ease keeps a hold alive, a fast one does not', () => {
   assert.deepEqual(stillProblems([slow], 6), []);
   assert.deepEqual(cameraOnlySpans([camera(0, 2, { kf: { translate: ['0px 0px', '900px 0px'] } })]), [[0, 2]]);
   assert.deepEqual(cameraOnlySpans([camera(0, 6)]), []);
+});
+
+test('the camera speed reads a transform string, a frame-share translate and a rotate, with the limit at 400 px/s', () => {
+  assert.ok(cameraSpeed(camera(0, 1, { props: ['transform'], kf: { transform: ['scale(1)', 'scale(10)'] } })) > 400);
+  assert.ok(cameraSpeed(camera(0, 1, { kf: { translate: ['0px 0px', 'calc(var(--vw) * 0.5) 0px'] } })) > 400);
+  assert.equal(cameraSpeed(camera(0, 1, { kf: { translate: ['0px 0px', '0px 50%'] } })), 540);
+  assert.ok(cameraSpeed(camera(0, 1, { props: ['rotate'], kf: { rotate: ['0deg', '90deg'] } })) > 400);
+  assert.equal(isSlowCamera(camera(0, 1, { kf: { translate: ['0px 0px', '400px 0px'] } })), false);
+  assert.equal(isSlowCamera(camera(0, 1, { kf: { translate: ['0px 0px', '399px 0px'] } })), true);
 });
 
 test('the same hold with a counter or typing in it is not a still window', () => {

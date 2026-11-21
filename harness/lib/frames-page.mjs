@@ -40,8 +40,8 @@ export function worldLines(shots, format, { starter = false } = {}) {
   const lines = [...byRule.values()].map(({ first, worlds }) => `  ${worlds.join(', ')}: ${format([first], 1)[0].trim()}`);
   const clean = shots.filter((s) => !s.fired.length).map((s) => s.id);
   if (!clean.length) return lines;
-  return [...lines, starter ? `  starter page: ${clean.join(', ')} hold the starter's grey and words, so no rule has a film to read; the film is not written yet` : `  clean: ${clean.join(', ')}`];
+  return [...lines, starter ? `  starter page: ${clean.join(', ')} hold the starter's placeholder ground and words, so no rule has a film to read; the film is not written yet` : `  clean: ${clean.join(', ')}`];
 }
 
-/** True while the page is still the one `vawe new` wrote: its grey ground placeholder and its line under the headline are both unchanged. Pure. */
+/** True while the page is still the one `vawe new` wrote: its placeholder ground and its line under the headline are both unchanged. Pure. */
 export const isStarterPage = (html) => html.includes(`--ground: ${PLACEHOLDER.ground}`) && html.includes(`>${STARTER_LINE}<`);

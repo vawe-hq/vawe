@@ -2,7 +2,7 @@
 // read from the motion records (harness/lib/motion-lint.mjs). A slow move (under slow_px_per_s) keeps a hold alive, as one slow ease per shot is
 // the house default; a fast whole-frame move is not element motion, so the seconds where only it runs still count as still.
 import LIMITS from '../../taste/build/limits.json' with { type: 'json' };
-import { CUT, moveProps, translateXY } from './motion-records.mjs';
+import { CUT, moveProps, translateXY, expandTransform } from './motion-records.mjs';
 
 const CAM = LIMITS['constant-camera'];
 const FRAME = /^(transform|translate|scale|rotate)$/;
@@ -11,15 +11,19 @@ const FRAME = /^(transform|translate|scale|rotate)$/;
 export const isCameraMove = (r) => r.duration >= CAM.move_min_s && (r.id === 'camera' || r.fullFrame) && moveProps(r).some((p) => FRAME.test(p));
 
 const FRAME_PX = 1080;
-const frameShare = (s) => (/calc|%|v[wh]/.test(String(s)) ? FRAME_PX / 100 : 1);
+const LENGTH = /calc\((?:[^()]|\([^()]*\))*\)|\S+/g;
+const px = (len) => translateXY(len)[0] * (/calc|%|v[wh]/.test(len) ? FRAME_PX / 100 : 1);
+const xy = (v) => { const [x = '0', y = '0'] = String(v).match(LENGTH) ?? []; return [px(x), px(y)]; };
+const change = (pair, read) => (pair ? Math.abs(read(pair[1]) - read(pair[0])) || 0 : 0);
 
-/** The travel of a camera move in px per second, on a 1080 px frame: its largest translate or scale change over its duration. A record with no readable values counts as 0, a slow move. */
+/** The travel of a camera move in px per second, on a 1080 px frame: its largest translate, scale or rotate change over its duration (a transform string is read as its translate and scale). A record with no readable values counts as 0, a slow move. */
 export function cameraSpeed(r) {
-  const kf = r.kf ?? {};
-  const [a, b] = (kf.translate ?? []).map((v) => translateXY(v).map((x) => x * frameShare(v)));
+  const kf = expandTransform(r.kf ?? {});
+  const [a, b] = (kf.translate ?? []).map(xy);
   const travel = a && b ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 0;
-  const zoom = kf.scale ? Math.abs(parseFloat(kf.scale[1]) - parseFloat(kf.scale[0])) * FRAME_PX || 0 : 0;
-  return Math.max(travel, zoom) / r.duration;
+  const zoom = change(kf.scale, parseFloat) * FRAME_PX;
+  const turn = change(kf.rotate, parseFloat) * (Math.PI / 180) * (FRAME_PX / 2);
+  return Math.max(travel, zoom, turn) / r.duration;
 }
 
 export const isSlowCamera = (r) => cameraSpeed(r) < CAM.slow_px_per_s;

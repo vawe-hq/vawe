@@ -16,7 +16,9 @@ test('a page with the first-draft defaults draws none of the default-sensitive r
   try {
     await opened.page.goto(opened.url, { waitUntil: 'load' });
     await settle(opened.page);
-    const advice = pageAdvice(PAGE, await probePage(opened.page, Number(readPageMeta(PAGE, 'duration')), PAGE));
+    const probed = await probePage(opened.page, Number(readPageMeta(PAGE, 'duration')), PAGE);
+    assert.ok(probed.motion.records.some((r) => r.id === 'camera' && r.duration > 6), 'the probe read the slow camera push');
+    const advice = pageAdvice(PAGE, probed);
     const fired = [...advice.text, advice.brief, ...advice.lines].filter((l) => l && RULES.test(l));
     assert.deepEqual(fired, []);
   } finally { await opened.close(); }

@@ -69,7 +69,7 @@ Wrong on synchronised material: the picture drifts from the sound.
 **Motion blur.** Shutter 180 degrees is half the frame time; 360 doubles the smear, 90 halves it. Drop it
 on a fast headline that must be read. Blur follows motion: a still thing never blurs.
 
-**Camera shake.** Rejected as a default: the camera holds still unless the beat earns a move (rule [constant-camera](../rules/constant-camera.md)), and a CSS offset of the frame is a fake of a camera. When a brief asks for an impact shake: a hard offset ringing down over 6 to 10 frames, the layer scaled up 102 to 110 % so the frame edge hides, one per film.
+**Camera shake.** Rejected as a default: the camera makes one slow ease per shot, never a shake (rule [constant-camera](../rules/constant-camera.md)), and a CSS offset of the frame is a fake of a camera. When a brief asks for an impact shake: a hard offset ringing down over 6 to 10 frames, the layer scaled up 102 to 110 % so the frame edge hides, one per film.
 
 **Whip pan.** A 10-frame window across the cut: directional blur peaking at the midpoint, tile
 mirrored. The outgoing half accelerates, the incoming half decelerates, so the halves are not mirrors.

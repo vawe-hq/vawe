@@ -58,9 +58,8 @@ test('cuts that are all equal are named', () => {
   assert.ok(lines.some((l) => /all 3 cuts last 0\.6 s/.test(l)));
 });
 
-test('no cut under 0.4 s is named', () => {
-  const lines = boardChecks(board({ cuts: ['0.5', '0.7', '1.1'] }), 7.2);
-  assert.deepEqual(lines.map((l) => l.replace(/;.*/, '')), ['board: no cut under 0.4 s']);
+test('a board with no quick cut but one that breathes longer is clean', () => {
+  assert.deepEqual(boardChecks(board({ cuts: ['0.5', '0.7', '1.1'] }), 7.2), []);
 });
 
 test('no cut over 0.9 s is named', () => {

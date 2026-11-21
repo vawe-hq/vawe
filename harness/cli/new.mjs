@@ -368,7 +368,7 @@ Product UI inside the film (app screens, cards, panels) is a designed interface 
 
 const statesText = () => `## States
 
-Phase 4: one static key frame per world, built from the kit, before any motion. Budget: the reference frames show a median of 1 text line, 1 word and 2 objects. A state shows one line and one hero (the product UI, a device or a photo of the real thing) with only the details the eye needs; layout: taste/craft/layout.md. Its ground is never flat: one light, grain or depth device per film, named from a Taken from frame, and the ground changes at each world turn.`;
+Phase 4: one static key frame per world, built from the kit, before any motion. Budget: the reference frames show a median of 1 text line, 1 word and 2 objects. A state shows one line and one hero (the product UI, a device or a photo of the real thing) with only the details the eye needs; layout: taste/craft/layout.md. Its ground is never flat: one light, grain or depth device per film, named from a Taken from frame.`;
 
 const ideasText = () => `## Ideas
 
