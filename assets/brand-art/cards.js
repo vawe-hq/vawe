@@ -75,6 +75,15 @@ export const PAGES = {
     },
     loop: (p) => ({ play: p }),
   },
+  '/templates': {
+    scene: 'lanes', ink: 'b',
+    h: 'Video templates<br>you remix with one command.',
+    sub: 'Finished films in HTML.<br>Change the words, render it.',
+    lay: {
+      f: 0.95, vx: 0.72, vy: 0.44, figZ: 1.6,
+      towers: NEAR_TOWERS,
+    },
+  },
   '/inspiration': {
     scene: 'cinema', ink: 'a',
     h: 'Motion video inspiration.',

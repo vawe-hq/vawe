@@ -54,3 +54,5 @@ To filter: fetch https://vawe.dev/moves/index.json. Top-level groups, looks and 
 A human link filters the same way: https://vawe.dev/video-components?group=end-a-film&look=paper&q=wipe (group, look and job take comma lists: OR within one, AND across).
 
 {{VIDEO_COMPONENTS}}
+
+{{TEMPLATES}}

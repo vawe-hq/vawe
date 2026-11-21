@@ -22,6 +22,13 @@
       "label": "Video components"
     },
     {
+      "path": "/templates",
+      "priority": 0.8,
+      "changeFrequency": "weekly",
+      "group": "product",
+      "label": "Templates"
+    },
+    {
       "path": "/video-components/group/reveal-a-title",
       "priority": 0.7,
       "changeFrequency": "monthly"
