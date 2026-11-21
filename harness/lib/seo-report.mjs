@@ -70,8 +70,10 @@ export function botSummary(events) {
   const crawlers = {};
   for (const g of rows) crawlers[g.bot] = { class: g.class, hits: g.hits };
   const referralPages = {};
+  const referralPageSources = {};
   const bySource = {};
   for (const [p, m] of referrals) {
+    referralPageSources[p] = Object.fromEntries(m);
     for (const [bot, n] of m) {
       referralPages[p] = (referralPages[p] ?? 0) + n;
       bySource[bot] = (bySource[bot] ?? 0) + n;
@@ -79,7 +81,7 @@ export function botSummary(events) {
   }
   const notFound = {};
   for (const e of events) if (e.status === 404 && e.class !== 'ai-referral') notFound[e.path] = (notFound[e.path] ?? 0) + 1;
-  return { events: events.length, crawlers, referrals: bySource, referralPages, notFound };
+  return { events: events.length, crawlers, referrals: bySource, referralPages, referralPageSources, notFound };
 }
 
 const sum = (rows, f) => rows.reduce((a, r) => a + r[f], 0);
@@ -207,9 +209,11 @@ export function renderReport({ snapshot, prev, effects = [], actions, botNote })
     const refDiff = diffCounts(prevBots?.referrals, snapshot.bots.referrals);
     out.push('AI referral visits');
     out.push(...(refDiff.length ? refDiff.map((d) => `  ${d.key}: ${d.cur}${prevBots ? ` (${sign(d.delta)})` : ''}`) : ['  none']));
+    out.push(...landingLines(snapshot.bots));
   }
 
   out.push(...githubLines(snapshot.github, prev?.github));
+  out.push(...npmLines(snapshot.npm, prev?.npm));
 
   if (effects.length) {
     out.push('', 'Past changes, 28 days before and after');
@@ -219,6 +223,22 @@ export function renderReport({ snapshot, prev, effects = [], actions, botNote })
     }
   }
   return out;
+}
+
+export function landingLines(bots, top = 8) {
+  const pages = Object.entries(bots.referralPages ?? {}).sort((a, b) => b[1] - a[1]).slice(0, top);
+  if (!pages.length) return [];
+  const sources = (p) => Object.entries(bots.referralPageSources?.[p] ?? {}).sort((a, b) => b[1] - a[1]).map(([s, n]) => `${s} ${n}`).join(', ');
+  return ['AI visitors by landing page', ...pages.map(([p, n]) => `  ${p}: ${n}${sources(p) ? ` (${sources(p)})` : ''}`)];
+}
+
+// Installs are the conversion: a visit counts when it ends in npm install @vawe/cli.
+export function npmLines(npm, prevNpm) {
+  const out = ['', 'npm @vawe/cli (last 7 days)'];
+  if (!npm) return [...out, '  not collected'];
+  if (npm.note) return [...out, `  ${npm.note}`];
+  const was = prevNpm && !prevNpm.note ? ` (${sign(npm.downloads - prevNpm.downloads)})` : '';
+  return [...out, `  downloads: ${npm.downloads}${was}`];
 }
 
 // The last step of the funnel: AI and search visits on vawe.dev, then people who reach the repo, then stars.

@@ -45,7 +45,9 @@ if (!keyPath || !fs.existsSync(keyPath)) fail('set GSC_SA_JSON to the path of th
 async function botEvents() {
   const token = process.env.VAWE_BOT_LOG_TOKEN;
   if (!token) return { note: 'bot log skipped: VAWE_BOT_LOG_TOKEN is not set' };
-  const res = await fetch(`${ORIGIN}/api/bot-log?days=${days}`, { headers: { authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(30000) });
+  const get = () => fetch(`${ORIGIN}/api/bot-log?days=${days}`, { headers: { authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(30000) });
+  // The report runs from launchd, often right after the laptop wakes and before the network is up.
+  const res = await get().catch(() => new Promise((r) => setTimeout(r, 15000)).then(get));
   if (!res.ok) return { note: `bot log skipped: ${ORIGIN}/api/bot-log answered ${res.status} (route not deployed, or the token is wrong)` };
   return { events: parseEvents(await res.text()) };
 }
@@ -105,12 +107,23 @@ function github() {
   }
 }
 
+async function npm() {
+  try {
+    const res = await fetch('https://api.npmjs.org/downloads/point/last-week/@vawe/cli', { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) return { note: `npm skipped: api.npmjs.org answered ${res.status}` };
+    return { downloads: (await res.json()).downloads };
+  } catch (e) {
+    return { note: `npm skipped: ${e.message}` };
+  }
+}
+
 const log = await botEvents().catch((e) => ({ note: `bot log skipped: ${e.message}` }));
 const snapshot = {
   date: today, window,
   gsc: { pageQuery, pages, queries },
   bots: log.events ? botSummary(log.events) : null,
   github: github(),
+  npm: await npm(),
 };
 const prev = previousSnapshot();
 const candidates = [...new Set(pageQuery.filter((r) => r.impressions >= MIN_IMPRESSIONS).map((r) => r.page))].slice(0, 25);

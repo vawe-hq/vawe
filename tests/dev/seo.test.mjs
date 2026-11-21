@@ -96,6 +96,7 @@ test('botSummary counts crawlers, referral sources, landing pages and 404s', () 
   assert.equal(s.crawlers.GPTBot.hits, 2);
   assert.deepEqual(s.referrals, { chatgpt: 1 });
   assert.deepEqual(s.referralPages, { '/a': 1 });
+  assert.deepEqual(s.referralPageSources, { '/a': { chatgpt: 1 } });
   assert.deepEqual(s.notFound, { '/gone': 1 });
 });
 
@@ -126,4 +127,20 @@ test('githubLines shows stars with the change since the last snapshot, views and
   assert.deepEqual(githubLines(gh, { stars: 14 }), ['', 'GitHub (its last 14 days)', '  stars: 16 (+2)', '  repo views: 143 by 77 people', '  from vawe.dev: 40 people']);
   assert.deepEqual(githubLines(gh, undefined).slice(2, 3), ['  stars: 16']);
   assert.deepEqual(githubLines({ note: 'GitHub skipped: x' }), ['', 'GitHub (its last 14 days)', '  GitHub skipped: x']);
+});
+
+test('landingLines lists the pages AI visitors land on, most first, with each source', async () => {
+  const { landingLines } = await import('../../harness/lib/seo-report.mjs');
+  const bots = { referralPages: { '/a': 2, '/b': 5 }, referralPageSources: { '/a': { gemini: 2 }, '/b': { chatgpt: 4, claude: 1 } } };
+  assert.deepEqual(landingLines(bots), ['AI visitors by landing page', '  /b: 5 (chatgpt 4, claude 1)', '  /a: 2 (gemini 2)']);
+  assert.deepEqual(landingLines({ referralPages: { '/a': 1, '/b': 1 } }, 1), ['AI visitors by landing page', '  /a: 1']);
+  assert.deepEqual(landingLines({ referralPages: {} }), []);
+});
+
+test('npmLines shows downloads, the change since the last snapshot, and a skip note', async () => {
+  const { npmLines } = await import('../../harness/lib/seo-report.mjs');
+  assert.deepEqual(npmLines({ downloads: 40 }, { downloads: 25 }), ['', 'npm @vawe/cli (last 7 days)', '  downloads: 40 (+15)']);
+  assert.deepEqual(npmLines({ downloads: 40 }, { note: 'npm skipped: x' }).at(-1), '  downloads: 40');
+  assert.deepEqual(npmLines({ note: 'npm skipped: x' }).at(-1), '  npm skipped: x');
+  assert.deepEqual(npmLines(undefined).at(-1), '  not collected');
 });
