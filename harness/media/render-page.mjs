@@ -2,7 +2,7 @@
 // mp4, with an optional N-subframe motion blur blended into each output frame.
 //
 //   node harness/media/render-page.mjs <page.html> [out.mp4] [--aspect W:H|all] [--fps N]
-//     [--from s] [--dur s | --to s] [--blur N] [--w px] [--h px] [--final] [--silent] [--small] [--profile]
+//     [--from s] [--dur s | --to s] [--blur N] [--w px] [--h px] [--final] [--master prores] [--silent] [--small] [--profile]
 //
 // Default is a DRAFT: half size, 30 fps, no blur, the page's <audio> mixed in (--silent for a picture-only draft), and --from/--to windows the render to one
 // slice instead of the whole page; a window is silent, because the mix has no offset. --final renders the way `vawe ship` does: full size, 60 fps, the
@@ -590,6 +590,12 @@ function pinnedSliceFrames(dir, wanted) {
   return wanted;
 }
 
+// ffmpeg's RGB to YUV default is the BT.601 matrix with no tag, and players read untagged HD as BT.709.
+// Measured on flat patches (tests/media/render-colour.test.mjs) decoded as BT.709, the 8-bit error of a final before: green 38,
+// red 25, blue 15, brand #3b82f6 7, grey 1; after: every patch within 2. Each encode converts with the BT.709 matrix to limited range and tags it.
+const toBt709 = (format) => `scale=out_color_matrix=bt709:out_range=tv,format=${format},setparams=colorspace=bt709:color_primaries=bt709:color_trc=bt709:range=tv`;
+const COLOUR_TAGS = ['-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv'];
+
 // Same libx264 settings the Go renderer uses for its final and draft encodes (renderer/internal/encode/
 // encode.go), except CRF 16 where encode.go uses 20: a page is captured lossless and CRF 16 keeps thin
 // type and gradients clean. The final uses preset fast: against medium it encodes 25% faster for a 15% larger file, 49 dB PSNR apart
@@ -597,6 +603,10 @@ function pinnedSliceFrames(dir, wanted) {
 // A small draft (dev --small) is a file to post, such as a share loop: preset fast at CRF 24 measured 1.0 MB against
 // 4.7 MB for the plain draft on a 5 s print-grain loop at 960x504, 37.6 dB PSNR.
 function x264Args(final, small = false) {
+  return [...x264Settings(final, small), ...COLOUR_TAGS];
+}
+
+function x264Settings(final, small) {
   if (final) return ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-preset', 'fast', '-crf', '16', '-x264-params', 'aq-mode=3', '-movflags', '+faststart'];
   return small
     ? ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-preset', 'fast', '-crf', '24', '-movflags', '+faststart']
@@ -604,24 +614,24 @@ function x264Args(final, small = false) {
 }
 
 // The web copy: AV1 10-bit needs no dither, since 10 bits do not band. Measured on a 1080p dark ramp and
-// two 5 s films: 1.7 and 3.6 MB, and the ramp's longest flat run 20 px (lossless 14, undithered 8-bit 98).
+// two 5 s films: 1.7 and 3.6 MB, and the ramp's longest flat run 20 px with the BT.601 conversion, 32 px with the BT.709 one (lossless 14, undithered 8-bit 98).
 // An 8-bit x264 copy at that size bands (CRF 22: 121 px).
-const WEB_ARGS = ['-c:v', 'libsvtav1', '-pix_fmt', 'yuv420p10le', '-crf', '30', '-preset', '8', '-svtav1-params', 'lp=2', '-movflags', '+faststart'];
+const WEB_ARGS = ['-c:v', 'libsvtav1', '-pix_fmt', 'yuv420p10le', '-crf', '30', '-preset', '8', '-svtav1-params', 'lp=2', '-movflags', '+faststart', ...COLOUR_TAGS];
 
 // 8-bit yuv420p bands a dark gradient into visible rings; a faint fixed-seed temporal noise before the
 // master encode dithers them away (the final only, so draft pixels stay comparable). Measured on a dark
-// ramp: strength 3 with aq-mode=3 leaves a 20 px longest flat run at half the size of strength 4 with -tune film.
+// ramp: strength 3 with aq-mode=3 left a 14 px longest flat run with the BT.601 conversion and 40 px with the BT.709 one; strength 4 leaves 21 px.
 // Chromium saves some frames as RGBA (mix-blend-mode, for one); a pixel-format change mid-sequence makes
 // ffmpeg rebuild the filter graph, which resets the trims and drops frames. Keep one graph, one format.
 const ONE_FORMAT_IN = ['-reinit_filter', '0'];
 
-const DITHER = 'noise=alls=3:allf=t:all_seed=7';
+const DITHER = 'noise=alls=4:allf=t:all_seed=7';
 
 // One trim+tmix+select chain per run of equal subframe counts, concatenated to [blend].
 // A layer keeps its alpha: subframes are blended premultiplied, in float, so a moving edge fades instead of darkening (straight
 // alpha averaged as is gives a dark fringe) and a faint glow keeps its colour (8-bit premultiplied rounds a 2% alpha pixel to grey).
 const PREMULTIPLY = 'format=gbrapf32le,premultiply=inplace=1';
-const UNPREMULTIPLY = 'unpremultiply=inplace=1,format=yuva444p10le';
+const UNPREMULTIPLY = `unpremultiply=inplace=1,${toBt709('yuva444p10le')}`;
 
 function blendGraph(kArr, subframeStart, fps, alpha = false) {
   const segments = [];
@@ -659,15 +669,23 @@ export function ffmpegEncode(tmpDir, fps, kArr, subframeStart, tmpOut, { final, 
     const tail = `${UNPREMULTIPLY}${size ? `,scale=${size[0]}:${size[1]}:flags=area` : ''}`;
     return blendEncode(tmpDir, fps, kArr, subframeStart, final, tail, PRORES_4444_ARGS, tmpOut, true);
   }
-  const tail = size ? `scale=${size[0]}:${size[1]}:flags=area` : `null${final ? `,${DITHER}` : ''}`;
+  const resize = size ? `scale=${size[0]}:${size[1]}:flags=area` : `null${final ? `,${DITHER}` : ''}`;
+  const tail = `${resize},${toBt709('yuv420p')}`;
   return blendEncode(tmpDir, fps, kArr, subframeStart, final, tail, x264Args(final, small), tmpOut);
 }
 
-const PRORES_4444_ARGS = ['-c:v', 'prores_ks', '-profile:v', '4', '-pix_fmt', 'yuva444p10le', '-alpha_bits', '16', '-vendor', 'apl0'];
+const PRORES_422HQ_ARGS = ['-c:v', 'prores_ks', '-profile:v', '3', '-pix_fmt', 'yuv422p10le', '-vendor', 'apl0', ...COLOUR_TAGS];
+const PRORES_4444_ARGS = ['-c:v', 'prores_ks', '-profile:v', '4', '-pix_fmt', 'yuva444p10le', '-alpha_bits', '16', '-vendor', 'apl0', ...COLOUR_TAGS];
+
+// The opt-in ProRes 422 HQ master (--master prores): its own pass over the same frames, beside the mp4.
+export function ffmpegProresEncode(tmpDir, fps, kArr, subframeStart, out, size = null) {
+  const resize = size ? `scale=${size[0]}:${size[1]}:flags=area,` : '';
+  return blendEncode(tmpDir, fps, kArr, subframeStart, true, `${resize}${toBt709('yuv422p10le')}`, PRORES_422HQ_ARGS, out);
+}
 
 // The web copy is its own pass, run after the master is delivered.
 export function ffmpegWebEncode(tmpDir, fps, kArr, subframeStart, webOut) {
-  return blendEncode(tmpDir, fps, kArr, subframeStart, true, 'format=yuv420p10le', WEB_ARGS, webOut);
+  return blendEncode(tmpDir, fps, kArr, subframeStart, true, `${toBt709('yuv420p10le')}`, WEB_ARGS, webOut);
 }
 
 // The cost table `--profile` prints. Subframes and screenshots per film second are a pure function of the
@@ -937,8 +955,9 @@ export async function renderPage(pagePath, outPath, opts = {}) {
     const tmpOut = `${outPath}.tmp-${process.pid}${layer ? '.mov' : '.mp4'}`;
     const webPath = final && !layer ? webOut(outPath) : null;
     const tmpWeb = webPath && `${webPath}.tmp-${process.pid}.mp4`;
+    const encodeSize = final && frame.outWidth === Math.round(frame.width * frame.scale) && frame.outHeight === Math.round(frame.height * frame.scale) ? null : [frame.outWidth, frame.outHeight];
     const t1 = Date.now();
-    const res = ffmpegEncode(tmpDir, fps, kArr, subframeStart, tmpOut, { final, alpha: Boolean(layer), small: opts.small, size: final && frame.outWidth === Math.round(frame.width * frame.scale) && frame.outHeight === Math.round(frame.height * frame.scale) ? null : [frame.outWidth, frame.outHeight] });
+    const res = ffmpegEncode(tmpDir, fps, kArr, subframeStart, tmpOut, { final, alpha: Boolean(layer), small: opts.small, size: encodeSize });
     const encodeMs = Date.now() - t1;
     if (res.status !== 0 || res.error) {
       fs.rmSync(tmpOut, { force: true });
@@ -975,6 +994,16 @@ export async function renderPage(pagePath, outPath, opts = {}) {
     };
     const result = { length, frames, subframes: totalSub, reused: reusedFrames, prepassMs, captureMs, encodeMs, dur, audio: Boolean(mixed), restarted, resumed, advice, ...timing };
     opts.onMaster?.(result);
+    if (final && !layer && opts.master === 'prores') {
+      const proresPath = proresOut(outPath);
+      const tmpProres = `${proresPath}.tmp-${process.pid}.mov`;
+      const proresRes = ffmpegProresEncode(tmpDir, fps, kArr, subframeStart, tmpProres, encodeSize);
+      if (proresRes.status !== 0 || proresRes.error) {
+        fs.rmSync(tmpProres, { force: true });
+        throw new RenderError(`ffmpeg ProRes master failed, the mp4 ${outPath} is complete (${proresRes.error ? proresRes.error.message : `exit ${proresRes.status}`}):\n${(proresRes.stderr || '').trim().split('\n').slice(-15).join('\n')}`, EXIT.IO);
+      }
+      await place(tmpProres, proresPath);
+    }
     if (tmpWeb) {
       const webRes = ffmpegWebEncode(tmpDir, fps, kArr, subframeStart, tmpWeb);
       if (webRes.status !== 0 || webRes.error) {
@@ -1036,6 +1065,7 @@ export function assertFinalReady(pagePath) {
 }
 
 // A final writes two files: the master (x264, dithered) and next to it a small web copy (AV1 10-bit).
+export const proresOut = (outPath) => outPath.replace(/(\.mp4)?$/, '.prores.mov');
 export const webOut = (outPath) => outPath.replace(/(\.mp4)?$/, '.web.mp4');
 
 export function defaultOut(pagePath, { aspect, suffixAspect, final, from = 0, to = null }) {
@@ -1259,18 +1289,21 @@ function reportFailedFinal(pagePath, e, byJob) {
 async function main() {
   const argv = process.argv.slice(2);
   const flag = (name, d) => { const i = argv.indexOf(name); return i >= 0 ? argv[i + 1] : d; };
-  const valueFlags = new Set(['--aspect', '--fps', '--from', '--dur', '--to', '--blur', '--w', '--h', '--workers', '--next']);
+  const valueFlags = new Set(['--aspect', '--fps', '--from', '--dur', '--to', '--blur', '--w', '--h', '--workers', '--master', '--next']);
   const positional = argv.filter((a, i) => !a.startsWith('--') && !valueFlags.has(argv[i - 1]));
   const [pagePath, outArg] = positional;
   if (!pagePath) {
     die('usage: node harness/media/render-page.mjs <page.html> [out.mp4] [--aspect W:H|all] [--fps N] '
-      + '[--from s] [--dur s | --to s] [--blur N] [--w px] [--h px] [--workers N] [--final] [--silent] [--small] [--profile] [--fast | --full] [--taste] [--next cmd]', EXIT.USAGE);
+      + '[--from s] [--dur s | --to s] [--blur N] [--w px] [--h px] [--workers N] [--final] [--master prores] [--silent] [--small] [--profile] [--fast | --full] [--taste] [--next cmd]', EXIT.USAGE);
   }
   if (!fs.existsSync(pagePath)) die(`no such file: ${pagePath}`, EXIT.IO);
   ensurePageFonts(pagePath);
   const drift = briefProblems(pagePath);
   if (drift.length) console.error(adviceBlock(drift.map((p) => `${p}; the render uses the page: update the brief's length and aspect lines to match`)).join('\n'));
   const final = argv.includes('--final');
+  const master = flag('--master', undefined);
+  if (master !== undefined && master !== 'prores') die(`unknown --master ${master}; valid: prores`, EXIT.USAGE);
+  if (master && !final) die('--master needs --final (a draft has no master)', EXIT.USAGE);
   if (final) assertFinalReady(pagePath);
   const failedShip = final ? null : lastFailedShip(readRuns(pagePath));
   if (failedShip) console.error(failedShipLine(filmKeyOf(pagePath), failedShip));
@@ -1293,6 +1326,7 @@ async function main() {
       workers: flag('--workers', null) && Number(flag('--workers', null)),
       audio: argv.includes('--silent') ? false : argv.includes('--audio') ? true : undefined,
       small: argv.includes('--small'),
+      master,
       sliceFault: faultFromEnv(process.env.VAWE_TEST_SLICE_FAULT),
       muxFault: process.env.VAWE_TEST_MUX_FAULT ? () => { throw new Error('mux failed (VAWE_TEST_MUX_FAULT)'); } : undefined,
       checks: final ? undefined : createChecks({ pagePath, mode: argv.includes('--full') ? 'full' : argv.includes('--fast') ? 'fast' : 'draft' }),

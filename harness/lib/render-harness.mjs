@@ -90,8 +90,8 @@ export async function serveRepo({ root = REPO_ROOT, port = 0, route = null, moun
 // Chrome's sandbox cannot start on Linux CI runners and containers (user namespaces are blocked); everywhere else it stays on, because `new --from-url` opens untrusted sites.
 export const SANDBOX_ARGS = process.platform === 'linux' ? ['--no-sandbox'] : [];
 
-// The flags a deterministic capture needs: no scrollbars over the canvas, and a device scale the caller owns rather than the host's display.
-export const RENDER_ARGS = [...SANDBOX_ARGS, '--hide-scrollbars', '--force-device-scale-factor=1'];
+// The flags a deterministic capture needs: no scrollbars over the canvas, a device scale the caller owns rather than the host's display, and sRGB pixels whatever the host's display profile.
+export const RENDER_ARGS = [...SANDBOX_ARGS, '--hide-scrollbars', '--force-device-scale-factor=1', '--force-color-profile=srgb'];
 
 // A final keeps GPU compositing off: ~150+ rapid seek+screenshot round trips crashed the GPU compositor
 // there, and its pixels must not depend on the GPU. A draft composites on the GPU (1.5x faster at half

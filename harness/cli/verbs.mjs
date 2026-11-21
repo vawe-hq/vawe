@@ -249,13 +249,14 @@ export const VERBS = [
       { name: 'aspect', type: 'string', default: 'the page meta, else 16:9', help: `${ASPECT}, or all for one file each` },
       PARAM,
       { name: 'out', type: 'path', default: 'out/<name>.mp4', help: 'output file (not with --aspect all)' },
+      { name: 'master', type: 'string', help: 'prores: also write <name>.prores.mov, ProRes 422 HQ tagged bt709, next to the mp4 (a layer render is already ProRes 4444)' },
       { name: 'wait', type: 'bool', help: 'block until the render ends instead of running it in the background' },
       { name: 'status', type: 'bool', retired: 'wait for the render with bin/vawe wait <page> (it returns within 100 seconds; on STILL RUNNING run it again)' },
       { name: 'profile', type: 'bool', help: 'print a cost table: frames, subframes, screenshots, capture and encode seconds, the 5 costliest seconds' },
     ],
     example: 'vawe ship films/my-launch/page.html --aspect all   (then: vawe wait films/my-launch/page.html)',
     build: (v, [page]) => {
-      const args = [page, ...(v.out ? [v.out] : []), ...(v.profile ? ['--profile'] : [])];
+      const args = [page, ...(v.out ? [v.out] : []), ...(v.profile ? ['--profile'] : []), ...opt('--master', v.master)];
       const before = [{ script: 'harness/live/ship-approval.mjs', args: [page] }, { script: 'harness/live/ship-warn.mjs', args: [page] }];
       if (v.wait) return [...before, { script: 'harness/media/render-page.mjs', args: [...args, '--final', ...opt('--aspect', v.aspect)] }];
       return [...before, { script: 'harness/media/ship-job.mjs', args: ['start', ...args, ...opt('--aspect', v.aspect)] }];

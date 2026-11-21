@@ -11,13 +11,14 @@ import { ffmpegEncode, ffmpegWebEncode } from '../../harness/media/render-page.m
 
 const W = 960, H = 540, ROWS = 64;
 
+// The Y plane as coded: a gray conversion of a tagged stream rescales the range and changes the run lengths.
 function longestFlatRun(file) {
-  const px = execFileSync('ffmpeg', ['-v', 'error', '-ss', '0.2', '-i', file, '-frames:v', '1', '-vf', `crop=${W - 200}:${ROWS}:100:200,format=gray`, '-f', 'rawvideo', '-'], { maxBuffer: 1 << 24 });
+  const px = execFileSync('ffmpeg', ['-v', 'error', '-ss', '0.2', '-i', file, '-frames:v', '1', '-vf', `crop=${W - 200}:${ROWS}:100:200,extractplanes=y,format=gray16le`, '-f', 'rawvideo', '-'], { maxBuffer: 1 << 25 });
   const w = W - 200;
   let longest = 0, run = 0, prev = null;
   for (let x = 0; x < w; x++) {
     let sum = 0;
-    for (let y = 0; y < ROWS; y++) sum += px[y * w + x];
+    for (let y = 0; y < ROWS; y++) sum += px.readUInt16LE((y * w + x) * 2) / 257;
     const q = Math.round((sum / ROWS) * 4);
     run = q === prev ? run + 1 : 1;
     prev = q;

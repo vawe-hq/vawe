@@ -27,6 +27,7 @@ Test a change by one question: what would an agent write unprompted, and does th
 
 | Concern | Owner | What it decides |
 |---|---|---|
+| Colour | `harness/media/render-page.mjs` (`toBt709`, `COLOUR_TAGS`), `harness/lib/render-harness.mjs` (`RENDER_ARGS`) | one matrix for every encode: BT.709 to limited range, tagged bt709, from sRGB Chrome pixels; ffmpeg alone converts with BT.601 and no tag, which shifted a final by up to 38 levels (green). `tests/media/render-colour.test.mjs` holds it within 2 levels |
 | Time | `harness/media/render-page.mjs`, `core/engine/page-clock.js`, `core/engine/page-seek.js` | render-page walks the frames and sets the seek; page-clock replaces `Date`, `performance.now`, `requestAnimationFrame`, timers and `Math.random` before any page script runs; page-seek pauses every animation, sets `currentTime`, calls `window.seek(t)` and sets aspect, `--vw`, `--vh` |
 | Layers | `core/engine/page-layer.js`, `harness/media/template-export.mjs` | a final render of one part of the page on a clear ground (ProRes 4444 with alpha); the template export for Premiere Pro and After Effects (`harness/README.md`, Template export) |
 | Page API | `core/engine/page-api.js` | `window.vawe`, the three.js helpers a page imports |
