@@ -57,7 +57,7 @@ $('.word').animate([{ clipPath: 'inset(-0.3em 100% -0.3em 0)' }, { clipPath: 'in
 $('.word').animate([{ translate: '-1em 0' }, { translate: '0 0' }], { ...open, duration: (REVEAL + 0.12) * 1000, easing: EASE.land });
 $('.word').animate([{ opacity: 0 }, { opacity: 1 }], { ...open, duration: 100, easing: 'linear' });
 // a longer line needs more read time before the last frame: 0.6 s a word from 4 words (taste/rules/readable-hold.md), so enter it earlier, never later
-enter($('.line'), { at: beat(2) + 0.8, band: 'professional', from: '0 0.4em' });
+enter($('.line'), { at: beat(2) + 0.8, band: 'gravity', from: '0 0.4em' });
 // the product look: a slow push-in and a small tilt, so the frame has depth (prompts/moves/lens.md); delete this block for a flat page
 const cam = lens(htmlSource($('#stage')), { look: 'product', zoom: (t) => 1 + 0.04 * (t / end), tiltY: (t) => 0.06 * Math.sin(t * 0.6), fit: { cover: true } });
 vawe.onFrame((t) => cam.draw(t));

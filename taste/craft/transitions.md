@@ -125,7 +125,7 @@ A film that reads as slides has one of these. `bin/vawe check slideshow <page>` 
 | scene B starts only after scene A fully left, a dead gap (`dead-gap`) | overlap 0.2 to 0.4 s |
 | all elements of a scene enter at once with one move (`all-at-once`) | stagger 30 to 80 ms, a different move for hero and support |
 | one centred line of text per scene on a still ground (`one-thing-scenes`) | give each scene a part that moves while the line is read |
-| equal shot lengths (`equal-shots`) | vary: one under 0.4 s, one over 0.9 s |
+| equal shot lengths (`equal-shots`) | vary: let one cut breathe about 0.5 s longer than the rest |
 | a static camera and static content in a hold (`static-holds`) | element motion inside every hold |
 | the same entrance (fade-up, scale-in) for every element in the film (`same-entrance`) | different moves for hero, support and detail |
 

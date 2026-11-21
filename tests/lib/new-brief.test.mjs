@@ -270,8 +270,7 @@ test('the brief carries the strip study, the Board (rhythm, spectacle, cuts, sou
   assert.ok(found.indexOf('Board') > found.indexOf('States') && found.indexOf('Motion pass') > found.indexOf('Board') && found.indexOf('Board') < found.indexOf('Spec'));
   assert.match(text, /bin\/vawe frame <ref-id> --cuts[\s\S]*name 3 moves/);
   const board = text.split(/^## /m).find((s) => s.startsWith('Board'));
-  assert.match(board, /under 0\.4 s/);
-  assert.match(board, /over 0\.9 s/);
+  assert.match(board, /One cut breathes longer/);
   assert.match(board, /<meta name="spectacle">/);
   assert.match(board, /recipe 15/);
   assert.match(board, /\| camera/);

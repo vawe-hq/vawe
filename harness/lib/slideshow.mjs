@@ -133,7 +133,7 @@ function equalShots(worlds) {
   const mean = cuts.reduce((s, x) => s + x, 0) / cuts.length;
   if ((Math.max(...cuts) - Math.min(...cuts)) / mean > EQUAL_SPREAD) return null;
   return { code: 'equal-shots', at: worlds.map((w) => r2(w.start)), what: `all ${cuts.length} shots last ${r2(Math.min(...cuts))} to ${r2(Math.max(...cuts))} s`,
-    fix: 'vary the lengths: one under 0.4 s, one over 0.9 s' };
+    fix: 'vary the lengths: let one cut breathe about 0.5 s longer than the rest' };
 }
 
 function staticHolds(staticRuns, duration) {

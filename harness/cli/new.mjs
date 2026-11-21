@@ -382,7 +382,7 @@ const boardText = () => `## Board
 
 Phase 5, after the states and before any motion. The board is a plan for time: rhythm, spectacle, transitions, sound. It is not a list of frames. Name each move from prompts/moves (\`prompts/moves/README.md\`), never "fade" by default. Replace every bracket.
 
-Rhythm: cut lengths and holds are NOT all equal. At least one cut under 0.4 s, one over 0.9 s, and holds that vary.
+Rhythm: cut lengths and holds are NOT all equal. One cut breathes longer than the rest, and holds vary.
 
 | beat | in s | hold s | cut out s (length) |
 |---|---|---|---|
