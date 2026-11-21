@@ -238,7 +238,7 @@ test('the brief carries a Taken from table, the design system step and the state
   assert.ok(found.indexOf('Taken from') > found.indexOf('Task') && found.indexOf('Taken from') < found.indexOf('Directions'));
   assert.ok(found.indexOf('Design system and kit') > found.indexOf('Look') && found.indexOf('States') > found.indexOf('Design system and kit'));
   assert.match(text, /name 4 to 6 frames/);
-  assert.match(text, /about 1 line and 2 or 3 things/);
+  assert.match(text, /one line and one hero/);
   assert.match(text, /soft-skill[\s\S]*better-typography[\s\S]*colorize[\s\S]*beautiful-shadows[\s\S]*5\. frame/);
   assert.match(text, /Skill <rung>: <slug>: what it decided/);
   assert.match(text, /prompts\/skill-combos\.md/);

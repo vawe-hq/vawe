@@ -16,9 +16,9 @@ test('the texel line names the worst second, the ratio and the fix; none at 1.0x
 });
 
 test('the pose line marks a tilt over the readable range and over the clamp', () => {
-  const line = poseLine([sample(1), sample(5, { pose: { x: 14, y: 0, z: 0 } }), sample(9, { pose: { x: 0, y: 30, z: 0 } })]);
-  assert.match(line, /1\.0s 5\/-8, 5\.0s 14\/0!, 9\.0s 0\/30 OVER/);
-  assert.match(line, /readable up to 10, clamp 25/);
+  const line = poseLine([sample(1), sample(5, { pose: { x: 34, y: 0, z: 0 } }), sample(9, { pose: { x: 0, y: 55, z: 0 } })]);
+  assert.match(line, /1\.0s 5\/-8, 5\.0s 34\/0!, 9\.0s 0\/55 OVER/);
+  assert.match(line, /readable up to 30, clamp 50/);
   assert.equal(poseLine([]), null);
 });
 

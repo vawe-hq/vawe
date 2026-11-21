@@ -5,7 +5,7 @@ group: reference
 ---
 # Skill combos
 
-A combo is a named set of ui-skills for the ladder rungs builder, type, colour and depth. The frame rung is always vawe's own rules (about 1 line and 2 or 3 things, a ground never flat, an eye path). Fetch each skill with `command npx -y ui-skills get <slug>`.
+A combo is a named set of ui-skills for the ladder rungs builder, type, colour and depth. The frame rung is always vawe's own rules (one line and one hero (the product UI, a device or a photo of the real thing) with only the details the eye needs, a ground never flat, an eye path). Fetch each skill with `command npx -y ui-skills get <slug>`.
 
 Rules:
 - Start from a PROVEN combo. A combo proven for one frame kind (type frames or product-UI frames) is proven for that kind only.

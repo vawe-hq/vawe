@@ -4,12 +4,12 @@
 //
 // Source of the numbers: a measured study of a product-shot tool's presets (read-only, 2026-10-19). Its four perspective presets are VIEWS below (x/y/z of 15/-45/0, 30/45/0,
 // 65/0/-45, -20/45/0, zoom 125 percent). Its screen movements are MOVES: each rotation is a seeded range, a direction sign drawn once per move, and every
-// rotateX and rotateY it applies is clamped to +-25 degrees, which is CLAMP_DEG here. The ranges of its screen generator are copied as they are; where its end
+// rotateX and rotateY it applies is clamped to +-25 degrees; CLAMP_DEG is 50 here, so a tilted device (the isometric views) keeps its angle. The ranges of its screen generator are copied as they are; where its end
 // state adds a random -[0,14] degrees of pitch and -[0,24] of yaw on top of the named end, that noise is dropped so a move settles. Zoom is its percent change
 // divided by 100.
 import { rng } from '../motion/springs.js';
 
-export const CLAMP_DEG = 25;
+export const CLAMP_DEG = 50;
 
 // The lens zoom of a view is by sight on a 16:9 screen in a 16:9 frame.
 export const VIEWS = {
@@ -102,7 +102,7 @@ export function shadowFor(backdrop, page, { tint = null } = {}) {
   return { mode: 'dark', layers: [{ dx: 0.01, dy: 0.036, blur: 26, alpha: 0.7 }, { dx: 0.002, dy: 0.008, blur: 6, alpha: 0.85 }], rim: { alpha: 0.3, width: 1.5, color: rim }, reflection: { alpha: 0.07, blur: 44, dy: 0.05 } };
 }
 
-export const READ_DEG = 10;
+export const READ_DEG = 30;
 
 const deg = (radians) => (radians * 180) / Math.PI;
 

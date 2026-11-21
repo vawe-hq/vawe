@@ -363,12 +363,12 @@ Type is chosen from taste/craft/typography.md and colour from taste/craft/color.
 2. type: scale, weight, tracking (jakubkrehel/better-typography or pbakaus/typeset).
 3. colour: roles and one accent (pbakaus/colorize or jakubkrehel/better-colors).
 4. depth: shadows, light, blur layers (mengto/beautiful-shadows or mengto/progressive-blur).
-5. frame: compose the video frame with vawe's own rules: about 1 line and 2 or 3 things, a ground that is never flat, an eye path. The frame rejects web-page patterns (nav, CTA button, pill, eyebrow, section padding); rung 1 still builds the UI parts. The kit format and an example: skills/vawe-page/SKILL.md, films/examples/colour-sting/kit/.
+5. frame: compose the video frame with vawe's own rules: one line and one hero (the product UI, a device or a photo of the real thing) with only the details the eye needs, a ground that is never flat, an eye path. The frame rejects web-page patterns (nav, CTA button, pill, eyebrow, section padding); rung 1 still builds the UI parts. The kit format and an example: skills/vawe-page/SKILL.md, films/examples/colour-sting/kit/.
 Product UI inside the film (app screens, cards, panels) is a designed interface placed under the density budget. For an invented product the UI is invented but designed; only chrome with no function is a pitfall.`;
 
 const statesText = () => `## States
 
-Phase 4: one static key frame per world, built from the kit, before any motion. Budget: the reference frames show a median of 1 text line, 1 word and 2 objects. A state shows about 1 line and 2 or 3 things; layout: taste/craft/layout.md. Its ground is never flat: one light, grain or depth device per film, named from a Taken from frame, and the ground changes at each world turn.`;
+Phase 4: one static key frame per world, built from the kit, before any motion. Budget: the reference frames show a median of 1 text line, 1 word and 2 objects. A state shows one line and one hero (the product UI, a device or a photo of the real thing) with only the details the eye needs; layout: taste/craft/layout.md. Its ground is never flat: one light, grain or depth device per film, named from a Taken from frame, and the ground changes at each world turn.`;
 
 const ideasText = () => `## Ideas
 
