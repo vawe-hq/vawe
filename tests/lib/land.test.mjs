@@ -7,8 +7,8 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { conflictedFiles, hasTrackedEdits, bigBlobs, e2eLine, e2eLineFromReport, keepAliveSsh } from '../../harness/lib/land.mjs';
 
 test('conflictedFiles lists only unmerged paths', () => {
-  const porcelain = 'UU harness/a.mjs\n M b.txt\nAA c.md\n?? d.txt\nDU e.js\n';
-  assert.deepEqual(conflictedFiles(porcelain), ['harness/a.mjs', 'c.md', 'e.js']);
+  const porcelain = 'UU src/a.mjs\n M b.txt\nAA c.md\n?? d.txt\nDU e.js\n';
+  assert.deepEqual(conflictedFiles(porcelain), ['src/a.mjs', 'c.md', 'e.js']);
   assert.deepEqual(conflictedFiles(' M b.txt\n'), []);
 });
 

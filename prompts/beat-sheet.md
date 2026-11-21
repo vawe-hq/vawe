@@ -105,6 +105,7 @@ so the table and the page agree by construction.
 - The last end s is the duration meta. If the film is longer than the rows, the tail is dead.
 - Sound cues come from the picture; you write them when you write the action, not after the render.
 
+<!-- doc-refs-allow: templates/beat-sheet.md · a path inside the external MIT repo named on the next line, not in this one -->
 source: the column set is adapted from Hanif's `templates/beat-sheet.md` in
 https://github.com/buildwithhanif/claude-animation-skill (MIT, Hanif) and the "reads: start to end"
 storyboard shape in https://github.com/JohnHeibel/ClaudeAnimationBase (MIT, John Heibel); the
