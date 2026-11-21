@@ -1,0 +1,24 @@
+<!doctype html>
+<html data-aspect="16:9">
+<head>
+<meta charset="utf-8">
+<meta name="duration" content="0.1">
+<style>
+  @font-face { font-family: Fraunces; src: url(/templates/title-sting/assets/Fraunces.woff2); font-weight: 100 900; }
+  html, body { margin: 0; background: #fff; overflow: hidden; }
+  h1 { position: absolute; left: 40px; margin: 0; font: 400 180px/1.2 Fraunces, serif; color: #000; white-space: nowrap; }
+  #plain { top: 40px; }
+  #split { top: 540px; }
+</style>
+</head>
+<body>
+<h1 id="plain">AVATAR To Wave</h1>
+<h1 id="split">AVATAR To Wave</h1>
+<script type="module">
+import { splitGlyphs } from '/core/text/split.js';
+await document.fonts.load('180px Fraunces');
+await document.fonts.ready;
+splitGlyphs(document.getElementById('split'), { by: 'char' });
+</script>
+</body>
+</html>

@@ -17,7 +17,7 @@ const stamp = new Date().toISOString().replace(/[:.]/g, '-');
 const runDir = path.join(RUNS_DIR, stamp);
 fs.mkdirSync(path.join(runDir, 'renders'), { recursive: true });
 
-const PAGE_TESTS = ['tests/media/render-page-determinism.test.mjs', 'tests/media/render-page-draft-layout.test.mjs', 'tests/media/page-audio.test.mjs'];
+const PAGE_TESTS = ['tests/media/render-page-determinism.test.mjs', 'tests/media/render-page-draft-layout.test.mjs', 'tests/media/page-audio.test.mjs', 'tests/media/render-fixes.test.mjs', 'tests/media/split-glyphs.test.mjs'];
 const CONCURRENCY = Math.max(2, Math.min(4, Math.floor(os.cpus().length / 2)));
 const DURATION_SLACK_S = 0.15;
 const KEEP_RUNS = 5;
