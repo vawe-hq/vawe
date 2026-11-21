@@ -109,7 +109,8 @@ test('a draft render writes its sidecar last, as valid JSON with the render fact
     fs.writeFileSync(path.join(dir, 'page.html'), `<!doctype html><html><head><meta charset="utf-8"><meta name="duration" content="1.5">
 <style>*{margin:0}html,body{background:#111}section{position:absolute;inset:0;width:100vw;height:100vh}video{position:absolute;top:0;left:0;width:30vw;height:30vh}#b{animation:in 0.1s 0.8s both}@keyframes in{from{opacity:0}to{opacity:1}}</style></head>
 <body><section data-world="a" style="background:#223"></section><section id="b" data-world="b" style="background:#322"></section><video src="clip.mp4" data-at="0.2" data-trim="0.1" data-rate="2" muted></video></body></html>`);
-    const out = path.join(dir, 'out.mp4');
+    fs.mkdirSync(path.join(dir, 'out'));
+    const out = path.join(dir, 'out', 'draft.mp4');
     const r = spawnSync('node', [path.join(ROOT, 'harness/media/render-page.mjs'), path.join(dir, 'page.html'), out, '--fps', '10', '--w', '160', '--h', '90', '--silent'], { cwd: dir, encoding: 'utf8' });
     assert.equal(r.status, 0, `${r.stdout}\n${r.stderr}`);
     const meta = JSON.parse(fs.readFileSync(metaPath(out), 'utf8'));
@@ -122,6 +123,6 @@ test('a draft render writes its sidecar last, as valid JSON with the render fact
     assert.deepEqual(meta.audio, { mixed: false, loudness: null, cues: [] });
     assert.ok(Number.isFinite(Date.parse(meta.createdAt)));
     assert.ok(fs.statSync(metaPath(out)).mtimeMs >= fs.statSync(out).mtimeMs, 'the sidecar is written after the mp4');
-    assert.deepEqual(fs.readdirSync(dir).filter((f) => f.includes('.tmp-')), []);
+    assert.deepEqual(fs.readdirSync(path.join(dir, 'out')).filter((f) => f.includes('.tmp-')), []);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
