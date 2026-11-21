@@ -35,13 +35,20 @@
 .lp-hero-copy{grid-template-columns:minmax(0,1fr)}
 .lp-install{display:grid;gap:var(--sp-1);width:max-content;max-width:100%;min-width:0;justify-self:start;font:400 var(--fs-code)/var(--lh-ui) var(--font-mono),monospace;color:var(--muted)}
 .lp-install-row{display:flex;align-items:center;gap:var(--sp-2);min-width:0}
-.lp-install-next{padding-left:var(--sp-3)}
 .lp-install-cmd{min-width:0;max-width:100%;overflow-x:auto;white-space:nowrap;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);background:rgba(0,0,0,.6);border:1px solid var(--line);color:var(--ink-2)}
-.lp-install-copy{min-height:var(--hit);padding:0 var(--sp-3);background:transparent;border:0;border-radius:var(--r-ctl);color:var(--muted);font:inherit;cursor:pointer;transition:color var(--dur-hover) var(--ease-out),scale var(--dur-press) var(--ease-press)}
+.lp-install-copy{flex:none;white-space:nowrap;min-height:var(--hit);padding:0 var(--sp-3);background:transparent;border:0;border-radius:var(--r-ctl);color:var(--muted);font:inherit;cursor:pointer;transition:color var(--dur-hover) var(--ease-out),scale var(--dur-press) var(--ease-press)}
 .lp-install-copy:active{scale:var(--press)}
 .lp-install-copy:focus-visible{outline:var(--focus-ring);outline-offset:2px}
 @media (hover:hover) and (pointer:fine){ .lp-install-copy:hover{color:var(--ink)} }
 @media (min-width:641px){ .lp-install-cmd{flex-shrink:0} }
+.lp-install-agent{justify-self:start;min-height:var(--hit);padding:0 var(--sp-3);border:0;background:none;color:var(--muted);font:500 var(--fs-ui)/var(--lh-ui) var(--font-sans),sans-serif;
+  text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:3px;cursor:pointer;
+  transition:color var(--dur-hover) var(--ease-out),text-decoration-color var(--dur-hover) var(--ease-out),scale var(--dur-press) var(--ease-press)}
+.lp-install-agent:active{scale:var(--press)}
+.lp-install-agent:focus-visible{outline:var(--focus-ring);outline-offset:2px}
+@media (hover:hover) and (pointer:fine){ .lp-install-agent:hover{color:var(--ink);text-decoration-color:currentColor} }
+@media (max-width:640px){ .lp-install-agent{min-height:44px} }
+@media (prefers-reduced-motion:reduce){ .lp-install-agent{transition:none} }
 @media (max-width:640px){ .lp-install-copy{min-height:44px} }
 @media (max-width:760px){
   .lp-hero{height:auto;min-height:0;padding:var(--sp-2) var(--sp-3) 0}
