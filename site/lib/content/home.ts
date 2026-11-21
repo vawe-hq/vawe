@@ -13,7 +13,16 @@ export const HOME = {
     lede: "Write one HTML page. vawe renders it to an mp4. You write the page, or an agent does.",
     primary: { href: REPO_URL, label: "Get started on GitHub" } as Link,
     secondary: { href: "/video-components", label: "See the video components" } as Link,
-    install: { cmd: "npm install @vawe/cli", next: "then npx vawe new hello" },
+    install: { cmd: "npm install @vawe/cli" },
+    setup: {
+      prompt:
+        "Install vawe in this folder: run npm install @vawe/cli. vawe (https://vawe.dev) is the open-source HTML-to-video tool. "
+        + "It needs Node 22 or newer and ffmpeg; npx vawe new prints the install line for anything missing. "
+        + "Then make a test film: run npx vawe new hello and ask for a 5 second title card that says hello. Render the draft with npx vawe dev films/hello/page.html. "
+        + "Follow each command’s next: line, and show me the mp4 when it is done.",
+      label: "Or copy a setup prompt for your agent",
+      copied: "Copied. Paste it into Claude Code, Codex or Cursor.",
+    },
   },
   chapters: [
     {

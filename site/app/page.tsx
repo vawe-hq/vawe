@@ -9,7 +9,7 @@ import { faqSchema } from "../lib/schema-content";
 import { FAQ } from "../lib/faq";
 import { RichText } from "./components/RichText";
 import { clip, moveByName } from "../lib/moves";
-import { CopyBtn } from "./easing/CopyBtn";
+import { HeroInstall } from "./components/HeroInstall";
 import { HOME } from "../lib/content/home";
 import "./landing.css";
 
@@ -56,13 +56,7 @@ export default function Home() {
                 <a className="btn btn-primary" href={hero.primary.href}>{hero.primary.label}</a>
                 <Link className="btn lp-btn-line" href={hero.secondary.href}>{hero.secondary.label}</Link>
               </div>
-              <div className="lp-install">
-                <div className="lp-install-row">
-                  <code className="lp-install-cmd">{hero.install.cmd}</code>
-                  <CopyBtn className="lp-install-copy" value={hero.install.cmd} label="Copy" action="copy-install" />
-                </div>
-                <span className="lp-install-next">{hero.install.next}</span>
-              </div>
+              <HeroInstall install={hero.install} setup={hero.setup} />
             </div>
           </div>
         </section>
