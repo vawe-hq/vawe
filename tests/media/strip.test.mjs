@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
-import { spreadIndexes, stripProblem, stripFpsProblem, stripWindow, worldCuts, shotCuts, motionRead, motionLines, energyLines, filmNameOf, holdBefore, holdLine, holdsSummary, withTransitions, cutHolds, transitionLine } from '../../harness/media/see/strip-math.mjs';
+import { spreadIndexes, stripProblem, stripFpsProblem, stripWindow, worldCuts, shotCuts, singleShotCut, motionRead, motionLines, energyLines, filmNameOf, holdBefore, holdLine, holdsSummary, withTransitions, cutHolds, transitionLine } from '../../harness/media/see/strip-math.mjs';
 import { videoTransitions } from '../../harness/media/see/transitions.mjs';
 import { computeEnergy } from '../../harness/media/see/core.mjs';
 import { captureEtaMs, firstCapture } from '../../harness/lib/ship-status.mjs';
@@ -70,6 +70,10 @@ test('worldCuts: the middle between a world ending and the next starting, never-
 test('shotCuts: one cut at the start of each shot after the first', () => {
   assert.deepEqual(shotCuts([{ start: 0 }, { start: 1.5 }, { start: 4 }]), [{ at: 1.5, from: 'shot 1', to: 'shot 2' }, { at: 4, from: 'shot 2', to: 'shot 3' }]);
   assert.deepEqual(shotCuts([{ start: 0 }]), []);
+  assert.deepEqual(singleShotCut([{ start: 0, end: 5 }]), [{ at: 2.5, from: 'shot 1', to: 'shot 1' }], 'one shot has no cut: its middle is the window');
+  assert.deepEqual(singleShotCut([{ start: 1, end: 1 }]), []);
+  assert.deepEqual(singleShotCut([{ start: 0, end: 2 }, { start: 2, end: 4 }]), [], 'two shots have a cut of their own');
+  assert.deepEqual(singleShotCut([]), []);
 });
 
 test('motionRead: a move that starts and settles inside the strip', () => {

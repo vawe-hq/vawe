@@ -78,6 +78,8 @@ The entry point is `media/template-export.mjs`.
 - The editable texts come from `films/<name>/template.json`: `{ "inputs": [{ "id": "name", "selector": ".title", "label": "Title", "at": 2.5 }] }`. Each selector must match one element. `at` is the second where the font, size and colour are read.
 - An editable text is not painted in its layer clip. A second clip holds that text alone, as the film draws it. The After Effects script adds a live text layer above it, with position, scale, opacity and colour keyframes from the page.
 - `page-audio.mjs` `writeStems` writes the mix as the final has it and one wav per cue.
+- `--light` makes the small zip a person downloads: a layer that moves becomes a folder of 8-bit RGBA PNGs (`media/<layer>/<layer>_00001.png`) when that is at most half the ProRes size, and stays ProRes 4444 when it is photographic or over 20 s (`media/template-clips.mjs` `chooseFormat`). Motion blur defaults to 1 with `--light`, 32 without. After Effects imports each folder with `ImportOptions.sequence`; the XML names the first frame.
+- `--poster <file.webp>` writes the film's poster (one frame, 1280 wide; `media/poster.mjs`) before the export, and `--poster-only` stops there. It lives on this tool because it is the one place that takes a template page and writes the files of a template folder.
 - `lib/premiere-xml.mjs` writes the FCP 7 XML, `lib/ae-jsx.mjs` the ES3 build script, `lib/template-readme.mjs` the README, `lib/zip-write.mjs` the zip (ZIP64 past 4 GB).
 
 ## Tools with no verb

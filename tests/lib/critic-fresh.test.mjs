@@ -37,6 +37,17 @@ test('the verdict is the last line, REJECT or PASS', () => {
   assert.equal(verdictLine(''), null);
 });
 
+test('a trailing Insight block does not hide the verdict before it', () => {
+  const rule = '─'.repeat(40);
+  const insight = `\`★ Insight ${rule}\`\nThe cuts carry the film.\nA second note.\n\`${rule}\``;
+  assert.equal(verdictLine(`1. 2.0 s x\n\nREJECT: 1 findings.\n\n${insight}\n`), 'REJECT: 1 findings.');
+  assert.equal(verdictLine(`PASS: none\n\n${insight}`), 'PASS: none');
+  assert.equal(verdictLine(`PASS: none\n\n★ Insight\nplain title`), 'PASS: none');
+  assert.equal(verdictLine(`1. x\n\n${insight}`), null, 'no verdict before the block is still no verdict');
+  assert.equal(verdictLine(insight), null);
+  assert.equal(verdictLine(`REJECT: 1.\n\nnotes after it\n${insight}`), null, 'prose between the verdict and the block still hides it');
+});
+
 test('critique files count up and the newest is the previous one', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-crit-'));
   assert.deepEqual(critiqueFiles(out, 'f'), { next: path.join(out, 'f.critique-1.md'), previous: null });

@@ -86,6 +86,7 @@ import { slideshowTells, slideshowLines } from '../lib/slideshow.mjs';
 import { worldRows, voiceOf } from '../lib/timeline.mjs';
 import { pageDigest } from '../lib/approval.mjs';
 import { writeRenderMeta, metaPath } from '../lib/render-meta.mjs';
+import { writesSidecars } from '../lib/out-target.mjs';
 import { moveDocLines } from '../lib/move-docs.mjs';
 import { referenceFor, motionStampFresh, pageAuthoring } from '../lib/motion-stamp.mjs';
 import { isWaived, waiverAdvice, waiverHint, waiverProblems } from '../lib/waivers.mjs';
@@ -985,7 +986,7 @@ export async function renderPage(pagePath, outPath, opts = {}) {
     }
     if (!process.env.LOCAL_KEEP) fs.rmSync(tmpDir, { recursive: true, force: true });
     const cues = (audioRead.read?.specs ?? []).map((s) => ({ voice: voiceOf(s), role: s.role, at: s.at, gain: s.gain }));
-    writeRenderMeta(outPath, {
+    if (opts.sidecars !== false) writeRenderMeta(outPath, {
       pageDigest: digest, renderKey: key, final, fps, width: frame.outWidth, height: frame.outHeight, duration: length.seconds, from, to: +(from + dur).toFixed(4),
       worlds: probe?.worlds ? worldRows(probe.worlds).map(({ id, start, end }) => ({ id, start, end })) : [],
       clips, audio: { mixed: Boolean(mixed), loudness: audioRead.read?.loudness ?? null, cues }, createdAt: new Date().toISOString(),
@@ -1223,7 +1224,8 @@ async function rangeBlock(mp4, pagePath, r, fps, checks) {
 
 async function printDraft(mp4, pagePath, r, { checks, taste, next, opts, from }) {
   let look = '';
-  try { await checks.time('sheet', async () => { const { out, frames, fastest } = writeDraftSheet({ video: mp4, out: draftSheetPath(mp4), fps: opts.fps, from }); look = `  look: ${out} (frames at ${frames.join(', ')} s; fastest motion at ${fastest} s)`; }); } catch (e) { console.error(`  no key-frame sheet: ${e.message}`); }
+  if (opts.sidecars === false) look = `  only ${mp4} was written: a draft at a path outside out/ gets no key-frame sheet and no .meta.json`;
+  else try { await checks.time('sheet', async () => { const { out, frames, fastest } = writeDraftSheet({ video: mp4, out: draftSheetPath(mp4), fps: opts.fps, from }); look = `  look: ${out} (frames at ${frames.join(', ')} s; fastest motion at ${fastest} s)`; }); } catch (e) { console.error(`  no key-frame sheet: ${e.message}`); }
   const whole = from === 0 && opts.durArg == null;
   const report = await draftReport(mp4, pagePath, { ...r, whole, checks });
   const range = whole ? await rangeBlock(mp4, pagePath, r, opts.fps, checks) : [];
@@ -1297,6 +1299,7 @@ async function main() {
     };
     const frame = resolveFrame(pagePath, opts);
     const outPath = outArg || defaultOut(pagePath, { aspect, suffixAspect: all, final, from, to: durArg != null ? from + durArg : null });
+    if (!final && !writesSidecars(outPath)) opts.sidecars = false;
     fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
     const masterLine = (r) => `✓ ${outPath}: ${r.frames} frame(s) at ${opts.fps}fps, ${frame.outWidth}x${frame.outHeight} (${aspect}), ${from}s-${(from + r.dur).toFixed(2)}s`
       + `${opts.blur > 1 ? `, blur=${opts.blur} (${r.subframes} subframe(s))` : ''}${r.audio ? ', audio mixed' : ''}${r.restarted.length ? `, retried slice(s) ${r.restarted.join(' ')}` : ''}${r.resumed ? `, ${r.resumed} slice(s) resumed from an earlier run` : ''}`

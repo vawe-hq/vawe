@@ -20,7 +20,7 @@ const keys = (list) => list.map((k) => [k.frame, k.value]);
 
 /** The plan of one stack entry as the script reads it. Pure. */
 function entryOf(entry) {
-  if (entry.kind === 'clip') return { kind: 'clip', name: entry.name, file: entry.file, start: entry.start, end: entry.end, blend: aeBlend(entry.blend), reference: Boolean(entry.reference) };
+  if (entry.kind === 'clip') return { kind: 'clip', name: entry.name, file: entry.file, start: entry.start, end: entry.end, blend: aeBlend(entry.blend), reference: Boolean(entry.reference), sequence: Boolean(entry.sequence) };
   const { track, font } = entry;
   return {
     kind: 'text', name: `${track.label} (editable)`, id: track.id, text: track.style.text.replace(/\n/g, '\r'), font: font.name,
@@ -40,8 +40,10 @@ function vaweMedia(name) {
   return file;
 }
 
-function vaweImport(name, folder) {
-  var item = app.project.importFile(new ImportOptions(vaweMedia(name)));
+function vaweImport(name, folder, sequence) {
+  var options = new ImportOptions(vaweMedia(name));
+  if (sequence) options.sequence = true;
+  var item = app.project.importFile(options);
   item.parentFolder = folder;
   return item;
 }
@@ -62,7 +64,7 @@ function vaweAnimate(prop, list) {
 }
 
 function vaweClip(comp, folder, clip) {
-  var item = vaweImport(clip.file, folder);
+  var item = vaweImport(clip.file, folder, clip.sequence);
   if (item.hasVideo && !item.mainSource.isStill) item.mainSource.conformFrameRate = PLAN.fps;
   if (item.hasVideo && item.mainSource.hasAlpha) item.mainSource.alphaMode = AlphaMode.STRAIGHT;
   var layer = comp.layers.add(item);
@@ -143,7 +145,7 @@ try {
 
 /**
  * The script. plan: { name, width, height, fps, frames, stack: [clip | text] bottom first, audio: [{ name, file, start, end, enabled }],
- * markers: [{ name, comment, start, end }] }. A clip: { kind: 'clip', name, file, start, end, blend, reference }; a text:
+ * markers: [{ name, comment, start, end }] }. A clip: { kind: 'clip', name, file, start, end, blend, reference, sequence }; a text:
  * { kind: 'text', track (template-plan.mjs textTrack), font: { name } }. Every time is a whole frame.
  */
 export function aeJsx(plan) {

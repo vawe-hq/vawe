@@ -22,6 +22,9 @@ export function outFile(out, fallback) {
   return target.file ?? path.join(target.dir, path.basename(fallback));
 }
 
+/** Whether a draft written at `outPath` gets its key-frame sheet and .meta.json beside it: only in out/, where the verbs that read them look. A path anywhere else (a template folder) gets the mp4 alone. Pure. */
+export const writesSidecars = (outPath, cwd = process.cwd()) => path.dirname(path.resolve(cwd, outPath)) === path.resolve(cwd, 'out');
+
 /** The file for the `label` of one of `count` files that share `file`: `file` itself for one, `<name>-<label>.png` for several. Pure. */
 export function numbered(file, label, count) {
   return count === 1 ? file : file.replace(/\.png$/i, `-${label}.png`);

@@ -3,7 +3,7 @@ import { isUrl } from '../../lib/url.mjs';
 import { refIdOfFile, refsDir, refSharpVideo, refShots, refTransitions } from '../../lib/refs.mjs';
 import { lastDraft } from '../../lib/runlog.mjs';
 import { die } from './core.mjs';
-import { filmNameOf, shotCuts, withTransitions, worldCuts } from './strip-math.mjs';
+import { filmNameOf, shotCuts, singleShotCut, withTransitions, worldCuts } from './strip-math.mjs';
 import { videoTransitions } from './transitions.mjs';
 
 /** { video, name, cuts, holdCuts } of an input: a page (its last draft), an mp4, or a reference id. `cuts()` returns the world changes or shots; it dies naming the command to run when they are not measured. `holdCuts()` returns them with the start and end of the shot change each sits in (withTransitions). */
@@ -62,7 +62,11 @@ async function pageSpans(page) {
 }
 
 function refCuts(id) {
-  const cuts = shotCuts(refShots(refsDir(), id));
-  if (!cuts.length) die(`no measured shots for ${id}: run bin/vawe see <mp4> --spec on the film, or pass --at <s>`);
-  return cuts;
+  const shots = refShots(refsDir(), id);
+  const cuts = shotCuts(shots);
+  if (cuts.length) return cuts;
+  const middle = singleShotCut(shots);
+  if (!middle.length) die(`no measured shots for ${id}: run bin/vawe see <mp4> --spec on the film, or pass --at <s>`);
+  console.log(`note: ${id} is one shot, so it has no cut; the window is the middle of the film, ${middle[0].at}s`);
+  return middle;
 }

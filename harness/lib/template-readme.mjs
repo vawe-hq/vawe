@@ -12,7 +12,7 @@ function textLines(texts, fps) {
 }
 
 function layerLines(layers, fps) {
-  return layers.map((l) => `- ${l.file}: ${secs(l.start, fps)} to ${secs(l.end, fps)}${l.blend !== 'normal' ? `, blend mode ${l.blend}` : ''}${l.blendVaries ? ' (the film changes this blend mode over time; the clip uses normal)' : ''}${l.reference ? ' (the text only, as the film draws it)' : ''}`);
+  return layers.map((l) => `- ${l.sequence ? `${l.file.split('/')[0]}/ (PNG sequence)` : l.file}:${secs(l.start, fps)} to ${secs(l.end, fps)}${l.blend !== 'normal' ? `, blend mode ${l.blend}` : ''}${l.blendVaries ? ' (the film changes this blend mode over time; the clip uses normal)' : ''}${l.reference ? ' (the text only, as the film draws it)' : ''}`);
 }
 
 /**
@@ -21,14 +21,17 @@ function layerLines(layers, fps) {
  */
 export function templateReadme(info) {
   const { name, width, height, fps, frames } = info;
+  const sequences = info.layers.filter((l) => l.sequence);
   return [
     `${name}: a motion template made with vawe (https://vawe.dev)`,
     '',
     `Size ${width} x ${height}, ${fps} frames a second, ${(frames / fps).toFixed(2)} s.`,
-    'Every picture clip is Apple ProRes 4444 with a transparent background, so the clips stack like the layers of the film.',
+    sequences.length
+      ? 'Every picture layer has a transparent background, so the layers stack like the layers of the film. A layer that moves is a folder of numbered PNG pictures (lossless, with alpha); a photographic layer is an Apple ProRes 4444 clip (.mov).'
+      : 'Every picture clip is Apple ProRes 4444 with a transparent background, so the clips stack like the layers of the film.',
     '',
     'WHAT IS INSIDE',
-    `- media/: the clips (.mov) and the sound (.wav).`,
+    `- media/: the picture layers (${sequences.length ? 'folders of .png, .png and .mov' : '.mov and .png'}) and the sound (.wav).`,
     `- premiere/${name}.xml: the timeline for Adobe Premiere Pro.`,
     `- after-effects/build-${name}.jsx: a script that builds the composition in Adobe After Effects.`,
     '- fonts/: the fonts of the editable text. Install them before you open the template.',
@@ -53,6 +56,9 @@ export function templateReadme(info) {
     ...textLines(info.texts, fps),
     '',
     'Every clip is on its own track (Premiere) or layer (After Effects): move, trim, recolour or swap any of them.',
+    ...(sequences.length ? [
+      'PNG sequences: After Effects imports each folder as one footage item. If Premiere shows a sequence layer as one still picture, delete it from the bin, choose File > Import, open the folder, pick the first .png and tick "Image Sequence", then put it back on the same track.',
+    ] : []),
     'The markers on the timeline name each scene of the film.',
     '',
     'THE LAYERS, BOTTOM FIRST',

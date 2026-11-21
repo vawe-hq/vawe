@@ -8,9 +8,14 @@ const VERDICT_RE = /^(REJECT|PASS)\b/;
 /** The quoted critic prompt of the skill, or null when the section no longer holds it. */
 export const criticTemplate = (skillText) => PROMPT_RE.exec(skillText)?.[1].replace(/\s+/g, ' ') ?? null;
 
-/** The REJECT or PASS line a critique ends with, or null. */
+// A session's reply can end with an "Insight" block (a title rule, notes, a closing rule) after the critique: it is not part of it.
+const INSIGHT_OPEN = /^[`*\s]*[★✦◆]?\s*Insight\b/;
+
+/** The REJECT or PASS line a critique ends with, not counting a trailing Insight block, or null. */
 export function verdictLine(text) {
-  const last = String(text).split('\n').map((l) => l.trim().replace(/^[`*]+|[`*]+$/g, '')).filter(Boolean).at(-1);
+  const lines = String(text).split('\n').map((l) => l.trim().replace(/^[`*]+|[`*]+$/g, '')).filter(Boolean);
+  const insight = lines.findLastIndex((l) => INSIGHT_OPEN.test(l));
+  const last = (insight > 0 ? lines.slice(0, insight) : lines).at(-1);
   return last && VERDICT_RE.test(last) ? last : null;
 }
 

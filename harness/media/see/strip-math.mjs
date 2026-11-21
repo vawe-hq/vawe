@@ -63,6 +63,11 @@ export function worldCuts(spans) {
 /** The cuts of a reference from its measured shots [{ start }]: one at the start of each shot after the first. Pure. */
 export const shotCuts = (shots) => shots.slice(1).map((s, i) => ({ at: round(s.start), from: `shot ${i + 1}`, to: `shot ${i + 2}` }));
 
+/** A reference of one shot has no cut: the one window to read is its middle, [{ at, from, to }], or none when the shot has no length. Pure. */
+export const singleShotCut = (shots) => (shots.length === 1 && shots[0].end > shots[0].start
+  ? [{ at: round((shots[0].start + shots[0].end) / 2), from: 'shot 1', to: 'shot 1' }]
+  : []);
+
 const REACH_S = 0.5;
 
 /**

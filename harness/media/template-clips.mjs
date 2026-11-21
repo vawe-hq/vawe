@@ -31,6 +31,28 @@ export function toStill(file) {
   return path.basename(png);
 }
 
+// A layer longer than this is kept as ProRes: a PNG for each frame is thousands of files and an editor scrubs one clip faster.
+export const LONG_SECONDS = 20;
+// A PNG sequence that is not under half the ProRes size holds photographic detail, which ProRes keeps better.
+const MAX_SEQUENCE_SHARE = 0.5;
+
+/** 'sequence' or 'prores': what a layer that moves is kept as in a light export. Pure. */
+export function chooseFormat({ frames, fps, sequenceBytes, movBytes }) {
+  if (frames / fps > LONG_SECONDS) return 'prores';
+  return sequenceBytes <= movBytes * MAX_SEQUENCE_SHARE ? 'sequence' : 'prores';
+}
+
+/** Writes each frame of `file` as an 8-bit RGBA PNG in a folder named after it (<name>/<name>_00001.png on) and returns { dir, first, bytes }. The clip stays. */
+export function toSequence(file) {
+  const base = path.basename(file, '.mov');
+  const dir = path.join(path.dirname(file), base);
+  fs.rmSync(dir, { recursive: true, force: true });
+  fs.mkdirSync(dir, { recursive: true });
+  ffmpeg(['-y', '-i', file, '-start_number', '1', '-pix_fmt', 'rgba', path.join(dir, `${base}_%05d.png`)], file);
+  const names = fs.readdirSync(dir).sort();
+  return { dir, first: names[0], bytes: names.reduce((sum, n) => sum + fs.statSync(path.join(dir, n)).size, 0) };
+}
+
 /** 'empty' (no frame paints), 'still' (more than one frame, all the same picture) or 'moving'. `painted`: paintedFrames(file). */
 export function clipKind(file, painted) {
   if (!painted.some(Boolean)) return 'empty';

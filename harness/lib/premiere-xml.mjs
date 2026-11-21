@@ -27,7 +27,7 @@ function fileElement(clip, id, seq) {
   const media = clip.kind === 'audio'
     ? tag('audio', `${audioSamples()}${text('channelcount', 2)}`)
     : tag('video', videoSamples(seq));
-  return `<file id="${id}">${text('name', clip.file)}${text('pathurl', pathUrl(seq.mediaRoot, clip.file))}${rate(seq.fps)}${text('duration', clip.end - clip.start)}${tag('media', media)}</file>`;
+  return `<file id="${id}">${text('name', clip.file.split('/').at(-1))}${text('pathurl', pathUrl(seq.mediaRoot, clip.file))}${rate(seq.fps)}${text('duration', clip.end - clip.start)}${tag('media', media)}</file>`;
 }
 
 function clipItem(clip, n, seq) {
