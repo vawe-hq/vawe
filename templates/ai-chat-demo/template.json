@@ -1,0 +1,25 @@
+{
+  "id": "ai-chat-demo",
+  "title": "AI chat demo",
+  "summary": "A chat product demo: a prompt is typed, the answer streams in, and one key part is called out.",
+  "category": "product",
+  "tier": "free",
+  "length": 10,
+  "aspect": "16:9",
+  "structure": "prompt types in the composer, bubble flies up on a spring, answer streams in chunks, corner marks and a label call out one key phrase, the screen holds",
+  "inputs": [
+    { "key": "brand", "label": "Product name", "default": "Lumen", "where": ".brand in the sidebar, world chat" },
+    { "key": "greeting", "label": "Greeting", "default": "What do you want to work out?", "where": "#greet, world chat" },
+    { "key": "placeholder", "label": "Composer placeholder", "default": "Ask Lumen anything", "where": "#ph, world chat" },
+    { "key": "prompt", "label": "Prompt that is typed", "default": "Save for a €30k car in 2 years?", "where": "#user, world chat" },
+    { "key": "chatname", "label": "Chat name in the sidebar after the answer", "default": "Saving for a car", "where": "#n2, world chat" },
+    { "key": "model", "label": "Model name", "default": "Lumen 2", "where": ".top b, world chat" },
+    { "key": "heading", "label": "Answer heading", "default": "A simple monthly plan", "where": "BLOCKS h2 in the script, world chat" },
+    { "key": "line1", "label": "Answer line 1", "default": "Divide the price by the months: €30,000 ÷ 24.", "where": "BLOCKS first p in the script, world chat" },
+    { "key": "line2", "label": "Answer line with the key part (the part in double stars is called out)", "default": "You need to save **€1,250 a month**", "where": "BLOCKS second p in the script, world chat" },
+    { "key": "bullet", "label": "Answer bullet", "default": "A 4% savings account trims that to about €1,200.", "where": "BLOCKS li in the script, world chat" },
+    { "key": "callout", "label": "Call-out label", "default": "Monthly target", "where": "CALLOUT in the script, world chat" },
+    { "key": "footnote", "label": "Footnote", "default": "Lumen can make mistakes. Check important numbers.", "where": ".fine, world chat" }
+  ],
+  "tags": ["chat", "ai", "streaming", "call-out"]
+}
