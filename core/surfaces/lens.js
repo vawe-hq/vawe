@@ -1,7 +1,7 @@
 // Films a flat screen like a camera pointed at a physical monitor. Usage: prompts/moves/lens.md.
 // Any option value may be a number, an array, or a function of the seek time t returning one.
 // Pixel sizes are CSS px, so a draft (half-size capture) and a final look the same. draw(t) paints once and starts no loop;
-// everything random is hashed from `seed` and floor(t * fps).
+// everything random is hashed from `seed` and noiseFrame(t, fps).
 // The technique is learned from ff-tracking's lens shader (MIT) and the bloom chain of Call of Duty: Advanced Warfare (Jimenez, 2014). The code is our own.
 import { canvasSource, htmlSource } from './lens-source.js';
 import { poseOf } from './lens-views.js';
@@ -105,6 +105,9 @@ export function resolveOptions(options = {}, override = globalThis.__vaweLensOve
   return merge(merge(renderFps ? { ...base, fps: renderFps } : base, options), override || {});
 }
 
+// A seek lands on t = n / fps, and t * fps can fall just short of n (47 of 3600 frames at 60 fps): the nudge keeps frame n.
+export const noiseFrame = (t, fps) => Math.floor(t * fps + 1e-6);
+
 const resolve = (v, t) => {
   if (typeof v === 'function') return v(t);
   if (isObject(v)) return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, resolve(x, t)]));
@@ -152,7 +155,7 @@ const pcg = (v) => {
 function weaveShift(p, t) {
   const amount = p.weave.amount;
   if (!(amount > 0)) return [0, 0];
-  const frame = Math.floor(t * p.fps);
+  const frame = noiseFrame(t, p.fps);
   const unit = (axis) => pcg((p.seed >>> 0) ^ pcg(frame ^ pcg(axis))) / 4294967296 - 0.5;
   return [unit(1) * 2 * amount * 0.6, unit(2) * 2 * amount];
 }
@@ -626,7 +629,7 @@ function scenePass(rig, p, t, src, tex, hasDepth) {
   u1('u_gridGain', p.grid.brightness / LIT_SHARE[layout]); gl.uniform1i(prog.loc('u_layout'), LAYOUTS[layout]);
   u1('u_ca', p.aberration.amount * pxs);
   u1('u_tear', p.tear.amount * pxs); u1('u_tearProb', p.tear.prob); u1('u_tearBand', p.tear.band * pxs);
-  u1('u_seed', p.seed); u1('u_frame', Math.floor(t * p.fps));
+  u1('u_seed', p.seed); u1('u_frame', noiseFrame(t, p.fps));
   u1('u_dist', p.distortion.amount);
   u1('u_tsBlur', p.tiltShift.blur * pxs); u1('u_tsCenter', p.tiltShift.center); u1('u_tsWidth', p.tiltShift.width);
   gl.uniform2f(prog.loc('u_shift'), p.shift[0] * pxs, p.shift[1] * pxs);
@@ -681,7 +684,7 @@ function finalPass(rig, p, t) {
   u1('u_bloom', p.bloom.strength > 0 ? p.bloom.strength : 0); u1('u_halo', p.halation.strength > 0 ? p.halation.strength : 0);
   u1('u_streak', p.streaks.strength > 0 ? p.streaks.strength * STREAK_GAIN : 0); u1('u_mist', p.diffusion.strength > 0 ? p.diffusion.strength : 0); u1('u_soft', p.softFocus.amount > 0 ? p.softFocus.amount : 0);
   u1('u_exp', p.exposure); u1('u_lift', p.lift); u1('u_vig', p.vignette);
-  u1('u_grain', p.grain); u1('u_fade', p.fade); u1('u_seed', p.seed); u1('u_frame', Math.floor(t * p.fps));
+  u1('u_grain', p.grain); u1('u_fade', p.fade); u1('u_seed', p.seed); u1('u_frame', noiseFrame(t, p.fps));
   setRiso(gl, f, p.riso, rig.pxs);
   draw3(gl);
 }

@@ -23,7 +23,7 @@ async function open(query) {
 
 async function shot(query) {
   const page = await open(query);
-  try { return (await page.screenshot({ type: 'png', encoding: 'base64' })); } finally { await page.close(); }
+  try { return await page.screenshot({ type: 'png', encoding: 'base64' }); } finally { await page.close(); }
 }
 
 async function diffRatio(a, b) {
@@ -54,6 +54,16 @@ test('a text split by word rests like the unsplit text', async () => {
   assert.ok(d.ratio < 0.005, `${d.off} of ${d.ink} ink pixels differ`);
 });
 
+test('a wrapped line with nested markup rests like the unsplit one', async () => {
+  const html = encodeURIComponent('Two <em>wavy</em> lines of AVATAR To  wrap here');
+  const d = await diffRatio(await shot(`by=char&html=${html}`), await shot(`html=${html}`));
+  assert.ok(d.ink > 20000 && d.ratio < 0.005, `${d.off} of ${d.ink} ink pixels differ`);
+});
+
+test('a split text still rests like the unsplit text after its font size changes (a viewport-sized font)', async () => {
+  const d = await diffRatio(await shot('by=char&size=110px'), await shot('size=110px'));
+  assert.ok(d.ratio < 0.005, `${d.off} of ${d.ink} ink pixels differ`);
+});
 
 // These three run inside the page.
 function splitGaps() {
@@ -80,6 +90,11 @@ test('a kerning pair keeps its kerned gap: the letter spans are placed at the sh
   assert.ok(Math.abs(split.av - natural.av) < 0.05, `AV gap ${split.av} vs unsplit ${natural.av}`);
   assert.ok(Math.abs(split.to - natural.to) < 0.05, `To gap ${split.to} vs unsplit ${natural.to}`);
   assert.ok(split.av < lone - 5, `AV is tighter (${split.av}) than the unkerned A advance (${lone})`);
+});
+
+test('a split before the face loads fails loudly', async () => {
+  const page = await open('early=1');
+  try { assert.match(await page.evaluate(() => window.__early ?? ''), /is not loaded/); } finally { await page.close(); }
 });
 
 test('a bad `by` fails loudly', async () => {

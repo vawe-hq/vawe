@@ -77,7 +77,7 @@ function readSources(dir) {
   try { return JSON.parse(fs.readFileSync(path.join(dir, SOURCES), 'utf8')); } catch { return {}; }
 }
 
-/** The encode settings for a clip: a screen recording keeps full colour (4:4:4) and its full size up to 3840 wide, because 4:2:0 smears the colour edge of text; any other clip is 4:2:0 and fits 1920x1080 unless `full`. */
+// A screen recording keeps 4:4:4 because 4:2:0 smears the colour edge of text. `full: false` still boxes it; undefined means decide by kind.
 export function proxyPlan(kind, full) {
   return { full: full ?? kind.screen, pixFmt: kind.screen ? 'yuv444p' : 'yuv420p' };
 }

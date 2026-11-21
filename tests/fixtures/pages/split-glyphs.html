@@ -15,10 +15,12 @@
 import { splitGlyphs } from '/core/text/split.js';
 const q = new URLSearchParams(location.search);
 const h = document.getElementById('t');
-h.textContent = q.get('text') || 'AVATAR Tomato';
+if (q.get('html')) h.innerHTML = q.get('html'); else h.textContent = q.get('text') || 'AVATAR Tomato';
+if (q.get('early')) { try { splitGlyphs(h); } catch (e) { window.__early = e.message; } }
 await document.fonts.load('180px Fraunces');
 await document.fonts.ready;
 if (q.get('by')) window.__glyphs = splitGlyphs(h, { by: q.get('by') });
+if (q.get('size')) h.style.fontSize = q.get('size');
 window.__ready = true;
 </script>
 </body>

@@ -816,7 +816,7 @@ export function briefProblems(pagePath) {
 // w/h set the output size: scale = w / full width (else h / full height), CSS size = output / scale.
 // Returns { aspect, width, height, scale, outWidth, outHeight }: the output is outWidth x outHeight, each side
 // rounded to an even number because libx264 with yuv420p refuses an odd side (a 4:5 draft is 540x675 before rounding).
-export function resolveFrame(pagePath, { aspect, w, h, final = false } = {}) {
+export function resolveFrame(pagePath, { aspect, w, h, final = false, fps = final ? 60 : 30 } = {}) {
   const name = aspect || aspectOverride() || readPageMeta(pagePath, 'aspect') || '16:9';
   const problem = aspectProblem(name);
   if (problem) throw new RenderError(`${pagePath}: unknown aspect ${problem}`);
@@ -824,7 +824,7 @@ export function resolveFrame(pagePath, { aspect, w, h, final = false } = {}) {
   const scale = w ? w / fw : h ? h / fh : final ? 1 : 0.5;
   const outW = w || Math.round(fw * scale), outH = h || Math.round(fh * scale);
   const even = (n) => Math.max(2, 2 * Math.round(n / 2));
-  return { aspect: name, width: Math.round(outW / scale), height: Math.round(outH / scale), scale, outWidth: even(outW), outHeight: even(outH) };
+  return { aspect: name, width: Math.round(outW / scale), height: Math.round(outH / scale), scale, outWidth: even(outW), outHeight: even(outH), renderFps: fps };
 }
 
 // The page's <audio> elements are read from the loaded page before the capture (readAudio) and mixed offline, never played
@@ -860,9 +860,9 @@ export async function renderPage(pagePath, outPath, opts = {}) {
   const { fps = 30, blur = 1, durArg = null, from = 0, progress = false, final = false, layer = null } = opts;
   if (!fs.existsSync(pagePath)) throw new RenderError(`no such file: ${pagePath}`, EXIT.IO);
   if (layer && !final) throw new RenderError('a layer render is a final: pass final: true', EXIT.USAGE);
-  const canvas = resolveFrame(pagePath, opts);
+  const canvas = resolveFrame(pagePath, { ...opts, fps });
   const length = await resolveLength(pagePath, canvas).catch((e) => { throw e instanceof DurationError ? new RenderError(e.message) : e; });
-  const frame = { ...canvas, renderFps: fps, ...(length.auto ? { duration: length.seconds } : {}), ...(layer ? { layer } : {}) };
+  const frame = { ...canvas, ...(length.auto ? { duration: length.seconds } : {}), ...(layer ? { layer } : {}) };
   const wantAudio = !layer && (opts.audio ?? (from === 0 && durArg == null));
   if (opts.audio && from > 0) throw new RenderError('--audio needs a render from 0: the mix has no offset', EXIT.USAGE);
   const digest = pageDigest(pagePath);

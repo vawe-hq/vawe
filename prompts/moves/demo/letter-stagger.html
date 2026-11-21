@@ -15,8 +15,9 @@
 <script type="module">
 import { EASE } from '/core/motion/presets.js';
 import { splitGlyphs } from '/core/text/split.js';
-await document.fonts.ready;
-const letters = splitGlyphs(document.querySelector('h1'), { by: 'char' });
+const h1 = document.querySelector('h1');
+await document.fonts.load(getComputedStyle(h1).font);
+const letters = splitGlyphs(h1, { by: 'char' });
 // 45 ms per letter: inside the 30 to 80 ms band, so the group never lands on one frame
 letters.forEach((s, i) => s.animate(
   [{ translate: '0 0.6em', opacity: 0 }, { translate: '0 0', opacity: 1 }],

@@ -49,7 +49,7 @@ function textLines() {
   return [
     '## Text: `import { splitGlyphs } from "/core/text/split.js"`',
     '',
-    '- splitGlyphs(el, { by: "char" | "word" }): replaces the text of `el` with inline-block spans and returns them in reading order. `await document.fonts.ready` first. A `char` span is as wide as that letter is in the whole text, so the resting layout keeps its kerning (AV, To); a ligature (fi) is drawn as two letters. A space stays plain text. Never split text by hand into inline-block spans: each letter is shaped alone and the kerning is lost.',
+    '- splitGlyphs(el, { by: "char" | "word" }): replaces the text of `el` with inline-block spans and returns them in reading order. `await document.fonts.load(getComputedStyle(el).font)` first (it throws while the face is not loaded). A `char` span is as wide as that letter is in the whole text, so the resting layout keeps its kerning (AV, To); a ligature (fi) is drawn as two letters. A space stays plain text. Never split text by hand into inline-block spans: each letter is shaped alone and the kerning is lost.',
   ];
 }
 
@@ -66,7 +66,7 @@ function lensLines() {
     '',
     `Palettes for \`palette: { stops: PALETTES.<name>, amount, keepColor }\`: ${Object.keys(PALETTES).join(', ')}.`,
     '',
-    `Options and their defaults with no look (\`OFF\` zeroes ${Object.keys(OFF).join(', ')}). \`fps\` below is the default outside a render; in a render it is \`vawe.renderFps\`, so grain, tear and weave change on every output frame:`,
+    `Options and their defaults with no look (\`OFF\` zeroes ${Object.keys(OFF).join(', ')}). \`fps\` below is the default outside a render; in a render it is \`vawe.renderFps\` unless the page sets it, so grain, tear and weave change on every output frame:`,
     ...options,
   ];
 }

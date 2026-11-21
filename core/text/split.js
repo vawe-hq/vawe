@@ -1,7 +1,6 @@
 // Splits the text of an element into one inline-block span per grapheme or word, so each can be animated, and keeps the resting layout
 // of the unsplit text: a letter alone is shaped alone (no kerning, no ligature), so each letter span takes the advance the browser
 // gave that letter inside the whole run. Chrome puts a kern pair's adjustment in the advance of the first letter.
-// The page imports it as `import { splitGlyphs } from '/core/text/split.js'` and calls it after `await document.fonts.ready`.
 
 const SEGMENTER = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 
@@ -19,47 +18,48 @@ function rangeWidth(node, from, to) {
   return range.getBoundingClientRect().width;
 }
 
-// [{ text, from, to, space }] for one text node: words and the white space between them, with their offsets.
+// [{ text, from, space }] for one text node: words and the white space between them, with their offsets.
 function tokensOf(text) {
-  return [...text.matchAll(/\S+|\s+/g)].map((m) => ({ text: m[0], from: m.index, to: m.index + m[0].length, space: /^\s/.test(m[0]) }));
+  return [...text.matchAll(/(\s+)|\S+/g)].map((m) => ({ text: m[0], from: m.index, space: m[1] != null }));
 }
 
-function glyphSpan(text, width) {
+function glyphSpan(text, widthEm) {
   const span = document.createElement('span');
   span.textContent = text;
   span.style.display = 'inline-block';
   span.style.whiteSpace = 'pre';
-  if (width != null) span.style.width = `${width.toFixed(4)}px`;
+  if (widthEm != null) span.style.width = `${widthEm.toFixed(6)}em`;
   return span;
 }
 
+// Widths in em, so the spans keep their places when the font size follows the viewport (--vh) after the split.
 function charSpans(node, token, scale) {
+  const em = parseFloat(getComputedStyle(node.parentElement).fontSize) * scale;
   let at = token.from;
   return [...SEGMENTER.segment(token.text)].map(({ segment }) => {
-    const span = glyphSpan(segment, rangeWidth(node, at, at + segment.length) / scale);
+    const span = glyphSpan(segment, rangeWidth(node, at, at + segment.length) / em);
     at += segment.length;
     return span;
   });
 }
 
-// Measure every node before changing any, so one node's new spans cannot move the next one's range.
-function plansOf(el, by, scale) {
-  return textNodesOf(el).map((node) => ({
-    node,
-    parts: tokensOf(node.nodeValue).map((t) => (t.space ? { text: t.text } : { glyphs: by === 'word' ? [glyphSpan(t.text, null)] : charSpans(node, t, scale) })),
-  }));
+function checkFont(node) {
+  const font = getComputedStyle(node.parentElement).font;
+  if (!document.fonts.check(font, node.nodeValue)) {
+    throw new Error(`splitGlyphs: the face of "${font}" is not loaded, so the widths would be of the fallback face; \`await document.fonts.load(getComputedStyle(el).font)\` first`);
+  }
 }
 
-function apply({ node, parts }, glyphs) {
-  const nodes = parts.map((p) => {
-    if (!p.glyphs) return document.createTextNode(p.text);
-    const word = document.createElement('span');
-    word.style.whiteSpace = 'nowrap';
-    word.append(...p.glyphs);
-    glyphs.push(...p.glyphs);
-    return word;
-  });
-  node.replaceWith(...nodes);
+// The exact screen scale, from a 100 by 10 px probe (offsetWidth rounds); a rotation or skew widens the short side more, so it fails.
+function screenScale(el) {
+  const probe = document.createElement('vawe-probe');
+  probe.style.cssText = 'display:block;position:absolute;left:0;top:0;width:100px;height:10px;padding:0;border:0;margin:0';
+  el.append(probe);
+  const rect = probe.getBoundingClientRect();
+  probe.remove();
+  const sx = rect.width / 100, sy = rect.height / 10;
+  if (!(sx > 0) || Math.abs(sx - sy) > 0.001 * sx) throw new Error('splitGlyphs: the element is rotated or skewed, so its letters cannot be measured; split before the transform applies');
+  return sx;
 }
 
 /**
@@ -69,10 +69,23 @@ function apply({ node, parts }, glyphs) {
  */
 export function splitGlyphs(el, { by = 'char' } = {}) {
   if (by !== 'char' && by !== 'word') throw new Error(`splitGlyphs: by must be 'char' or 'word', got ${JSON.stringify(by)}`);
-  const scale = el.offsetWidth ? el.getBoundingClientRect().width / el.offsetWidth : 1;
-  const plans = plansOf(el, by, scale || 1);
-  if (document.fonts.status === 'loading') throw new Error('splitGlyphs: fonts are still loading, so the widths are of the fallback face; `await document.fonts.ready` first');
-  const glyphs = [];
-  for (const plan of plans) apply(plan, glyphs);
-  return glyphs;
+  if (!el?.getClientRects().length) throw new Error('splitGlyphs: the element is missing or not laid out (display: none?)');
+  const nodes = textNodesOf(el);
+  nodes.forEach(checkFont);
+  const scale = screenScale(el);
+  // Measure every node before changing any, so one node's new spans cannot move the next one's range.
+  const plans = nodes.map((node) => ({
+    node,
+    parts: tokensOf(node.nodeValue).map((t) => (t.space ? { text: t.text } : { glyphs: by === 'word' ? [glyphSpan(t.text, null)] : charSpans(node, t, scale) })),
+  }));
+  for (const { node, parts } of plans) node.replaceWith(...parts.map(partNode));
+  return plans.flatMap((p) => p.parts.flatMap((x) => x.glyphs ?? []));
+}
+
+function partNode(part) {
+  if (!part.glyphs) return document.createTextNode(part.text);
+  const word = document.createElement('span');
+  word.style.whiteSpace = 'nowrap';
+  word.append(...part.glyphs);
+  return word;
 }
