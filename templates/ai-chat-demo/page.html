@@ -1,0 +1,225 @@
+<!doctype html>
+<html data-aspect="16:9">
+<head>
+<meta charset="utf-8">
+<meta name="duration" content="10">
+<meta name="aspect" content="16:9">
+<meta name="message" content="Lumen answers and shows the number that matters">
+<meta name="spectacle" content="6.4">
+<meta name="signature" content="band=professional; ease=land; stagger=60; seam=moving; palette=warm neutral; thread=the amber accent">
+<title>Lumen chat demo</title>
+<style>
+  @font-face { font-family: "Inter"; font-weight: 100 900; src: url("assets/InterVariable.woff2") format("woff2"); }
+  @property --rest { syntax: "<color>"; inherits: true; initial-value: #17140f; }
+  :root { --u: calc(var(--vh) / 100); --ground: #efebe4; --surface: #fdfcfa; --side: #f6f3ee; --ink: #17140f; --muted: #6b665d; --faint: #6f6a61; --line: rgba(23, 20, 15, 0.1);
+          --accent: #a8620a; --tint: #f4e6d3; --sans: "Inter", system-ui, sans-serif; --rest: #17140f; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ground); }
+  .ground { position: absolute; inset: 0; overflow: hidden; background: var(--ground); }
+  .ground i { position: absolute; border-radius: 50%; width: calc(var(--vh) * 1.2); height: calc(var(--vh) * 1.2); }
+  .ground i:nth-child(1) { left: -10%; top: -45%; background: radial-gradient(closest-side, rgba(255, 214, 160, 0.55), transparent); }
+  .ground i:nth-child(2) { right: -12%; bottom: -60%; background: radial-gradient(closest-side, rgba(232, 188, 140, 0.4), transparent); }
+  .world { position: absolute; inset: 0; font-family: var(--sans); color: var(--ink); }
+
+  .win { position: absolute; inset: 0; margin: auto; --u: calc(var(--vh) / 100 * 1.22); width: calc(var(--u) * 132); height: calc(var(--u) * 76); display: flex; flex-direction: column; overflow: hidden; border-radius: calc(var(--u) * 1.8);
+         background: var(--surface); box-shadow: 0 0 0 1px var(--line), 0 calc(var(--u) * 0.6) calc(var(--u) * 1.4) rgb(60 40 10 / 0.07), 0 calc(var(--u) * 3) calc(var(--u) * 8) rgb(60 40 10 / 0.14); }
+  .tbar { flex: none; display: flex; align-items: center; height: calc(var(--u) * 4.6); padding: 0 calc(var(--u) * 2); background: var(--side); box-shadow: 0 1px 0 var(--line); }
+  .lights { display: flex; gap: calc(var(--u) * 1.2); }
+  .lights i { width: calc(var(--u) * 1.7); height: calc(var(--u) * 1.7); border-radius: 50%; background: #ff5f57; }
+  .lights i:nth-child(2) { background: #febc2e; }
+  .lights i:nth-child(3) { background: #28c840; }
+  .app { flex: 1; min-height: 0; display: flex; }
+
+  .side { flex: none; width: calc(var(--u) * 28); display: flex; flex-direction: column; padding: calc(var(--u) * 2) calc(var(--u) * 1.4); background: var(--side); box-shadow: 1px 0 0 var(--line); color: var(--muted); font-size: calc(var(--u) * 2.7); }
+  .brand { display: flex; align-items: center; gap: calc(var(--u) * 1); padding: 0 calc(var(--u) * 1); margin-bottom: calc(var(--u) * 2.2); color: var(--ink); font-weight: 650; font-size: calc(var(--u) * 3.1); letter-spacing: -0.01em; }
+  .brand svg { width: calc(var(--u) * 3); height: calc(var(--u) * 3); }
+  .new { display: flex; align-items: center; gap: calc(var(--u) * 1); padding: calc(var(--u) * 1.1) calc(var(--u) * 1.2); margin-bottom: calc(var(--u) * 2); border-radius: calc(var(--u) * 1.2); background: var(--surface); box-shadow: 0 0 0 1px var(--line); color: var(--ink); font-weight: 550; }
+  .new svg { width: calc(var(--u) * 2.6); height: calc(var(--u) * 2.6); }
+  .sec { padding: 0 calc(var(--u) * 1.2); margin-bottom: calc(var(--u) * 0.8); font-size: calc(var(--u) * 1.5); letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint); }
+  .chat { padding: calc(var(--u) * 1) calc(var(--u) * 1.2); border-radius: calc(var(--u) * 1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slot { display: grid; }
+  .slot > * { grid-area: 1 / 1; }
+  .chat.on { background: rgb(23 20 15 / 0.06); color: var(--ink); }
+  .me { margin-top: auto; display: flex; align-items: center; gap: calc(var(--u) * 1); padding: calc(var(--u) * 1) calc(var(--u) * 1.2); color: var(--ink); font-weight: 550; }
+  .me i { width: calc(var(--u) * 3); height: calc(var(--u) * 3); border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-style: normal; font-size: calc(var(--u) * 2); font-weight: 650; }
+
+  .main { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .top { flex: none; display: flex; align-items: center; justify-content: space-between; height: calc(var(--u) * 5.4); padding: 0 calc(var(--u) * 2.4); color: var(--muted); font-size: calc(var(--u) * 2.7); font-weight: 500; }
+  .top b { color: var(--ink); font-weight: 600; }
+  .col { width: calc(var(--u) * 88); margin: 0 0 0 calc(var(--u) * 6); }
+  .thread { flex: 1; min-height: 0; padding-top: calc(var(--u) * 1); }
+  .user { margin-left: auto; width: fit-content; max-width: 90%; padding: calc(var(--u) * 1.3) calc(var(--u) * 2.4); border-radius: calc(var(--u) * 2.6); background: var(--tint); font-size: calc(var(--u) * 3.4); line-height: 1.4; }
+  .answer { position: relative; margin-top: calc(var(--u) * 3); font-size: calc(var(--u) * 3.4); line-height: 1.55; color: var(--rest); }
+  .answer h2 { margin: 0 0 calc(var(--u) * 1.2); font-size: calc(var(--u) * 4.4); line-height: 1.2; font-weight: 650; letter-spacing: -0.015em; }
+  .answer p { position: relative; margin: 0 0 calc(var(--u) * 1.2); }
+  .answer ul { margin: 0; padding-left: calc(var(--u) * 3); }
+  .answer li { padding-left: calc(var(--u) * 0.4); }
+  .chunk { display: inline; }
+  .key { position: relative; display: inline-block; white-space: nowrap; font-weight: 700; font-size: 1em; line-height: 1.1; vertical-align: baseline; color: var(--ink); background: linear-gradient(var(--tint), var(--tint)) left center / 0% 100% no-repeat; border-radius: 0.2em; }
+  .frame { position: absolute; inset: calc(var(--u) * -0.8) calc(var(--u) * -1.1); --far: calc(var(--u) * 8); --arm: calc(var(--u) * 1.8); --w: calc(var(--u) * 0.45); }
+  .c { position: absolute; width: var(--arm); height: var(--arm); border: 0 solid var(--accent); }
+  .c.tl { left: 0; top: 0; border-width: var(--w) 0 0 var(--w); border-top-left-radius: calc(var(--u) * 0.7); }
+  .c.tr { right: 0; top: 0; border-width: var(--w) var(--w) 0 0; border-top-right-radius: calc(var(--u) * 0.7); }
+  .c.bl { left: 0; bottom: 0; border-width: 0 0 var(--w) var(--w); border-bottom-left-radius: calc(var(--u) * 0.7); }
+  .c.br { right: 0; bottom: 0; border-width: 0 var(--w) var(--w) 0; border-bottom-right-radius: calc(var(--u) * 0.7); }
+  .chip { position: absolute; left: calc(100% + var(--u) * 6); top: 50%; translate: 0 -50%; display: flex; align-items: center; white-space: nowrap; padding: calc(var(--u) * 0.7) calc(var(--u) * 1.5); border-radius: 999px; background: #965808; color: #fff; font-size: calc(var(--u) * 3.2); font-weight: 600; line-height: 1.2; }
+  .chip::before { content: ""; position: absolute; right: 100%; top: 50%; width: calc(var(--u) * 3.2); height: calc(var(--u) * 0.3); background: var(--accent); translate: calc(var(--u) * 0.2) -50%; }
+  .acts { display: flex; gap: calc(var(--u) * 0.4); margin: calc(var(--u) * 1.6) 0 0 calc(var(--u) * -0.7); color: var(--muted); }
+  .acts svg { box-sizing: content-box; width: calc(var(--u) * 2.1); height: calc(var(--u) * 2.1); padding: calc(var(--u) * 0.7); }
+  .think { position: absolute; left: 0; top: calc(var(--u) * 1.2); width: calc(var(--u) * 1.1); height: calc(var(--u) * 1.1); border-radius: 50%; background: var(--faint); }
+
+  .dock { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: calc(var(--u) * 1.6); }
+  .composer { display: flex; align-items: center; gap: calc(var(--u) * 1.2); width: calc(var(--u) * 88); height: calc(var(--u) * 9.6); box-sizing: border-box; padding: 0 calc(var(--u) * 1.6) 0 calc(var(--u) * 2); border-radius: calc(var(--u) * 3.2); background: var(--surface); box-shadow: 0 0 0 1px var(--line), 0 calc(var(--u) * 0.5) calc(var(--u) * 1.6) rgb(60 40 10 / 0.07); }
+  .plus { flex: none; width: calc(var(--u) * 2.6); height: calc(var(--u) * 2.6); color: var(--muted); }
+  .field { position: relative; flex: 1; display: flex; align-items: center; white-space: nowrap; font-size: calc(var(--u) * 3.4); line-height: 1; }
+  .ph { position: absolute; color: var(--muted); }
+  .type { position: relative; display: inline-flex; align-items: center; }
+  .cur { width: 2px; height: calc(var(--u) * 4); margin-left: 1px; background: var(--ink); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  .go { position: relative; flex: none; width: calc(var(--u) * 6.4); height: calc(var(--u) * 6.4); border-radius: 50%; background: #d9d4cb; color: #fff; }
+  .go .on { position: absolute; inset: 0; border-radius: 50%; background: var(--accent); }
+  .go svg { position: absolute; inset: 0; margin: auto; width: calc(var(--u) * 2.6); height: calc(var(--u) * 2.6); stroke-width: 2.2; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+  .go svg.fill { fill: currentColor; stroke: none; }
+  .fine { margin-top: calc(var(--u) * 1.1); font-size: calc(var(--u) * 2.7); color: var(--faint); }
+  .greet { position: absolute; left: 0; right: 0; top: 33%; text-align: center; font-size: calc(var(--u) * 5.2); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; }
+</style>
+<script type="application/json" id="authoring">{"allow": ["world-held@0-10", "text-breathing", "spectacle-weak", "anticipation", "static-window@7.2-9.7", "tile-run@0-9.6"], "_why": {"world-held@0-10": "world chat holds 10 s: the prompt types to 2.8 s, the answer streams to 5.9 s and the call-out lands at 6.4 s on one continuous screen", "text-breathing": "world chat is one app screen: text shows 100% of the 10.0 s because a chat always shows text; tried a wordless beat and kept the text because a chat always shows text", "spectacle-weak": "world chat has its big moment at 6.4 s: the corner marks snap on the key number over 0.52 s, while the send at 3 s moves faster because a real product sends on a spring; tried a larger label and a growing number so the call-out lands at 6.4 s", "anticipation": "world chat lands the corner marks at 6.4 s from outside the key part with no wind-up, over 0.52 s, as the bracket-callout move does; tried a dip before the marks and kept none because the marks already converge from 1.12x", "static-window@7.2-9.7": "world chat holds the finished answer 2.5 s as the product does while the label breathes 4% every 1.6 s and the composer caret blinks at 1 Hz", "tile-run@0-9.6": "world chat changes in one text block, 49 near-identical tiles from 0 s to 9.6 s, while the prompt types and the answer streams"}}</script>
+</head>
+<body>
+<div class="ground" aria-hidden="true"><i></i><i></i></div>
+
+<section class="world" data-world="chat">
+  <div class="win" data-ui>
+    <div class="tbar" data-chrome><span class="lights"><i></i><i></i><i></i></span></div>
+    <div class="app">
+      <aside class="side" aria-hidden="true" data-texture="sidebar chat history list">
+        <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="#a8620a" stroke-width="2.2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3" fill="#a8620a" stroke="none"/></svg>Lumen</div>
+        <div class="new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New chat</div>
+        <div class="chat on slot"><span id="n1">New chat</span><span id="n2">Saving for a car</span></div>
+        <div class="chat">Resume tips for a designer</div>
+        <div class="chat">Sourdough starter stuck</div>
+        <div class="chat">Plan a week in Lisbon</div>
+        <div class="chat">Explain index funds</div>
+        <div class="chat">Names for a coffee cart</div>
+        <div class="me"><i>S</i>Sam</div>
+      </aside>
+      <div class="main">
+        <div class="top" data-texture="app top bar labels"><b>Lumen 2</b><span>Saved</span></div>
+        <div class="greet" id="greet">What do you want to work out?</div>
+        <div class="thread"><div class="col">
+          <div class="user" id="user">Save for a €30k car in 2 years?</div>
+          <div class="answer" id="answer"><i class="think"></i></div>
+        </div></div>
+        <div class="dock"><div class="composer" id="composer">
+          <svg class="plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <div class="field"><span class="ph" id="ph">Ask Lumen anything</span><span class="type"><span id="typed"></span><i class="cur" id="cur"></i></span></div>
+          <span class="go"><i class="on" id="goon"></i><svg viewBox="0 0 24 24" id="up"><path d="M12 19V5M6 11l6-6 6 6"/></svg><svg class="fill" viewBox="0 0 24 24" id="stop"><rect x="7" y="7" width="10" height="10" rx="2.2"/></svg></span>
+        </div><div class="fine" data-texture="mistakes footnote under the composer">Lumen can make mistakes. Check important numbers.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+import '../../core/engine/page-api.js';
+import { rng, springLinear, springDuration } from '../../core/motion/springs.js';
+import { EASE } from '../../core/motion/presets.js';
+import { breathe } from '../../core/motion/alive.js';
+import { arrive, show, typeTimes, typedCount, between } from './assets/stage.js';
+const q = (s) => document.querySelector(s), all = (s) => [...document.querySelectorAll(s)];
+const END = 10000, TYPE_AT = 800, SEND_AT = 3000, STREAM_AT = 3550, CALL_AT = 6400;
+
+// each answer block; **double stars** mark the one key part that gets called out
+const BLOCKS = [
+  ['h2', 'A simple monthly plan'],
+  ['p', 'Divide the price by the months: €30,000 ÷ 24.'],
+  ['p', 'You need to save'],
+  ['p', '**€1,250 a month**'],
+  ['li', 'A 4% account trims that to about €1,200.'],
+];
+const CALLOUT = 'Your goal';
+const KEYLINE = 'calc(var(--u) * 8.4)';
+
+const user = q('#user'), answer = q('#answer'), composer = q('#composer'), win = q('.win');
+
+// measure the finished layout, then send the bubble from the centred composer
+const main = q('.main').getBoundingClientRect(), cr = composer.getBoundingClientRect();
+const centerTop = main.top + main.height * 0.52 - cr.height / 2;
+const lift = centerTop - cr.top;
+const dy = centerTop + (cr.height - user.getBoundingClientRect().height) / 2 - user.getBoundingClientRect().top;
+const SK = 240, SD = 23;
+user.animate([{ opacity: 0, translate: `0 ${dy}px`, scale: 0.94 }, { opacity: 1, translate: `0 ${dy * 0.85}px`, scale: 0.95, offset: 0.06 }, { opacity: 1, translate: '0 0', scale: 1 }], { duration: springDuration(SK, SD) * 1000, delay: SEND_AT, easing: springLinear(SK, SD), fill: 'both' });
+
+// the answer streams in chunks of 1 to 3 words; each chunk fades in
+const render = (tok) => tok.replace(/^\*\*(.+)\*\*([.,;:]?)$/, (_, key, mark) => `<span class="key">${key}</span>${mark && `<span class="pn">${mark}</span>`}`);
+const ul = document.createElement('ul');
+const r = rng(7);
+let t = STREAM_AT;
+let keyEl = null;
+for (const [tag, text] of BLOCKS) {
+  const block = document.createElement(tag);
+  if (tag === 'li') { ul.append(block); if (!ul.isConnected) answer.append(ul); } else answer.append(block);
+  const toks = text.match(/\*\*[^*]+\*\*[.,;:]?|\S+/g);
+  const chunks = [];
+  for (let i = 0; i < toks.length;) { const n = 1 + Math.floor(r() * 3); chunks.push(toks.slice(i, i + n).map(render).join(' ')); i += n; }
+  block.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 120, delay: t, easing: EASE.land, fill: 'both' });
+  chunks.forEach((c, i) => {
+    const el = Object.assign(document.createElement('span'), { className: 'chunk', innerHTML: c + (i < chunks.length - 1 ? ' ' : '') });
+    block.append(el);
+    const from = t; t += 55 + r() * 45;
+    el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: from, easing: EASE.land, fill: 'both' });
+    el.animate([{ color: 'var(--accent)' }, { color: 'inherit' }], { duration: 500, delay: from, easing: EASE.land, fill: 'both' });
+    const key = el.querySelector('.key');
+    if (key) keyEl = key;
+  });
+}
+const DONE = t;
+
+// the call-out is built inside the key part: four corners and a label
+keyEl.closest('p').style.height = KEYLINE;
+keyEl.insertAdjacentHTML('beforeend', '<span class="frame"><i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i></span>');
+keyEl.insertAdjacentHTML('beforeend', `<span class="chip" id="chip">${CALLOUT}</span>`);
+
+// the film opens on the finished empty chat: frame 0 already shows the product, and the window settles into place over 0.8 s
+win.animate([{ scale: 0.92, translate: '0 2.4vh' }, { scale: 1, translate: '0 0' }], { duration: 800, easing: EASE.land, fill: 'both' });
+win.animate([{ scale: 1, translate: '0 0' }, { scale: 0.92, translate: '0 2.4vh' }], { duration: 600, delay: END - 600, easing: EASE.launch, fill: 'forwards' });
+all('.ground i').forEach((el, k) => el.animate([{ translate: '0 0' }, { translate: `calc(var(--vw) * ${k ? -0.06 : 0.08}) calc(var(--vh) * ${k ? -0.08 : 0.1})` }], { duration: END, easing: EASE.glide, fill: 'both' }));
+
+// the prompt is typed: the text is a pure function of t
+const prompt = user.textContent;
+const times = typeTimes(prompt, TYPE_AT);
+const typed = q('#typed'), ph = q('#ph'), cur = q('#cur');
+vawe.onFrame((s) => {
+  const ms = s * 1000, n = typedCount(times, ms);
+  typed.textContent = ms >= SEND_AT + 100 ? '' : prompt.slice(0, n);
+  ph.style.visibility = n === 0 || ms >= SEND_AT + 100 ? 'visible' : 'hidden';
+  cur.style.visibility = ms < SEND_AT || ms >= DONE + 150 ? 'visible' : 'hidden';
+});
+
+// the send button: grey while empty, amber with an arrow while typing, a stop square while the model answers, then grey again
+between(q('#goon'), times[0], DONE + 300, END);
+between(q('#stop'), SEND_AT, DONE + 300, END);
+q('#up').animate([{ opacity: 1 }, { opacity: 1, offset: (SEND_AT - 60) / END }, { opacity: 0, offset: (SEND_AT + 60) / END }, { opacity: 0, offset: (DONE + 240) / END }, { opacity: 1, offset: (DONE + 360) / END }, { opacity: 1 }], { duration: END, fill: 'both' });
+
+// send: the greeting is gone when the bubble flies; the composer glides to the dock; the sidebar names the chat
+q('#greet').animate([{ opacity: 0 }], { duration: 120, delay: SEND_AT, easing: EASE.launch, fill: 'forwards' });
+composer.animate([{ translate: `0 ${lift}px` }, { translate: '0 0' }], { duration: 520, delay: SEND_AT, easing: EASE.land, fill: 'both' });
+show(q('#n1'), null, DONE + 350);
+show(q('#n2'), DONE + 350);
+
+// the model thinks: one dot, then the first chunk fades in
+const think = q('.think');
+think.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, delay: SEND_AT + 200, easing: EASE.land, fill: 'both' });
+think.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 60, delay: STREAM_AT - 20, fill: 'forwards' });
+
+// the call-out: the rest of the answer eases back, four corners snap onto the key part, the label arrives beside it
+answer.animate([{ '--rest': '#17140f' }, { '--rest': '#767067' }], { duration: 300, delay: CALL_AT, easing: EASE.land, fill: 'both' });
+keyEl.animate([{ backgroundSize: '0% 100%', fontSize: '1em' }, { backgroundSize: '100% 100%', fontSize: '2.2em' }], { duration: 520, delay: CALL_AT, easing: EASE.land, fill: 'both' });
+q('.frame').animate([{ opacity: 0, scale: 1.12 }, { opacity: 1, offset: 0.2 }, { opacity: 1, scale: 1 }], { duration: 520, delay: CALL_AT + 120, easing: EASE.pop, fill: 'both' });
+q('#chip').animate([{ opacity: 0, translate: '-1.4vh -50%' }, { opacity: 1, translate: '0 -50%' }], { duration: 360, delay: CALL_AT + 560, easing: EASE.land, fill: 'both' });
+
+// the hold stays alive: the label breathes while the answer rests
+breathe(q('#chip'), { at: (CALL_AT + 1100) / 1000, dur: 2.4, scale: 0.04, glow: 0 });
+
+</script>
+</body>
+</html>
