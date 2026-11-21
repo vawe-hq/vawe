@@ -43,9 +43,12 @@ test('proxies are constant frame rate, sized to the clip length, with audio only
 test('a clip over the box is fitted without a crop, a smaller one is kept', () => {
   const { dir, clips, film } = fixtures();
   try {
-    ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=2560x1440:rate=10:duration=1', '-pix_fmt', 'yuv420p', path.join(clips, 'big.mp4'));
+    ffmpeg('-f', 'lavfi', '-i', 'perlin=size=2560x1440:rate=10', '-t', '1', '-vf', 'noise=alls=12:allf=t+u,format=yuv420p', path.join(clips, 'big.mp4'));
+    ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=2560x1440:rate=10:duration=1', '-pix_fmt', 'yuv420p', path.join(clips, 'screen.mp4'));
     const out = Object.fromEntries(addFootage(film, [path.join(clips, 'big.mp4'), path.join(clips, 'Beach Day.mp4')], {}).map((c) => [c.slug, c]));
-    assert.deepEqual([out.big.width, out.big.height], [1920, 1080]);
+    assert.deepEqual([out.big.width, out.big.height], [1920, 1080], 'camera footage is fitted to the box');
+    const screen = addFootage(path.join(dir, 'film-screen'), [path.join(clips, 'screen.mp4')], {})[0];
+    assert.deepEqual([screen.width, screen.height, screen.pixFmt], [2560, 1440, 'yuv444p'], 'a screen recording keeps its size and colour');
     assert.deepEqual([out['beach-day'].width, out['beach-day'].height], [320, 180]);
     const full = addFootage(path.join(dir, 'film-full'), [path.join(clips, 'big.mp4')], { full: true })[0];
     assert.deepEqual([full.width, full.height], [2560, 1440]);

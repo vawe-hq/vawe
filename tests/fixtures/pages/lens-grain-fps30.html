@@ -1,0 +1,13 @@
+<!doctype html>
+<html data-aspect="16:9"><head><meta charset="utf-8"><meta name="duration" content="0.1">
+<style>
+html, body { margin: 0; background: #000; overflow: hidden; }
+#screen { width: 1920px; height: 1080px; background: #808080; }
+</style></head>
+<body><div id="screen"></div>
+<script type="module">
+import '/core/engine/page-api.js';
+import { lens, htmlSource, merge, OFF } from '/core/surfaces/lens.js';
+const cam = lens(htmlSource(document.getElementById('screen')), merge(OFF, { grain: 0.5, fps: 30 }));
+vawe.onFrame((t) => cam.draw(t));
+</script></body></html>

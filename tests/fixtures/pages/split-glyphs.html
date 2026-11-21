@@ -1,0 +1,27 @@
+<!doctype html>
+<html data-aspect="16:9">
+<head>
+<meta charset="utf-8">
+<meta name="duration" content="1">
+<style>
+  @font-face { font-family: Fraunces; src: url(/templates/title-sting/assets/Fraunces.woff2); font-weight: 100 900; }
+  body { margin: 0; background: #fff; }
+  h1 { margin: 40px 0 0 40px; font: 400 180px/1.2 Fraunces, serif; color: #000; width: 1500px; }
+</style>
+</head>
+<body>
+<h1 id="t"></h1>
+<script type="module">
+import { splitGlyphs } from '/core/text/split.js';
+const q = new URLSearchParams(location.search);
+const h = document.getElementById('t');
+if (q.get('html')) h.innerHTML = q.get('html'); else h.textContent = q.get('text') || 'AVATAR Tomato';
+if (q.get('early')) { try { splitGlyphs(h); } catch (e) { window.__early = e.message; } }
+await document.fonts.load('180px Fraunces');
+await document.fonts.ready;
+if (q.get('by')) window.__glyphs = splitGlyphs(h, { by: q.get('by') });
+if (q.get('size')) h.style.fontSize = q.get('size');
+window.__ready = true;
+</script>
+</body>
+</html>
