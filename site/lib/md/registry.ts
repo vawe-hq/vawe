@@ -17,9 +17,13 @@ import { INSPIRATION_TYPE_PAGES, lessonUrl, postsOfType, typePage, typePath } fr
 import { INSPIRATION, INSPIRATION_DESCRIPTION, INSPIRATION_PATH, INSPIRATION_TITLE, PROMPTS_PATH, titleOf } from "../inspiration";
 import { MOVES_DESCRIPTION, MOVES_TITLE, GROUPS, MOVES, JOBS as MOVE_JOBS, groupLabel, moveByName } from "../moves";
 import { moveSeoDescription, relatedMoves } from "../move-seo";
+import {
+  CATEGORIES as TEMPLATE_CATEGORIES, TEMPLATES, TEMPLATES_DESCRIPTION, TEMPLATES_INTRO, categoryLabel, newCommand, templateById, templateSource, templatesTitle,
+} from "../templates";
 import { SITE_URL, absoluteUrl } from "../site";
 import { absolutize, bareTitle, codeBlock, heading, item, markdownPage, table, type Link } from "./format";
 import { CONTENT_RENDERERS } from "./pages";
+import { MARKETPLACE_RENDERERS } from "./marketplace";
 import { RENDERED, matchPattern, mdUrlOf } from "./routes.mjs";
 
 // The renderers of every page that has a markdown version. Each one reads the data the HTML page
@@ -104,7 +108,47 @@ const moveItem: Renderer = {
   },
 };
 
-const easeLine = (e: Ease) => item(e.name, `/easing/${e.slug}`, e.blurb);
+const templatesIndex: Renderer = {
+  entries: () => [page("/templates", templatesTitle(), TEMPLATES_DESCRIPTION)],
+  render: () => ({
+    title: templatesTitle(),
+    description: TEMPLATES_DESCRIPTION,
+    updated: dates["/templates"],
+    body: [
+      TEMPLATES_INTRO,
+      TEMPLATES.length
+        ? TEMPLATE_CATEGORIES.filter((c) => TEMPLATES.some((t) => t.category === c.id)).flatMap((c) => [heading(2, c.label), TEMPLATES.filter((t) => t.category === c.id).map((t) => item(t.title, `/templates/${t.id}`, `${t.tier === "pro" ? "Pro" : "Free"}, ${t.length} s. ${t.summary}`)).join("\n")]).join("\n\n")
+        : "No templates yet. The first ones are coming.",
+      `The same list as data: ${absoluteUrl("/templates.json")}`,
+    ].join("\n\n"),
+  }),
+};
+
+const templateItem: Renderer = {
+  entries: () => TEMPLATES.map((t) => ({ path: `/templates/${t.id}`, title: t.title, description: t.summary, kind: "item", full: true })),
+  render: ({ id }) => {
+    const t = templateById(id);
+    if (!t) return null;
+    return {
+      title: t.title,
+      description: t.summary,
+      updated: dates["/templates"],
+      body: [
+        table(["Measure", "Value"], [["Tier", t.tier === "pro" ? "Pro" : "Free"], ["Category", categoryLabel(t.category)], ["Length", `${t.length} s`], ["Aspect", t.aspect]]),
+        heading(2, "What happens"),
+        t.structure,
+        ...(t.inputs.length ? [heading(2, "What you change"), table(["Text", "Default", "Where"], t.inputs.map((i) => [i.label, i.default, i.where]))] : []),
+        heading(2, t.tier === "pro" ? "Get it" : "Use it"),
+        t.tier === "pro" ? `Buy it at ${absoluteUrl(`/templates/${t.id}`)} to get a license key, then run:` : "Run:",
+        codeBlock(t.tier === "pro" ? `${newCommand(t.id)} --key <your-key>` : newCommand(t.id), "sh"),
+        ...(t.hasSource ? [heading(2, "page.html"), codeBlock(templateSource(t.id), "html")] : []),
+      ].join("\n\n"),
+      related: [{ text: "All templates", path: "/templates" }],
+    };
+  },
+};
+
+const easeLine =(e: Ease) => item(e.name, `/easing/${e.slug}`, e.blurb);
 
 const easingIndex: Renderer = {
   entries: () => [page("/easing", EASING_TITLE, EASING_DESCRIPTION)],
@@ -307,6 +351,9 @@ const RENDERERS: Record<string, Renderer> = {
   "/blog/[slug]": blogPost,
   "/video-components": movesIndex,
   "/video-components/[name]": moveItem,
+  "/templates": templatesIndex,
+  "/templates/[id]": templateItem,
+  ...MARKETPLACE_RENDERERS,
   "/easing": easingIndex,
   "/easing/[slug]": easeItem,
   "/easing/for/[job]": easeJob,

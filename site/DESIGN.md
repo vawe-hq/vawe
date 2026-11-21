@@ -510,6 +510,29 @@ Provenance: the `.xp` layer and Laws of UX rules above; the owner's cutting-mat 
 
 **`/easing/for/[job]`** (2026-11-03, `app/easing/for/`, `lib/easing-jobs.ts`, `jobs.css`, classes `ej-`): 13 pages, one per job of `core/motion/ease-jobs.js` (`JOBS`, 10) plus the product UI presets with no job of their own (send, typing, stream). A preset that describes the same motion as a job is merged into that job's page: panel, row (list stagger), roll (number change), exit. Each page: the search H1, a 2 to 3 sentence answer built from the job row and the ease's `t50` and `t90`, the ease linked to its `/easing/<slug>`, the duration, what to avoid, a live demo (`JobDemo.tsx`, the ease against linear, replays every cycle, parked under reduced motion), copyable CSS and WAAPI, the measured source for a preset, and the video components of the matching move job (else the ones that use the ease). Demo lengths are computed in `scripts/site/easing.mjs` (`demoMs`) from the job's own range; typing and stream delays come from `UI.typing` and `UI.stream`. The index is the "One page per job" list under the job table on `/easing`. `Code.tsx` is the code block shared by both easing routes.
 
+## Marketplace
+
+`/marketplace`, `/marketplace/<id>`, `/creators/<handle>`, `/jobs`, `/jobs/<id>`, `/hire` and the three forms
+(`/marketplace/submit`, `/jobs/post`, `/hire/join`), 2026-11-21. Classes are prefixed `mk-` in
+`app/marketplace/marketplace.css`, on top of `moves.css` (cards, chips, pills) and `templates.css` (section heads).
+
+- **Data:** one JSON file per entry in `marketplace/` (`listings/`, `creators/`, `jobs/`, `designers/`), checked by
+  `lib/marketplace-schema.mjs` and built into `lib/marketplace.json` by `scripts/site/marketplace.mjs`. Our own templates
+  join the gallery from `lib/templates.ts` with a `vawe` or `vawe Pro` badge and link to `/templates/<id>`.
+- **Gallery:** the `/templates` card (poster at rest, preview on hover or focus), with the price in the top-right chip and
+  "software · maker" under the title. Filters are labelled chip rows (`Facets.tsx`), one per facet, kept in the query string;
+  a row shows only values that have items, with a count.
+- **Jobs:** one hairline row per job (`mk-row`), the whole row a link, title, company, then a mono line of place, type, pay
+  and date. No logos: a hotlinked logo is a third-party request on every visit.
+- **Designers:** cards of avatar (or mono initials), name, place, availability in ink (`booked` in `muted`), rate, software
+  and a reel link. No status colour: availability is a word, not a dot.
+- **Detail pages:** the move-page head (`mvd-head`), a fact list (`mk-facts`, label over value on hairlines) and one white
+  button to the creator's store or the apply link, with the line that says vawe takes no cut or never sees the application.
+- **Forms:** one panel per group, two columns of labelled fields (one under 640), the house input (`line-2` border, accent
+  border and 3 px ring on focus), checkbox groups as fieldsets, a hidden honeypot. Errors are one panel with a `line-2` ring
+  and the API's field list in mono; no red, since colour means "act" or "a layer type" here.
+- **Empty states:** a panel with one sentence and one white button, because the honest seed is empty.
+
 ## Provenance: what shaped each surface
 
 Every rule above records a decision. This section records where the decision CAME FROM, per surface,
@@ -530,6 +553,7 @@ was tried.
 
 | Surface | Register | Shaped by | Notes |
 |---|---|---|---|
+| **Marketplace, 2026-11-21:** `/marketplace`, `/marketplace/[id]`, `/creators/[handle]`, `/jobs`, `/jobs/[id]`, `/hire`, the three submit forms, six share cards | product | Google's JobPosting guide (developers.google.com/search/docs/appearance/structured-data/job-posting) and Product snippet guide (…/product-snippet); the field lists of two template marketplaces and two job and talent boards (structure only, read 2026-11-21); local tokens; no ui-skill fetched | Taken: a listing shows software and version, resolution, length and plugins as a spec list; a job shows place or remote region, type and pay range; a designer shows availability, software and rate. REJECTED: subscription and download counters, star ratings, author follower counts, featured or sponsored slots, company logos, a coloured availability dot, and red for form errors. The six share cards reuse the catalog, stair and cinema scenes with new words and are waiting for the owner's look. |
 | **share cards, 2026-10-30:** og:image of the main pages and posts, og:video of the main pages | brand | the owner-approved review `films/brand-art/og/index.html` (scenes, inks, topic table); no ui-skill fetched | Taken: one two-ink print scene per page, a topic scene per post varied by a slug seed, 960x504 30 fps loops (the `vawe dev` draft size, half the 1920x1008 render frame). Rejected: the black Satori card (`ogCard.tsx`) for these routes; it stays for easing curves, components and `/vs`. |
 | **Inspiration, 2026-10-18:** `/inspiration`, the header nav, the Resources Tools card | product | the owner-approved HTML prototype of the page (2026-10-18, not committed); lawsofux.com (Fitts, Hick, Jakob) | Taken from the prototype: the uniform 16:9 wall, the hover scrim, first tap reveals on touch, the sticky rail of search and chips, the viewer with arrows and Esc, the CDN-only playback model. REJECTED from it: its pill buttons and accent "Suggest a post" (the house `.btn-primary` and `.btn-ghost` win, one white button per body), 11 px labels (12 px floor), the .97 press (house .96), the 860 and 960 breakpoints (900), and every review-only control (the states switcher, the local fallback copy). No ui-skill was fetched. |
 | **Easing visuals, 2026-10-14:** `/easing` cards, compare tray, `/easing/[slug]` | product | ui-skills `jakubantalik/transitions-dev` (fetched, from `list --category motion`); the spacing chart and speed graph from animation practice (After Effects graph editor, animators' spacing charts) | transitions-dev: TAKEN, the shape of the four interface motions (a modal starts near .9 scale with opacity, a dropdown or menu grows from its edge, a card moves about 24 px) and its reduced-motion guard idea. REJECTED: its `:root` duration and ease variables (the lab drives every motion from the ease being shown), its blur on enter, and its 150 to 500 ms fixed timings (the duration is a control). Local tokens win; no new colour: ghosts use `accent-soft` and `accent` because the curve is live data. |

@@ -22,6 +22,49 @@
       "label": "Video components"
     },
     {
+      "path": "/templates",
+      "priority": 0.8,
+      "changeFrequency": "weekly",
+      "group": "product",
+      "label": "Templates"
+    },
+    {
+      "path": "/marketplace",
+      "priority": 0.8,
+      "changeFrequency": "daily",
+      "group": "product",
+      "label": "Marketplace"
+    },
+    {
+      "path": "/marketplace/submit",
+      "priority": 0.5,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/jobs",
+      "priority": 0.8,
+      "changeFrequency": "daily",
+      "group": "product",
+      "label": "Motion design jobs"
+    },
+    {
+      "path": "/jobs/post",
+      "priority": 0.5,
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/hire",
+      "priority": 0.7,
+      "changeFrequency": "daily",
+      "group": "product",
+      "label": "Hire a motion designer"
+    },
+    {
+      "path": "/hire/join",
+      "priority": 0.5,
+      "changeFrequency": "monthly"
+    },
+    {
       "path": "/video-components/group/reveal-a-title",
       "priority": 0.7,
       "changeFrequency": "monthly"

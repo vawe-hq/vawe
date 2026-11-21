@@ -6,7 +6,7 @@ group: engine
 
 # harness/
 
-Every script here is reached from `bin/vawe` (verbs in `cli/verbs.mjs`), `bin/vawe-dev` (framework tools: land, claim, e2e, test, runs, moves, doctor, check, worktrees, bots; verbs in `dev/verbs.mjs`), a git hook, a test or the
+Every script here is reached from `bin/vawe` (verbs in `cli/verbs.mjs`), `bin/vawe-dev` (framework tools: land, claim, e2e, test, runs, moves, doctor, check, worktrees, bots, template; verbs in `dev/verbs.mjs`), a git hook, a test or the
 list below. A script none of those reaches is dead: delete it.
 
 | Folder | Holds |
@@ -66,6 +66,19 @@ Set `P=~/.claude/projects/<project folder>` and `MERGE=<the date of the merge co
 4. `jq '[.agents[].raw | (."hint:sheet" // 0) + (."hint:still" // 0)] | add' tr.json`
 
 If two of the first three fail, fall back to three verbs: `still` (absorbs `--box`, `--auto`, `--vs`), `sheet` (absorbs `--world`, `--looks`, `--vs`, `--board`) and `strip` (unchanged). Delete an alias when run 3 shows no rows for 14 days and at least 30 days passed since the merge. Today's numbers, before the merge: help 14% of calls, exit 2 at 4% for the family (12% for strip), 6 hand-made grabs since 2026-10-20.
+
+## Template export
+
+`bin/vawe-dev template <page>` makes `out/<name>-template/<name>-template.zip`: a template for Premiere Pro and After Effects.
+The entry point is `media/template-export.mjs`.
+
+- `media/template-read.mjs` loads the page once. It reads each body element per frame (paints or not, its blend mode), each editable text (box, baseline, scale, opacity, colour) and the worlds and sound cues.
+- `lib/template-plan.mjs` splits the page into layers, bottom first. A world, an element that holds an editable text and an element with a blend mode each get their own layer. Other neighbours share one.
+- `render-page.mjs` renders each layer as a final with `layer` set: `core/engine/page-layer.js` hides the other layers and the page ground, and the clip is ProRes 4444 with alpha. Subframes blend premultiplied in float.
+- The editable texts come from `films/<name>/template.json`: `{ "inputs": [{ "id": "name", "selector": ".title", "label": "Title", "at": 2.5 }] }`. Each selector must match one element. `at` is the second where the font, size and colour are read.
+- An editable text is not painted in its layer clip. A second clip holds that text alone, as the film draws it. The After Effects script adds a live text layer above it, with position, scale, opacity and colour keyframes from the page.
+- `page-audio.mjs` `writeStems` writes the mix as the final has it and one wav per cue.
+- `lib/premiere-xml.mjs` writes the FCP 7 XML, `lib/ae-jsx.mjs` the ES3 build script, `lib/template-readme.mjs` the README, `lib/zip-write.mjs` the zip (ZIP64 past 4 GB).
 
 ## Tools with no verb
 

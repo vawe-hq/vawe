@@ -13,6 +13,7 @@
     "core",
     "harness",
     "prompts",
+    "templates",
     "taste",
     "guides",
     "skills",

@@ -6,9 +6,10 @@
 // Run it against a production build (`npm --prefix site run build && npm --prefix site run start`), because
 // the third read is the HTML the server sends. It advises and never fails: every finding is a warning.
 //
-//   1. each template page (/video-components/<name>, /easing/<slug>, /vs/<slug>, /springs/<slug>, /how-to/<slug>, /inspiration/<type>) has a data point no sibling
+//   1. each template page (/video-components/<name>, /easing/<slug>, /vs/<slug>, /springs/<slug>, /how-to/<slug>, /inspiration/<type>,
+//      /marketplace/<id>, /creators/<handle>, /jobs/<id>) has a data point no sibling
 //      has, and is linked from at least 2 hand-written pages (a gallery or index page does not count)
-//   2. each hub page (/video-components, /easing, /resources, /blog, /how-to, /springs) has prose outside its cards
+//   2. each hub page (/video-components, /easing, /resources, /blog, /how-to, /springs, /marketplace, /jobs, /hire) has prose outside its cards
 //   3. each route in site/lib/site-pages.json has its main text in the server HTML, and the HTML is
 //      under 2 MB (Googlebot reads the first 2 MB; AI crawlers run no JavaScript)
 //
@@ -38,9 +39,9 @@ const base = (argv[argv.indexOf('--base') + 1] && argv.includes('--base') ? argv
 const MIN_INBOUND = 2;
 const MIN_HUB_PROSE_WORDS = 40;
 const MIN_COPY_SHARE = 0.8;
-const HUBS = ['/video-components', '/easing', '/resources', '/blog', '/how-to', '/springs'];
+const HUBS = ['/video-components', '/easing', '/resources', '/blog', '/how-to', '/springs', '/marketplace', '/jobs', '/hire'];
 // Galleries and indexes: they link every item, so a link from one says nothing about the item.
-const INDEXES = new Set(['/video-components', '/easing', '/inspiration', '/blog', '/how-to', '/springs']);
+const INDEXES = new Set(['/video-components', '/easing', '/inspiration', '/blog', '/how-to', '/springs', '/marketplace', '/jobs', '/hire']);
 const TEMPLATES = [
   { id: 'video-components', prefix: '/video-components/' },
   { id: 'easing', prefix: '/easing/' },
@@ -48,7 +49,14 @@ const TEMPLATES = [
   { id: 'springs', prefix: '/springs/' },
   { id: 'how-to', prefix: '/how-to/' },
   { id: 'inspiration', prefix: '/inspiration/' },
+  { id: 'marketplace', prefix: '/marketplace/' },
+  { id: 'creators', prefix: '/creators/' },
+  { id: 'jobs', prefix: '/jobs/' },
 ];
+// Made from submitted data, so a link from one is not hand-written.
+const SUBMITTED = ['marketplace', 'creators', 'jobs'];
+// The submit forms share a prefix with a set but are single pages.
+const FORM_PAGES = new Set(['/marketplace/submit', '/jobs/post']);
 
 const f = gateFindings();
 const say = (s = '') => console.log(s);
@@ -98,7 +106,7 @@ await mapLimit(sitePaths, 8, async (p) => {
 
 // Group and job pages pick their items by hand, so they count as hand-written, not as template pages.
 const CURATED = ['/video-components/group/', '/easing/for/'];
-const templateOf = (p) => (CURATED.some((c) => p.startsWith(c)) ? null : TEMPLATES.find((t) => p.startsWith(t.prefix))?.id ?? null);
+const templateOf = (p) => (CURATED.some((c) => p.startsWith(c)) || FORM_PAGES.has(p) ? null : TEMPLATES.find((t) => p.startsWith(t.prefix))?.id ?? null);
 const isBlogPost = (p) => p.startsWith('/blog/');
 
 // ===== 1. unique data point and hand-written inbound links ======================================
@@ -109,7 +117,7 @@ for (const d of docPaths) {
   if (fs.existsSync(file)) links.set(d, markdownLinks(fs.readFileSync(file, 'utf8')));
 }
 
-const handWritten = (p) => !INDEXES.has(p) && templateOf(p) !== 'video-components' && templateOf(p) !== 'easing';
+const handWritten = (p) => !INDEXES.has(p) && !['video-components', 'easing', ...SUBMITTED].includes(templateOf(p));
 const moves = json(path.join(SITE_LIB, 'moves.json')).moves;
 const eases = json(path.join(SITE_LIB, 'easing.json')).eases;
 const round = (n) => Math.round(n);
@@ -127,7 +135,16 @@ function ownWords(id) {
   };
 }
 
+const market = json(path.join(SITE_LIB, 'marketplace.json'));
+const sameAs = (items, name, print, what) => {
+  const same = repeats(items, name, print);
+  return (p) => (same.has(p) ? { ok: false, why: `same ${what} as ${same.get(p).join(', ')}` } : { ok: true });
+};
+
 const dataPoint = {
+  marketplace: sameAs(market.listings, (l) => `/marketplace/${l.id}`, (l) => l.summary, 'summary'),
+  jobs: sameAs(market.jobs, (j) => `/jobs/${j.id}`, (j) => j.description, 'description'),
+  creators: ownWords('creators'),
   springs: (() => {
     const springs = JSON.parse(fs.readFileSync(path.join(SITE_LIB, 'springs.json'), 'utf8')).springs;
     const same = repeats(springs, (x) => `/springs/${x.slug}`, (x) => [x.zeta, x.ms, x.overshoot].join('|'));

@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import pages from "../lib/site-pages.json";
 import lastmod from "../lib/lastmod.json";
 import { MOVES, clip, type Move } from "../lib/moves";
+import { TEMPLATES } from "../lib/templates";
+import { LISTINGS, designerByHandle, liveJobs, profileHandles } from "../lib/marketplace";
 import { EASES } from "../lib/easing";
 import { SPRINGS } from "../lib/springs";
 import { allPosts, latestDate } from "../lib/blog";
@@ -46,6 +48,10 @@ function entries(): Entry[] {
   return [
     ...[...pages.routes, ...pages.docs].map((r) => ({ path: r.path, lastmod: r.path === "/blog" ? latestDate() : dates[r.path] })),
     ...MOVES.map((m) => ({ path: `/video-components/${m.name}`, lastmod: m.modified, videos: moveVideos(m) })),
+    ...TEMPLATES.map((t) => ({ path: `/templates/${t.id}`, lastmod: dates["/templates"] })),
+    ...LISTINGS.map((l) => ({ path: `/marketplace/${l.id}`, lastmod: l.added })),
+    ...profileHandles().map((h) => ({ path: `/creators/${h}`, lastmod: designerByHandle(h)?.updated })),
+    ...liveJobs().map((j) => ({ path: `/jobs/${j.id}`, lastmod: j.posted })),
     ...EASES.map((e) => ({ path: `/easing/${e.slug}`, lastmod: dates["/easing"] })),
     ...SPRINGS.map((s) => ({ path: `/springs/${s.slug}`, lastmod: dates["/springs"] })),
     ...allPosts().map((p) => ({ path: `/blog/${p.slug}`, lastmod: p.updated })),

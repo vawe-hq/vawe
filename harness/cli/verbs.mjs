@@ -91,6 +91,13 @@ export function siteStep(v, name) {
   return { where: out ?? 'out/shot', script: 'harness/media/shot.mjs', args: [v['from-url'], ...opt('--w', v.w), ...(v.full ? ['--full'] : []), ...opt('--base', v.base), ...opt('--out', out), ...opt('--tour', v.tour), ...(v.tour ? [...opt('--fps', v.fps), ...opt('--scale', v.scale)] : [])] };
 }
 
+function templateProblems(v, name) {
+  if (v.template === undefined) throw new UsageError('--key needs --template');
+  const clash = ['from', 'from-url', 'ref', 'footage'].find((f) => v[f] !== undefined);
+  if (clash) throw new UsageError(`--template copies a finished film and --${clash} starts another film type: run one`);
+  if (v.template !== 'list' && !name) throw new UsageError('missing <name>; usage: vawe new <name> --template <id>');
+}
+
 function newSteps(v, [name]) {
   const siteFlag = SITE_FLAGS.find((f) => v[f] !== undefined);
   if (siteFlag && !v['from-url']) throw new UsageError(`--${siteFlag} needs --from-url`);
@@ -98,6 +105,7 @@ function newSteps(v, [name]) {
   const other = v.footage && ['from', 'from-url', 'ref'].find((f) => v[f] !== undefined);
   if (other) throw new UsageError(`--footage starts an edit film from the person's clips and --${other} picks another film type: run one`);
   if (v.footage && !name) throw new UsageError('--footage needs a <name>: vawe new <name> --footage <folder|clip>...');
+  if (v.key !== undefined || v.template !== undefined) { templateProblems(v, name); return null; }
   const site = v['from-url'] ? siteStep(v, name) : null;
   if (!name && !site) throw new UsageError('missing <name>; usage: vawe new <name> [flags], or vawe new --from-url <route|url|page.html>');
   if (v.ref) return [{ script: 'harness/dev/recreation-new.mjs', args: [], env: { TYPE: 'recreation', NAME: name, REF: v.ref, ...(v.score ? { SCORE: '1' } : {}) } }];
@@ -120,6 +128,8 @@ export const VERBS = [
       { name: 'defaults', type: 'bool', help: 'unattended run: guess every open detail, marked (guess: change me), instead of printing the questions' },
       { name: 'questions-json', type: 'bool', help: 'print the open details as AskUserQuestion calls (JSON, at most 4 questions each) and write nothing' },
       { name: 'footage', type: 'string', repeat: true, help: 'the person\'s clips (a folder or an mp4, repeatable): they are copied to films/<name>/footage/, logged to footage.md, and the film starts from prompts/edit-from-clips.md with a Cut list and a starter page of one world per clip' },
+      { name: 'template', type: 'string', help: 'start from a finished template: its id, or `list` to see the ids (free ones are in templates/, Pro ones come from vawe.dev)' },
+      { name: 'key', type: 'string', help: 'with --template: the Pro license key; else env VAWE_KEY, else ~/.vawe/key' },
       { name: 'ref', type: 'path', help: 'recreate this reference mp4: writes films/recreations/<name> with SPEC.md', kind: 'file' },
       { name: 'length', type: 'number', help: 'film length in seconds: written to brief.md and the page duration meta' },
       { name: 'aspect', type: 'string', help: 'a W:H ratio of whole numbers (16:9 9:16 1:1 4:5 4:3 are the common ones): written to brief.md and the page aspect meta' },

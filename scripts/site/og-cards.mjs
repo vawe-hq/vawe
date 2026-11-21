@@ -3,7 +3,7 @@
 // and per blog post (site/public/og/blog/<slug>.png). --loops also renders each main page's share loop
 // (site/public/og/<route>.mp4). The opengraph-image.tsx routes serve the PNGs; pageMetadata links the loops.
 // site/public/og/stamp.json records a hash of each file's inputs (og-inputs.mjs), so seo-surface can name a stale card.
-//   node scripts/site/og-cards.mjs [--loops]
+//   node scripts/site/og-cards.mjs [--loops] [--stale]   (--stale: only the cards that are missing or rendered from other inputs)
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -25,6 +25,7 @@ function vawe(args) {
 // A palette PNG measured about 60% smaller than the screenshot, with no pixel off by more than 7 of 255.
 async function card(params, out, tmp) {
   const raw = path.join(tmp, 'card.png');
+  fs.mkdirSync(path.dirname(out), { recursive: true });
   vawe(['frame', 'assets/brand-art/card.html', '--at', '0', '--aspect', '1200:630', '--size', '1200x630', ...params.flatMap((p) => ['--param', p]), '--out', raw]);
   await sharp(raw).png({ palette: true, quality: 100, effort: 10, compressionLevel: 9 }).toFile(out);
   return fs.statSync(out).size;
@@ -53,7 +54,9 @@ async function main(argv) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'og-cards-'));
   try {
     let bytes = 0;
+    const current = (c) => argv.includes('--stale') && stamp[c.file] === c.hash && fs.existsSync(path.join(ROOT, c.file));
     for (const c of cards) {
+      if (current(c)) continue;
       bytes += await card(c.params, path.join(ROOT, c.file), tmp);
       stamp[c.file] = c.hash;
       console.log(`✓ ${c.file}`);

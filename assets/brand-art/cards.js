@@ -75,6 +75,69 @@ export const PAGES = {
     },
     loop: (p) => ({ play: p }),
   },
+  '/templates': {
+    scene: 'lanes', ink: 'b',
+    h: 'Video templates<br>you remix with one command.',
+    sub: 'Finished films in HTML.<br>Change the words, render it.',
+    lay: {
+      f: 0.95, vx: 0.72, vy: 0.44, figZ: 1.6,
+      towers: NEAR_TOWERS,
+    },
+  },
+  '/marketplace': {
+    scene: 'catalog', ink: 'a',
+    h: 'Templates by<br>motion designers.',
+    sub: 'After Effects, Premiere Pro, DaVinci,<br>Final Cut, Motion and vawe. No cut.',
+    lay: {
+      f: 0.9, vx: 0.7, vy: 0.5, floorY: 0.5, rowH: 0.26, colZ: 0.5, rows: 26, rightX: 0.62, leftX: 2.4, leftV: 0.2, open: [2, 4], pull: 0.5,
+      cards: 9, figX: 0.1, figZ: 1.9, figH: 0.075, lane: [-0.06, 0.3], starDX: 0, starUp: 0.1,
+    },
+  },
+  '/marketplace/submit': {
+    scene: 'catalog', ink: 'b',
+    h: 'List your template.',
+    sub: 'It links to your own store.<br>You keep every sale.',
+    lay: {
+      f: 0.9, vx: 0.7, vy: 0.5, floorY: 0.5, rowH: 0.26, colZ: 0.5, rows: 26, rightX: 0.62, leftX: 2.4, leftV: 0.2, open: [0, 2], pull: 0.7,
+      cards: 9, figX: 0.1, figZ: 1.9, figH: 0.075, lane: [-0.06, 0.3], starDX: 0, starUp: 0.1,
+    },
+  },
+  '/jobs': {
+    scene: 'stair', ink: 'b',
+    h: 'Motion design jobs.',
+    sub: 'Remote, freelance and full time,<br>with the pay when it is given.',
+    lay: {
+      f: 0.95, vx: 0.68, vy: 0.62, cardW: 0.2, cardH: 0.3, depth: 0.25, starUp: 0.6, figStep: 2, figU: 0.4, figH: 0.06,
+      steps: [[-0.04, 0.3, 1.2], [0.1, 0.08, 1.5], [0.24, -0.16, 1.85], [0.38, -0.42, 2.25], [0.52, -0.7, 2.7], [0.66, -1.0, 3.2]],
+    },
+  },
+  '/jobs/post': {
+    scene: 'stair', ink: 'a',
+    h: 'Post a motion design job.',
+    sub: 'Free, read by a person,<br>open for 60 days.',
+    lay: {
+      f: 0.95, vx: 0.66, vy: 0.6, cardW: 0.22, cardH: 0.32, depth: 0.25, starUp: 0.6, figStep: 0, figU: 0.55, figH: 0.06,
+      steps: [[0.0, 0.3, 1.2], [0.15, 0.08, 1.5], [0.3, -0.16, 1.85], [0.45, -0.42, 2.25], [0.6, -0.7, 2.7], [0.75, -1.0, 3.2]],
+    },
+  },
+  '/hire': {
+    scene: 'cinema', ink: 'b',
+    h: 'Hire a motion designer.',
+    sub: 'Their reel, rate, software<br>and when they are free.',
+    lay: {
+      f: 0.9, vx: 0.6, vy: 0.5, floorY: 0.55, curtain: 0.12, lens: [0.12, 0.47, 1.3], fig: [0.1, 1.22], figH: 0.075, aisle: 0.12, rowGap: 0.12,
+      seats: [0.25, 3.2], starUV: [0.45, 0.3], screen: { x0: 0.6, z0: 3.2, x1: 3.6, z1: 6.0, top: -1.5, bot: 0.15 },
+    },
+  },
+  '/hire/join': {
+    scene: 'cinema', ink: 'a',
+    h: 'Get hired.',
+    sub: 'Add your reel and your rate.<br>Companies contact you directly.',
+    lay: {
+      f: 0.9, vx: 0.58, vy: 0.5, floorY: 0.55, curtain: 0.12, lens: [0.3, 0.47, 1.3], fig: [0.28, 1.22], figH: 0.075, aisle: 0.3, rowGap: 0.12,
+      seats: [0.2, 3.4], starUV: [0.55, 0.35], screen: { x0: 0.45, z0: 3.4, x1: 2.6, z1: 5.0, top: -1.4, bot: 0.15 },
+    },
+  },
   '/inspiration': {
     scene: 'cinema', ink: 'a',
     h: 'Motion video inspiration.',

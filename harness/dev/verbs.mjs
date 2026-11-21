@@ -168,6 +168,20 @@ export const DEV_VERBS = [
     next: (v) => (v.fresh ? 'read the report; fix the lines under 8, worst first' : 'judge returns at once; do not poll for it'),
   },
   {
+    name: 'template', summary: 'export a film as an editable template for Premiere Pro and After Effects: one ProRes 4444 alpha clip per layer, the sound as wavs, an FCP 7 XML, an After Effects build script and a README, in one zip',
+    positional: [PAGE],
+    flags: [
+      ASPECT_FLAG,
+      PARAM,
+      { name: 'fps', type: 'number', default: 30, help: 'frames a second of the clips and the timeline, a whole number from 1 to 99' },
+      { name: 'blur', type: 'number', default: 32, help: 'the most motion-blur subframes a frame, as vawe ship uses; 1 for none' },
+      { name: 'out', type: 'path', default: 'out/<name>-template', help: 'the folder for the template folder, its zip and the work files' },
+    ],
+    example: 'vawe-dev template films/examples/colour-sting/page.html',
+    build: (v, [page]) => (needsPage(v, page, 'template'), [{ script: 'harness/media/template-export.mjs', args: [page, ...opt('--fps', v.fps), ...opt('--blur', v.blur), ...opt('--out', v.out)] }]),
+    next: () => 'unzip the zip and read its README.txt; the editable texts are the inputs of films/<name>/template.json',
+  },
+  {
     name: 'approve', summary: 'use when the owner signs off the full draft of a page: vawe ship needs it; a film session never runs this',
     positional: [PAGE],
     flags: [

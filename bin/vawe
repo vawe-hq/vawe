@@ -11,6 +11,7 @@ import { closest, parseArgs, topHelp, UsageError, verbHelp } from '../harness/cl
 import { ALIASES, DEV_ALIASES, aliasNotice, aliasKey } from '../harness/cli/aliases.mjs';
 import { VERBS, IN_PROCESS, SERVED_VERBS, ALIAS_TARGETS, siteStep, stripChromeNoise, commitsBehind, staleNote } from '../harness/cli/verbs.mjs';
 import { newFilm, newFilmLines, readDetails, questionsJson, gatherFootage } from '../harness/cli/new.mjs';
+import { templateFilm } from '../harness/cli/template.mjs';
 import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
 import { pageDigest } from '../harness/lib/approval.mjs';
@@ -115,6 +116,10 @@ async function execute(verb, rest, call) {
 }
 
 async function startFilm(values, name, call) {
+  if (values.template !== undefined) {
+    say(call, (await templateFilm({ id: values.template, name, key: values.key, work: WORK, engine: ROOT })).join('\n'));
+    return 0;
+  }
   const site = values['from-url'] ? siteStep(values, name) : null;
   const exists = fs.existsSync(path.join(WORK, 'films', name, 'page.html'));
   if (site && exists) {

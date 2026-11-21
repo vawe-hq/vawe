@@ -31,6 +31,8 @@ RUN node generators/media/fonts.mjs
 # scripts/site/moves.mjs (the site prebuild) imports the clip hash owner; a missing import kills the
 # prebuild before its "prompts/moves is not here" early exit runs.
 COPY harness/lib/clip-hash.mjs ./harness/lib/clip-hash.mjs
+# scripts/site/marketplace.mjs (the site prebuild) reads it, so a merged listing ships and a job past its 60 days drops out on the next build.
+COPY marketplace ./marketplace
 
 # --- the site ---
 # The REPO ROOT package.json, because site/lib/schema.ts imports `../../package.json` to read the

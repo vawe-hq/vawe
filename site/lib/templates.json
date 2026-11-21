@@ -1,0 +1,13 @@
+{
+ "categories": [
+  { "id": "titles", "label": "Titles" },
+  { "id": "logos", "label": "Logos" },
+  { "id": "product", "label": "Product" },
+  { "id": "launch", "label": "Launch" },
+  { "id": "explainer", "label": "Explainer" },
+  { "id": "social-proof", "label": "Social proof" },
+  { "id": "devices", "label": "Devices" },
+  { "id": "art", "label": "Art" }
+ ],
+ "templates": []
+}
