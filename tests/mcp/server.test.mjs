@@ -116,13 +116,6 @@ test('write_doc and edit_doc write brief.md, DESIGN.md and kit files, and refuse
   assert.ok(brief.length > 0);
 });
 
-test('render_draft is refused before the plan is filled; the refusal names the next step', async () => {
-  const r = await call('vawe_render_draft', { film: FILM });
-  assert.equal(r.ok, false);
-  assert.equal(r.findings[0].code, 'refused');
-  assert.ok(r.next);
-});
-
 test('look, critique and frame --cuts are refused before a draft', async () => {
   assert.equal((await call('vawe_look', { film: FILM, t: [1] })).ok, false);
   assert.equal((await call('vawe_critique', { film: FILM })).ok, false);

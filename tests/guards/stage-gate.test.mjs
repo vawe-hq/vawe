@@ -33,11 +33,10 @@ test('rootOf finds the folder above films, also for films/examples', () => {
   assert.equal(rootOf('/a/b/films/examples/f'), '/a/b');
 });
 
-test('a film with no brief refuses the draft and names the brief', () => {
+test('a film with no page yet refuses the draft and names the brief as the next step', () => {
   const f = film({ html: null });
   const g = gate(f, 'vawe_render_draft');
   assert.equal(g.allow, false);
-  assert.match(g.reason, /no brief\.md/);
   assert.match(g.next, /^create films\/f\/brief\.md/);
   assert.equal(gate(f, 'vawe_status').allow, true);
   assert.equal(gate(f, 'vawe_write_page').allow, true);
@@ -56,21 +55,20 @@ test('a film folder that does not exist refuses everything but a new film', () =
   assert.equal(gate(f, 'vawe_new_film').allow, false);
 });
 
-test('a board with only placeholder rows refuses the draft; a filled board allows it', () => {
+test('a board with only placeholder rows still allows the draft and names the board as the next step', () => {
   const f = film({ brief: IDEAS + BOARD_EMPTY });
   const half = gate(f, 'vawe_render_draft');
-  assert.equal(half.allow, false);
-  assert.match(half.reason, /board/);
+  assert.equal(half.allow, true);
   assert.match(half.next, /^bin\/vawe frame films\/f\/page\.html --board/);
   fs.writeFileSync(path.join(f.dir, 'brief.md'), IDEAS + BOARD_FILLED);
   const filled = gate(f, 'vawe_render_draft');
   assert.equal(filled.allow, true, filled.reason);
 });
 
-test('an empty Ideas ledger refuses the draft before the board', () => {
+test('an empty Ideas ledger allows the draft and names Ideas before the board', () => {
   const f = film({ brief: BOARD_FILLED });
   const g = gate(f, 'vawe_render_draft');
-  assert.equal(g.allow, false);
+  assert.equal(g.allow, true);
   assert.match(g.next, /Ideas/);
 });
 

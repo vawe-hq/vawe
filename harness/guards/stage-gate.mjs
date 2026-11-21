@@ -8,8 +8,6 @@ import { loopState } from '../lib/loop-state.mjs';
 import { shipProblem } from '../lib/approval.mjs';
 import { critiqueProblem } from '../lib/critique-gate.mjs';
 
-// Stages before the first draft. The draft needs the plan, not the person's OK on it.
-const BEFORE_DRAFT = new Set(['brief', 'study', 'moves', 'design', 'skills', 'states', 'cut', 'ideas', 'board']);
 const FROM_CRITIQUE = new Set(['critique', 'approve', 'ship', 'judge']);
 const ALWAYS = new Set(['vawe_status', 'vawe_read_rules', 'vawe_write_page', 'vawe_edit_page']);
 
@@ -37,7 +35,7 @@ const RULES = {
     const needsDraft = mode === 'cuts' || mode === 'moment';
     return verdict(!needsDraft || loopState(page, root).draft, 'no draft yet: cuts and moments are read from a draft', step);
   },
-  vawe_render_draft: ({ hasPage, stage, step }) => verdict(hasPage && !BEFORE_DRAFT.has(stage), step.why, step),
+  vawe_render_draft: ({ hasPage, step }) => verdict(hasPage, 'no page.html yet: write the page, then render', step),
   vawe_look: ({ hasPage, page, root, step }) => verdict(hasPage && loopState(page, root).draft, 'no draft to look at', step),
   vawe_critique: ({ hasPage, stage, step }) => verdict(hasPage && FROM_CRITIQUE.has(stage), `the motion pass is not done: ${step.why}`, step),
   vawe_ship: ({ hasPage, page, root, env, step }) => {

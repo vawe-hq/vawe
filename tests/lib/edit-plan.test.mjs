@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { planWindow } from '../../harness/lib/dev-window.mjs';
+import { planAdvice } from '../../harness/lib/dev-window.mjs';
 import { nextStep, SAY } from '../../harness/live/stage-say.mjs';
 import { planStatusLines } from '../../harness/live/plan-status.mjs';
 import { newFilmLines } from '../../harness/cli/new.mjs';
@@ -32,16 +32,16 @@ function film(brief) {
 const base = { name: 'f', rel: 'films/f/page.html', design: null, early: true, frames: 'none', storyboardRan: false, next: 'n' };
 const TELLS = ['slideshow: score 2/10', 'slideshow: swap-no-carry at 1 s: x. Fix: y', 'spectacle at 7.5 s is weaker than 1.9 s: z', 'rule safe-margin @3s text-margin: t'];
 
-test('an edit film with a filled Cut list renders whole: the window needs a gap in the plan', () => {
+test('an edit film with a filled Cut list prints no plan line; a design film with an empty plan does', () => {
   const filled = film(edit('the opening'));
-  assert.equal(planWindow(filled.page, { root: filled.root }), null);
+  assert.equal(planAdvice(filled.page, { root: filled.root }), null);
   const designed = film(design);
-  assert.ok(planWindow(designed.page, { root: designed.root }));
+  assert.ok(planAdvice(designed.page, { root: designed.root }));
 });
 
-test('an edit film with an empty Cut list gets the window, and the line names the Cut list', () => {
+test('an edit film with an empty Cut list gets the line, and it names the Cut list', () => {
   const f = film(edit('[why this clip, why here]'));
-  assert.match(planWindow(f.page, { root: f.root }).line, /Cut list is empty/);
+  assert.match(planAdvice(f.page, { root: f.root }), /Cut list is empty/);
 });
 
 test('the plan status of an edit film lists no design-film item', () => {

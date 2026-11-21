@@ -15,7 +15,7 @@ import { readFindings } from '../lib/findings.mjs';
 import { scratch } from '../lib/scratch.mjs';
 import { refsDir, refsEmpty } from '../lib/refs.mjs';
 import { isClipDemo } from '../lib/clip-demo.mjs';
-import { planWindow } from '../lib/dev-window.mjs';
+import { planAdvice } from '../lib/dev-window.mjs';
 import { STEP, WAIT_STEP, nextStep } from '../live/stage-say.mjs';
 import { say, vawe, bare, doc, asText } from '../lib/next-step.mjs';
 import { critiqueProblem, critiqueCommandStep, critiqueFreshStep } from '../lib/critique-gate.mjs';
@@ -211,7 +211,7 @@ export const VERBS = [
       ASPECT_FLAG,
       { name: 'lock-length', type: 'bool', help: 'write the found length of a duration="auto" page into its meta, so a cut to music can fix it' },
       { name: 'silent', type: 'bool', help: 'picture-only draft: leave the audio tags out of the mix (faster)' },
-      { name: 'whole', type: 'bool', help: 'render the whole film even with an empty plan (while the brief\'s Ideas or Board is empty and no full draft exists, every dev renders a 2 s window around the spectacle, small, to out/<name>-plan-window.mp4)' },
+      { name: 'whole', type: 'bool', help: 'accepted and ignored: dev always renders the whole film, whatever the plan holds' },
       { name: 'small', type: 'bool', help: 'encode the draft about 5x smaller for a file to post, such as an og:video share loop (x264 preset fast, CRF 24; about 0.2 s more encode for 5 s)' },
       PARAM,
       { name: 'out', type: 'path', default: 'out/<name>-draft.mp4, or out/<name>-draft-<from>-<to>.mp4 for a range (out/<name>-animatic.mp4 with --animatic)', help: 'output file' },
@@ -228,12 +228,10 @@ export const VERBS = [
     build: (v, [page]) => {
       const mode = devModeSteps(v, page);
       if (mode) return mode;
-      const planned = planWindow(path.resolve(page), { root: ROOT, from: v.from, to: v.to, out: v.out, whole: v.whole });
-      const range = planned ?? v;
-      const planEnv = planned ? { VAWE_PLAN_WINDOW: '1' } : {};
+      const advice = planAdvice(path.resolve(page), { root: ROOT });
       return [
       { script: 'harness/live/dev-warn.mjs', args: [page] },
-      { label: planned?.line, env: planEnv, script: 'harness/media/render-page.mjs', args: [page, ...(planned ? [planned.out] : v.out ? [v.out] : []), ...opt('--aspect', v.aspect), ...opt('--from', range.from), ...opt('--to', range.to), ...(v.silent ? ['--silent'] : []), ...(v.small || planned ? ['--small'] : []), ...(v['lock-length'] ? ['--lock-length'] : []), ...(v.fast ? ['--fast'] : []), ...(v.full ? ['--full'] : []), ...(v.taste ? ['--taste'] : [])] },
+      { label: advice, script: 'harness/media/render-page.mjs', args: [page, ...(v.out ? [v.out] : []), ...opt('--aspect', v.aspect), ...opt('--from', v.from), ...opt('--to', v.to), ...(v.silent ? ['--silent'] : []), ...(v.small ? ['--small'] : []), ...(v['lock-length'] ? ['--lock-length'] : []), ...(v.fast ? ['--fast'] : []), ...(v.full ? ['--full'] : []), ...(v.taste ? ['--taste'] : [])] },
       ...(v['no-judge'] ? [] : [{ script: 'harness/media/directions-judge.mjs', args: [page] }]),
       { script: 'harness/live/dev-end.mjs', args: [page] },
       ];

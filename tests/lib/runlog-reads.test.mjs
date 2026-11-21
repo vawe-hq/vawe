@@ -68,12 +68,3 @@ test('looksSince: a Read of a printed image counts through a symlinked path and 
   log(root, '_unfiled', [{ cmd: 'read', image: path.join(link, 'a.png'), at: iso(2000) }]);
   assert.deepEqual(looksSince('f', T, root).unread, []);
 });
-
-test('lastDraft skips a plan-window render', () => {
-  const root = tmp();
-  const file = path.join(root, 'full.mp4');
-  const win = path.join(root, 'f-plan-window.mp4');
-  fs.writeFileSync(file, ''); fs.writeFileSync(win, '');
-  log(root, 'f', [{ cmd: 'dev', file }, { cmd: 'dev', file: win, planWindow: true }]);
-  assert.equal(lastDraft('f', root), file);
-});
