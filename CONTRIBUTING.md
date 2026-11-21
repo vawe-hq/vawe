@@ -6,7 +6,7 @@ group: project
 
 # Contributing to Vawe
 
-Thanks for looking. This file is short because the repo explains itself: `AGENTS.md` is the authoring
+Thanks for looking. Everyone taking part follows the [Code of Conduct](https://github.com/vawe-hq/.github/blob/main/CODE_OF_CONDUCT.md). This file is short because the repo explains itself: `AGENTS.md` is the authoring
 doctrine (tool-neutral; `CLAUDE.md` is a shim that loads it) and `guides/README.md` maps the other documents.
 
 ## Licence, first, so nobody wastes an afternoon
@@ -41,7 +41,7 @@ bin/vawe-dev check code-quality            # nothing got more tangled
 ```
 
 `make install-hooks` turns on the pre-commit hook (no em dash, `node --check`, doc references) and the
-pre-push hook (the same, plus the site gate, unit tests and e2e that the changed paths can affect; it
+pre-push hook (the same, plus the unit tests and e2e that the changed paths can affect; it
 prints which it chose and why, and a path it does not know runs everything).
 
 The last check is a **ratchet, not a threshold**. The repo has known complexity debt recorded in
@@ -71,7 +71,16 @@ Never commit a font, photo or brand mark without a licence and a source. `NOTICE
 one, and photos are fetched on demand rather than committed. No recreation of another company's
 marketing page ships from here, in any form.
 
+## Which repo
+
+This repo holds the engine, the checks, the studio and the agent skills (`skills/`, mirrored to
+[vawe-hq/skills](https://github.com/vawe-hq/skills) on each change). The website, template gallery and
+marketplace are in [vawe-hq/vawe-site](https://github.com/vawe-hq/vawe-site), and the docs pages are in
+[vawe-hq/vawe-docs](https://github.com/vawe-hq/vawe-docs).
+
 ## Reporting something
 
-Open an issue with the `page.html` that reproduces it, or the exact command and its output. If you
+Questions go to [Discussions](https://github.com/vawe-hq/vawe/discussions). A vulnerability goes to the
+private report described in the [security policy](https://github.com/vawe-hq/.github/blob/main/SECURITY.md).
+For a bug, open an issue with the `page.html` that reproduces it, or the exact command and its output. If you
 believe an asset is misattributed, say so and it will be removed.
