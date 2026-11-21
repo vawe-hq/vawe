@@ -12,7 +12,7 @@ function textLines(texts, fps) {
 }
 
 function layerLines(layers, fps) {
-  return layers.map((l) => `- ${l.sequence ? `${l.file.split('/')[0]}/ (PNG sequence)` : l.file}:${secs(l.start, fps)} to ${secs(l.end, fps)}${l.blend !== 'normal' ? `, blend mode ${l.blend}` : ''}${l.blendVaries ? ' (the film changes this blend mode over time; the clip uses normal)' : ''}${l.reference ? ' (the text only, as the film draws it)' : ''}`);
+  return layers.map((l) => `- ${l.sequence ? `${l.file.split('/')[0]}/ (PNG sequence)` : l.file}: ${secs(l.start, fps)} to ${secs(l.end, fps)}${l.blend !== 'normal' ? `, blend mode ${l.blend}` : ''}${l.blendVaries ? ' (the film changes this blend mode over time; the clip uses normal)' : ''}${l.reference ? ' (the text only, as the film draws it)' : ''}`);
 }
 
 /**
