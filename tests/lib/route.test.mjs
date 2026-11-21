@@ -84,7 +84,7 @@ test('the starter ground is three drifting blobs per world, one dark ground lit 
   assert.equal([...page.matchAll(/<div class="ground" aria-hidden="true"><i><\/i><i><\/i><i><\/i><\/div>/g)].length, 3);
   assert.match(page, /radial-gradient\(closest-side, var\(--glow-1\)/);
   assert.doesNotMatch(page, /--glow-\d: #/);
-  assert.match(page, /ease: 'pop'/);
+  assert.doesNotMatch(page, /ease: 'pop'/);
   assert.match(page, /blur: 10/);
   assert.equal([...page.matchAll(/<ul class="facts">/g)].length, 2);
 });

@@ -65,12 +65,12 @@ worlds.forEach((world, i) => {
   if (!world.querySelector('.facts, h1')) move(blobs, from, to, () => [{ scale: 0.7 }, { scale: 1.25 }], EASE.land);
   move(world.querySelectorAll('h1, .line, .facts'), from, to, () => [{ translate: '0 0' }, { translate: '0 -0.4em' }]);
   const text = world.querySelectorAll('h1, .line, li');
-  stagger(text, { at: from, blur: 10, ...(i % 2 ? { from: '0.6em 0' } : { from: '0 0.5em', ...(i && { ease: 'pop' }) }) });
+  stagger(text, { at: from, blur: 10, ...(i % 2 ? { from: '0.6em 0' } : { from: '0 0.5em' }) });
   if (!i) text.forEach((el) => leave(el, { end: to }));
 });
 const place = (k) => 'calc(var(--vw) * ' + (0.8 - (k % 3) * 0.1) + ') calc(var(--vh) * ' + (0.2 + (k % 2) * 0.15) + ')';
 const carry = worlds.slice(1).flatMap((_, k) => [[beat(k + 2) - 0.23, place(k), 'fling'], [beat(k + 2) + 0.27, place(k + 1), 'hang']]);
-enter(document.querySelector('.thread'), { at: 0.3, from: '0 0', scale: 0.4, ease: 'pop' });
+enter(document.querySelector('.thread'), { at: 0.3, from: '0 0', scale: 0.4, ease: 'land' });
 keys(document.querySelector('.thread'), 'translate', [[0, place(0)], ...carry, [end, place(worlds.length - 1)]]);
 </script>
 </head>
@@ -390,7 +390,7 @@ Rhythm: cut lengths and holds are NOT all equal. At least one cut under 0.4 s, o
 
 Spectacle: the one big moment at [second] (also \`<meta name="spectacle">\`). Quiet before it: [1 to 2 s of fewer, slower moves, what stays]. Release after: [what drifts, what stops arriving]. Build it from recipe 15 in prompts/moves/RECIPES.md.
 
-| cut | move (prompts/moves) | what carries the eye | what leaves first | overlap s | camera (push, drift, whip, none) | depth | overshoots (EASE.nudge, one EASE.pop) | handoff (family: object) |
+| cut | move (prompts/moves) | what carries the eye | what leaves first | overlap s | camera (push, drift, whip, none) | depth | overshoots (none; a spring only on a thing with mass) | handoff (family: object) |
 |---|---|---|---|---|---|---|---|---|
 | [s1 to s2] | [move] | [object] | [object] | [0.2] | [kind] | [layers] | [which arrivals] | [family: the one thing that carries over] |
 

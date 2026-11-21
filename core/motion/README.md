@@ -61,8 +61,7 @@ layer(title, subline, { at: 0, band: 'professional' });
 ```
 
 `stagger` also takes `nudgeEvery: n`: every nth element lands on `EASE.nudge`, an arrival that passes its mark by about 6 per cent.
-The reference films overshoot 21 to 41 per cent of their arrivals and the dev check `overshoot-share` counts them, so give one arrival in three
-`nudge` (`stagger(..., { nudgeEvery: 3 })`, or `enter(el, { ease: 'nudge' })`) and `EASE.pop` to the one that matters.
+The default is no overshoot: UI, type and devices land on `EASE.land`. The dev check `overshoot-share` only warns when more than 61 per cent of the arrivals pass their mark. Give a thing with mass `nudge` (`enter(el, { ease: 'nudge' })`, or `stagger(..., { nudgeEvery: n })`) or `EASE.pop`.
 
 `enter(el, { anticipate: 0.12 })` adds a wind-up: the element first moves 12 per cent of its travel further from rest (up to 0.2, and `from` must be an offset), then lands. Use it on the spectacle move only.
 
@@ -175,7 +174,7 @@ work uses, as CSS `linear()` strings, built with `curveToLinear(handleCurve(out,
 | `carry` | easyEase | fling | still fast at the key, into a cut | HyperFrames carousels (6 to 11x in) |
 | `leave` | easyEase | long | a decelerating exit | 76% of tuned Lottie exits end ease then hang |
 | `launch` | easyEase | 25/3 | an accelerating exit (default of `leave`: exits run shorter and speed up), at most 3x at the cut | owner rule; Lottie shows no exit above 1.5x; 4.8x at the cut read as a vanish |
-| `nudge` | fling | overshoot at speed -0.8 | an arrival that passes its mark by about 6 per cent: one arrival in three, so the film overshoots 21 to 41 per cent like the references | measured: peak 1.063, counted by the `overshoot-share` check (tolerance 0.01) |
+| `nudge` | fling | overshoot at speed -0.8 | an arrival that passes its mark by about 6 per cent: for a thing with mass, not for UI or type | measured: peak 1.063, counted by the `overshoot-share` check (tolerance 0.01) |
 | `pop` | fling | overshoot at speed -1.5 | a pop that passes its mark by about 15 per cent and settles back (CTA, notification, check) | the `overshoot` handle's own blurb: a deeper speed is an authored choice (-0.4 passes by 2 per cent, too little to see) |
 
 `keys(el, prop, [[t, value, handle?], ...])` is an After Effects key table. Times are seconds, a handle

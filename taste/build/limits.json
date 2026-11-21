@@ -226,7 +226,6 @@
   "pop_overshoot_pct": 15,
   "count_min_s": 0.8,
   "count_max_s": 1.4,
-  "share_min_pct": 21,
   "share_max_pct": 61,
   "arrivals_min": 6,
   "tolerance": 0.01,

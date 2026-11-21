@@ -374,7 +374,7 @@
    },
    {
     "rule": "overshoot",
-    "text": "land about 1 in 3 arrivals with a spring (EASE.pop), not every arrival on one soft stop, and never a spring on a count",
+    "text": "land arrivals on EASE.land with no spring, not a spring on UI or a count; keep one for a thing with mass",
     "craft": "motion-craft"
    },
    {

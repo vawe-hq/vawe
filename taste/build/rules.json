@@ -271,7 +271,7 @@
  },
  "overshoot": {
   "file": "taste/rules/overshoot.md",
-  "instead": "arrive fast, land soft: EASE.land, or approach(k 0.12 to 0.19). Give about 1 in 3 arrivals a spring: EASE.pop, or curveToLinear(CURVES.overshoot) from core/motion/springs.js. Never on text held for reading (it wobbles). Ease a count with expo-out or quart-out: the deceleration is the weight; counting to a small number is a stunt, cut it."
+  "instead": "arrive fast, land soft: EASE.land, or approach(k 0.12 to 0.19), with no spring. When a thing has mass (a ball, a sticker, a dropped card) give that one arrival EASE.pop, or curveToLinear(CURVES.overshoot) from core/motion/springs.js. Never on text, UI or a device (they wobble). Ease a count with expo-out or quart-out: the deceleration is the weight; counting to a small number is a stunt, cut it."
  },
  "real-physics": {
   "file": "taste/rules/real-physics.md",

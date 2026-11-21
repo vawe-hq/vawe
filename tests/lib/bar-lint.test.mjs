@@ -80,15 +80,9 @@ test('barLint reads the spectacle second beside the speed and arrival checks', (
   assert.equal(barLint({ records: [], boxes, text: null })[0], undefined);
 });
 
-test('overshootShare: a third of the arrivals on a spring is inside the range', () => {
+test('overshootShare: no spring at all is fine, a third on a spring is fine', () => {
+  assert.deepEqual(overshootShare(arrivals(Array(6).fill(EASE.land))), []);
   assert.deepEqual(overshootShare(arrivals([EASE.pop, EASE.pop, EASE.land, EASE.land, EASE.land, EASE.land])), []);
-});
-
-test('overshootShare: no spring among six arrivals fires, with the first arrival second and the fix named', () => {
-  const found = overshootShare(arrivals(Array(6).fill(EASE.land)));
-  assert.deepEqual(found.map((f) => [f.code, f.rule, f.at]), [['overshoot-share', 'overshoot', 0]]);
-  assert.match(found[0].what, /0 of 6 arrivals overshoot \(0%\); the reference films overshoot 21% to 41%/);
-  assert.match(found[0].fix, /EASE\.pop/);
 });
 
 test('overshootShare: far over the range fires, the limit being 1.5 times the reference p90', () => {
@@ -100,16 +94,17 @@ test('overshootShare: far over the range fires, the limit being 1.5 times the re
 
 test('overshootShare: css curves count, a fade alone and a curve it cannot read do not; an aria-hidden layer is measured', () => {
   const bezier = arrivals(['cubic-bezier(0.34, 1.56, 0.64, 1)', 'ease', 'ease-out', 'linear', 'ease-in-out', 'ease-out']);
-  assert.match(overshootShare(bezier)[0].what, /1 of 6/);
-  assert.equal(overshootShare(arrivals(Array(6).fill(EASE.land)).map((r) => ({ ...r, props: ['opacity'] }))).length, 0);
-  assert.equal(overshootShare(arrivals(Array(6).fill(EASE.land)).map((r) => ({ ...r, decorative: true }))).length, 1);
+  assert.equal(overshootShare(bezier).length, 0, '1 of 6 is inside the limit');
+  assert.equal(overshootShare(arrivals(Array(6).fill(EASE.pop)).map((r) => ({ ...r, props: ['opacity'] }))).length, 0);
+  assert.equal(overshootShare(arrivals(Array(6).fill(EASE.pop)).map((r) => ({ ...r, decorative: true }))).length, 1);
   assert.equal(overshootShare(arrivals(Array(6).fill('inferred')).map((r) => ({ ...r, easing: 'inferred', kfEasings: ['inferred'] }))).length, 0);
   assert.equal(overshootShare(arrivals(Array(5).fill(EASE.land))).length, 0, 'fewer than arrivals_min');
 });
 
 test('overshootShare: a page with no animation records reads its arrivals from the boxes', () => {
   const boxArrivals = [0, 1, 2, 3, 4, 5, 6].map((i) => ({ at: 1 + i, over: i === 0 }));
-  assert.match(overshootShare([], boxArrivals)[0].what, /1 of 7 arrivals overshoot \(14%\)/);
+  assert.equal(overshootShare([], boxArrivals).length, 0);
+  assert.match(overshootShare([], boxArrivals.map((a) => ({ ...a, over: true })))[0].what, /7 of 7 arrivals overshoot \(100%\)/);
   assert.equal(overshootShare([], boxArrivals.map((a, i) => ({ ...a, over: i < 2 }))).length, 0);
   assert.equal(overshootShare(arrivals([EASE.pop, EASE.pop, EASE.land, EASE.land, EASE.land, EASE.land]), boxArrivals).length, 0, 'the records win when they are enough');
 });
@@ -190,14 +185,14 @@ test('text-lingers, readable-hold and the read-time hold of a world agree for li
 
 test('barLint: the findings sit in time order, and a window draft has no text findings', () => {
   const samples = filmOf(40, (k) => k >= 4);
-  const all = barLint({ records: arrivals(Array(6).fill(EASE.land)), boxes: null, text: { samples, ctx: CTX } });
+  const all = barLint({ records: arrivals(Array(6).fill(EASE.pop)), boxes: null, text: { samples, ctx: CTX } });
   assert.deepEqual(all.map((f) => f.code), ['overshoot-share', 'text-breathing']);
   assert.deepEqual(barLint({ records: [], boxes: null, text: null }), []);
 });
 
 test('a bar finding is waived by its code, and fires its rule id into rules_fired and the printed line', () => {
-  const found = barLint({ records: arrivals(Array(6).fill(EASE.land)), boxes: null, text: null });
-  assert.deepEqual(unwaived(found, { allow: ['overshoot-share'], _why: { 'overshoot-share': 'the film is a typewriter: 6 arrivals in 2 s of world s1, all on EASE.land' }, _worlds: ['s1'] }), []);
+  const found = barLint({ records: arrivals(Array(6).fill(EASE.pop)), boxes: null, text: null });
+  assert.deepEqual(unwaived(found, { allow: ['overshoot-share'], _why: { 'overshoot-share': 'the film is a toy shop: 6 arrivals in 2 s of world s1, all on EASE.pop' }, _worlds: ['s1'] }), []);
   assert.equal(unwaived(found, {}).length, 1);
   const fired = firedRules(found, []);
   assert.deepEqual(fired.map((f) => f.id), ['overshoot']);

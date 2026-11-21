@@ -158,10 +158,10 @@ Take every curve from the EASE names (exact linear()), not from a CSS keyword an
 
 ### overshoot
 
-Overshoot is a claim about mass. Type, UI and a counting number do not overshoot by default, and a number never passes its final figure. Some arrivals of things with mass land with a spring, so a film where none do reads stiff.
+Overshoot is a claim about mass. Type, UI, devices and a counting number do not overshoot by default, and a number never passes its final figure. A film with no spring at all is fine; a spring goes only on a thing with mass.
 
-- Limit: 21 to 61 percent of the arrivals that move overshoot; a count never passes its final figure
-- Range: reference films overshoot 21 to 41 percent of their arrivals (p10 to p90); EASE.pop (about 15 percent) only where the move is a press or a pop, named in the page, and only on things that then hold still; roll-up 0.8 to 1.4 s, the last 30 percent of the time covers the last 5 percent of the count
+- Limit: at most 61 percent of the arrivals that move overshoot, and none is fine; a count never passes its final figure
+- Range: reference films overshoot 21 to 41 percent of their arrivals (p10 to p90), but our default is none for UI and devices; EASE.pop (about 15 percent) only where the move is a press or a pop, named in the page, and only on things that then hold still; roll-up 0.8 to 1.4 s, the last 30 percent of the time covers the last 5 percent of the count
 - Judge: Does any word, UI element or count overshoot with no stated reason? Does any count pass its final figure and fall back? Does any arrival settle past its rest position and return, or do none?
 
 ### real-physics

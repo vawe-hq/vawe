@@ -67,7 +67,7 @@ One row per job, best move first. Every built move is in this table.
 | move the camera over a whole world: push, pull, whip | [camera-moves](camera-moves.md) |
 | give a camera move depth: ground, mid and front layers move by different amounts | [parallax-dive](parallax-dive.md) |
 | two depths of words that resolve as the camera arrives; a focus pull | [depth-resolve](depth-resolve.md) |
-| make some arrivals overshoot (21 to 41 percent of them) | [arrival-spring](arrival-spring.md) |
+| a thing with mass should land with a spring (UI and devices do not) | [arrival-spring](arrival-spring.md) |
 | enter the next world by flying into an element | [scale-through](scale-through.md), [zoom-through](zoom-through.md) |
 | wipe in the next beat along the last move's direction | [direction-wipe](direction-wipe.md) |
 | overlap beats so the next starts before the last ends | [chain-beats](chain-beats.md) |
@@ -243,7 +243,7 @@ One row per job, best move first. Every built move is in this table.
 | [overwhelm collapse](overwhelm-collapse.md) | the problem turns to the fix: 26 cards, chips and notifications flood the frame on a shrinking gap, then a fast cubic-in collapse pulls them into one point and one clean element opens |
 | [success check](success-check.md) | a button resolves into a drawn check: the press dips, the width closes to a circle, the check draws on one dash, the circle lands on a small spring and one ring leaves it |
 | [integration hub](integration-hub.md) | the "works with your tools" beat: invented tool logos fly in on curved paths and land on a ring around the product mark, then every wire draws in the same frames and pulses ride into the hub |
-| [device tilt stage](device-tilt-stage.md) | the product as an object: the UI on a CSS 3D laptop that rises from a steep top-down angle, turns and settles on a spring, the glass reflection sliding with the lid's angle |
+| [device tilt stage](device-tilt-stage.md) | the product as an object: the UI on a CSS 3D laptop that rises from a steep top-down angle, turns and settles with no overshoot, the glass reflection sliding with the lid's angle |
 | [command palette summon](command-palette-summon.md) | the keyboard-first beat: the app dims, a Cmd+K palette drops in on a spring, a query types, non-matching rows collapse to zero height, Enter presses the chosen row and the palette leaves fast |
 | [gooey filter](gooey-filter.md) | a tab, pill or panel must melt into the next: shapes that touch merge into one soft outline through the SVG gooey filter (blur 15, alpha matrix 19 and -9), the active tab box slides on a critically damped spring and the page swaps in 0.2 s |
 | [agent progress](agent-progress.md) | an AI agent works through steps: a card springs in, an arc turns beside a status line that swaps states, and numbered rows flip to checks one by one, ending mid-list |

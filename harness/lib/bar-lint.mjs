@@ -2,7 +2,7 @@
 // lint's: { code, rule, at, what, fix }. The code is the rule id. Each number is read from taste/build/limits.json. Pure.
 //   speed-ceiling    the fastest tenth of the moving elements, from element boxes over time
 //   spectacle-weak   the page's spectacle second moves slower than another moment, or less than exaggeration_min times the median mover, from the same boxes
-//   overshoot-share  the share of the arrivals whose easing goes past rest, from the animation records
+//   overshoot-share  too large a share of the arrivals goes past rest, from the animation records
 //   text-breathing   the share of the film with readable text on screen, from the text samples
 //   text-lingers     a line on screen well past its read time, from the text tracks
 //   dead-stop        an element that stops from a speed over the jolt limit within one step, from element boxes (rule live-hold)
@@ -313,7 +313,7 @@ export function overshootPct(records, boxArrivals = []) {
 }
 
 /**
- * Too few or too many arrivals that overshoot (rule overshoot). The easing of the animation records decides; a page that paints
+ * Too many arrivals that overshoot (none is fine: UI, type and devices land without a spring) (rule overshoot). The easing of the animation records decides; a page that paints
  * in window.seek has none, so its arrivals come from the boxes (`boxArrivals`, from boxMotion) when the records give fewer than arrivals_min.
  */
 export function overshootShare(records, boxArrivals = []) {
@@ -323,8 +323,6 @@ export function overshootShare(records, boxArrivals = []) {
   const share = (100 * over) / arrivals.length;
   const at = Math.min(...arrivals.map((a) => a.at));
   const counted = `${over} of ${arrivals.length} arrivals overshoot (${pct(share)}%)`;
-  if (share < SHOOT.share_min_pct) return [finding('overshoot-share', at, `${counted}; the reference films overshoot ${SHOOT.share_min_pct}% to 41%`,
-    'give about 1 in 3 arrivals a small spring: EASE.nudge (stagger(els, {nudgeEvery: 3})); keep EASE.pop for the one hero arrival', 'overshoot')];
   if (share > SHOOT.share_max_pct) return [finding('overshoot-share', at, `${counted}; the reference films overshoot 41% at most`,
     'land most arrivals on EASE.land and keep the spring for the one that matters', 'overshoot')];
   return [];
