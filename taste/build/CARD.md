@@ -109,11 +109,11 @@ Per-word colour goes on one or two words per line, and each coloured word is the
 
 ### world-turns
 
-The world (ground, palette, composition) turns at least every 2 s or at each beat, whichever comes first. Tone changes per beat; the backdrop is always a decision, never a default.
+The world (ground, palette, composition) turns at each beat, about every 4 to 6 s; a beat holds one slow camera ease. Tone changes per beat; the backdrop is always a decision, never a default.
 
-- Limit: at most 8 near-identical tiles in a row on the 5 fps sheet, at most 4 at the tail; no data-world element visible longer than 2 s (longer when its text needs it to read, at most the readable-hold ceiling of 5 s plus 0.8 s); adjacent worlds with the same ground and the same words are one world
-- Range: a new element, a cut or a ground swap every 1 to 2 s
-- Judge: The turns are the page's data-world spans, a new world is a turn even on the same ground. Count identical adjacent tiles on the sheet. Does each world last 2 s or less?
+- Limit: at most 8 near-identical tiles in a row on the 5 fps sheet, at most 4 at the tail; no data-world element visible longer than 7 s (longer when its text needs it to read, at most the readable-hold ceiling of 5 s plus 0.8 s); adjacent worlds with the same ground and the same words are one world
+- Range: a scene of 4 to 6 s; a new element, a cut or a ground swap at each scene
+- Judge: The turns are the page's data-world spans, a new world is a turn even on the same ground. Count identical adjacent tiles on the sheet. Does each world last 7 s or less?
 
 ## motion
 

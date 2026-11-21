@@ -213,7 +213,7 @@
  },
  "world-turns": {
   "file": "taste/rules/world-turns.md",
-  "instead": "start a new data-world with a new ground, object and words at least every 2 s; a held 7 s world needs cuts near 2 s (taste/craft/film-structure.md). Change the ground at a cut the film already has; carry the change across the join (a colour that follows the content), never a cold flash. Judge a moving backdrop at 4 or more timestamps, never one still. A ruled grid is a design tool's canvas: use it only if you can say what it does in one clause."
+  "instead": "start a new data-world with a new object and words at each beat, 4 to 6 s apart; a world past 7 s needs a cut (taste/craft/film-structure.md). Change the ground at a cut the film already has; carry the change across the join (a colour that follows the content), never a cold flash. Judge a moving backdrop at 4 or more timestamps, never one still. A ruled grid is a design tool's canvas: use it only if you can say what it does in one clause."
  },
  "anticipation": {
   "file": "taste/rules/anticipation.md",

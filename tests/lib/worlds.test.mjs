@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { waiverHint } from '../../harness/lib/waivers.mjs';
 import { HOLD_RULE } from '../../harness/lib/read-hold.mjs';
-import { worldIds, worldSpans, stillTime, heldWorlds, mergeSameContent, worldLimit, readNeed, READ_MARGIN_S, TURN_SECONDS_MAX } from '../../harness/lib/worlds.mjs';
+import { worldIds, worldSpans, stillTime, heldWorlds, mergeSameContent, worldLimit, readNeed, READ_MARGIN_S, TURN_SECONDS_MAX, SCENE_SECONDS } from '../../harness/lib/worlds.mjs';
 
 const at = (t, ...shown) => ({ t, worlds: [['a', '#111111'], ['b', '#eeeeee'], ['c', null]].map(([id, ground]) => ({ id, visible: shown.includes(id), ground })) });
 const samples = [at(0.5, 'a'), at(1.5, 'a'), at(2.5, 'a', 'b'), at(3.5, 'b'), at(4.5, 'b')];
@@ -34,59 +34,60 @@ test('the starter has one data-world element per beat, with ids s1, s2, ...', as
   const { starterBeats } = await import('../../harness/lib/worlds.mjs');
   const worldCount = (l) => starterBeats(l).length;
   assert.equal(worldCount(4), 2);
-  assert.equal(worldCount(12), 6);
+  assert.equal(worldCount(12), 3);
   assert.equal(worldCount(1), 2);
   const ids = [...starterPage({ length: 12 }).matchAll(/data-world="([a-z0-9-]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(ids, ['s1', 's2', 's3', 's4', 's5', 's6']);
-  assert.match(starterPage({ length: 12 }), /--beat-2: 3\.53s/);
+  assert.deepEqual(ids, ['s1', 's2', 's3']);
+  assert.match(starterPage({ length: 12 }), /--beat-2: 5s/);
 });
 
-test('no starter world is longer than the world-turns limit, for any length', async () => {
+test('no starter world is longer than one scene (5 s), for any length', async () => {
   const { starterBeats } = await import('../../harness/lib/worlds.mjs');
   for (const length of [3, 5, 6, 7.3, 12, 12.4, 20, 30, 61]) {
-    for (const b of starterBeats(length)) assert.ok(b.end - b.start <= TURN_SECONDS_MAX + 1e-9, `${length} s: ${b.id} is ${b.end - b.start} s`);
+    for (const b of starterBeats(length)) assert.ok(b.end - b.start <= SCENE_SECONDS + 1e-9, `${length} s: ${b.id} is ${b.end - b.start} s`);
   }
 });
 
 const span = (id, start, end) => ({ id, start, end, ground: '#fff' });
 
 test('a world visible longer than the limit is held, and its line names the world', () => {
-  const found = heldWorlds([span('s1', 0, 2), span('s2', 2, 5.5), span('s3', 5.5, 7.5)]);
-  const hint = waiverHint('world-held@2-5.5');
-  const item = { kind: 'world-held', at: 2, measured: 'world s2 held 2-5.5 s (3.5 s, limit 2 s)', fix: `cut the world where the content changes, or ${hint}` };
-  assert.deepEqual(found, [{ len: 3.5, text: `world held s2 2-5.5 s (3.5 s, limit 2 s); ${hint}`, item }]);
+  const found = heldWorlds([span('s1', 0, 5), span('s2', 5, 12.5), span('s3', 12.5, 17)]);
+  const hint = waiverHint('world-held@5-12.5');
+  const item = { kind: 'world-held', at: 5, measured: 'world s2 held 5-12.5 s (7.5 s, limit 7 s)', fix: `cut the world where the content changes, or ${hint}` };
+  assert.deepEqual(found, [{ len: 7.5, text: `world held s2 5-12.5 s (7.5 s, limit 7 s); ${hint}`, item }]);
 });
 
 test('a world of exactly the limit, measured a few frames long on the frame grid, is not held', () => {
-  assert.deepEqual(heldWorlds([span('s2', 1.967, 4.033)]), []);
-  assert.equal(heldWorlds([span('s2', 1.9, 4.1)]).length, 1);
+  assert.deepEqual(heldWorlds([span('s2', 1.967, 9.033)]), []);
+  assert.equal(heldWorlds([span('s2', 1.9, 9.1)]).length, 1);
 });
 
 test('adjacent worlds with the same ground are two turns, not one held world', () => {
-  const same = [span('a', 0, 2), span('b', 2, 4), span('c', 4, 6)];
+  const same = [span('a', 0, 5), span('b', 5, 10), span('c', 10, 15)];
   assert.deepEqual(heldWorlds(same), []);
 });
 
 test('a world never shown is not held, and a declared hold covers its world', () => {
   assert.deepEqual(heldWorlds([{ id: 'x', start: null, end: null, ground: null }]), []);
-  const authoring = { allow: ['world-held@2-5.5'], _why: { 'world-held@2-5.5': 'world s2 holds the wordmark 3.5 s as the last beat' }, _worlds: ['s2'] };
-  assert.deepEqual(heldWorlds([span('s2', 2, 5.5)], TURN_SECONDS_MAX, authoring), []);
+  const authoring = { allow: ['world-held@2-9.5'], _why: { 'world-held@2-9.5': 'world s2 holds the wordmark 7.5 s as the last beat' }, _worlds: ['s2'] };
+  assert.deepEqual(heldWorlds([span('s2', 2, 9.5)], TURN_SECONDS_MAX, authoring), []);
 });
 
-test('a world may stay as long as its text needs to be read, never less than the world-turns limit', async () => {
+test('a world may stay 7 s, and its read time never lowers that', async () => {
   const { heldWorlds, readNeed, READ_MARGIN_S, TURN_SECONDS_MAX } = await import('../../harness/lib/worlds.mjs');
   const need = readNeed(['Say the one thing', 'why it matters']);
-  const long = { id: 's1', start: 0, end: need + READ_MARGIN_S, ground: null, readNeed: need };
+  const long = { id: 's1', start: 0, end: TURN_SECONDS_MAX, ground: null, readNeed: need };
   assert.equal(heldWorlds([long]).length, 0);
-  assert.equal(heldWorlds([{ ...long, end: need + READ_MARGIN_S + 0.5 }]).length, 1);
+  assert.equal(heldWorlds([{ ...long, end: TURN_SECONDS_MAX + 0.5 }]).length, 1);
+  assert.ok(need + READ_MARGIN_S < TURN_SECONDS_MAX);
   assert.equal(heldWorlds([{ id: 's2', start: 0, end: TURN_SECONDS_MAX + 0.5, readNeed: 0 }]).length, 1);
 });
 
-test('the starter gives its first world the read time of the headline and its line', async () => {
-  const { starterBeats, readNeed, READ_MARGIN_S, TURN_SECONDS_MAX } = await import('../../harness/lib/worlds.mjs');
+test('the starter gives its first world a scene, or the read time of the headline and its line when that is longer', async () => {
+  const { starterBeats, readNeed, READ_MARGIN_S } = await import('../../harness/lib/worlds.mjs');
   const [first, ...rest] = starterBeats(12, ['Say the one thing', 'why it matters']);
-  assert.ok(Math.abs(first.end - (readNeed(['Say the one thing', 'why it matters']) + READ_MARGIN_S)) < 0.01);
-  for (const b of rest) assert.ok(b.end - b.start <= TURN_SECONDS_MAX + 1e-9);
+  assert.equal(first.end, Math.max(SCENE_SECONDS, readNeed(['Say the one thing', 'why it matters']) + READ_MARGIN_S));
+  for (const b of rest) assert.ok(b.end - b.start <= SCENE_SECONDS + 1e-9);
   assert.equal(rest.at(-1).end, 12);
 });
 
@@ -97,17 +98,18 @@ test('a flat run inside worlds that show text is not blank; a run past them is',
   assert.equal(insideTextWorlds(spans, { a: 5, b: 7.5 }), false);
 });
 
-test('the starter rests the eye: every fourth world after the first three, never the last, shows no words and lasts the limit', async () => {
+test('the starter rests the eye: every fourth world after the first three, never the last, shows no words and lasts one scene', async () => {
   const { starterBeats } = await import('../../harness/lib/worlds.mjs');
   const quiet = (length) => starterBeats(length).filter((b) => b.wordless);
   assert.deepEqual(quiet(8), []);
-  assert.deepEqual(quiet(12).map((b) => b.id), ['s4']);
-  assert.deepEqual(quiet(20).map((b) => b.id), ['s4', 's8']);
+  assert.deepEqual(quiet(20), []);
+  assert.deepEqual(quiet(30).map((b) => b.id), ['s4']);
+  assert.deepEqual(quiet(50).map((b) => b.id), ['s4', 's8']);
   for (const length of [10, 12, 20, 30, 61]) {
     const beats = starterBeats(length);
     assert.equal(beats.at(-1).wordless, false);
     assert.equal(beats.at(-1).end, length);
-    for (const b of quiet(length)) assert.equal(+(b.end - b.start).toFixed(2), TURN_SECONDS_MAX);
+    for (const b of quiet(length)) assert.equal(+(b.end - b.start).toFixed(2), SCENE_SECONDS);
     beats.slice(1).forEach((b, i) => assert.equal(b.start, beats[i].end));
   }
 });
@@ -115,10 +117,10 @@ test('the starter rests the eye: every fourth world after the first three, never
 const content = (id, start, end, signature, readNeed = 0) => ({ id, start, end, signature, readNeed, ground: '#111' });
 
 test('a beat split into two data-world elements with the same ground and words is one held world', () => {
-  const split = [content('s1', 0, 2, '["#111",["ship it"]]'), content('s2', 2, 4.5, '["#111",["ship it"]]')];
+  const split = [content('s1', 0, 2, '["#111",["ship it"]]'), content('s2', 2, 9.5, '["#111",["ship it"]]')];
   assert.equal(mergeSameContent(split).length, 1);
   const [found] = heldWorlds(split);
-  assert.match(found.text, /^world held s1\+s2 0-4\.5 s \(4\.5 s, limit 2 s; s1 and s2 show the same ground, words and things, so they are one world/);
+  assert.match(found.text, /^world held s1\+s2 0-9\.5 s \(9\.5 s, limit 7 s; s1 and s2 show the same ground, words and things, so they are one world/);
 });
 
 test('worlds whose words or ground differ are separate turns, and a span with no signature never merges', () => {
@@ -130,9 +132,9 @@ test('worlds whose words or ground differ are separate turns, and a span with no
 test('padding words cannot buy a world more time than the readable-hold ceiling', () => {
   const words = (n) => Array.from({ length: n }, (_, i) => `w${i}`).join(' ');
   assert.ok(readNeed([words(40)]) > 20);
-  assert.equal(worldLimit({ readNeed: readNeed([words(40)]) }), HOLD_RULE.ceiling + READ_MARGIN_S);
-  assert.equal(worldLimit({ readNeed: readNeed([words(4)]) }), readNeed([words(4)]) + READ_MARGIN_S);
-  assert.equal(heldWorlds([content('s1', 0, 8, '["#111",["many words"]]', readNeed([words(40)]))]).length, 1);
+  assert.equal(worldLimit({ readNeed: readNeed([words(40)]) }), Math.max(TURN_SECONDS_MAX, HOLD_RULE.ceiling + READ_MARGIN_S));
+  assert.equal(worldLimit({ readNeed: readNeed([words(4)]) }), Math.max(TURN_SECONDS_MAX, readNeed([words(4)]) + READ_MARGIN_S));
+  assert.equal(heldWorlds([content('s1', 0, 8.5, '["#111",["many words"]]', readNeed([words(40)]))]).length, 1);
   assert.equal(heldWorlds([content('s1', 0, 5.6, '["#111",["real line"]]', readNeed([words(8)]))]).length, 0);
 });
 

@@ -262,7 +262,7 @@
    },
    {
     "rule": "world-turns",
-    "text": "turn the world every 1 to 2 s (a new element, a cut, a ground swap), not one lockup held",
+    "text": "turn the world every 4 to 6 s (a new element, a cut, a ground swap), not one lockup held",
     "craft": "film-structure"
    },
    {

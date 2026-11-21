@@ -93,7 +93,7 @@ const fits = (type, count, length) => {
 
 /**
  * The worlds a type's starter keeps at a length: the largest count of the first worlds of `order` (at least MIN_WORLDS) whose shortest world still spans WORLD_FLOOR_S.
- * More worlds also keep every span nearer TURN_SECONDS_MAX, the world-held limit, which the read floor makes unreachable for a text world: the two limits meet only at 2 s.
+ * More worlds keep every span nearer SCENE_SECONDS, the starter's scene length.
  */
 export function starterWorlds(type, length, need = 0) {
   const { order } = STARTERS[type];

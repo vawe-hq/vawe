@@ -6,6 +6,7 @@ import { waiverHint } from './waivers.mjs';
 import { lineNeed, rowsNeed, HOLD_RULE } from './read-hold.mjs';
 
 export const TURN_SECONDS_MAX = LIMITS['world-turns'].turn_seconds_max;
+export const SCENE_SECONDS = LIMITS['world-turns'].scene_seconds;
 // A span is measured on the draft's 30 fps frame grid and a cut shows its world a frame or two early (the starter's does), so a world of exactly the limit measures up to about 0.1 s longer.
 export const SPAN_SLACK_S = 0.1;
 
@@ -110,17 +111,17 @@ export function heldWorlds(spans, max = TURN_SECONDS_MAX, authoring = {}) {
 }
 
 /**
- * The starter's beats: the first world lasts as long as its texts need to be read (at least the world-turns limit, at most half the film),
- * the rest split equally with none longer than the limit; at least 2 worlds: [{ id, start, end, wordless }]. Every fourth world after the
- * first three, never the last, shows no words and lasts the full limit, so the eye rests (rule text-breathing). Pure.
+ * The starter's beats: the first world lasts as long as its texts need to be read (at least one scene, at most half the film),
+ * the rest split equally with none longer than one scene; at least 2 worlds: [{ id, start, end, wordless }]. Every fourth world after the
+ * first three, never the last, shows no words and lasts one scene, so the eye rests (rule text-breathing). Pure.
  */
 export function starterBeats(length, firstTexts = []) {
-  const first = Math.min(length / 2, Math.max(TURN_SECONDS_MAX, readNeed(firstTexts) + READ_MARGIN_S));
-  const n = Math.max(1, Math.ceil((length - first) / TURN_SECONDS_MAX - 1e-9));
+  const first = Math.min(length / 2, Math.max(SCENE_SECONDS, readNeed(firstTexts) + READ_MARGIN_S));
+  const n = Math.max(1, Math.ceil((length - first) / SCENE_SECONDS - 1e-9));
   const wordless = (i) => i % WORDLESS_EVERY === WORDLESS_EVERY - 1 && i < n;
   const quiet = Math.floor(n / WORDLESS_EVERY);
-  const shared = (length - first - quiet * TURN_SECONDS_MAX) / (n - quiet);
-  const lasts = Array.from({ length: n + 1 }, (_, i) => (i === 0 ? first : wordless(i) ? TURN_SECONDS_MAX : shared));
+  const shared = (length - first - quiet * SCENE_SECONDS) / (n - quiet);
+  const lasts = Array.from({ length: n + 1 }, (_, i) => (i === 0 ? first : wordless(i) ? SCENE_SECONDS : shared));
   const ends = lasts.map((_, i) => (i === n ? length : +lasts.slice(0, i + 1).reduce((a, b) => a + b, 0).toFixed(2)));
   return ends.map((end, i) => ({ id: `s${i + 1}`, start: i === 0 ? 0 : ends[i - 1], end, wordless: wordless(i) }));
 }

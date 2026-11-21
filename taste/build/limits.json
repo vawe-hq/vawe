@@ -153,7 +153,8 @@
   "colour_diff_min": 40
  },
  "world-turns": {
-  "turn_seconds_max": 2,
+  "scene_seconds": 5,
+  "turn_seconds_max": 7,
   "run_tiles_max": 8,
   "tail_tiles_max": 4,
   "sheet_fps": 5,

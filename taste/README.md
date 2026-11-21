@@ -77,7 +77,7 @@ One rule per file in `taste/rules/<id>.md`. Ids never change. Everything else he
 - [weight-contrast](rules/weight-contrast.md): Weight contrast is extreme on video: light against black. Check: judge.
 - [whitespace](rules/whitespace.md): Empty space does a job. Check: judge.
 - [word-colour](rules/word-colour.md): Per-word colour goes on one or two words per line, and each coloured word is the word the beat is about. Check: judge, coloured-word.
-- [world-turns](rules/world-turns.md): The world (ground, palette, composition) turns at least every 2 s or at each beat, whichever comes first. Check: world-held.
+- [world-turns](rules/world-turns.md): The world (ground, palette, composition) turns at each beat, about every 4 to 6 s; a beat holds one slow camera ease. Check: world-held.
 
 ## motion
 
