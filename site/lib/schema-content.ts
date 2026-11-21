@@ -1,6 +1,7 @@
 // JSON-LD for the pages that read data (the moves and the home FAQ). The builders that need only
 // package.json live in schema.ts, which quality/gates/seo-surface.mjs runs standalone.
 import { clip } from "./clip";
+import { TEMPLATES, categoryLabel, templateFiles, type Template } from "./templates";
 import { MOVES, groupLabel, type Move } from "./moves";
 import { moveSeoDescription } from "./move-seo";
 import { groupPath } from "./content/move-groups";
@@ -31,6 +32,51 @@ const publisher = ORG_REF;
 const isoDuration = (seconds: number) => `PT${Number(seconds.toFixed(2))}S`;
 // Google rejects a date-only uploadDate ("missing a timezone"); a bare YYYY-MM-DD becomes midnight UTC.
 const isoDateTime = (date: string) => (/^\d{4}-\d{2}-\d{2}$/.test(date) ? `${date}T00:00:00Z` : date);
+
+export function templatesItemListSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Video templates",
+    url: `${SITE_URL}/templates`,
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: TEMPLATES.length,
+      itemListElement: TEMPLATES.map((t, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: `${SITE_URL}/templates/${t.id}`,
+        name: t.title,
+      })),
+    },
+  };
+}
+
+export function templateSchema(t: Template) {
+  const url = `${SITE_URL}/templates/${t.id}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: t.title,
+    description: t.summary,
+    url,
+    image: absolute(templateFiles(t).poster),
+    genre: categoryLabel(t.category),
+    keywords: t.tags.join(", "),
+    isAccessibleForFree: t.tier === "free",
+    inLanguage: "en",
+    author: publisher,
+    publisher,
+  };
+}
+
+export function templateBreadcrumbSchema(t: Template) {
+  return breadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Templates", url: "/templates" },
+    { name: t.title, url: `/templates/${t.id}` },
+  ]);
+}
 
 export function videoObjectSchema(m: Move) {
   const files = clip(m);

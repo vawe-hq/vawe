@@ -12,6 +12,7 @@ export function VaweMark({ className = "glyph" }: { className?: string }) {
 // Ordered by what a visitor came for: the moves first, then films others made. Features sits in the footer.
 const NAV = [
   { href: "/video-components", label: "Video components", key: "video-components" },
+  { href: "/templates", label: "Templates", key: "templates" },
   { href: "/inspiration", label: "Inspiration", key: "inspiration" },
   { href: "/resources", label: "Resources", key: "resources" },
   { href: "/blog", label: "Blog", key: "blog" },

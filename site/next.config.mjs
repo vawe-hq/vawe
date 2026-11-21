@@ -51,7 +51,7 @@ const nextConfig = {
   // file without ?v= (an agent following index.json or llms.txt) and the .md revalidate after an hour.
   // Later entries win, so the versioned rule comes last.
   async headers() {
-    const media = "/moves/:file(.+\\.(?:mp4|webm|webp|md))";
+    const media = "/:dir(moves|templates)/:file(.+\\.(?:mp4|webm|webp|md))";
     return [
       {
         source: "/:path*",

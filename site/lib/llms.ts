@@ -37,7 +37,12 @@ export async function llmsText() {
     return `- [${titleOf(p)}](${p.url}): by ${by}${p.madeWith ? `, made with ${p.madeWith}` : ""}`;
   }).join("\n");
   const components = itemsUnder("/video-components/").map((e) => item(e.title, mdUrlOf(e.path), e.description)).join("\n");
-  const easingJobs = itemsUnder("/easing/for/").map((e) => item(e.title, mdUrlOf(e.path), e.description)).join("\n");
+  const templates = [
+    "## Templates",
+    "A template is a finished film an agent copies with one command: `npx vawe new my-film --template <id>`. Pro templates also need a license key (`--key` or VAWE_KEY). The gallery is https://vawe.dev/templates and the data is https://vawe.dev/templates.json.",
+    ...itemsUnder("/templates/").map((e) => item(e.title, mdUrlOf(e.path), e.description)),
+  ].join("\n");
+  const easingJobs =itemsUnder("/easing/for/").map((e) => item(e.title, mdUrlOf(e.path), e.description)).join("\n");
   const springs = itemsUnder("/springs/").map((e) => item(e.title, mdUrlOf(e.path), e.description)).join("\n");
   const compare = itemsUnder("/vs/").map((e) => item(e.title, mdUrlOf(e.path), e.description)).join("\n");
   const docs = await docsIndex();
@@ -49,7 +54,7 @@ export async function llmsText() {
     item("Sitemap", "/sitemap.xml", "every URL of the site"),
     item("AI usage policy", "/ai.txt", "what AI systems may do with this site"),
   ].join("\n");
-  const text = base.replace("{{BLOG}}", blog).replace("{{INSPIRATION}}", inspiration).replace("{{VIDEO_COMPONENTS}}", components).replace("{{EASING_JOBS}}", easingJobs).replace("{{COMPARE}}", compare).replace("{{SPRINGS}}", springs).replace("{{DOCS}}\n\n", docsSection ? `${docsSection}\n\n` : "");
+  const text = base.replace("{{BLOG}}", blog).replace("{{INSPIRATION}}", inspiration).replace("{{VIDEO_COMPONENTS}}", components).replace("{{TEMPLATES}}", templates).replace("{{EASING_JOBS}}", easingJobs).replace("{{COMPARE}}", compare).replace("{{SPRINGS}}", springs).replace("{{DOCS}}\n\n", docsSection ? `${docsSection}\n\n` : "");
   const sync = `<!-- Keep in sync with ${absoluteUrl("/robots.txt")} and ${absoluteUrl("/ai.txt")}. -->`;
   return `${withMarkdownLinks(text).trimEnd()}\n\n${machine}\n\n${sync}\n`;
 }

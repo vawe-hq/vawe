@@ -11,6 +11,8 @@ export const RENDERED = [
   "/blog/[slug]",
   "/video-components",
   "/video-components/[name]",
+  "/templates",
+  "/templates/[id]",
   "/easing",
   "/easing/[slug]",
   "/easing/for/[job]",
