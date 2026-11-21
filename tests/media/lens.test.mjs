@@ -427,7 +427,9 @@ test('gate weave: the image moves with the frame and the seed, project() follows
 });
 
 test('looks: the page wins over the look, the override wins over the page, no look is the old default', () => {
-  assert.equal(resolveOptions({}, null).grid.amount, 0.9, 'no look: the filmed-screen defaults');
+  assert.equal(resolveOptions({}, null).grid.amount, 0, 'no look: the defaults carry no LED grid');
+  const product = resolveOptions({ look: 'product' }, null);
+  assert.deepEqual([product.bloom.strength, product.grain, product.vignette, product.aberration.amount, product.grid.amount, product.dof.blur > 0], [0.4, 0.04, 0.3, 1.5, 0, true], 'the product look: dof, soft bloom, grain, vignette, slight fringe, no grid');
   const look = resolveOptions({ look: 'film-halation' }, null);
   assert.equal(look.halation.strength, LOOKS['film-halation'].halation.strength, 'the look sets its effects');
   assert.equal(look.grid.amount, 0, 'a named look starts from a flat lens, not the defaults');

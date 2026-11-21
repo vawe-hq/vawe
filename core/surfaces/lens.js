@@ -29,7 +29,7 @@ const LAYOUTS = { stripe: 0, triad: 1, dot: 2 };
 // Share of a cell a subpixel lights, per layout: the mask gain is 1 / share so the average light is kept.
 const LIT_SHARE = { stripe: 0.232, triad: 0.152, dot: 0.458 };
 
-// The "filmed screen" look: every effect on at a measured strength. OFF flattens all of them (the
+// The default lens: bloom, a little aberration, grain and vignette on a flat screen, with no LED grid (the `crt` look turns it on). OFF flattens all of them (the
 // identity camera) so a test or a page can turn on one effect at a time.
 const DEFAULTS = {
   seed: 1, fps: 30,
@@ -46,7 +46,7 @@ const DEFAULTS = {
   },
   bloom: { strength: 0.9, radius: 42, threshold: 0.3, knee: 0.3 },
   halation: { strength: 0, radius: 90, threshold: 0.6, knee: 0.3, tint: [1, 0.3, 0.1] },
-  grid: { amount: 0.9, cell: 3, layout: 'stripe', softness: 0.08, brightness: 0.85 },
+  grid: { amount: 0, cell: 3, layout: 'stripe', softness: 0.08, brightness: 0.85 },
   aberration: { amount: 6 },
   tear: { amount: 0, prob: 0.07, band: 16 },
   streaks: { strength: 0, length: 600, threshold: 0.7, tint: [0.4, 0.65, 1] },
@@ -80,6 +80,8 @@ export const LOOKS = {
   },
   cyanotype: { palette: { stops: PALETTES.cyanotype }, halation: { strength: 0.8, radius: 90, threshold: 0.5, tint: [0.1, 0.4, 1] }, grain: 0.07, vignette: 0.3 },
   riso: { riso: { amount: 1 }, grain: 0.04 },
+  // A product on a dark ground: depth of field on the hero, a soft bloom, grain, vignette and a slight fringe, with no panel grid.
+  product: { dof: { blur: 0.45, soft: 2.5 }, bloom: { strength: 0.4, radius: 42, threshold: 0.35, knee: 0.3 }, aberration: { amount: 1.5 }, grain: 0.04, vignette: 0.3 },
   crt: { grid: { amount: 0.9, cell: 3, layout: 'stripe' }, tear: { amount: 6, prob: 0.04, band: 12 }, aberration: { amount: 5 }, bloom: { strength: 0.7, radius: 40, threshold: 0.3 }, vignette: 0.5, grain: 0.04 },
 };
 

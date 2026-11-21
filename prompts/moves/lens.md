@@ -14,7 +14,7 @@ const cam = lens(htmlSource(document.getElementById('screen'), { scale: 2 }), {
   aim: (t) => [1390, 520], zoom: (t) => 1 + 1.9 * ease(t), tiltY: 0.38, tiltX: 0.1,
   dof: { blur: 0.55, focus: [1400, 520] },
   palette: { stops: PALETTES.thermal, keepColor: 0.9 },
-  bloom: { strength: 0.9, radius: 42 }, grid: { amount: 0.9, cell: 3 },
+  bloom: { strength: 0.9, radius: 42 }, grid: { amount: 0.9, cell: 3 },  // the grid is off by default: ask for it
   aberration: { amount: (t) => 6 + 8 * lock(t) },
   tear: { amount: (t) => (hit(t) ? 70 : 0) },
 });
@@ -30,7 +30,7 @@ Sound: a short noise tick at each tear, and a low thud on a lock (aberration pea
   inlines its computed styles and fonts into an SVG image and uploads it every seek. `canvasSource(canvas)`
   takes a 2D canvas instead.
 - Every option is a literal the page can change: a number, an array, or a function of the seek time. The
-  defaults are the "filmed screen" look; `OFF` flattens every effect so one can be turned on alone.
+  defaults are a flat screen with bloom, a little fringe, grain and vignette (no LED grid: ask for it, or use the `crt` look); `OFF` flattens every effect so one can be turned on alone.
 - `perspective`: `tiltX`, `tiltY`, `roll`, `zoom` (up to about 3), `aim` (the source point at the middle).
   A ray hits a tilted plane, so the far side is smaller and softer by geometry, not by a CSS skew.
 - `dof`: blur grows with the depth difference to `focus` (a source point: pass a function to follow a
@@ -89,7 +89,7 @@ px or more (reference 20 to 28). At 1080p a frame costs about 17 ms on the GPU (
 
 A look is a named set of lens options, data in `LOOKS` (`core/surfaces/lens.js`, next to `PALETTES`).
 `lens(source, { look: 'film-halation', ...own })` starts from a flat lens, switches on the look, then puts the
-page's own options over it: a page option always wins. A page with no `look` keeps the filmed-screen defaults.
+page's own options over it: a page option always wins. A page with no `look` keeps the defaults. Start a product film from `look: 'product'`.
 Choose by sight: `bin/vawe frame <page> --looks --at 4.5,9 [--only a,b] [--out dir]` films the page frame at each second
 under every look and as-is, and writes one labelled grid per second (draft size, so a fine `grid` cell shows only in a final).
 The verb sets `window.__vaweLensOverride` before the page runs. `lens()` merges it over the page options, and it
@@ -106,6 +106,7 @@ holds a full look: every effect the look does not name is off, while `aim`, `zoo
 | `soft-focus` | the whole image mixed half with a blurred copy | softFocus 0.5, radius 14 |
 | `vintage` | warm tone, grain, weave, strong vignette, soft halo | palette warm 4 stops at 0.4; halation 0.5; bloom 0.3; grain 0.09; weave 1.6; vignette 0.55; lift 0.02 |
 | `cyanotype` | the cyanotype palette, a cold halo, grain | PALETTES.cyanotype; halation 0.8, tint [0.1, 0.4, 1]; grain 0.07; vignette 0.3 |
+| `product` | a product on a dark ground: depth of field on the hero, a soft glow, a slight fringe, no panel grid | dof blur 0.45, soft 2.5; bloom 0.4, radius 42, threshold 0.35; aberration 1.5; grain 0.04; vignette 0.3 |
 | `crt` | LED stripe grid, torn rows, colour fringe, strong bloom | grid 0.9, cell 3; tear 6, prob 0.04; aberration 5; bloom 0.7; vignette 0.5; grain 0.04 |
 
 ## Depth of field for a 3D scene
