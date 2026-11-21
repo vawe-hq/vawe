@@ -15,7 +15,7 @@ const LONG_MIN_S = 60;
 // The beat-sheet template serves a sting and every unmatched request; each other template owns its length in its Length question
 // (`vawe new` reads the default from it, also for the typed starters below).
 const STING_LENGTH_S = 5;
-const UNMATCHED_LENGTH_S = 15;
+const UNMATCHED_LENGTH_S = 20;
 
 // A brand launch films a real site with real captures: it needs a URL, and an invented product has none.
 const URL_WORDS = /(https?:\/\/|\bwww\.|\b[a-z0-9-]+\.(?:com|io|ai|app|dev|co|net|org|so)\b)/;

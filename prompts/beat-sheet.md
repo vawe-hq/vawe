@@ -79,7 +79,7 @@ Column meanings:
 
 Ask in this order; the first changes the table most. A skipped question takes its default; never wait.
 
-1. **Length**: the total seconds, and about how many rows? Default: the route's length: a sting is 5 s, otherwise 15 s, 6 rows. Why: the last end s is the duration meta; a longer film than the rows has a dead tail.
+1. **Length**: the total seconds, and about how many rows? Default: the route's length: a sting is 5 s, otherwise 20 s, 8 rows. Why: the last end s is the duration meta; a longer film than the rows has a dead tail.
 2. **Grid**: a beat grid (BPM and offset) or free timing? Default: free; cuts follow the picture. Why: with a grid every start is a beat, or two frames before one.
 3. **Exposure**: ones or twos? Default: ones. Why: UI is on ones; a drawn look is on twos.
 4. **Cues**: recorded effects or synth voices? Default: a recorded effect where one fits (`resources/README.md`), otherwise no cue; a synth voice from `core/audio/kit.mjs` only when you choose one. Why: cues come from the picture and are placed 30 ms early either way.

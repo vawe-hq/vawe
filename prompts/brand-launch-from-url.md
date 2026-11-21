@@ -74,7 +74,7 @@ Ask in this order; the first changes the film most. A skipped question takes its
 1. **URL**: which site or product is the subject? Default: https://vawe.dev (vawe's own site). Why: the kit, every capture and every colour come from it; nothing invented may appear.
 2. **Promise**: the one line the film proves, under 12 words? Default: the site's own hero headline, verbatim. Why: it is the first frame and the hook, and every beat has to prove it.
 3. **Moments**: which 3 to 5 things does the film show the product doing? Default: the first three surfaces the hero links to. Why: density is information per frame; each moment is one beat with one real capture.
-4. **Platform**: 16:9 or 9:16, and how long? Default: 16:9, 16 s. Why: the canvas decides the layout and the pace; a reel is one column, a launch is a stage.
+4. **Platform**: 16:9 or 9:16, and how long? Default: 16:9, 22 s. Why: the canvas decides the layout and the pace; a reel is one column, a launch is a stage.
 5. **Music**: a licensed song file, or synth cues only? Default: a recorded effect where one fits, no music. Why: a song sets the beat grid; without one the cuts follow the picture.
 
 A claim that needs a source (a number, a customer name) gets its source before the beat list.

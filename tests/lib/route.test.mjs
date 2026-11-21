@@ -112,8 +112,8 @@ test('a sting takes 5 s; a type with its own template Length question takes none
   assert.equal(pickTemplate({ request: 'a 6 s logo reveal', length: 6 }, table).length, 5);
 });
 
-test('an unmatched request is not a sting: it takes 15 s', () => {
+test('an unmatched request is not a sting: it takes 20 s', () => {
   const hit = pickTemplate({ request: 'a video about our team' }, table);
   assert.equal(hit.known, false);
-  assert.equal(hit.length, 15);
+  assert.equal(hit.length, 20);
 });
