@@ -192,7 +192,7 @@ export const VERBS = [
     name: 'footage', summary: 'use when the film holds your own clips: add makes seekable proxies in films/<film>/footage/, log writes footage.md (shots, contact sheet, transcript)',
     positional: [{ name: 'action', required: true, help: 'add (clips or folders into proxies) or log (footage.md)' }, { name: 'film', required: true, help: 'film name or films/<name> folder' }],
     rest: true,
-    flags: [{ name: 'full', type: 'bool', help: 'with add: keep up to 3840 wide (2160 high for a portrait clip) instead of 1920 by 1080' }],
+    flags: [{ name: 'full', type: 'bool', help: 'with add: keep up to 3840 wide (2160 high for a portrait clip) instead of 1920 by 1080. A screen recording (UI, text) gets this and a 4:4:4 proxy without the flag' }],
     example: 'vawe footage add my-film ~/Movies/trip/   |   vawe footage log my-film',
     build: (v, [action, film, ...clips]) => {
       if (!['add', 'log'].includes(action)) throw new UsageError(`unknown action "${action}": add or log`);

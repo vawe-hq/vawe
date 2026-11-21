@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { ffmpegOrDie } from '../lib/scratch.mjs';
 import { measureFile } from '../lib/loudness.mjs';
 import { detectCuts } from './shot-detect.mjs';
+import { measureKind } from './footage-kind.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const EXT = /\.(mp4|mov|m4v|webm|mkv)$/i;
@@ -50,7 +51,7 @@ export function probe(file) {
   const rotated = Math.abs(Number(v.side_data_list?.find((s) => s.rotation !== undefined)?.rotation ?? v.tags?.rotate ?? 0)) % 180 === 90;
   const [w, h] = rotated ? [v.height, v.width] : [v.width, v.height];
   const fps = parseRate(v.avg_frame_rate) || parseRate(v.r_frame_rate) || 30;
-  return { width: w, height: h, fps, seconds: Number(v.duration) || Number(j.format.duration) || 0, hasAudio: j.streams.some((s) => s.codec_type === 'audio') };
+  return { pixFmt: v.pix_fmt, width: w, height: h, fps, seconds: Number(v.duration) || Number(j.format.duration) || 0, hasAudio: j.streams.some((s) => s.codec_type === 'audio') };
 }
 
 /** The scale filter: fit inside the box (landscape 1920x1080, portrait 1080x1920; double with `full`), never crop, never enlarge. */
@@ -76,9 +77,14 @@ function readSources(dir) {
   try { return JSON.parse(fs.readFileSync(path.join(dir, SOURCES), 'utf8')); } catch { return {}; }
 }
 
-function encode(src, dest, info, { full, gop }) {
+/** The encode settings for a clip: a screen recording keeps full colour (4:4:4) and its full size up to 3840 wide, because 4:2:0 smears the colour edge of text; any other clip is 4:2:0 and fits 1920x1080 unless `full`. */
+export function proxyPlan(kind, full) {
+  return { full: full ?? kind.screen, pixFmt: kind.screen ? 'yuv444p' : 'yuv420p' };
+}
+
+function encode(src, dest, info, { full, gop, pixFmt }) {
   const [n, d] = standardRate(info.fps);
-  const vf = `${fitFilter(info.width, info.height, full)},fps=${n}/${d},format=yuv420p`;
+  const vf = `${fitFilter(info.width, info.height, full)},fps=${n}/${d},format=${pixFmt}`;
   const audio = info.hasAudio ? ['-c:a', 'aac', '-ar', '48000', '-ac', '2', '-b:a', '160k'] : ['-an'];
   ffmpegOrDie(['-v', 'error', '-y', '-i', src, '-map', '0:v:0', ...(info.hasAudio ? ['-map', '0:a:0'] : []), '-vf', vf, '-fps_mode', 'cfr',
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-g', String(gop), '-keyint_min', String(gop), '-sc_threshold', '0', '-bf', '2',
@@ -101,9 +107,12 @@ export function addFootage(filmDir, inputs, opts = {}) {
     sources[slug] = src;
     const file = path.join(dir, `${slug}.mp4`);
     const fresh = fs.existsSync(file) && fs.statSync(file).mtimeMs >= fs.statSync(src).mtimeMs;
-    if (!fresh) encode(src, file, probe(src), { full: opts.full, gop: opts.gop ?? GOP });
+    if (!fresh) {
+      const info = probe(src);
+      encode(src, file, info, { ...proxyPlan(measureKind(src, info), opts.full), gop: opts.gop ?? GOP });
+    }
     const p = probe(file);
-    out.push({ slug, file, seconds: +p.seconds.toFixed(3), fps: +p.fps.toFixed(3), width: p.width, height: p.height, hasAudio: p.hasAudio, skipped: fresh });
+    out.push({ slug, file, seconds: +p.seconds.toFixed(3), fps: +p.fps.toFixed(3), width: p.width, height: p.height, hasAudio: p.hasAudio, pixFmt: p.pixFmt, skipped: fresh });
   }
   fs.writeFileSync(path.join(dir, SOURCES), `${JSON.stringify(sources, null, 2)}\n`);
   return out;

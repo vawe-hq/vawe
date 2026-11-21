@@ -6,7 +6,7 @@ group: reference
 
 # Edit from the person's clips
 
-Brief shape: `bin/vawe new <name> --footage <folder|clip>...` copies the clips, writes `footage.md` and a brief with a Cut list.
+Brief shape: `bin/vawe new <name> --footage <folder|clip>...` copies the clips, writes `footage.md` and a brief with a Cut list. A clip that looks like a screen recording (flat areas, sharp edges, little motion, measured on six sample frames) gets a 4:4:4 proxy at its own size up to 3840 wide, so coloured text keeps its edge; any other clip is 4:2:0 and fits 1920 by 1080 (`--full` lifts that).
 
 **Use when** the person gives clips and wants one film from them. The clips are content moved whole: trim, order, speed, titles, captions, a grade with the lens, transitions, music. Footage processing (tracking, roto, depth cuts) is out of scope (`prompts/moves/README.md`, Scope).
 
