@@ -69,7 +69,7 @@ test('the untouched starter page is named as the starter, not as clean; a writte
   const { starterPage } = await import('../../harness/cli/new.mjs');
   assert.equal(isStarterPage(starterPage({})), true);
   assert.equal(isStarterPage(starterPage({}).replace('why it matters', 'every school email')), false);
-  assert.equal(isStarterPage(starterPage({}).replace('#8c8c8c', '#f4efe6')), false);
+  assert.equal(isStarterPage(starterPage({}).replace('#0b0e17', '#f4efe6')), false);
   const shots = [{ id: 's1', fired: [] }, { id: 's2', fired: [] }];
   const [line] = worldLines(shots, () => [], { starter: true });
   assert.match(line, /starter page: s1, s2 .*not written yet/);

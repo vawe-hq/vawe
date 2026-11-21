@@ -157,7 +157,7 @@
    },
    {
     "rule": "ground-hue",
-    "text": "turn the ground to a second hue family from the palette in two or more worlds, not three shots within a 40 degree hue span",
+    "text": "keep one tinted near-black ground with one key light, not a ground that flips light and dark on every cut",
     "craft": "color"
    },
    {

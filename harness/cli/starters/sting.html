@@ -12,7 +12,7 @@
   Replace the ring with the brand mark, the grey with the palette and the stand-in face with the brand's; keep the beats. -->
 <style>
   @font-face { font-family: "{{family}}"; src: url("assets/{{font}}") format("woff2"); font-weight: 100 900; }
-  :root { --ground: {{ground}} /* unchosen: palette dial */; --ink: {{ink}} /* unchosen: palette dial */; {{beats}} }
+  :root { --ground: {{ground}} /* unchosen: palette dial */; --ink: {{ink}} /* unchosen: palette dial */; --key: {{key}} /* the one hue: palette dial */; {{beats}} }
   html, body { margin: 0; height: 100%; background: var(--ground); overflow: hidden; }
   .world { position: absolute; inset: 0; isolation: isolate; }
 {{groundCss}}
@@ -40,8 +40,6 @@ worlds.forEach((world, i) => {
   if (i + 1 < worlds.length) cutTo(world, 'hidden', to, 'forwards');
   world.querySelectorAll('.ground i').forEach((blob, k) => blob.animate([{ translate: '0 0' }, { translate: 'calc(var(--vw) * ' + DRIFT[k][0] + ') calc(var(--vh) * ' + DRIFT[k][1] + ')' }], { delay: (from + 0.35) * 1000, duration: (to - from - 0.35) * 1000, easing: EASE.glide, fill: 'both' }));
 });
-// the lockup sits above the grounds, so its ink flips with them: even worlds are --ink
-worlds.slice(1).forEach((_, k) => $('.lockup').animate([{ color: k % 2 ? 'var(--ink)' : 'var(--ground)' }], { delay: (beat(k + 2) - 0.03) * 1000, duration: 1, fill: 'forwards' }));
 
 // s1, the quiet beat: the mark lands alone and keeps turning slowly (quiet is slow, never frozen: rule live-hold); it turns to a quarter by the last frame
 enter($('.mark'), { at: 0.05, from: 'calc(var(--vw) * -0.1) 0', scale: 0.7, ease: 'land' });

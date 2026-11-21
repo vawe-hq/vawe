@@ -1,7 +1,7 @@
 ---
 id: value-dominance
 step: look
-principle: Decide dominance by looking at the brand's hero: a light site gets a light-first film, a dark site a dark-first film. Commit fully.
+principle: The default is dark-first: a tinted near-black ground, one key light, one strong hue. A light-first film is opt-in, when the brief or the brand's hero asks for it. Commit fully.
 limit: none
 range: light-first: off-white ground, near-black ink, one vivid accent. Dark-first: a tinted near-black ground, off-white text, one vivid accent
 break-when: a value flip between beats is the transition

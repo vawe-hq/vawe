@@ -13,7 +13,7 @@
   Replace the grey with the palette, the stand-in face with the film's, and the caption words with what the clip shows. -->
 <style>
   @font-face { font-family: "{{family}}"; src: url("assets/{{font}}") format("woff2"); font-weight: 100 900; }
-  :root { --ground: {{ground}} /* unchosen: palette dial */; --ink: {{ink}} /* unchosen: palette dial */; {{beats}} }
+  :root { --ground: {{ground}} /* unchosen: palette dial */; --ink: {{ink}} /* unchosen: palette dial */; --key: {{key}} /* the one hue: palette dial */; {{beats}} }
   :root { --band: calc(var(--vh) * 0.2); }
   html, body { margin: 0; height: 100%; background: var(--ground); overflow: hidden; }
   .world { position: absolute; inset: 0; isolation: isolate; box-sizing: border-box; font-family: "{{family}}", sans-serif; }

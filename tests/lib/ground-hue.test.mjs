@@ -42,7 +42,7 @@ test('the advice line gives the seconds and points at the reference turns, or as
   assert.equal(withRef.length, 1);
   assert.match(withRef[0], /^ground-hue: the ground of 4 worlds stays in one hue family \(hue 215 to 232 degrees, L 20 to 62\), from 0 s to 10\.0 s/);
   assert.match(withRef[0], /reference abc123 turns its ground at 2\.1 s \(hue 20 to 210/);
-  assert.match(groundHueLines(blueRamp, 10)[0], /name a reference in the brief/);
+  assert.deepEqual(groundHueLines(blueRamp, 10), [], 'one hue family is the default: no advice without a named reference');
   assert.deepEqual(groundHueLines([...blueRamp, shot(5, 10, 20, 40)], 12), []);
   assert.doesNotMatch(withRef[0], /—/);
 });

@@ -39,14 +39,12 @@ export function refTurns(ground) {
   });
 }
 
-/** The advice lines for a draft of `endSec` seconds: [] when the ground turns, one line with the reference pointer otherwise. `ref` is { id, ground } or null. */
+/** The advice lines for a draft of `endSec` seconds: [] when the ground turns. One hue family is the house default, so the line comes only when the brief names a reference (`ref` is { id, ground }) to compare with; null gives []. */
 export function groundHueLines(perShot, endSec, ref = null) {
-  const family = hueFamily(perShot, endSec);
+  const family = ref && hueFamily(perShot, endSec);
   if (!family) return [];
   const where = `from ${family.from} s to ${family.to.toFixed(1)} s`;
-  const turns = ref ? refTurns(ref.ground) : [];
-  const pointer = ref
-    ? (turns.length ? `reference ${ref.id} turns its ground at ${turns.join(', ')}` : `reference ${ref.id} has no ground change that its spec records`)
-    : 'name a reference in the brief (ref: <id>) to see where it turns its ground';
+  const turns = refTurns(ref.ground);
+  const pointer = turns.length ? `reference ${ref.id} turns its ground at ${turns.join(', ')}` : `reference ${ref.id} has no ground change that its spec records`;
   return [`ground-hue: the ground of ${family.shots} worlds stays in one hue family (hue ${family.hue[0]} to ${family.hue[1]} degrees, L ${family.light[0]} to ${family.light[1]}), ${where}; the judge scores this as one colour scale. ${pointer}`];
 }

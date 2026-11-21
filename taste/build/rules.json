@@ -95,7 +95,7 @@
  },
  "ground-hue": {
   "file": "taste/rules/ground-hue.md",
-  "instead": "give two or more worlds a ground in another hue family, taken from the palette, and let the accent carry the thread. The reference's own changes are in the line the draft prints (bin/vawe refs frames <id> shows its palette per shot)."
+  "instead": "when a named reference turns its ground and the film should too, give two or more worlds a ground in another hue family, taken from the palette. Otherwise keep the one family. The reference's own changes are in the line the draft prints (bin/vawe refs frames <id> shows its palette per shot)."
  },
  "hero-plus-proof": {
   "file": "taste/rules/hero-plus-proof.md",

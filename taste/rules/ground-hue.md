@@ -1,19 +1,19 @@
 ---
 id: ground-hue
 step: look
-principle: The ground turns across the film. One hue family on every ground, even with the light and dark changing, reads as one scale and scores low on colour.
+principle: One tinted near-black ground with one key light and one strong hue is the default, and one hue family across the film is fine. The check only compares with a reference the brief names: where that reference turns its ground and ours stays in one family, the draft says so.
 limit: three or more shots whose ground stays within one 40 degree hue family
 range: the reference films change the ground at about half of their cuts; a ground that turns is a new hue, a new value or a new light, not the same hue made lighter or darker
 break-when: one colour world is the idea (a mono film): declare ground-hue in the page with a reason that names the hue degrees and the seconds
-instead: give two or more worlds a ground in another hue family, taken from the palette, and let the accent carry the thread. The reference's own changes are in the line the draft prints (bin/vawe refs frames <id> shows its palette per shot).
-more-frames: turn the ground to a second hue family from the palette in two or more worlds, not three shots within a 40 degree hue span
+instead: when a named reference turns its ground and the film should too, give two or more worlds a ground in another hue family, taken from the palette. Otherwise keep the one family. The reference's own changes are in the line the draft prints (bin/vawe refs frames <id> shows its palette per shot).
+more-frames: keep one tinted near-black ground with one key light, not a ground that flips light and dark on every cut
 check: ground-hue
-judge: Does the ground only get lighter and darker in one hue, while the references turn it?
+judge: Only when the brief names a reference: does it turn its ground where ours stays in one hue family?
 prevents: colour scored 6 or 7 in four films (crave, moths, moths-3d, flower) with "one blue-grey scale" or "one red ramp" while the references turn the ground.
 status: active
 scored: no
 numbers: {"hue_span_deg_max":40,"chroma_min":6,"shots_min":3}
-digest: Turn the ground across the film: some worlds take a new hue.
+digest: Default ground: tinted near-black, one key light, one strong hue.
 craft: color
 ---
 

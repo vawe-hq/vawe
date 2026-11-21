@@ -71,21 +71,22 @@ test('the starter uses exact curves, a bundled face and beat properties', () => 
   assert.match(page, /--beat-1: 0s; --beat-2:/);
 });
 
-test('the starter has no house default: grey placeholders, no accent, no band or ease named, an empty signature', () => {
+test('the starter has no house default: one dark ground and one key hue, no accent, no band or ease named, an empty signature', () => {
   const page = starterPage({ face: starterFace('zz-demo') });
   assert.doesNotMatch(page, /#f4f1ea|#2b5cff|Bricolage|--accent|<em>|band:/i);
-  assert.match(page, /--ground: #8c8c8c/);
+  assert.match(page, /--ground: #0b0e17/);
+  assert.match(page, /--key: #3d6bff/);
   assert.match(page, /<meta name="signature" content="band=; ease=; stagger=; seam=; palette=; thread=">/);
 });
 
-test('the starter ground is three drifting blobs per world, derived from --ground and --ink, with a spring on arrivals', () => {
+test('the starter ground is three drifting blobs per world, one dark ground lit by --key', () => {
   const page = starterPage({ length: 12, face: starterFace('zz-demo') });
-  assert.equal([...page.matchAll(/<div class="ground" aria-hidden="true"><i><\/i><i><\/i><i><\/i><\/div>/g)].length, 6);
+  assert.equal([...page.matchAll(/<div class="ground" aria-hidden="true"><i><\/i><i><\/i><i><\/i><\/div>/g)].length, 3);
   assert.match(page, /radial-gradient\(closest-side, var\(--glow-1\)/);
   assert.doesNotMatch(page, /--glow-\d: #/);
   assert.match(page, /ease: 'pop'/);
   assert.match(page, /blur: 10/);
-  assert.equal([...page.matchAll(/<ul class="facts">/g)].length, 4);
+  assert.equal([...page.matchAll(/<ul class="facts">/g)].length, 2);
 });
 
 test('the template and beat-sheet default lengths lie inside the ROUTING.md typical ranges', () => {

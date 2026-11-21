@@ -136,15 +136,15 @@ function taskLines({ request, title, length, details, answered }, guess) {
   ].join('\n');
 }
 
-/** The starter's grey stand-ins: no house palette, and dev names the palette dial unchosen until the page picks one. */
-export const PLACEHOLDER = { ground: '#8c8c8c', ink: '#1c1c1c' };
+/** The starter's stand-ins: a tinted near-black ground, one key light hue and off-white ink; no house palette, and dev names the palette dial unchosen until the page picks one. A light ground is the brief's call. */
+export const PLACEHOLDER = { ground: '#0b0e17', ink: '#f2f4f8', key: '#3d6bff' };
 
 /** The starter's line under the headline; its first beat is sized to read both. */
 export const STARTER_LINE = 'why it matters';
 
 function lookLines({ face, details }, guess) {
   return [
-    `- ground: ${guess('ground', `${PLACEHOLDER.ground}, the starter's grey placeholder: choose from the palette dial`)}`,
+    `- ground: ${guess('ground', `${PLACEHOLDER.ground}, the starter's tinted near-black with one key light in ${PLACEHOLDER.key}: choose from the palette dial; a light ground only if the brief asks`)}`,
     `- ink: ${guess('ink', `${PLACEHOLDER.ink}, the starter's placeholder`)}`,
     `- accent: ${guess('accent', 'none yet: at most one, on one thing')}`,
     `- typeface: ${guess('typeface', `${face.family}, weight 700`)}`,

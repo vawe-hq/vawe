@@ -14,7 +14,7 @@
   the square with the brand mark, the grey with the palette and the face with the brand's; keep the order. Every move inside a world is timed as a share of that world. -->
 <style>
   @font-face { font-family: "{{family}}"; src: url("assets/{{font}}") format("woff2"); font-weight: 100 900; }
-  :root { --ground: {{ground}} /* unchosen: palette dial */; --ink: {{ink}} /* unchosen: palette dial */; --unit: min(var(--vh), calc(var(--vw) * 0.56)); {{beats}} }
+  :root { --ground: {{ground}} /* unchosen: palette dial */; --ink: {{ink}} /* unchosen: palette dial */; --key: {{key}} /* the one hue: palette dial */; --unit: min(var(--vh), calc(var(--vw) * 0.56)); {{beats}} }
   html, body { margin: 0; height: 100%; background: var(--ground); overflow: hidden; font-family: "{{family}}", sans-serif; }
   .world { position: absolute; inset: 0; isolation: isolate; box-sizing: border-box; display: grid; align-content: center; justify-items: start; gap: calc(var(--unit) * 0.04);
            padding: 0 calc(var(--vw) * 0.08); }
@@ -77,8 +77,6 @@ worlds.forEach((world, i) => {
   world.querySelectorAll('.ground i').forEach((blob, k) => blob.animate([{ translate: '0 0' }, { translate: 'calc(var(--vw) * ' + DRIFT[k][0] + ') calc(var(--vh) * ' + DRIFT[k][1] + ')' }], { delay: (from + 0.35) * 1000, duration: (to - from - 0.35) * 1000, easing: EASE.glide, fill: 'both' }));
 });
 
-// the thread sits above the grounds, so its ink flips with them: even worlds are --ink
-worlds.slice(1).forEach((_, k) => $('.thread').animate([{ color: k % 2 ? 'var(--ink)' : 'var(--ground)' }], { delay: span[k + 1][0] * 1000, duration: 1, fill: 'forwards' }));
 // one place per world id (s1 first), [x, y] as fractions of the frame; the mark winds up, leaves its place 0.23 s before each cut and lands in the next 0.27 s after it
 const PLACE = [[0.78, 0.22], [0.86, 0.14], [0.9, 0.1], [0.86, 0.12], [0.8, 0.2], [0.8, 0.12], [0.86, 0.14], [0.86, 0.1], [0.88, 0.14], [0.9, 0.1], [0.9, 0.6], [0.08, 0.26]];
 const places = worlds.map((world) => PLACE[world.dataset.world.slice(1) - 1]);

@@ -37,7 +37,7 @@ const STARTER_TEMPLATE = `<!doctype html>
 <title>{{title}}</title>
 <style>
   @font-face { font-family: "{{family}}"; src: url("assets/{{font}}") format("woff2"); }
-  :root { --ground: {{ground}}; --ink: {{ink}}; {{beats}} }
+  :root { --ground: {{ground}}; --ink: {{ink}}; --key: {{key}}; {{beats}} }
   html, body { margin: 0; height: 100%; overflow: hidden; }
   .world { position: absolute; inset: 0; isolation: isolate; display: grid; align-content: end; gap: calc(var(--vh) * 0.03);
            padding: 0 calc(var(--vw) * 0.07) calc(var(--vh) * 0.12); font-family: "{{family}}", sans-serif; }
@@ -220,7 +220,7 @@ export function starterPage({ length = DEFAULT_LENGTH, aspect = '16:9', title = 
   const beats = own ? typeBeats(type, length, need) : starterBeats(length, [title, STARTER_LINE]);
   const template = own ? keepWorlds(readStarterFile(`${own.file}.html`), beats.map((b) => b.id)) : STARTER_TEMPLATE;
   return fill(template, {
-    length, aspect, title: safe, font: face.font, family: face.family, ground: PLACEHOLDER.ground, ink: PLACEHOLDER.ink,
+    length, aspect, title: safe, font: face.font, family: face.family, ground: PLACEHOLDER.ground, ink: PLACEHOLDER.ink, key: PLACEHOLDER.key,
     signature: DIALS.map((d) => `${d}=`).join('; '), beats: beatVars(beats), groundCss: readStarterFile('ground.css').trimEnd(),
     worlds: own ? beats.map((b) => `<div class="world" data-world="${b.id}">${GROUND}</div>`).join('\n') : worldsHtml(beats, safe),
     spectacle: own ? +starterSpectacle(type, length, need).toFixed(2) : '', wordFit: +(0.64 / (0.52 * title.length)).toFixed(3),
@@ -281,7 +281,7 @@ function editWorlds(plan, title) {
 export function editStarterPage({ plan, aspect = '16:9', title = 'Say the one thing', face = starterFace() }) {
   const safe = title.replace(/&/g, '&amp;').replace(/</g, '&lt;');
   return fill(readStarterFile('edit.html'), {
-    length: plan.length, aspect, title: safe, font: face.font, family: face.family, ground: PLACEHOLDER.ground, ink: PLACEHOLDER.ink,
+    length: plan.length, aspect, title: safe, font: face.font, family: face.family, ground: PLACEHOLDER.ground, ink: PLACEHOLDER.ink, key: PLACEHOLDER.key,
     signature: DIALS.map((d) => `${d}=`).join('; '), beats: beatVars(plan.beats), groundCss: readStarterFile('ground.css').trimEnd(),
     worlds: editWorlds(plan, safe), spectacle: plan.clips.at(-1)?.start ?? 0,
   });

@@ -182,6 +182,8 @@ test('living ground: a full-frame faint gradient, a grain overlay, a blend layer
   const lit = 'radial-gradient(circle at 30% 40%, rgba(230, 90, 60, 0.6) 0%, rgba(0, 0, 0, 0) 70%)';
   assert.equal(livingGround([trick({ paint: faint })]).length, 1);
   assert.equal(livingGround([trick({ paint: lit })]).length, 0);
+  const keyLight = 'radial-gradient(circle at 70% 30%, rgba(61, 107, 255, 0.55) 0%, rgba(0, 0, 0, 0.45) 100%)';
+  assert.equal(livingGround([trick({ paint: keyLight })]).length, 0, 'a lit vignette on a near-black ground is a living ground');
   assert.equal(livingGround([trick({ paint: 'url("data:image/svg+xml;utf8,<svg><filter><feTurbulence/></filter></svg>")' })]).length, 1);
   assert.equal(livingGround([trick({ paint: 'url(grain.png)', tilePx: 128 })]).length, 1);
   assert.equal(livingGround([trick({ paint: lit, blend: 'overlay' })]).length, 1);

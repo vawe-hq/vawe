@@ -48,7 +48,7 @@ One rule per file in `taste/rules/<id>.md`. Ids never change. Everything else he
 - [asymmetry](rules/asymmetry.md): Compose asymmetric with one hero, anchored to edges and thirds. Check: judge.
 - [first-frame](rules/first-frame.md): Something of the subject (the subject, its ground or its first mark) is on screen at frame 0 and reads as an image by 0.1 s. Check: judge.
 - [graphic-is-subject](rules/graphic-is-subject.md): If a graphic is the point of the beat, it owns the frame: hero scale, type demoted to a caption. Check: judge.
-- [ground-hue](rules/ground-hue.md): The ground turns across the film. Check: ground-hue.
+- [ground-hue](rules/ground-hue.md): One tinted near-black ground with one key light and one strong hue is the default, and one hue family across the film is fine. Check: ground-hue.
 - [hero-plus-proof](rules/hero-plus-proof.md): A beat held longer than 3 s carries a hero plus proof. Check: judge.
 - [hierarchy](rules/hierarchy.md): Make one element dominant by scale contrast: one huge hero and one small caption beat three medium lines. Check: judge.
 - [icon-family](rules/icon-family.md): Show a company's mark whenever it is named. Check: none.
@@ -72,7 +72,7 @@ One rule per file in `taste/rules/<id>.md`. Ids never change. Everything else he
 - [type-setting](rules/type-setting.md): Set display type tight and body type open. Check: display-tracking.
 - [typeface-default](rules/typeface-default.md): Use the kit's face and surface for a brand, or a face the direction chose. Check: judge.
 - [typeface-system](rules/typeface-system.md): One to three faces, each with a role (primary, secondary, accent). Check: judge, font-families.
-- [value-dominance](rules/value-dominance.md): Decide dominance by looking at the brand's hero: a light site gets a light-first film, a dark site a dark-first film. Check: judge.
+- [value-dominance](rules/value-dominance.md): The default is dark-first: a tinted near-black ground, one key light, one strong hue. Check: judge.
 - [visual-style-one](rules/visual-style-one.md): Pick one visual style as the register and do not mix. Check: judge.
 - [weight-contrast](rules/weight-contrast.md): Weight contrast is extreme on video: light against black. Check: judge.
 - [whitespace](rules/whitespace.md): Empty space does a job. Check: judge.
