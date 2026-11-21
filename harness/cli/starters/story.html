@@ -190,7 +190,7 @@ MOVES.s12 = (i) => {
 
 worlds.forEach((world, i) => MOVES[world.dataset.world]?.(i));
 // the product look: a slow push-in and a small tilt, so the frame has depth (prompts/moves/lens.md); delete this block for a flat page
-const cam = lens(htmlSource(document.getElementById('stage')), { look: 'product', zoom: (t) => 1.08 + 0.06 * (t / end), tiltX: (t) => -0.12 + 0.05 * Math.sin(t * 0.5), tiltY: (t) => 0.16 * Math.sin(t * 0.6), fit: { cover: true } });
+const cam = lens(htmlSource(document.getElementById('stage')), { look: 'product', zoom: (t) => 1 + 0.06 * (t / end), tiltX: (t) => -0.12 + 0.05 * Math.sin(t * 0.5), tiltY: (t) => 0.16 * Math.sin(t * 0.6), fit: { cover: true } });
 vawe.onFrame((t) => cam.draw(t));
 </script>
 </head>
