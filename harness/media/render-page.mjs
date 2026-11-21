@@ -50,6 +50,7 @@ import { drewNothingHint, ensurePageFonts, missingFontsLine } from '../lib/ensur
 import { BLANK_RETRY_WAIT_MS, isBlankShot, shouldRetake } from '../lib/blank-shot.mjs';
 import { installPageClock } from '../../core/engine/page-clock.js';
 import { seekTo, awaitFonts, awaitReady, installPageReady, installPageFrame } from '../../core/engine/page-seek.js';
+import { installPageLayer } from '../../core/engine/page-layer.js';
 import { EASE_VARS } from '../../core/motion/presets.js';
 import { ASPECTS, aspectDims } from '../../core/layout/aspects.js';
 import { appendRun, filmKeyOf, readRuns } from '../lib/runlog.mjs';
@@ -151,9 +152,12 @@ export function sliceFramesFor(frames, workers, final) {
 
 // A final captures lossless PNG. A draft captures JPEG at quality 92 (about 73 KB a frame on colour-sting).
 const DRAFT_JPEG_QUALITY = 92;
-export const frameFormat = (final) => (final
-  ? { ext: 'png', label: 'final: png, software', shot: { type: 'png', optimizeForSpeed: true } }
-  : { ext: 'jpg', label: 'draft: jpeg, gpu', shot: { type: 'jpeg', quality: DRAFT_JPEG_QUALITY, optimizeForSpeed: true } });
+export const frameFormat = (final, alpha = false) => {
+  if (alpha) return { ext: 'png', label: 'layer: png with alpha, software', shot: { type: 'png', optimizeForSpeed: true, omitBackground: true } };
+  return final
+    ? { ext: 'png', label: 'final: png, software', shot: { type: 'png', optimizeForSpeed: true } }
+    : { ext: 'jpg', label: 'draft: jpeg, gpu', shot: { type: 'jpeg', quality: DRAFT_JPEG_QUALITY, optimizeForSpeed: true } };
+};
 
 // page.screenshot must keep its browser-wide lock: parallel Page.captureScreenshot calls on several tabs
 // returned 1200x818 frames (measured). Only its result decode is slow (a per-character Uint8Array.from,
@@ -194,7 +198,8 @@ export async function gotoLoaded(page, url, pagePath = url) {
 }
 
 export async function openPage(pagePath, frame, { warm = false, final = true, lane = null, measure = false } = {}) {
-  const opened = lane ? await openLanePage(lane, pagePath, frame) : await openPreview(pagePath, { width: frame.width, height: frame.height, scale: frame.scale, final, warm, frameKey: `${frame.aspect}@${frame.width}x${frame.height}` });
+  const layerKey = frame.layer ? `#${createHash('sha1').update(frame.layer.css).digest('hex').slice(0, 8)}` : '';
+  const opened = lane ? await openLanePage(lane, pagePath, frame) : await openPreview(pagePath, { width: frame.width, height: frame.height, scale: frame.scale, final, warm, frameKey: `${frame.aspect}@${frame.width}x${frame.height}${layerKey}` });
   if (opened.reused) return opened;
   // The tab that holds browser focus rasterizes edges differently from the others (sub-pixel text and
   // shape edges, SSIM 0.9994), so which slice was frontmost changed the pixels with --workers.
@@ -207,7 +212,9 @@ export async function openPage(pagePath, frame, { warm = false, final = true, la
   await cdp.send('Animation.setPlaybackRate', { playbackRate: 0 });
   opened.cdp = cdp;
   const duration = measure ? undefined : frame.duration ?? await autoDuration(pagePath, frame);
-  await opened.page.evaluateOnNewDocument(`(${installPageClock})();(${installPageFrame})(${JSON.stringify({ ...frame, eases: EASE_VARS, duration })});(${installPageReady})();window.__pageFonts = ${awaitFonts};window.__pageReady = ${awaitReady};window.__pageSeek = ${seekTo};window.__stillKey = ${stillKey};`);
+  const { layer, ...facts } = frame;
+  const layerScript = layer ? `(${installPageLayer})(${JSON.stringify(layer)});` : '';
+  await opened.page.evaluateOnNewDocument(`(${installPageClock})();(${installPageFrame})(${JSON.stringify({ ...facts, eases: EASE_VARS, duration })});${layerScript}(${installPageReady})();window.__pageFonts = ${awaitFonts};window.__pageReady = ${awaitReady};window.__pageSeek = ${seekTo};window.__stillKey = ${stillKey};`);
   return opened;
 }
 
@@ -531,7 +538,7 @@ const seekThenKey = async (ms) => { await window.__pageSeek(ms / 1000); return w
 // A reused capture is only ever the previous one on the same page, so the pixels stay independent of --workers.
 // A slice that finished writes slice-<lo>.done in tmpDir; a later render into the same tmpDir skips it and calls onResumed.
 async function captureFrames(pagePath, tmpDir, frames, kArr, subframeStart, fps, from, frame, workers, onSubframe, { stallMs, stallFloorMs, fault, onResumed, final, sliceFrames }) {
-  const format = frameFormat(final);
+  const format = frameFormat(final, Boolean(frame.layer));
   const marker = ([lo]) => path.join(tmpDir, `slice-${lo}.done`);
   const resume = {
     done: (slice) => { const found = fs.existsSync(marker(slice)); if (found) onResumed(slice); return found; },
@@ -610,7 +617,12 @@ const ONE_FORMAT_IN = ['-reinit_filter', '0'];
 const DITHER = 'noise=alls=3:allf=t:all_seed=7';
 
 // One trim+tmix+select chain per run of equal subframe counts, concatenated to [blend].
-function blendGraph(kArr, subframeStart, fps) {
+// A layer keeps its alpha: subframes are blended premultiplied, in float, so a moving edge fades instead of darkening (straight
+// alpha averaged as is gives a dark fringe) and a faint glow keeps its colour (8-bit premultiplied rounds a 2% alpha pixel to grey).
+const PREMULTIPLY = 'format=gbrapf32le,premultiply=inplace=1';
+const UNPREMULTIPLY = 'unpremultiply=inplace=1,format=yuva444p10le';
+
+function blendGraph(kArr, subframeStart, fps, alpha = false) {
   const segments = [];
   let segStart = 0;
   for (let i = 1; i <= kArr.length; i++) {
@@ -627,23 +639,30 @@ function blendGraph(kArr, subframeStart, fps) {
   const joins = segments.map((_, idx) => `[s${idx}]`).join('');
   // Each segment restarts its pts, so a 1-frame segment carries no duration and the next one overlaps
   // it; re-stamp after the concat and never let -r rate-convert, or ffmpeg drops the overlapped frames.
-  const split = `[0:v]format=rgb24,split=${segments.length}${segments.map((_, idx) => `[in${idx}]`).join('')}`;
+  const split = `[0:v]${alpha ? PREMULTIPLY : 'format=rgb24'},split=${segments.length}${segments.map((_, idx) => `[in${idx}]`).join('')}`;
   return `${split};${filters.join(';')};${joins}concat=n=${segments.length}:v=1:a=0,setpts=N/${fps}/TB[blend]`;
 }
 
-function blendEncode(tmpDir, fps, kArr, subframeStart, final, tail, codecArgs, out) {  const seq = path.join(tmpDir, `f%06d.${frameFormat(final).ext}`);
+function blendEncode(tmpDir, fps, kArr, subframeStart, final, tail, codecArgs, out, alpha = false) {
+  const seq = path.join(tmpDir, `f%06d.${frameFormat(final, alpha).ext}`);
   const args = ['-y', '-v', 'error', ...ONE_FORMAT_IN, '-framerate', String(fps), '-i', seq,
-    '-filter_complex', `${blendGraph(kArr, subframeStart, fps)};[blend]${tail}[outv]`,
+    '-filter_complex', `${blendGraph(kArr, subframeStart, fps, alpha)};[blend]${tail}[outv]`,
     '-map', '[outv]', '-fps_mode', 'passthrough', ...codecArgs, out];
   return spawnSync('ffmpeg', args, { encoding: 'utf8', maxBuffer: 1024 * 1024 * 16 });
 }
 
 // One ffmpeg pass over the blended frames: the master (x264).
 // `size` is the output [width, height] when the capture is larger: the browser's own downscale gave different pixels run to run.
-export function ffmpegEncode(tmpDir, fps, kArr, subframeStart, tmpOut, { final, size = null, small = false }) {
+export function ffmpegEncode(tmpDir, fps, kArr, subframeStart, tmpOut, { final, size = null, small = false, alpha = false }) {
+  if (alpha) {
+    const tail = `${UNPREMULTIPLY}${size ? `,scale=${size[0]}:${size[1]}:flags=area` : ''}`;
+    return blendEncode(tmpDir, fps, kArr, subframeStart, final, tail, PRORES_4444_ARGS, tmpOut, true);
+  }
   const tail = size ? `scale=${size[0]}:${size[1]}:flags=area` : `null${final ? `,${DITHER}` : ''}`;
   return blendEncode(tmpDir, fps, kArr, subframeStart, final, tail, x264Args(final, small), tmpOut);
 }
+
+const PRORES_4444_ARGS = ['-c:v', 'prores_ks', '-profile:v', '4', '-pix_fmt', 'yuva444p10le', '-alpha_bits', '16', '-vendor', 'apl0'];
 
 // The web copy is its own pass, run after the master is delivered.
 export function ffmpegWebEncode(tmpDir, fps, kArr, subframeStart, webOut) {
@@ -832,15 +851,18 @@ async function muxPageAudio(read, pagePath, { video, out, duration, explicit, fa
  * muxFault (test hook: called before the audio mux), final (false: half-size capture of the same layout, ultrafast x264), audio (mix the page's <audio> elements in; a whole render does by default, a windowed render stays silent unless true), fps (30), blur (1, the MAX subframes blended per output frame; each
  * frame gets what its fastest move needs, a still frame 1), from (0, seconds into the page's own timeline the
  * render starts at), durArg (seconds rendered from `from`; defaults to the page's own <meta
- * name="duration"> minus `from`), progress (false; prints a single overwriting capture-progress line), stallMs (STALL_MS, the most a step may run without progress before its slice restarts; after 5 frames the limit is 10 times their median, at least 15 s), stallFloorMs (test hook: the least that limit may be).
+ * name="duration"> minus `from`), progress (false; prints a single overwriting capture-progress line), stallMs (STALL_MS, the most a step may run without progress before its slice restarts; after 5 frames the limit is 10 times their median, at least 15 s), stallFloorMs (test hook: the least that limit may be),
+ * layer ({ css, noText } from core/engine/page-layer.js layerCss: a final only; paints that part of the page on a transparent ground and
+ * writes ProRes 4444 with alpha to outPath, a .mov, with no sound and no web copy).
  */
 export async function renderPage(pagePath, outPath, opts = {}) {
-  const { fps = 30, blur = 1, durArg = null, from = 0, progress = false, final = false } = opts;
+  const { fps = 30, blur = 1, durArg = null, from = 0, progress = false, final = false, layer = null } = opts;
   if (!fs.existsSync(pagePath)) throw new RenderError(`no such file: ${pagePath}`, EXIT.IO);
+  if (layer && !final) throw new RenderError('a layer render is a final: pass final: true', EXIT.USAGE);
   const canvas = resolveFrame(pagePath, opts);
   const length = await resolveLength(pagePath, canvas).catch((e) => { throw e instanceof DurationError ? new RenderError(e.message) : e; });
-  const frame = length.auto ? { ...canvas, duration: length.seconds } : canvas;
-  const wantAudio = opts.audio ?? (from === 0 && durArg == null);
+  const frame = { ...canvas, ...(length.auto ? { duration: length.seconds } : {}), ...(layer ? { layer } : {}) };
+  const wantAudio = !layer && (opts.audio ?? (from === 0 && durArg == null));
   if (opts.audio && from > 0) throw new RenderError('--audio needs a render from 0: the mix has no offset', EXIT.USAGE);
   const digest = pageDigest(pagePath);
   let clips = [];
@@ -864,7 +886,8 @@ export async function renderPage(pagePath, outPath, opts = {}) {
         if (/^(font (still loading|failed)|page not ready|video failed)/.test(msg)) throw new InvariantError([msg]);
         throw e;
       }
-      const read = await readAudio(page, pagePath, length.seconds);
+      // A layer has no sound, and the worlds it hides would leave every data-on="world:<id>" cue unresolved.
+      const read = layer ? { read: null, problems: [] } : await readAudio(page, pagePath, length.seconds);
       const early = [...pageErrorLines(scriptErrors, pagePath), ...await fontProblems(page, pagePath), ...read.problems, ...await assertProblems(page)];
       if (early.length) throw new InvariantError(early);
       return read;
@@ -910,11 +933,11 @@ export async function renderPage(pagePath, outPath, opts = {}) {
     }
     const captureMs = Date.now() - t0;
 
-    const tmpOut = `${outPath}.tmp-${process.pid}.mp4`;
-    const webPath = final ? webOut(outPath) : null;
+    const tmpOut = `${outPath}.tmp-${process.pid}${layer ? '.mov' : '.mp4'}`;
+    const webPath = final && !layer ? webOut(outPath) : null;
     const tmpWeb = webPath && `${webPath}.tmp-${process.pid}.mp4`;
     const t1 = Date.now();
-    const res = ffmpegEncode(tmpDir, fps, kArr, subframeStart, tmpOut, { final, small: opts.small, size: final && frame.outWidth === Math.round(frame.width * frame.scale) && frame.outHeight === Math.round(frame.height * frame.scale) ? null : [frame.outWidth, frame.outHeight] });
+    const res = ffmpegEncode(tmpDir, fps, kArr, subframeStart, tmpOut, { final, alpha: Boolean(layer), small: opts.small, size: final && frame.outWidth === Math.round(frame.width * frame.scale) && frame.outHeight === Math.round(frame.height * frame.scale) ? null : [frame.outWidth, frame.outHeight] });
     const encodeMs = Date.now() - t1;
     if (res.status !== 0 || res.error) {
       fs.rmSync(tmpOut, { force: true });
@@ -926,7 +949,7 @@ export async function renderPage(pagePath, outPath, opts = {}) {
     }
     const late = await phases.time('verify', async () => {
       const stats = probeStats(tmpOut);
-      const oneColour = oneFlatColour(stats) && from === 0 && durArg == null;
+      const oneColour = !layer && oneFlatColour(stats) && from === 0 && durArg == null;
       return frameProblems(stats.map((s) => s.flat), { frames, fps, from, declared: parseBlankRanges(fs.readFileSync(pagePath, 'utf8')), oneColour, hint: oneColour ? drewNothingHint(REPO_ROOT, pagePath) : '' });
     });
     // A missing frame is a broken encode; a flat frame may be a colour block or a flash, so it only advises.

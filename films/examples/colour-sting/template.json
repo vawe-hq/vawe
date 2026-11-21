@@ -1,0 +1,6 @@
+{
+  "inputs": [
+    { "id": "name", "selector": ".word .rest", "label": "Name after the ring", "at": 3.2 },
+    { "id": "tagline", "selector": ".line", "label": "Tagline", "at": 3.6 }
+  ]
+}

@@ -28,6 +28,7 @@ Test a change by one question: what would an agent write unprompted, and does th
 | Concern | Owner | What it decides |
 |---|---|---|
 | Time | `harness/media/render-page.mjs`, `core/engine/page-clock.js`, `core/engine/page-seek.js` | render-page walks the frames and sets the seek; page-clock replaces `Date`, `performance.now`, `requestAnimationFrame`, timers and `Math.random` before any page script runs; page-seek pauses every animation, sets `currentTime`, calls `window.seek(t)` and sets aspect, `--vw`, `--vh` |
+| Layers | `core/engine/page-layer.js`, `harness/media/template-export.mjs` | a final render of one part of the page on a clear ground (ProRes 4444 with alpha); the template export for Premiere Pro and After Effects (`harness/README.md`, Template export) |
 | Page API | `core/engine/page-api.js` | `window.vawe`, the three.js helpers a page imports |
 | Audio | `harness/media/page-audio.mjs`, `core/audio/kit.mjs` | reads `<audio>` tags, mixes offline as written (`<meta name="loudness">` opts in to a target), synth voices by `data-synth`; nothing plays live |
 | Reference measure | `harness/media/ref-spec.mjs` (pixels), `harness/media/render-spec.mjs` (DOM), `harness/lib/spec-deltas.mjs` (the diff) | SPEC.md, spec.json, deltas.md; `bin/vawe see --spec` and `critique --ref` call them |
