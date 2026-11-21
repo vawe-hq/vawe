@@ -1,0 +1,14 @@
+{
+  "id": "fixture-sting",
+  "title": "Fixture sting",
+  "summary": "A tiny template for tests.",
+  "category": "titles",
+  "tier": "free",
+  "length": 3,
+  "aspect": "16:9",
+  "structure": "one headline",
+  "inputs": [
+    { "key": "title", "label": "Headline", "default": "Say the one thing", "where": "h1 in world hook" }
+  ],
+  "tags": ["test"]
+}
