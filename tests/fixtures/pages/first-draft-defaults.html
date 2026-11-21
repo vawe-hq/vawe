@@ -1,0 +1,36 @@
+<!doctype html>
+<html data-aspect="16:9">
+<head>
+<meta charset="utf-8">
+<meta name="duration" content="6.5">
+<meta name="aspect" content="16:9">
+<meta name="message" content="a draft with the defaults">
+<meta name="spectacle" content="3">
+<title>first draft defaults</title>
+<style>
+  :root { --ground: #0b0e17; --ink: #f2f4f8; --key: #3d6bff; }
+  html, body { margin: 0; height: 100%; background: var(--ground); overflow: hidden; }
+  #stage { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: var(--ground); color: var(--ink); font: 700 calc(var(--vh) * 0.12) / 1.1 sans-serif; }
+  .world { position: absolute; inset: 0; isolation: isolate; }
+  .ground { position: absolute; inset: 0; z-index: -1; }
+  .ground i { position: absolute; width: 90%; aspect-ratio: 1; border-radius: 50%; }
+  .ground i:nth-child(1) { left: 40%; top: -40%; background: radial-gradient(closest-side, color-mix(in srgb, var(--key) 55%, transparent), transparent); }
+  .ground i:nth-child(2) { left: -30%; top: 30%; background: radial-gradient(closest-side, color-mix(in srgb, var(--key) 22%, transparent), transparent); }
+  .ground i:nth-child(3) { left: 20%; top: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--ground) 45%, black), transparent); }
+  h1 { position: absolute; left: 12vw; top: 38vh; margin: 0; font-size: inherit; opacity: 0; }
+</style>
+<script type="module">
+const end = 6.5;
+const h1 = document.querySelector('h1');
+h1.animate([{ translate: '0 0.5em', opacity: 0 }, { translate: '0 0', opacity: 1 }], { delay: 300, duration: 700, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'both' });
+document.querySelectorAll('.ground i').forEach((blob, k) => blob.animate([{ translate: '0 0' }, { translate: `calc(var(--vw) * ${0.1 - k * 0.05}) calc(var(--vh) * -0.1)` }], { duration: end * 1000, easing: 'cubic-bezier(0.37, 0, 0.63, 1)', fill: 'both' }));
+// the slow camera: one 6.5 s push-in on the whole stage, well under 400 px/s, so it counts as motion (rule constant-camera)
+document.getElementById('stage').animate([{ scale: 1.08 }, { scale: 1.14 }], { id: 'camera', duration: end * 1000, easing: 'cubic-bezier(0.37, 0, 0.63, 1)', fill: 'both' });
+</script>
+</head>
+<body>
+<div id="stage">
+  <main class="world" data-world="s1"><div class="ground" aria-hidden="true"><i></i><i></i><i></i></div><h1>Say the one thing</h1></main>
+</div>
+</body>
+</html>
