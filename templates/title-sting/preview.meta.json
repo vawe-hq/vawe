@@ -1,0 +1,59 @@
+{
+  "pageDigest": "01a8fa722eb6254c1a2af40eaca9bce61652f9c3",
+  "renderKey": "ef27f74b8a969fa5",
+  "final": false,
+  "fps": 30,
+  "width": 960,
+  "height": 540,
+  "duration": 5,
+  "from": 0,
+  "to": 5,
+  "worlds": [
+    {
+      "id": "hook",
+      "start": 0,
+      "end": 1.33
+    },
+    {
+      "id": "name",
+      "start": 1.33,
+      "end": 2.43
+    },
+    {
+      "id": "line",
+      "start": 2.43,
+      "end": 3.23
+    },
+    {
+      "id": "tag",
+      "start": 3.23,
+      "end": 5
+    }
+  ],
+  "clips": [],
+  "audio": {
+    "mixed": true,
+    "loudness": null,
+    "cues": [
+      {
+        "voice": "tap",
+        "role": "sfx",
+        "at": 0.85,
+        "gain": -3
+      },
+      {
+        "voice": "swoosh-long",
+        "role": "sfx",
+        "at": 1.3,
+        "gain": -5
+      },
+      {
+        "voice": "sub-thump",
+        "role": "sfx",
+        "at": 3.35,
+        "gain": -5
+      }
+    ]
+  },
+  "createdAt": "2026-11-21T14:13:08.865Z"
+}

@@ -1,0 +1,87 @@
+{
+  "pageDigest": "d2912c4220fe85a16f8fd35f31450ed586ff43b0",
+  "renderKey": "72564885f7421b00",
+  "final": false,
+  "fps": 30,
+  "width": 960,
+  "height": 540,
+  "duration": 8,
+  "from": 0,
+  "to": 8,
+  "worlds": [
+    {
+      "id": "say",
+      "start": 0,
+      "end": 1.33
+    },
+    {
+      "id": "less",
+      "start": 1.33,
+      "end": 2.63
+    },
+    {
+      "id": "mean",
+      "start": 2.63,
+      "end": 3.73
+    },
+    {
+      "id": "make",
+      "start": 3.73,
+      "end": 4.63
+    },
+    {
+      "id": "move",
+      "start": 4.63,
+      "end": 6.43
+    },
+    {
+      "id": "credit",
+      "start": 6.43,
+      "end": 8
+    }
+  ],
+  "clips": [],
+  "audio": {
+    "mixed": true,
+    "loudness": null,
+    "cues": [
+      {
+        "voice": "tick",
+        "role": "sfx",
+        "at": 0.1,
+        "gain": -5
+      },
+      {
+        "voice": "tap",
+        "role": "sfx",
+        "at": 1.3,
+        "gain": -3
+      },
+      {
+        "voice": "tap",
+        "role": "sfx",
+        "at": 2.6,
+        "gain": -3
+      },
+      {
+        "voice": "tap",
+        "role": "sfx",
+        "at": 3.7,
+        "gain": -3
+      },
+      {
+        "voice": "sub-thump",
+        "role": "sfx",
+        "at": 4.6,
+        "gain": -5
+      },
+      {
+        "voice": "tick",
+        "role": "sfx",
+        "at": 6.5,
+        "gain": -5
+      }
+    ]
+  },
+  "createdAt": "2026-11-21T14:13:49.567Z"
+}

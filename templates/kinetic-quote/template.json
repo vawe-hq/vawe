@@ -1,0 +1,21 @@
+{
+  "id": "kinetic-quote",
+  "title": "Kinetic quote",
+  "summary": "An 8 s kinetic type piece that sets one short quote word by word, ending on one word that fills the frame.",
+  "category": "titles",
+  "tier": "free",
+  "length": 8,
+  "aspect": "16:9",
+  "structure": "typed word, decoded word, two words slam on dark, two words tilt in, last word fills the frame, typed credit",
+  "inputs": [
+    { "key": "word-1", "label": "Word 1 (typed)", "default": "Say", "where": "p#say in world say" },
+    { "key": "word-2", "label": "Word 2 (decoded, up to 5 glyphs)", "default": "less.", "where": "h1#less in world less" },
+    { "key": "word-3", "label": "Word 3 (slams)", "default": "Mean", "where": "span.m1 in world mean" },
+    { "key": "word-4", "label": "Word 4 (slams)", "default": "it.", "where": "span.m2 in world mean" },
+    { "key": "word-5", "label": "Word 5 (tilts in)", "default": "Make", "where": "h1.k1 in world make" },
+    { "key": "word-6", "label": "Word 6 (tilts in)", "default": "it", "where": "h1.k2 in world make" },
+    { "key": "word-7", "label": "Last word (fills the frame, up to 5 glyphs)", "default": "move.", "where": "h1#giant in world move" },
+    { "key": "credit", "label": "Credit (typed)", "default": "Northwind Type Studio", "where": "p#credit in world credit" }
+  ],
+  "tags": ["kinetic type", "quote", "typography"]
+}
