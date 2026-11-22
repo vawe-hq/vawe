@@ -1,7 +1,6 @@
 // `vawe see`: measures of light and texture of a film (flashes, clipped pixels, bloom, chromatic offset, screen texture, glow colour), one table, optionally a against b.
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { refsDir } from '../../lib/refs.mjs';
 import { scratch } from '../../lib/scratch.mjs';
@@ -10,6 +9,7 @@ import { frameRgb, lumaOf } from './frame.mjs';
 import { advise, clippedShare, edgeSamples, lookProblem, lookTable, summarise } from './look-math.mjs';
 import { resolveInput } from './input.mjs';
 import { BLOCK, channelPhase, channelsSplit, DARK_MEAN, DARK_PEAK, describePattern, powerSpectrum, spectrumPeak } from './texture-math.mjs';
+import { isMain } from '../../lib/is-main.mjs';
 
 const SERIES_W = 480, SERIES_H = 270, MEAN_W = 160, MEAN_H = 90;
 const SAMPLES = 8;
@@ -118,7 +118,7 @@ export async function runLook(input, opts) {
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   const argv = process.argv.slice(2);
   const flag = (n, d) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : d; };
   try {

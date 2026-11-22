@@ -14,6 +14,7 @@ import { summariseMove, r1, r3, median } from '../lib/move-fit.mjs';
 import { cssColor } from '../lib/color-delta.mjs';
 import { scratch } from '../lib/scratch.mjs';
 import { resolveDuration } from './page-duration.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const ACTIVE = 0.25;            // per-frame change (px, or 1 unit per 0.01 opacity) below which an element is still
 const SEG_GAP = 1;              // still frames allowed inside one move
@@ -396,4 +397,4 @@ async function main() {
   console.log(`✓ render-spec: ${spec.shots.length} shot(s), ${spec.cuts.length} cut(s) -> ${path.join(outDir, 'render-spec.json')}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e.stack || String(e)); process.exit(2); });
+if (isMain(import.meta.url)) main().catch((e) => { console.error(e.stack || String(e)); process.exit(2); });

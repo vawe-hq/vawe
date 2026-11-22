@@ -20,6 +20,7 @@ import { unwaived } from '../lib/motion-lint.mjs';
 import { firedRules, firedLines } from '../lib/taste-steps.mjs';
 import { worldLines, parseFramesArgs, selectWorlds, isStarterPage } from '../lib/frames-page.mjs';
 import { resolveDuration } from './page-duration.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const die = (m) => { console.error(`error: ${m}`); process.exit(2); };
 const hideOthers = (id) => `[data-world]:not([data-world="${id}"]) { display: none !important; }`;
@@ -119,4 +120,4 @@ async function main(argv) {
   console.log([`frames: ${head}`, `  sheet  ${sheet}`, `  page   ${html}`, ...paths, ...rules, done()].join('\n'));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));
+if (isMain(import.meta.url)) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));

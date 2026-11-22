@@ -39,7 +39,7 @@ async function startSite(base) {
   if (vendor.status !== 0) throw new Error(`${VENDOR_ASSETS} failed: ${vendor.stderr || vendor.stdout}`);
   const next = path.join(dir, 'site', 'node_modules', 'next', 'dist', 'bin', 'next');
   if (!fs.existsSync(next)) throw new Error('next is not installed in the site checkout: run npm ci in its site/ folder');
-  const child = spawn('node', [next, 'dev', '-p', port], { cwd: path.join(dir, 'site'), detached: true, stdio: ['ignore', log, log] });
+  const child = spawn('node', [next, 'dev', '-p', port], { cwd: path.join(dir, 'site'), detached: true, windowsHide: true, stdio: ['ignore', log, log] });
   const stop = () => { try { process.kill(-child.pid, 'SIGTERM'); } catch { /* already gone */ } };
   process.on('exit', stop);
   const t0 = Date.now();

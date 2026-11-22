@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { resolveFrame, readPageMeta, COLOUR_TAGS } from './render-page.mjs';
 import { ensureFonts, fontFilesIn } from '../lib/ensure-fonts.mjs';
 import { JOBS } from '../../core/motion/ease-jobs.js';
@@ -18,6 +18,7 @@ import { isWaived, waiverHint } from '../lib/waivers.mjs';
 import { clipHash } from '../lib/clip-hash.mjs';
 import { nextLine } from '../lib/verb-log.mjs';
 import { chooseCrf, RENDER_CRF, CLIP_BUDGET_BYTES } from '../lib/clip-budget.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const MOVES = path.join(ROOT, 'prompts', 'moves');
@@ -284,7 +285,7 @@ async function main() {
   process.exit(failed.length ? 1 : 0);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href) {
+if (isMain(import.meta.url)) {
   main().catch((e) => {
     console.error(`vawe-dev moves: ${e.message}`);
     process.exit(1);

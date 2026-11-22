@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { drawtextFont } from '../lib/scratch.mjs';
 
 const EVEN = 8;
 const PROBE_W = 64;
@@ -49,7 +50,7 @@ export function writeDraftSheet({ video, out, fps, from = 0 }) {
   const picks = pickFrames(motion);
   const select = picks.map((n) => `eq(n\\,${n})`).join('+');
   const seconds = picks.map((n) => Number((from + n / fps).toFixed(2)));
-  const labels = seconds.map((t, i) => `drawtext=text='${t}s':enable='eq(n\\,${i})':x=12:y=12:fontsize=44:fontcolor=white:box=1:boxcolor=black@0.6`).join(',');
+  const labels = seconds.map((t, i) => `drawtext=${drawtextFont}text='${t}s':enable='eq(n\\,${i})':x=12:y=12:fontsize=44:fontcolor=white:box=1:boxcolor=black@0.6`).join(',');
   const vf = `select='${select}',${labels},scale=-2:${TILE_H},tile=${COLS}x${Math.ceil(picks.length / COLS)}`;
   const r = spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', video, '-vf', vf, '-vsync', '0', '-frames:v', '1', out]);
   if (r.status !== 0 || !fs.existsSync(out)) throw new Error(`draft sheet failed: ${String(r.stderr || '').trim()}`);

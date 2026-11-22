@@ -77,7 +77,7 @@ function startJob(page, renderArgs) {
   const id = `${name}-${Date.now().toString(36)}`;
   const log = path.resolve(jobLogPath(id));
   writeJob({ id, page, film: name, query, args: renderArgs, log, status: 'starting', startedAt: Date.now(), judge: process.env.VAWE_SHIP_JUDGE !== '0' });
-  const runner = spawn(process.execPath, [SELF, 'run', id], { detached: true, stdio: 'ignore' });
+  const runner = spawn(process.execPath, [SELF, 'run', id], { detached: true, windowsHide: true, stdio: 'ignore' });
   runner.unref();
   const fresh = readJob(id);
   if (fresh.status === 'starting') writeJob({ ...fresh, pid: runner.pid });

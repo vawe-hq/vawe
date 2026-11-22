@@ -19,6 +19,7 @@ import { runVerb } from './run-verb.mjs';
 import { toolNext } from './next-as-tools.mjs';
 import { fixRound, FIX_NEXT } from './fix-first.mjs';
 import { uiSkillsArgs, runUiSkills as spawnUiSkills, logFetched, fetchedSlugs, unfetchedClaims, clipText, UI_SKILLS_ACTIONS } from './ui-skills.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const FILM = z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'film name: lowercase letters, digits and dashes').describe('film name, as in films/<name>');
 const MAX_IMAGES = 6;
@@ -340,4 +341,4 @@ export async function serve(options) {
   await createServer(options).connect(new StdioServerTransport());
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) await serve();
+if (isMain(import.meta.url)) await serve();

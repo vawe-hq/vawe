@@ -3,7 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { drawtext, ffmpegOrDie } from '../lib/scratch.mjs';
+import { drawtext, ffmpegOrDie, drawtextFont } from '../lib/scratch.mjs';
 import { measureSpan } from './content.mjs';
 import { clusterCuts, detectCuts, detectSeams, detectPans, detectCrossfades, frameSeries, mergeJoints, motionDeltaSeries } from './shot-detect.mjs';
 
@@ -409,7 +409,7 @@ for (const s of shots) {
     const tag = k === 0 ? 'in' : k === ts.length - 1 ? 'out' : `peak ${d.v.toFixed(1)}`;
     const out = path.join(frames, `s${String(s.i).padStart(2, '0')}_${tag}.png`);
     ffmpegOrDie(['-v', 'error', '-y', '-ss', t.toFixed(3), '-i', VIDEO, '-frames:v', '1', '-vf',
-      `scale=${tileW}:${tileH},drawtext=text='${drawtext(`${s.i}.${tag} ${t.toFixed(2)}s`)}':x=8:y=8:fontsize=20:fontcolor=white:box=1:boxcolor=black@0.65`,
+      `scale=${tileW}:${tileH},drawtext=${drawtextFont}text='${drawtext(`${s.i}.${tag} ${t.toFixed(2)}s`)}':x=8:y=8:fontsize=20:fontcolor=white:box=1:boxcolor=black@0.65`,
       out], out, `shot ${s.i} ${tag}`);
     return out;
   });
@@ -449,7 +449,7 @@ for (let p = 0; p * PAGE_CELLS < uniqueFrames.length; p++) {
     const t = seekable(fr.t);
     const out = path.join(pagesDir, `.cell_${p}_${k}.png`);
     ffmpegOrDie(['-v', 'error', '-y', '-ss', t.toFixed(3), '-i', VIDEO, '-frames:v', '1', '-vf',
-      `scale=${pageCellW}:${pageCellH},drawtext=text='${drawtext(`f${fr.i} ${t.toFixed(2)}s`)}':x=8:y=8:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.65`,
+      `scale=${pageCellW}:${pageCellH},drawtext=${drawtextFont}text='${drawtext(`f${fr.i} ${t.toFixed(2)}s`)}':x=8:y=8:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.65`,
       out], out, `page ${p + 1} cell ${k}`);
     return out;
   });

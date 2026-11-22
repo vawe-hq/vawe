@@ -20,7 +20,7 @@ export { parseColor, colorAlpha, parseColorRGB, isLightBg, ensureContrast } from
 // ---------- self-check ----------
 // `node core/color/index.js` runs this. No framework, no fixtures: asserts that fail loudly if the
 // maths regresses.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === (await import('node:url')).pathToFileURL(process.argv[1]).href) {
   const { parse, format } = await import('./parse.js');
   const { contrastRatio, readableOn } = await import('./linear.js');
   const { mix } = await import('./mix.js');

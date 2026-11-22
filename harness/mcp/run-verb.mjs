@@ -42,6 +42,7 @@ export function runVerb(args, { work = WORK, env = process.env } = {}) {
       env: { ...env, VAWE_AGENT: env.VAWE_AGENT || 'mcp', VAWE_RESULT: file },
       stdio: ['ignore', 'pipe', 'pipe'],
       detached: true,
+      windowsHide: true,
     });
     running.add(child);
     let text = '';

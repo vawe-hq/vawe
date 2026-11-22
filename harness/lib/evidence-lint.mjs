@@ -4,6 +4,8 @@
 // vision): name an element/text plus one concrete property (position/size/colour/motion/timing),
 // don't just echo the criterion's own name back, disagree in sign with a low score never, and never
 // repeat across two criteria in the same verdict, the tell that every field was filled from one template.
+import { isMain } from './is-main.mjs';
+
 const ELEMENT_RE = /\b(text|headline|title|subtitle|cta|button|logo|icon|background|bg|caption|label|image|photo|badge|card|cursor|stat|number|chart|graphic|layer|word|line|copy|heading|paragraph|bar|dot|arrow|shape|panel|nav|menu|footer|header|thumbnail|avatar|price|tag|frame|edge|element|underline|graph)\b/i;
 const QUOTED_RE = /["'][^"']{2,}["']/;
 
@@ -65,7 +67,7 @@ export function lintCriteriaSet(criteria) {
   return byCode;
 }
 
-if (import.meta.url === `file://${process.argv[1]}` && process.argv.includes('--self-test')) {
+if (isMain(import.meta.url) && process.argv.includes('--self-test')) {
   const good = [
     'the CTA button sits 40px left of centre, off its grid column',
     'headline text fades in 0.3s late against the beat 2 @1.4s hold',

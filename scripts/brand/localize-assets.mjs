@@ -22,7 +22,9 @@
 // every `image` layer in the repo, so a component is not special, and curing it belongs in seams.js.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
+import { isMain } from '../../harness/lib/is-main.mjs';
 
 // ---- what counts as an image ---------------------------------------------------------------------
 // Parsed BY CONTEXT, never by "any http URL in the text". A capture is full of URLs that are not
@@ -261,9 +263,8 @@ export function mediaTargetFor(jsonPath, root) {
 //   node scripts/brand/localize-assets.mjs                 # report the debt across every capture
 //   node scripts/brand/localize-assets.mjs --write         # download and rewrite in place
 //   node scripts/brand/localize-assets.mjs --write a.json  # one file
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname);
-if (isMain) {
-  const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+if (isMain(import.meta.url)) {
+  const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
   const args = process.argv.slice(2);
   const write = args.includes('--write');
   let targets = args.filter((a) => !a.startsWith('--'));

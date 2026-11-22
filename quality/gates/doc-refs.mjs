@@ -33,11 +33,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import cp from 'node:child_process';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { gateFindings } from '../../harness/lib/findings.mjs';
 import { VERBS, SERVED_VERBS } from '../../harness/cli/verbs.mjs';
 import { DEV_VERBS } from '../../harness/dev/verbs.mjs';
 import { GATES } from '../../harness/lib/check-gate.mjs';
+import { isMain } from '../../harness/lib/is-main.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -350,7 +351,7 @@ export function run() {
   };
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] || '').href) {
+if (isMain(import.meta.url)) {
   const r = run();
   const f = gateFindings();
   console.log(`── doc refs · ${r.scanned} markdown file(s) · ${r.targets} make target(s) · ${r.recipes} recipe script(s)\n`);

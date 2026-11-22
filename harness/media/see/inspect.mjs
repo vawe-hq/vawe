@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { ffmpegOrDie, drawtext } from '../../lib/scratch.mjs';
+import { ffmpegOrDie, drawtext, drawtextFont } from '../../lib/scratch.mjs';
 import { openPreview } from '../preview-server.mjs';
 import { die, ROOT, stackImages, tileInGrids, writeJsonAtomic } from './core.mjs';
 
@@ -92,13 +92,13 @@ export async function runLook(htmlPath, times, refPath, outDir) {
       await page.screenshot({ path: raw });
       const pageCell = path.join(outDir, `.page_${i}.png`);
       ffmpegOrDie(['-v', 'error', '-y', '-i', raw, '-frames:v', '1', '-vf',
-        `scale=${tileW}:${tileH},drawtext=text='${drawtext(`page ${t.toFixed(2)}s`)}':x=6:y=6:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.65`,
+        `scale=${tileW}:${tileH},drawtext=${drawtextFont}text='${drawtext(`page ${t.toFixed(2)}s`)}':x=6:y=6:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.65`,
         pageCell], pageCell, `look page cell ${i}`);
       fs.rmSync(raw, { force: true });
       if (!refPath) { cellFiles.push(pageCell); continue; }
       const refCell = path.join(outDir, `.ref_${i}.png`);
       ffmpegOrDie(['-v', 'error', '-y', '-ss', t.toFixed(3), '-i', refPath, '-frames:v', '1', '-vf',
-        `scale=${tileW}:${tileH},drawtext=text='${drawtext(`ref ${t.toFixed(2)}s`)}':x=6:y=6:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.65`,
+        `scale=${tileW}:${tileH},drawtext=${drawtextFont}text='${drawtext(`ref ${t.toFixed(2)}s`)}':x=6:y=6:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.65`,
         refCell], refCell, `look ref cell ${i}`);
       const pairOut = path.join(outDir, `.pair_${i}.png`);
       stackImages([refCell, pageCell], pairOut, 'v', tileW, tileH * 2);

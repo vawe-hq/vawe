@@ -4,12 +4,13 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { critiqueProblem } from '../../harness/lib/critique-gate.mjs';
 import { shipProblem, writeApproval, writePlanApproval, pageDigest } from '../../harness/lib/approval.mjs';
 import { sameIdentity } from '../../harness/lib/judge-self-record.mjs';
 import { verbEvent } from '../../harness/lib/verb-log.mjs';
 
-const REPO = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 function film() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-gate-'));

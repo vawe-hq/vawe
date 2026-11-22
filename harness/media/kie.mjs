@@ -1,9 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { isMain } from '../lib/is-main.mjs';
 
 const BASE = 'https://api.kie.ai';
 const UPLOAD = 'https://kieai.redpandaai.co';
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 export function getKey() {
   if (process.env.KIE_API_KEY) return process.env.KIE_API_KEY.trim();
@@ -147,8 +149,7 @@ export async function music(prompt, { model = 'V4_5', instrumental = true, style
   }
 }
 
-const isMain = process.argv[1] && import.meta.url === `file://${process.argv[1]}`;
-if (isMain) {
+if (isMain(import.meta.url)) {
   const [cmd, ...rest] = process.argv.slice(2);
   const flags = {};
   const pos = [];

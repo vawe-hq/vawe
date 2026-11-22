@@ -32,7 +32,7 @@
 //   node quality/gates/anim-traps.mjs <page.html> [--strict]
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { fillCollisionPairs, activeOverlapPairs, animatedProps, reachesBack } from '../../core/timeline/anim-pairs.js';
 import { openPreview } from '../../harness/media/preview-server.mjs';
 import { gateFindings } from '../../harness/lib/findings.mjs';
@@ -41,6 +41,7 @@ import { isWaived } from '../../harness/lib/waivers.mjs';
 import { runMotionCollector, motionLint, unwaived, lintLines } from '../../harness/lib/motion-lint.mjs';
 import { resolveDuration, DurationError } from '../../harness/media/page-duration.mjs';
 import { pageTraps } from '../../harness/lib/page-traps.mjs';
+import { isMain } from '../../harness/lib/is-main.mjs';
 
 export { pageTraps };
 
@@ -251,4 +252,4 @@ async function runCli() {
 // Guarded so a test can `import { TRAP_BUNDLE, runTrapChecker }` from this file without launching a
 // browser and a file server as a side effect of the import (the same pattern quality/gates/coverage.mjs
 // uses): only the actual CLI invocation runs the driver.
-if (import.meta.url === pathToFileURL(process.argv[1] || '').href) await runCli();
+if (isMain(import.meta.url)) await runCli();

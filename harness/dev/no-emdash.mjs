@@ -1,6 +1,6 @@
 // The engine broke its own no-em-dash rule 7,345 times before this check existed.
-import { execSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
+import { isMain } from '../lib/is-main.mjs';
 
 export const EM = String.fromCharCode(0x2014);   // never write the literal here: this file is in scope
 const QUIET = process.argv.includes('--quiet');
@@ -18,10 +18,9 @@ export const EXCLUDE = [
 ];
 
 // Only run the CLI scan when this file is the entrypoint: harness/live's write-time twin imports EM and EXCLUDE above and must not pay for a repo-wide git grep just to reuse the matcher.
-const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
-if (isMain) {
-  const raw = execSync(`git grep -nI '${EM}' -- ${SCOPE.map((s) => `'${s}'`).join(' ')} || true`,
-    { encoding: 'utf8', maxBuffer: 64 << 20 });
+if (isMain(import.meta.url)) {
+  // No shell: cmd.exe keeps the quotes of a POSIX command line, so the old string matched nothing on Windows. Exit 1 is "no match".
+  const raw = spawnSync('git', ['grep', '-nI', EM, '--', ...SCOPE], { encoding: 'utf8', maxBuffer: 64 << 20 }).stdout || '';
 
   const hits = [];
   for (const line of raw.split('\n')) {

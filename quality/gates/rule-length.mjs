@@ -21,9 +21,10 @@
 // Pure: reads doc files. No render, no network.
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { gateFindings } from '../../harness/lib/findings.mjs';
 import { isAgentDoc, longestRule, ruleUnits, RULE_LENGTH_LIMIT } from '../../harness/lib/rule-length.mjs';
+import { isMain } from '../../harness/lib/is-main.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const RATCHET = path.join(ROOT, 'quality/baselines/rule-length-ratchet.json');
@@ -56,7 +57,7 @@ export function run() {
   return { files, overLong, count: overLong.length };
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] || '').href) {
+if (isMain(import.meta.url)) {
   const r = run();
   const list = process.argv.includes('--list');
   const f = gateFindings({ line: (rec) => rec.summary });

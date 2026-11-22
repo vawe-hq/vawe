@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = new URL('../..', import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const run = (code) => spawnSync(process.execPath, ['--input-type=module', '-e', code, '--', '--json'], { cwd: ROOT, encoding: 'utf8' });
 
 test('a script that only imports findings.mjs keeps its own --json output on stdout and prints no stray []', () => {

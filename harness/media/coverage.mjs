@@ -9,6 +9,7 @@ import { spawnSync } from 'node:child_process';
 import { compareFrames } from './compare-frames.mjs';
 import { textTimeline } from './see/text-timeline.mjs';
 import { scratch } from '../lib/scratch.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const SHEET_ROWS = 6;
 const SIZE = '736:414';
@@ -136,4 +137,4 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => die(e.stack || String(e)));
+if (isMain(import.meta.url)) main().catch((e) => die(e.stack || String(e)));

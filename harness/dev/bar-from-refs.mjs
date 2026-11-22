@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { refsDir, readRegistry } from '../lib/refs.mjs';
 import { filmMetrics, quantile } from '../lib/ref-measure/film-metrics.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 export { quantile };
 
@@ -132,4 +133,4 @@ function main() {
   printBar(bar, METRICS, `reference films: ${bar.films}`);
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) main();
+if (isMain(import.meta.url)) main();

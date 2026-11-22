@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { ffmpegOrDie, drawtext } from '../../lib/scratch.mjs';
+import { ffmpegOrDie, drawtext, drawtextFont } from '../../lib/scratch.mjs';
 import { openPreview } from '../preview-server.mjs';
 import { motionStampFresh, writeMotionStamp } from '../../lib/motion-stamp.mjs';
 import { bucketMean, die, probeVideo, refSpanLine, ROOT, tileInGrids, timeRange, writeJsonAtomic } from './core.mjs';
@@ -89,7 +89,7 @@ export async function domStillGrid(page, outDir, from, to, w, h) {
     await page.screenshot({ path: raw });
     const out = path.join(outDir, `.domcell_${i}.png`);
     ffmpegOrDie(['-v', 'error', '-y', '-i', raw, '-frames:v', '1', '-vf',
-      `scale=${tileW}:${tileH},drawtext=text='${drawtext(`${t.toFixed(2)}s`)}':x=6:y=6:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.65`,
+      `scale=${tileW}:${tileH},drawtext=${drawtextFont}text='${drawtext(`${t.toFixed(2)}s`)}':x=6:y=6:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.65`,
       out], out, `dom still ${i}`);
     fs.rmSync(raw, { force: true });
     cellFiles.push(out);

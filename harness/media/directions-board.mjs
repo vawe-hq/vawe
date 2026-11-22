@@ -13,6 +13,7 @@ import { parseDirections } from '../lib/directions.mjs';
 import { directionsBoardHtml } from '../lib/directions-board.mjs';
 import { spectacleOf } from '../lib/board.mjs';
 import { filmKeyOf } from '../lib/runlog.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const die = (m) => { console.error(`error: ${m}`); process.exit(2); };
 
@@ -98,4 +99,4 @@ async function main(argv) {
   console.log(`✓ ${html}: ${ids.length} directions, ${tests.length} test page(s), ${missing.length} from directions.html; images in ${dir}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));
+if (isMain(import.meta.url)) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));

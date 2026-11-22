@@ -22,6 +22,7 @@ import { referencedFiles, MEDIA_ROOT } from '../lib/template-refs.mjs';
 import { REPO_ROOT } from '../lib/render-harness.mjs';
 import { paramsFilm } from '../lib/page-params.mjs';
 import { appendRun } from '../lib/runlog.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const childSel = (nth) => `body > :nth-child(${nth})`;
 
@@ -215,7 +216,7 @@ async function main(argv) {
   console.log(`template: ${r.zip}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   main(process.argv.slice(2)).catch((e) => {
     console.error(`error: ${e instanceof TemplateError ? e.message : e.stack || String(e)}`);
     process.exitCode = e instanceof TemplateError ? 2 : 1;

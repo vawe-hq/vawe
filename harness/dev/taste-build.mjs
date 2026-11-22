@@ -8,6 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DIALS } from '../../core/motion/signature.js';
 import { JOBS, easeRef, jobsOf } from '../../core/motion/ease-jobs.js';
+import { isMain } from '../lib/is-main.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 export const STEPS = ['concept', 'look', 'motion', 'transitions', 'finish', 'sound', 'preship'];
@@ -297,4 +298,4 @@ function main() {
   console.log(`wrote ${Object.keys(files).length} files from ${readInputs().rules.length} rules`);
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+if (isMain(import.meta.url)) main();

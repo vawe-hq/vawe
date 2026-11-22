@@ -4,13 +4,14 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { summarize } from '../lib/hook-report.mjs';
 import { EM, EXCLUDE, SCOPE } from '../dev/no-emdash.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const BASELINE = path.join(ROOT, 'quality/baselines/code-quality-baseline.json');
-const BIN = path.join(ROOT, 'node_modules/.bin/oxlint');
+const BIN = path.join(ROOT, 'node_modules/oxlint/bin/oxlint'); // run with node: the .bin shim is a shell script Windows cannot start
 const CFG = path.join(ROOT, '.oxlintrc.json');
 
 const SHAPE = new Set(['complexity', 'max-lines-per-function', 'max-depth', 'max-nested-callbacks', 'max-params']);
@@ -20,7 +21,7 @@ function lintContent(rel, content) {
   const tmp = path.join(os.tmpdir(), `code-quality-live-${process.pid}-${path.basename(rel)}`);
   fs.writeFileSync(tmp, content);
   try {
-    const r = spawnSync(BIN, ['-c', CFG, '--format=json', tmp], { cwd: ROOT, encoding: 'utf8' });
+    const r = spawnSync(process.execPath, [BIN, '-c', CFG, '--format=json', tmp], { cwd: ROOT, encoding: 'utf8' });
     let diags = [];
     try { diags = (JSON.parse(r.stdout).diagnostics || []); } catch { return []; }
     return diags
@@ -60,7 +61,7 @@ function codeQuality(file) {
 
   if (!fs.existsSync(file)) return null;
   const top = checkoutOf(file);
-  const rel = path.relative(top, file);
+  const rel = path.relative(top, file).split(path.sep).join('/');
   // A film page is authored work judged by its frames, not framework code judged by its shape.
   if (rel.startsWith('..') || rel.startsWith('films/') || rel.includes('node_modules')) return null;
 
@@ -119,7 +120,7 @@ function coveredByPush(rel) {
 function emDash(file, input) {
   if (!file) return null;
 
-  const rel = path.relative(ROOT, file);
+  const rel = path.relative(ROOT, file).split(path.sep).join('/');
   if (rel.startsWith('..') || EXCLUDE.some((f) => f(rel))) return null;
   if (coveredByPush(rel)) return null;   // pre-push already scans this file; don't say it twice
   if (!fs.existsSync(file)) return null;

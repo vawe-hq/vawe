@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { isMain } from '../lib/is-main.mjs';
 
 export const ENV_LINE = 'if [ -n "$ZSH_VERSION" ]; then setopt nonomatch; fi';
 
@@ -10,6 +11,6 @@ export function addNoMatch(envFile) {
   return true;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   try { addNoMatch(process.env.CLAUDE_ENV_FILE); } catch {}
 }

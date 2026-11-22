@@ -12,6 +12,8 @@ import { insideRoot, REPO_ROOT } from '../lib/render-harness.mjs';
 import { lookOverride } from '../../core/surfaces/lens.js';
 import { AS_IS, looksOf } from '../lib/looks.mjs';
 import { numbered, outTarget } from '../lib/out-target.mjs';
+import { isMain } from '../lib/is-main.mjs';
+import { drawtextFont } from '../lib/scratch.mjs';
 
 const TILE_H = 360;
 const LABEL_H = 36;
@@ -20,7 +22,7 @@ const OUR_LENS = /^\/core\/surfaces\/lens(-source)?\.js$/;
 const die = (m) => { console.error(`error: ${m}`); process.exit(2); };
 
 function labelled(png, text, out) {
-  const vf = `scale=-2:${TILE_H - LABEL_H},pad=iw:${TILE_H}:0:0:black,drawtext=text='${text}':x=10:y=h-${LABEL_H - 6}:fontsize=24:fontcolor=white`;
+  const vf = `scale=-2:${TILE_H - LABEL_H},pad=iw:${TILE_H}:0:0:black,drawtext=${drawtextFont}text='${text}':x=10:y=h-${LABEL_H - 6}:fontsize=24:fontcolor=white`;
   const r = spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', png, '-vf', vf, out]);
   if (r.status !== 0) die(`label failed: ${String(r.stderr || '').trim()}`);
 }
@@ -86,4 +88,4 @@ async function main(argv) {
   console.log(`looks: as-is plus ${names.length} looks (${names.join(', ')}), ${times.length} grid(s), 3 tiles per row, the look name under each tile`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));
+if (isMain(import.meta.url)) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));

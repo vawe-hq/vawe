@@ -20,6 +20,7 @@ import { planStatusLines } from './plan-status.mjs';
 import { readPlan } from '../media/plan-read.mjs';
 
 import { WORK } from '../lib/workspace.mjs';
+import { isMain } from '../lib/is-main.mjs';
 const ROOT = WORK;
 const read = (p) => { try { return fs.readFileSync(p, 'utf8'); } catch { return null; } };
 const mtime = (p) => { try { return fs.statSync(p).mtimeMs; } catch { return 0; } };
@@ -67,7 +68,7 @@ async function readPage(page) {
 }
 
 const [page] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
-if (page && !isClipDemo(page) && !isTestPage(page, ROOT) && import.meta.url === `file://${process.argv[1]}`) {
+if (page && !isClipDemo(page) && !isTestPage(page, ROOT) && isMain(import.meta.url)) {
   const lines = [...lengthNote(fs.readFileSync(page, 'utf8')), ...planStatusLines(readPlanState(page, ROOT, await readPage(page)))];
   if (lines.length) console.log(`${lines.join('\n')}\n`);
   process.exit(0);

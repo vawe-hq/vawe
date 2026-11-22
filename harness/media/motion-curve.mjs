@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { decodeGray } from './see/frame.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 export const FPS = 30;
 const W = 240, H = 136;
@@ -144,4 +145,4 @@ async function main() {
   show('frozen', frozenInside(a, refPath ? b : null));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(`✗ ${e.message}`); process.exit(2); });
+if (isMain(import.meta.url)) main().catch((e) => { console.error(`✗ ${e.message}`); process.exit(2); });

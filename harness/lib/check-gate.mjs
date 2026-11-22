@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { closest } from '../cli/parse.mjs';
+import { isMain } from './is-main.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const GATE_DIR = 'quality/gates';
@@ -48,7 +49,7 @@ export function run(name, args = []) {
   return status;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   const [name, ...args] = process.argv.slice(2);
   if (!name) {
     console.log(`gates: ${Object.keys(GATES).join(' ')}`);

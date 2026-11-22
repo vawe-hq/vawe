@@ -8,6 +8,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { CHROME_FIX } from '../lib/doctor-hint.mjs';
+import { drawtextFont } from '../lib/scratch.mjs';
 import { missingHooks, hookAdvice } from '../lib/hook-check.mjs';
 
 process.env.VAWE_NO_CHROME_INSTALL = '1';
@@ -35,7 +36,7 @@ function probeFfmpeg() {
   const base = probeBinary('ffmpeg');
   if (!base.ok) return base;
   const encodes = run('ffmpeg', [...BLACK_FRAME, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-f', 'null', '-']) !== null;
-  const draws = run('ffmpeg', [...BLACK_FRAME, '-vf', 'drawtext=text=x', '-f', 'null', '-']) !== null;
+  const draws = run('ffmpeg', [...BLACK_FRAME, '-vf', `drawtext=${drawtextFont}text=x`, '-f', 'null', '-']) !== null;
   const missing = [!encodes && 'libx264 encode', !draws && 'drawtext'].filter(Boolean);
   return missing.length ? lacks(`this ffmpeg build cannot run ${missing.join(' or ')}`) : base;
 }
@@ -69,7 +70,7 @@ const TOOLS = [
   { id: 'git', name: 'git', required: true, probe: () => probeBinary('git', '--version'), pkg: { brew: 'git', apt: 'git', dnf: 'git', pacman: 'git', apk: 'git', zypper: 'git', winget: 'Git.Git', choco: 'git' } },
   { id: 'ffmpeg', name: 'ffmpeg (libx264, drawtext)', required: true, probe: probeFfmpeg, pkg: { brew: 'ffmpeg', apt: 'ffmpeg', dnf: 'ffmpeg (needs the RPM Fusion repo)', pacman: 'ffmpeg', apk: 'ffmpeg', zypper: 'ffmpeg', winget: 'Gyan.FFmpeg', choco: 'ffmpeg' } },
   { id: 'ffprobe', name: 'ffprobe', required: true, probe: () => probeBinary('ffprobe'), pkg: { brew: 'ffmpeg', apt: 'ffmpeg', dnf: 'ffmpeg', pacman: 'ffmpeg', apk: 'ffmpeg', zypper: 'ffmpeg', winget: 'Gyan.FFmpeg', choco: 'ffmpeg' } },
-  { id: 'tesseract', name: 'tesseract (optional, OCR for see --spec and check coverage --text)', required: false, probe: () => probeBinary('tesseract', '--version'), pkg: { brew: 'tesseract', apt: 'tesseract-ocr', dnf: 'tesseract', pacman: 'tesseract tesseract-data-eng', apk: 'tesseract-ocr', zypper: 'tesseract-ocr', winget: 'UB-Mannheim.TesseractOCR', choco: 'tesseract' } },
+  { id: 'tesseract', name: 'tesseract (optional, OCR for see --spec and check coverage --text)', required: false, probe: () => probeBinary('tesseract', '--version'), pkg: { brew: 'tesseract', apt: 'tesseract-ocr', dnf: 'tesseract', pacman: 'tesseract tesseract-data-eng', apk: 'tesseract-ocr', zypper: 'tesseract-ocr', winget: 'UB-Mannheim.TesseractOCR (then add C:\\Program Files\\Tesseract-OCR to PATH)', choco: 'tesseract' } },
   { id: 'chrome', name: 'puppeteer Chrome', required: true, probe: probeChrome, fix: CHROME_FIX },
   { id: 'fonts', name: 'assets/fonts', required: true, probe: probeFile('assets/fonts', true), fix: 'git checkout -- assets/fonts, or node generators/media/fonts.mjs' },
 ];

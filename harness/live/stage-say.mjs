@@ -20,6 +20,7 @@ import { tasteLines } from '../lib/taste-steps.mjs';
 import { isEditFilm, emptyPlanParts } from '../lib/plan-parts.mjs';
 import { nextSeen, resetShown, sinceReset, NEXT_UNCHANGED } from '../lib/next-once.mjs';
 import { stepOf } from '../guards/taste.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 export { boardFilled };
 
@@ -290,4 +291,4 @@ function main() {
   console.log([said, ...tasteOnce(s.stage, s.name, root, sessionId)].join('\n'));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (isMain(import.meta.url)) main();

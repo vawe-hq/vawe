@@ -32,6 +32,7 @@ import { decode as decodeFrames } from '../lib/ref-measure/decode.mjs';
 import { estimateShutter } from '../lib/ref-measure/shutter.mjs';
 import { trackWords, refineWordTimes, buildLines, restBox, fontPxOf, inkColor } from '../lib/ref-measure/words.mjs';
 import { loadErrors } from '../lib/ref-measure/error-table.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const GRID_W = 320;
 const MAX_FRAMES = 2400;
@@ -504,4 +505,4 @@ async function main() {
   console.log(`✓ ref-spec: ${spec.shots.length} shot(s), ${spec.cuts.length} cut(s) -> ${path.join(outDir, 'SPEC.md')}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (isMain(import.meta.url)) main();

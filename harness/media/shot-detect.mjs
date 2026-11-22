@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { ffmpegOrDie } from '../lib/scratch.mjs';
+import { ffmpegOrDie, filterPath } from '../lib/scratch.mjs';
 
 /** The frames eligible to BE a cut. The first frame always scores high because nothing precedes it,
  *  so ffmpeg reports the opening of every film as a scene change. One owner for that rule, because
@@ -26,7 +26,7 @@ export function clusterCuts(hits, threshold, minShot) {
 export function detectCuts(video, scratchDir, threshold, minShot) {
   const meta = path.join(scratchDir, '.scene-scores.txt');
   ffmpegOrDie(['-v', 'error', '-y', '-i', video, '-an',
-    '-vf', `select='gt(scene,0.01)',metadata=print:file=${meta}`, '-f', 'null', '-'], meta, 'scene detect');
+    '-vf', `select='gt(scene,0.01)',metadata=print:file=${filterPath(meta)}`, '-f', 'null', '-'], meta, 'scene detect');
   const hits = [];
   let t = null;
   for (const line of fs.readFileSync(meta, 'utf8').split('\n')) {

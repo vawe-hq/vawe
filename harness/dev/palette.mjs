@@ -3,6 +3,7 @@
 // Picks one OKLCH brand seed with the mood it evokes and prints how to compose the full palette around it.
 // Derived from impeccable's palette picker (Apache-2.0, see NOTICE).
 import { SEEDS, pickSeed, fmtOklch, hueWord } from '../lib/palette-seeds.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 export function guide(seed) {
   const [, , H] = seed.oklch;
@@ -107,7 +108,7 @@ function parseFlags(argv) {
   return flags;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   try {
     const flags = parseFlags(process.argv.slice(2));
     process.stdout.write(guide(pickSeed(SEEDS, { ...flags, from: flags.from ?? process.env.VAWE_PALETTE_SEED })));

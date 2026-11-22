@@ -1,7 +1,7 @@
 // node harness/media/scene-stats.mjs <film.mp4> [--json] [--series]
 // Deterministic film statistics: world turns, static windows, motion events. Pure core, ffmpeg at the edge.
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { isMain } from '../lib/is-main.mjs';
 
 export const SAMPLE_FPS = 10;
 export const SAMPLE_W = 160;
@@ -220,7 +220,7 @@ export function readFeatures(video) {
   return feats;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   const args = process.argv.slice(2);
   const flags = args.filter((a) => a.startsWith('--'));
   const files = args.filter((a) => !a.startsWith('--'));

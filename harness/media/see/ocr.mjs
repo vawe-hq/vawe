@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { ffmpegOrDie, drawtext } from '../../lib/scratch.mjs';
+import { ffmpegOrDie, drawtext, drawtextFont } from '../../lib/scratch.mjs';
 import { detectCuts } from '../shot-detect.mjs';
 import { trackWords } from '../../lib/ref-measure/words.mjs';
 import { EASINGS } from '../../../core/motion/easings.js';
@@ -204,7 +204,7 @@ export function renderGrids(video, outDir, chosen, { width, height, dur, fps }, 
     const out = path.join(outDir, `.cell_${i}.png`);
     const label = c.tag ? `${c.tag} ${t.toFixed(2)}s` : `${t.toFixed(2)}s`;
     ffmpegOrDie(['-v', 'error', '-y', '-ss', frameSeek(n, fps).toFixed(4), '-i', video, '-frames:v', '1', '-vf',
-      `scale=${tileW}:${tileH},drawtext=text='${drawtext(label)}':x=6:y=6:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.65`,
+      `scale=${tileW}:${tileH},drawtext=${drawtextFont}text='${drawtext(label)}':x=6:y=6:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.65`,
       out], out, `grid cell ${i}`);
     return out;
   });

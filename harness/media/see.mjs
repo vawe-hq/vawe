@@ -27,6 +27,7 @@
 //   inspect   --probe, --look, --layout
 //   cli       argument dispatch
 import { main } from './see/cli.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 export * from './see/core.mjs';
 export * from './see/ocr.mjs';
@@ -35,4 +36,4 @@ export * from './see/dom.mjs';
 export * from './see/words.mjs';
 export * from './see/inspect.mjs';
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (isMain(import.meta.url)) main();

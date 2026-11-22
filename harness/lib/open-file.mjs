@@ -6,7 +6,7 @@ export function openFile(target) {
     : process.platform === 'win32' ? ['cmd', ['/c', 'start', '""', target]]
       : ['xdg-open', [target]];
   try {
-    const child = spawn(cmd, args, { stdio: 'ignore', detached: true });
+    const child = spawn(cmd, args, { stdio: 'ignore', detached: true, windowsHide: true });
     child.on('error', () => {});
     child.unref();
   } catch { /* the printed path is enough */ }

@@ -14,6 +14,7 @@ import path from 'node:path';
 import { scratchBase } from '../../harness/lib/scratch.mjs';
 import { structuredCriteria } from '../../harness/lib/judge-axes.mjs';
 import { tricksPrompt } from '../../harness/lib/judge-tricks.mjs';
+import { isMain } from '../../harness/lib/is-main.mjs';
 
 export function houseStyleFor(brand) {
   const p = brand && path.join('assets', 'brands', brand, 'house-style.md');
@@ -270,7 +271,7 @@ A \`TIE\` is a real answer. Do not break one to look decisive.
 }
 
 // Guarded so importing this module for its exports never runs a CLI-only check.
-if (import.meta.url === `file://${process.argv[1]}` && process.argv.includes('--self-test')) {
+if (isMain(import.meta.url) && process.argv.includes('--self-test')) {
   // The real defect this guards: a ground flip only exists BETWEEN frames, which no per-frame
   // dimension above can see. Adding the dimension without checking it landed would ship a rubric that
   // still cannot ask the question.

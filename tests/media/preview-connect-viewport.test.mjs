@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
 const PAGES = path.join(ROOT, 'tests/fixtures/pages');
@@ -14,13 +15,13 @@ const SERVER = path.join(ROOT, 'harness/media/preview-server.mjs');
 test('looking for a warm tab leaves another process\'s warm tab at its viewport', async () => {
   const jobDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-viewport-'));
   process.env.CLAUDE_JOB_DIR = jobDir;
-  const { openPreview, stateFile } = await import(SERVER);
+  const { openPreview, stateFile } = await import(pathToFileURL(SERVER).href);
   const mine = await openPreview(path.join(PAGES, 'slideshow-classic.html'), { width: 1920, height: 1080, final: false, warm: true });
   try {
     await mine.page.goto(mine.url);
     await mine.markWarm();
     const other = spawnSync(process.execPath, ['--input-type=module', '-e',
-      `const { openPreview } = await import(${JSON.stringify(SERVER)});
+      `const { openPreview } = await import(${JSON.stringify(pathToFileURL(SERVER).href)});
        const opened = await openPreview(${JSON.stringify(path.join(PAGES, 'seek-canvas.html'))}, { width: 1280, height: 720, final: false, warm: true });
        await opened.close();`], { env: process.env, encoding: 'utf8' });
     assert.equal(other.status, 0, other.stderr);

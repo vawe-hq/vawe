@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const DATA_DIR = process.env.VAWE_HOOK_DATA_DIR || path.join(ROOT, '.vawe-data');
 const REPORT_DIR = path.join(DATA_DIR, 'hook-reports');
 const STATE = path.join(DATA_DIR, 'hook-report-state.json');

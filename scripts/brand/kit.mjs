@@ -9,11 +9,12 @@
 //     --init also runs the doctor (node harness/dev/doctor.mjs) before spending a capture.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { eyedrop, writeSwatch } from './palette.mjs';
 import { download } from './localize-assets.mjs';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const args = process.argv.slice(2);
 const init = args.includes('--init');
 const [url, name] = args.filter((a) => !a.startsWith('--'));

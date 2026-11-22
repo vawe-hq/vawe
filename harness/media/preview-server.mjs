@@ -80,7 +80,7 @@ function waitForState(final, timeoutMs) {
 
 function spawnDaemon(final) {
   const log = openBrowserLog(final);
-  try { spawn(process.execPath, [SELF, '--daemon', ...(final ? [] : ['--draft'])], { detached: true, stdio: ['ignore', log, log] }).unref(); }
+  try { spawn(process.execPath, [SELF, '--daemon', ...(final ? [] : ['--draft'])], { detached: true, windowsHide: true, stdio: ['ignore', log, log] }).unref(); }
   finally { fs.closeSync(log); }
 }
 

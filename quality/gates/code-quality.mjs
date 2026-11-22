@@ -30,14 +30,14 @@ const SCAN = ['core', 'blocks', 'scripts', 'harness', 'quality', 'generators', '
 const write = process.argv.includes('--write');
 const top = process.argv.includes('--top');
 
-const bin = path.join(ROOT, 'node_modules/.bin/oxlint');
+const bin = path.join(ROOT, 'node_modules/oxlint/bin/oxlint'); // run with node: the .bin shim is a shell script Windows cannot start
 if (!fs.existsSync(bin)) {
   console.error('✗ oxlint is not installed. Run `npm install` at the repo root.');
   process.exit(2);
 }
 
 export function lint(paths = SCAN) {
-  const r = spawnSync(bin, ['-c', path.join(ROOT, '.oxlintrc.json'), '--format=json', ...paths],
+  const r = spawnSync(process.execPath, [bin, '-c', path.join(ROOT, '.oxlintrc.json'), '--format=json', ...paths],
     { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   let out;
   try { out = JSON.parse(r.stdout); } catch {

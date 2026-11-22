@@ -34,6 +34,7 @@ import { spectralChange, BED_RATE } from '../lib/bed-motion.mjs';
 import { decodeMono } from '../lib/audio-onsets.mjs';
 import { measureFile } from '../lib/loudness.mjs';
 import { CUES, DEFAULT_GAIN_DB, renderCue, renderCueStereo, normalize, normalizeStereo, encodeWav, wavDuration } from '../../core/audio/kit.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const RATE = 48000;
@@ -430,4 +431,4 @@ async function cli([pagePath, video, out]) {
   console.log(`${r.out}: ${read.specs.length} tracks${r.measured ? `, ${r.measured.I.toFixed(1)} LUFS, ${r.measured.TP.toFixed(1)} dBTP` : ', no audio'}`);
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await cli(process.argv.slice(2));
+if (isMain(import.meta.url)) await cli(process.argv.slice(2));
