@@ -20,7 +20,12 @@ export const EXCLUDE = [
 // Only run the CLI scan when this file is the entrypoint: harness/live's write-time twin imports EM and EXCLUDE above and must not pay for a repo-wide git grep just to reuse the matcher.
 if (isMain(import.meta.url)) {
   // No shell: cmd.exe keeps the quotes of a POSIX command line, so the old string matched nothing on Windows. Exit 1 is "no match".
-  const raw = spawnSync('git', ['grep', '-nI', EM, '--', ...SCOPE], { encoding: 'utf8', maxBuffer: 64 << 20 }).stdout || '';
+  const r = spawnSync('git', ['grep', '-nI', EM, '--', ...SCOPE], { encoding: 'utf8', maxBuffer: 64 << 20 });
+  if (r.error || r.status > 1) {
+    console.error(`no-emdash: git grep did not run, so nothing was checked: ${r.error?.message || r.stderr.trim()}`);
+    process.exit(2);
+  }
+  const raw = r.stdout;
 
   const hits = [];
   for (const line of raw.split('\n')) {

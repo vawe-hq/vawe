@@ -64,7 +64,7 @@ test('a worktree has no settings: the main checkout\'s hooks count', () => {
 
 test('doctor prints the advice for the missing hooks and keeps its exit code; --quiet prints none', () => {
   const home = dir(), root = dir();
-  for (const f of ['harness/dev/doctor.mjs', 'harness/lib/doctor-hint.mjs', 'harness/lib/hook-check.mjs']) {
+  for (const f of ['harness/dev/doctor.mjs', 'harness/lib/doctor-hint.mjs', 'harness/lib/hook-check.mjs', 'harness/lib/scratch.mjs']) {
     fs.mkdirSync(path.dirname(path.join(root, f)), { recursive: true });
     fs.copyFileSync(path.join(REPO, f), path.join(root, f));
   }
