@@ -49,10 +49,10 @@
   },
   "devDependencies": {
     "acorn": "^8.18.0",
-    "fontkit": "^2.0.4",
+    "fontkit": "^3.0.0",
     "oxlint": "^1.80.0",
     "puppeteer": "^25.16.0",
-    "three": "^0.185.1",
+    "three": "^0.187.0",
     "wawoff2": "^2.0.1"
   },
   "//puppeteer-note": "Renders launch puppeteer-core with the Chrome pinned in .puppeteerrc.cjs; the first render fetches it into ~/.cache/puppeteer. Full puppeteer is a dev dependency for the scripts and for npx puppeteer browsers install chrome in a checkout; its postinstall downloads a Chrome, so CI jobs that open no browser set PUPPETEER_SKIP_DOWNLOAD=1.",
@@ -99,8 +99,8 @@
   "//oxlint-note": "Code-quality enforcement: complexity, function length, nesting depth. Rust, so a whole-repo sweep runs in under a second and a single-file check is instant. That speed is what lets it run on every file WRITE (harness/live/post-edit.mjs) rather than only at push, which is the difference between a rule that shapes code and a rule that scolds after the fact. A comment key must stay at the ROOT of this file: npm parses every key inside devDependencies as a package name, and a `//name` entry there breaks `npm install` outright.",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@puppeteer/browsers": "3.2.6",
-    "puppeteer-core": "25.16.0",
+    "@puppeteer/browsers": "3.2.7",
+    "puppeteer-core": "25.18.1",
     "zod": "^4.6.5"
   }
 }
