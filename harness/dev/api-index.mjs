@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { BANDS, EASE_HANDLES, bandSeconds, enterSpecs, leaveSpecs, cameraSpecs, focusSpecs, rampSpeeds, staggerTimes, layerTiming } from '../../core/motion/presets.js';
 import { LOOKS, OFF, PALETTES, resolveOptions } from '../../core/surfaces/lens.js';
+import { isMain } from '../lib/is-main.mjs';
 
 export const INDEX_PATH = fileURLToPath(new URL('../../skills/vawe-page/API.md', import.meta.url));
 
@@ -86,4 +87,4 @@ export function indexText() {
   ].join('\n');
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv.includes('--write')) fs.writeFileSync(INDEX_PATH, indexText());
+if (isMain(import.meta.url) && process.argv.includes('--write')) fs.writeFileSync(INDEX_PATH, indexText());

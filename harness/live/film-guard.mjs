@@ -3,6 +3,7 @@
 // Run from the plugin's hooks/hooks.json with matcher "Write|Edit|MultiEdit|Bash". Exit 0 always; a denial is the JSON answer.
 import { filmWrites, rawTools, commandVerbs, lookupOf, RAW_TOOLS } from '../lib/trace/calls.mjs';
 import { bare } from '../lib/shell-match.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 export const MCP_PREFIX = 'mcp__plugin_vawe-agent_vawe__';
 const toolsNamed = (prefix) => (...names) => names.map((n) => `${prefix}${n}`).join(' or ');
@@ -42,4 +43,4 @@ function main() {
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (isMain(import.meta.url)) main();

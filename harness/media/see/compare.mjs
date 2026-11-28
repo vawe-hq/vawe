@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { ffmpegOrDie, drawtext } from '../../lib/scratch.mjs';
+import { ffmpegOrDie, drawtext, drawtextFont } from '../../lib/scratch.mjs';
 import { bucketMean, computeEnergy, describeRatio, die, edgeMean, findHolds, HOLD_FLOOR, HOLD_MIN, longestHold, probeVideo, refSpanLine, ROOT, stackImages, tileInGrids, timeRange, writeJsonAtomic } from './core.mjs';
 import { renderGrids } from './ocr.mjs';
 import { runWordEventCompare } from './words.mjs';
@@ -63,7 +63,7 @@ export function compareCell(clip, t, outDir, tag, tileW, tileH) {
   const at = Math.max(0, Math.min(t, clip.dur - 0.03));
   const out = path.join(outDir, `.${tag}.png`);
   ffmpegOrDie(['-v', 'error', '-y', '-ss', at.toFixed(3), '-i', clip.path, '-frames:v', '1', '-vf',
-    `scale=${tileW}:${tileH},drawtext=text='${drawtext(`${clip.label} ${t.toFixed(2)}s`)}':x=6:y=6:fontsize=14:fontcolor=white:box=1:boxcolor=black@0.65`,
+    `scale=${tileW}:${tileH},drawtext=${drawtextFont}text='${drawtext(`${clip.label} ${t.toFixed(2)}s`)}':x=6:y=6:fontsize=14:fontcolor=white:box=1:boxcolor=black@0.65`,
     out], out, `compare ${tag} cell`);
   return out;
 }

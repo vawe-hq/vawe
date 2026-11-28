@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { criticTemplate, criticPrompt, verdictLine, critiqueFiles } from '../../harness/lib/critic-prompt.mjs';
 import { critiqueProblem } from '../../harness/lib/critique-gate.mjs';
 import { verbEvent } from '../../harness/lib/verb-log.mjs';
@@ -11,7 +12,7 @@ import { VERBS } from '../../harness/cli/verbs.mjs';
 import { SAY } from '../../harness/live/stage-say.mjs';
 import { outcomeLines } from '../../harness/lib/runs-report.mjs';
 
-const REPO = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const SKILL = fs.readFileSync(path.join(REPO, 'skills/vawe-critique/SKILL.md'), 'utf8');
 
 test('the critic prompt is read from the skill, not copied', () => {

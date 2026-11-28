@@ -1,13 +1,13 @@
 // `vawe frame`: one region of a frame, enlarged with nearest-neighbour so every pixel stays a square, optionally beside the same region of a second film.
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { drawtext, ffmpegOrDie } from '../../lib/scratch.mjs';
+import { drawtext, ffmpegOrDie, drawtextFont } from '../../lib/scratch.mjs';
 import { die, probeVideo, stackImages } from './core.mjs';
 import { frameRgb, lumaOf } from './frame.mjs';
 import { resolveInput } from './input.mjs';
 import { outFile } from '../../lib/out-target.mjs';
 import { autoBox, commonBox, FRAME_H, FRAME_W, parseBox, ZOOM_SCALE, zoomProblem } from './zoom-math.mjs';
+import { isMain } from '../../lib/is-main.mjs';
 
 async function film(input, label) {
   const found = await resolveInput(input);
@@ -22,7 +22,7 @@ export function zoomCell(clip, at, box, scale, file) {
   const label = drawtext(`${clip.label} ${clip.name} ${at.toFixed(2)}s x${scale}`, 60);
   ffmpegOrDie(['-v', 'error', '-y', '-ss', t.toFixed(3), '-i', clip.video, '-frames:v', '1', '-vf',
     `scale=${FRAME_W}:${FRAME_H},crop=${box.w}:${box.h}:${box.x}:${box.y},scale=${box.w * scale}:${box.h * scale}:flags=neighbor,`
-    + `drawtext=text='${label}':x=6:y=6:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.65`, file], file, `zoom ${clip.label}`);
+    + `drawtext=${drawtextFont}text='${label}':x=6:y=6:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.65`, file], file, `zoom ${clip.label}`);
 }
 
 /** The --auto boxes: one box bright in both films, else each film's own best box (the note says so). */
@@ -65,7 +65,7 @@ async function runZoom(input, opts) {
   console.log(out);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   const argv = process.argv.slice(2);
   const flag = (n, d) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : d; };
   try {

@@ -10,6 +10,7 @@ import { readPageAudio } from './page-audio.mjs';
 import { spectacleOf } from '../lib/board.mjs';
 import { timelineOf, timelineLines } from '../lib/timeline.mjs';
 import { resolveDuration } from './page-duration.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const die = (m) => { console.error(`error: ${m}`); process.exit(2); };
 
@@ -42,4 +43,4 @@ async function main(argv) {
   console.log(json ? JSON.stringify(t, null, 2) : [...timelineLines(t), `time: ${((Date.now() - t0) / 1000).toFixed(1)} s`].join('\n'));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));
+if (isMain(import.meta.url)) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));

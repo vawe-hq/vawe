@@ -3,6 +3,7 @@
 // review motion on its own pass; this is that split, applied to JUDGE_CODES (harness/lib/judge-codes.mjs)
 // so both halves of the pipeline share one closed set of criteria, never two.
 import { JUDGE_CODES } from './judge-codes.mjs';
+import { isMain } from './is-main.mjs';
 
 // motion-smoothness/temporal-flicker are named VBench++ motion axes; blank-frame is a transition
 // defect (a dropped frame at a cut), which is a motion-timeline fact even though the sheet shows it as
@@ -31,7 +32,7 @@ export function structuredCriteria() {
   return JUDGE_CODES.map((code) => ({ code, axis: axisOf(code), label: LABELS[code] || code }));
 }
 
-if (import.meta.url === `file://${process.argv[1]}` && process.argv.includes('--self-test')) {
+if (isMain(import.meta.url) && process.argv.includes('--self-test')) {
   const missing = JUDGE_CODES.filter((c) => !LABELS[c]);
   if (missing.length) { console.error(`judge-axes: missing a label for ${missing.join(', ')}`); process.exit(1); }
   const criteria = structuredCriteria();

@@ -5,11 +5,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, execFileSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { foldRows } from '../lib/trace/fold.mjs';
 import { verbEvents } from '../lib/trace/verbs.mjs';
 import { stageFirstUse, stageOrder } from '../lib/trace/stages.mjs';
 import { readRuns, runsDir } from '../lib/runlog.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 export const BASELINE = path.join(ROOT, 'quality/baselines/harness-bench.json');
@@ -337,6 +338,6 @@ async function main(argv) {
   console.log(v.json ? JSON.stringify(next[v.variant], null, 1) : sideBySide(next));
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isMain(import.meta.url)) {
   main(process.argv.slice(2)).catch((e) => { console.error(`harness-bench: ${e.message}`); process.exit(1); });
 }

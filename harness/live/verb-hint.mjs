@@ -5,6 +5,7 @@
 import fs from 'node:fs';
 import { scratch } from '../lib/scratch.mjs';
 import { POLL, VAWE_PIPED, INPLACE_EDIT } from '../lib/shell-match.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const HINT_EVERY_MS = 30 * 60 * 1000;
 
@@ -44,4 +45,4 @@ function main() {
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (isMain(import.meta.url)) main();

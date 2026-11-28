@@ -5,7 +5,6 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { die, ROOT } from './core.mjs';
 import { measureSide } from './one-measure.mjs';
 import { makeImages, momentImages } from './one-images.mjs';
@@ -13,6 +12,7 @@ import { resolveSource, SourceError } from './one-input.mjs';
 import { momentLines, seeReport, seeSummary } from './one-report.mjs';
 import { pairImages } from './one-pairs.mjs';
 import { compareSides, vsLines } from './one-vs.mjs';
+import { isMain } from '../../lib/is-main.mjs';
 
 const CODE_DIRS = ['harness/media/see', 'harness/lib/ref-measure'];
 const CODE_FILES = ['harness/media/ref-spec.mjs', 'harness/lib/move-fit.mjs', 'harness/media/shot-detect.mjs', 'harness/lib/board.mjs', 'harness/lib/timeline.mjs', 'harness/media/page-audio.mjs', 'harness/lib/sound-read.mjs', 'harness/lib/sound-class.mjs'];
@@ -104,4 +104,4 @@ async function main(argv) {
   console.log(`data:   ${r.json}`);
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main(process.argv.slice(2)).catch((e) => die(e instanceof SourceError ? e.message : e.stack || String(e)));
+if (isMain(import.meta.url)) main(process.argv.slice(2)).catch((e) => die(e instanceof SourceError ? e.message : e.stack || String(e)));

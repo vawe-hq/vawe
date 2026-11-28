@@ -40,6 +40,7 @@ import { readHoldProblems } from '../../harness/lib/read-hold.mjs';
 import { TEXTURE } from '../../harness/lib/draft-check.mjs';
 import { textureCanvases } from '../../harness/lib/canvas-film.mjs';
 import { lowContrast, passingColour, hexOf, shownAndHidden } from '../../harness/lib/text-contrast.mjs';
+import { isMain } from '../../harness/lib/is-main.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -401,4 +402,4 @@ async function main() {
   if (!ctx.f.count) console.log('  ✓ nothing measured is off. The eye still judges what a number cannot.');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e.stack || String(e)); process.exit(0); });
+if (isMain(import.meta.url)) main().catch((e) => { console.error(e.stack || String(e)); process.exit(0); });

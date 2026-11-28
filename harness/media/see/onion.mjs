@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { ffmpegOrDie } from '../../lib/scratch.mjs';
+import { ffmpegOrDie, drawtextFont } from '../../lib/scratch.mjs';
 import { die, probeVideo } from './core.mjs';
 import { ONION_FRAMES, ONION_SPAN, isLightGround, onionGraph, onionProblem, onionTimes } from './onion-math.mjs';
 import { resolveInput } from './input.mjs';
@@ -25,7 +25,7 @@ export function makeOnion(found, opts) {
   const out = outFile(opts.out, path.join('out', 'onion', found.name, `onion-${opts.at.toFixed(2)}-n${opts.n}.png`));
   fs.mkdirSync(path.dirname(out), { recursive: true });
   const inputs = times.flatMap((t) => ['-ss', t.toFixed(3), '-i', found.video]);
-  ffmpegOrDie(['-v', 'error', '-y', ...inputs, '-filter_complex', onionGraph(times, width, height, isLightGround(meanGrey(found.video, times.at(-1)))), '-map', '[out]', '-frames:v', '1', out], out, 'onion');
+  ffmpegOrDie(['-v', 'error', '-y', ...inputs, '-filter_complex', onionGraph(times, width, height, isLightGround(meanGrey(found.video, times.at(-1))), drawtextFont), '-map', '[out]', '-frames:v', '1', out], out, 'onion');
   return { out, times };
 }
 

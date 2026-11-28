@@ -3,12 +3,11 @@
 //   node harness/dev/pause-bar.mjs <measures.json>
 // Reads the same film list as bar-from-refs.mjs and measures each with holdBefore on the energy series `vawe frame` reads.
 import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { quantile, referenceFilms } from './bar-from-refs.mjs';
 import { computeEnergy, HOLD_FLOOR } from '../media/see/core.mjs';
 import { resolveInput } from '../media/see/input.mjs';
 import { cutHolds, PAUSE_S } from '../media/see/strip-math.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 /** The share of measured cuts that pause PAUSE_S or more, per film. Pure. */
 export const pauseShare = (holds) => {
@@ -35,4 +34,4 @@ async function main() {
   console.log(`${known.length} films, ${measured} measured cuts: ${known.filter((s) => s === 0).length} films never pause, the median film pauses before ${Math.round(quantile(known, 0.5) * 10)} cuts in 10`);
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+if (isMain(import.meta.url)) main();

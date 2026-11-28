@@ -13,6 +13,7 @@ import { scratch } from '../lib/scratch.mjs';
 import { deltaE } from '../lib/color-delta.mjs';
 import { norm } from '../lib/ref-measure/words.mjs';
 import { ERROR_BASELINE } from '../lib/ref-measure/error-table.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const FIXTURES = path.join(ROOT, 'tests/fixtures/ref-measure');
@@ -214,4 +215,4 @@ async function main() {
   for (const [k, v] of Object.entries(table.accuracy)) console.log(`${k.padEnd(14)} ${v.hit}/${v.n}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e.stack || String(e)); process.exit(2); });
+if (isMain(import.meta.url)) main().catch((e) => { console.error(e.stack || String(e)); process.exit(2); });

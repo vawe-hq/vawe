@@ -10,6 +10,8 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { paramsFilm } from '../lib/page-params.mjs';
 import { outFile } from '../lib/out-target.mjs';
+import { isMain } from '../lib/is-main.mjs';
+import { drawtextFont } from '../lib/scratch.mjs';
 
 const ROW_H = 360;
 /** `--at cuts`: the middle of each world change of ours, from the last full draft's measured data-world spans. */
@@ -18,7 +20,7 @@ const die = (m) => { console.error(`✗ ${m}`); process.exit(2); };
 
 function grab(video, t, out, label = t) {
   const r = spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', video, '-ss', String(t), '-frames:v', '1',
-    '-vf', `scale=-2:${ROW_H},drawtext=text='${path.basename(video, path.extname(video))} ${label}s':x=12:y=12:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.6`, out]);
+    '-vf', `scale=-2:${ROW_H},drawtext=${drawtextFont}text='${path.basename(video, path.extname(video))} ${label}s':x=12:y=12:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.6`, out]);
   if (r.status !== 0 || !fs.existsSync(out)) die(`no frame at ${t}s in ${video}: ${String(r.stderr || '').trim()}`);
 }
 
@@ -154,4 +156,4 @@ async function main() {
   console.log(ref ? `✓ ${out}: reference left, yours right, ${which}${times.length} row(s) at ${times.join(', ')} s` : `✓ ${out}: your frames, ${which}at ${times.join(', ')} s, 3 per row, left to right`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => die(e.stack || String(e)));
+if (isMain(import.meta.url)) main().catch((e) => die(e.stack || String(e)));

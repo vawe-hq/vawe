@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
+import { isMain } from '../lib/is-main.mjs';
 
 export const W = 480, H = 270;
 
@@ -175,7 +176,7 @@ function selftest() {
   console.log('  a gentle wash fills ~0');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const [a, ...rest] = process.argv.slice(2);
   if (a === '--selftest') selftest();
   else if (a) console.log(JSON.stringify(measureVideo(a, rest.length ? rest.map(Number) : [1]), null, 1));

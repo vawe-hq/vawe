@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { appendRun, filmKeyOf } from '../lib/runlog.mjs';
 import { UNFILED } from '../lib/verb-log.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const IMAGE = /\.(png|jpe?g|webp)$/i;
 const TOOL_FOLDERS = new Set(['strip', 'onion', 'zoom', 'velocity', 'see', 'look', 'compare']);
@@ -47,4 +48,4 @@ function main() {
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (isMain(import.meta.url)) main();

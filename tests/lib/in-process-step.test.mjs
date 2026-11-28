@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { IN_PROCESS } from '../../harness/cli/verbs.mjs';
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -25,7 +25,7 @@ function copyRoot() {
 
 test('every in-process step script exports run', async () => {
   for (const script of IN_PROCESS) {
-    const mod = await import(path.join(REPO, script));
+    const mod = await import(pathToFileURL(path.join(REPO, script)).href);
     assert.equal(typeof mod.run, 'function', script);
   }
 });

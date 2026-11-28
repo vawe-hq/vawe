@@ -20,6 +20,7 @@ import { drewNothingHint } from '../lib/ensure-fonts.mjs';
 import { parseAt } from './compare-frames.mjs';
 import { filmNameOf } from './see/strip-math.mjs';
 import { resolveDuration } from './page-duration.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const die = (m) => { console.error(`error: ${m}`); process.exit(2); };
 const EVEN_TILES = 12;
@@ -135,4 +136,4 @@ async function main(argv) {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));
+if (isMain(import.meta.url)) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));

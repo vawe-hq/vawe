@@ -11,6 +11,7 @@ import { isUrl } from '../lib/url.mjs';
 import { outFile } from '../lib/out-target.mjs';
 import { frameSeek, stillArgs, stillPath, stillProblem, sizeProblem } from './see/still-math.mjs';
 import { resolveDuration } from './page-duration.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const die = (m) => { console.error(`error: ${m}`); process.exit(2); };
 
@@ -67,4 +68,4 @@ async function main(argv) {
   console.log(`✓ ${out}: ${got.size}, the frame at ${got.t}s`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));
+if (isMain(import.meta.url)) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));

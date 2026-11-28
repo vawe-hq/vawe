@@ -4,12 +4,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { openPage, resolveFrame } from '../../harness/media/render-page.mjs';
 import { loadOpened } from '../../harness/media/plan-read.mjs';
 import { starterPage, starterFace } from '../../harness/cli/new.mjs';
 import { starterMin } from '../../harness/cli/route.mjs';
 
-const ROOT = path.resolve(new URL('../../', import.meta.url).pathname);
+const ROOT = path.resolve(fileURLToPath(new URL('../../', import.meta.url)));
 const CASES = [['sting', [5]], ['brand launch', [starterMin('brand launch'), 12, 15]], ['story or explainer', [starterMin('story or explainer'), 12, 20, 28, 29, 30]]];
 
 const movesPastTheirWorld = () => {

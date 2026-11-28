@@ -120,6 +120,7 @@ import { takeRenderSlot, slotsInUse } from '../lib/render-slots.mjs';
 import { noteVerb } from '../lib/verb-log.mjs';
 import { createPhaseTimer } from '../lib/phase-timer.mjs';
 import { machineLanes } from '../lib/lane-budget.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 // A laptop running two renders at 4 workers each overheats and throttles; the second render starts cool.
 const COOL_WORKERS = 2;
@@ -1354,4 +1355,4 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => die(e instanceof RenderError ? e.message : e.stack || String(e), exitCodeOf(e)));
+if (isMain(import.meta.url)) main().catch((e) => die(e instanceof RenderError ? e.message : e.stack || String(e), exitCodeOf(e)));

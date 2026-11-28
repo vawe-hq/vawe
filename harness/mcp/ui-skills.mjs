@@ -23,10 +23,13 @@ export function uiSkillsArgs({ action, category, slug }) {
   return { args: action === 'list' && category ? ['list', '--category', category] : [action] };
 }
 
+// npx is npx.cmd on Windows, which only a shell starts; the args are the checked words of uiSkillsArgs, safe on a command line.
+const spawnNpx = (args, opts) => (process.platform === 'win32' ? spawn(['npx', ...args].join(' '), { ...opts, shell: true }) : spawn('npx', args, opts));
+
 /** Runs `npx -y ui-skills <args>`: { ok, text, reason }. Kills the child at LIMIT_MS. */
 export function runUiSkills(args, { cwd = process.cwd(), limitMs = LIMIT_MS } = {}) {
   return new Promise((resolve) => {
-    const child = spawn('npx', ['-y', 'ui-skills', ...args], { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawnNpx(['-y', 'ui-skills', ...args], { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
     let text = '';
     let timedOut = false;
     const timer = setTimeout(() => { timedOut = true; child.kill('SIGTERM'); }, limitMs);

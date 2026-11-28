@@ -19,8 +19,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import cp from 'node:child_process';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { gateFindings } from '../../harness/lib/findings.mjs';
+import { isMain } from '../../harness/lib/is-main.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -66,7 +67,7 @@ export function run({ root = ROOT } = {}) {
   return { total: all.length, unrouted };
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] || '').href) {
+if (isMain(import.meta.url)) {
   const { total, unrouted } = run();
   const f = gateFindings();
   console.log(`── skill reach · ${total} skill(s)\n`);

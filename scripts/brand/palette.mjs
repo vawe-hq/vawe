@@ -11,6 +11,7 @@ import puppeteer from 'puppeteer';
 import { SANDBOX_ARGS } from '../../harness/lib/render-harness.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
+import { isMain } from '../../harness/lib/is-main.mjs';
 
 const hex = ({ r, g, b }) => '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
 const lum = ({ r, g, b }) => (0.299 * r + 0.587 * g + 0.114 * b) / 255;
@@ -86,8 +87,7 @@ export async function writeSwatch(outPath, { light, bg, text, accents, cols }) {
 }
 
 // ---------- CLI ----------
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname);
-if (isMain) {
+if (isMain(import.meta.url)) {
   const arg = process.argv[2];
   if (!arg || !fs.existsSync(arg)) { console.error('usage: node scripts/brand/palette.mjs <sections-dir | screenshot.png>'); process.exit(1); }
   const files = fs.statSync(arg).isDirectory()

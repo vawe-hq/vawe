@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { execFileSync, spawn } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import { ENGINE, CHECKOUT, WORK } from '../harness/lib/workspace.mjs';
 import { isUrl } from '../harness/lib/url.mjs';
 import { EXIT, ExitError } from '../harness/lib/exit-codes.mjs';
@@ -58,7 +59,7 @@ async function runInProcess(step, call) {
   process.chdir(WORK);
   let code;
   try {
-    code = await (await import(path.join(ROOT, step.script))).run(step.args, { env: { ...process.env, ...step.env, VAWE_VERB_NOTES: call.notes }, out, err: (text) => { stderr += text; } });
+    code = await (await import(pathToFileURL(path.join(ROOT, step.script)).href)).run(step.args, { env: { ...process.env, ...step.env, VAWE_VERB_NOTES: call.notes }, out, err: (text) => { stderr += text; } });
   } finally {
     process.chdir(here);
   }

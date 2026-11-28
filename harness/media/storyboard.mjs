@@ -22,6 +22,7 @@ import { planLines } from '../lib/plan-findings.mjs';
 import { storyboardHtml } from '../lib/storyboard-html.mjs';
 import { resolveDuration } from './page-duration.mjs';
 import { WORK } from '../lib/workspace.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const die = (m) => { console.error(`error: ${m}`); process.exit(2); };
@@ -134,4 +135,4 @@ async function main(argv) {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));
+if (isMain(import.meta.url)) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));

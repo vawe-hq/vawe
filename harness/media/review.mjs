@@ -7,7 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { scratch, drawtext } from '../lib/scratch.mjs';
+import { scratch, drawtext, drawtextFont } from '../lib/scratch.mjs';
 import { sampleText, clippedGlyphs, timingRows, shortHolds, holdsBeyondRef, leastSeen } from '../lib/text-timing.mjs';
 import { textTimeline } from './see/text-timeline.mjs';
 import { clipMessage } from '../../quality/gates/page-check.mjs';
@@ -15,6 +15,7 @@ import { frameMotion, startJumps, earlyStops, frozenInside, secondSsim, collater
 import { coverage } from './coverage.mjs';
 import { probe } from './see-views.mjs';
 import { resolveDuration } from './page-duration.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const RANK = { error: 0, warn: 1, info: 2 };
 const SHEET_ROWS = 6;
@@ -200,7 +201,7 @@ export function sortFindings(list) {
 }
 
 function tile(video, t, label, out) {
-  const vf = `scale=${TILE_W}:${TILE_H}:force_original_aspect_ratio=decrease,pad=${TILE_W}:${TILE_H}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='${drawtext(label)}':x=8:y=8:fontsize=20:fontcolor=white:box=1:boxcolor=black@0.6`;
+  const vf = `scale=${TILE_W}:${TILE_H}:force_original_aspect_ratio=decrease,pad=${TILE_W}:${TILE_H}:(ow-iw)/2:(oh-ih)/2:black,drawtext=${drawtextFont}text='${drawtext(label)}':x=8:y=8:fontsize=20:fontcolor=white:box=1:boxcolor=black@0.6`;
   spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', video, '-ss', String(Math.max(0, t)), '-frames:v', '1', '-vf', vf, out]);
   return out;
 }
@@ -338,4 +339,4 @@ async function main() {
   console.log(`(${(r.ms / 1000).toFixed(1)} s${r.reused ? ', draft reused' : ''}; data: out/${path.basename(r.video, '.mp4')}-review.json)`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => die(e.message));
+if (isMain(import.meta.url)) main().catch((e) => die(e.message));

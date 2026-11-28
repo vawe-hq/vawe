@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
 import { planFindings, planLines, ruleDoc } from '../../harness/lib/plan-findings.mjs';
 import { tightStagger } from '../../harness/lib/motion-lint.mjs';
 import { briefLengthLine } from '../../harness/lib/board.mjs';
 
-const ROOT = new URL('../../', import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 
 const rec = (target, delay, o = {}) => ({ target, label: `win${target}`, id: '', props: ['opacity'], delay, duration: 0.4, easing: 'linear', kfEasings: ['ease', 'ease'], opacity: [0, 1], from: '', fullFrame: false, ...o });
 const stillTail = { samples: [], step: 0.5, frameH: 1080, whole: true, tail: [[], [], []] };

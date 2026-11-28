@@ -9,6 +9,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { specToFiles } from '../media/spec-to-page.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const die = (msg) => { console.error(`✗ ${msg}`); process.exit(2); };
@@ -88,5 +89,5 @@ async function main() {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().then((code) => process.exit(code));
+if (isMain(import.meta.url)) main().then((code) => process.exit(code));
 export { ffprobeDuration };

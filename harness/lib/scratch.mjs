@@ -29,3 +29,13 @@ export function ffmpegOrDie(args, out, what = 'ffmpeg') {
 
 /** Make a string safe for ffmpeg's drawtext: a colon or quote ends the filter argument, so strip them. */
 export const drawtext = (s, max = 46) => String(s).replace(/[^\w @.,%·/+-]/g, ' ').slice(0, max);
+
+// drawtext with no fontfile asks fontconfig for a font. macOS and Linux ffmpeg find one; a Windows ffmpeg has no fontconfig config (or crashes in it).
+const WINDOWS_FONTS = ['arial.ttf', 'segoeui.ttf', 'tahoma.ttf'].map((f) => path.join(process.env.WINDIR || 'C:\\Windows', 'Fonts', f));
+const fontFile = process.platform === 'win32' ? WINDOWS_FONTS.find((f) => fs.existsSync(f)) : undefined;
+
+/** A file path as an unquoted filtergraph option value: forward slashes, and two backslashes before each colon (C\\:/x), or the drive colon ends the option. */
+export const filterPath = (file) => file.replace(/\\/g, '/').replace(/:/g, '\\\\:');
+
+/** The `fontfile=<file>:` option that starts a drawtext filter; '' leaves the font to fontconfig. */
+export const drawtextFont = fontFile ? `fontfile=${filterPath(fontFile)}:` : '';

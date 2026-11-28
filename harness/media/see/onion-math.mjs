@@ -55,8 +55,8 @@ const hex = (color) => `0x${color.map((c) => Math.round(Math.min(1, c) * 255).to
 /** True when the mean grey (0 to 255) of a frame says its ground is light: ghosts are then the dark ink, not the bright one. Pure. */
 export const isLightGround = (grey) => grey > 127;
 
-/** The ffmpeg filter_complex for `times.length` inputs of width x height: tint each (on a light ground in the negative, so white stays white), blend with the weights, add a legend bar with a swatch and a time per frame. Pure. */
-export function onionGraph(times, width, height, lightBackground) {
+/** The ffmpeg filter_complex for `times.length` inputs of width x height (`font` starts each drawtext, see drawtextFont): tint each (on a light ground in the negative, so white stays white), blend with the weights, add a legend bar with a swatch and a time per frame. Pure. */
+export function onionGraph(times, width, height, lightBackground, font = '') {
   const n = times.length;
   const weights = blendWeights(n);
   const flip = lightBackground ? ',negate' : '';
@@ -70,9 +70,9 @@ export function onionGraph(times, width, height, lightBackground) {
     const swatch = strength === 0 ? [1, 1, 1] : color;
     return [
       `drawbox=x=${x}:y=${height + 14}:w=${fontsize}:h=${fontsize}:color=${hex(swatch)}:t=fill`,
-      `drawtext=text='${t.toFixed(2)}s':x=${x + fontsize + 6}:y=${height + 14}:fontsize=${fontsize}:fontcolor=white`,
+      `drawtext=${font}text='${t.toFixed(2)}s':x=${x + fontsize + 6}:y=${height + 14}:fontsize=${fontsize}:fontcolor=white`,
     ];
   });
-  const note = `drawtext=text='ghosts run from the oldest (cool and faint) to the newest (strong and in its own colours)':x=16:y=${height + 42}:fontsize=${fontsize}:fontcolor=0xaab0bc`;
+  const note = `drawtext=${font}text='ghosts run from the oldest (cool and faint) to the newest (strong and in its own colours)':x=16:y=${height + 42}:fontsize=${fontsize}:fontcolor=0xaab0bc`;
   return [...tinted, blend, `[m]${[...marks, note].join(',')}[out]`].join(';');
 }

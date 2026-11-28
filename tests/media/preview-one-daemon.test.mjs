@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 
 const SERVER = path.resolve(import.meta.dirname, '../../harness/media/preview-server.mjs');
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -14,7 +15,7 @@ const alive = (pid) => { try { process.kill(pid, 0); return true; } catch { retu
 for (const stale of [false, true]) test(`six daemons started together leave exactly one running${stale ? ' after a dead daemon left its lock' : ''}`, async () => {
   const jobDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-daemons-'));
   process.env.CLAUDE_JOB_DIR = jobDir;
-  const { stateFile } = await import(SERVER);
+  const { stateFile } = await import(pathToFileURL(SERVER).href);
   if (stale) fs.writeFileSync(`${stateFile(false)}.lock`, '999999');
   const children = Array.from({ length: 6 }, () => spawn(process.execPath, [SERVER, '--daemon', '--draft'], { env: { ...process.env, VAWE_PREVIEW_IDLE_MS: '30000' }, stdio: 'ignore' }));
   try {

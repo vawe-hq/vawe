@@ -11,6 +11,7 @@ import { renderMixCached } from './page-audio.mjs';
 import { launchPage } from '../lib/render-harness.mjs';
 import { worldAt, worldRows, cueRows } from '../lib/timeline.mjs';
 import { parseSeconds, activeAt, levelDb, waveformSvg } from '../lib/audio-view.mjs';
+import { isMain } from '../lib/is-main.mjs';
 
 const RATE = 48000;
 const die = (m) => { console.error(`error: ${m}`); process.exit(2); };
@@ -77,4 +78,4 @@ async function main(argv) {
   console.log([...lines, `time: ${((Date.now() - t0) / 1000).toFixed(1)} s`].join('\n'));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));
+if (isMain(import.meta.url)) main(process.argv.slice(2)).catch((e) => die(e.stack || String(e)));

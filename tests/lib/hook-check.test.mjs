@@ -4,9 +4,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { missingHooks, hookAdvice, LIVE_HOOKS } from '../../harness/lib/hook-check.mjs';
 
-const REPO = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const dir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-hooks-'));
 const write = (base, name, settings) => {
   fs.mkdirSync(path.join(base, '.claude'), { recursive: true });
@@ -63,7 +64,7 @@ test('a worktree has no settings: the main checkout\'s hooks count', () => {
 
 test('doctor prints the advice for the missing hooks and keeps its exit code; --quiet prints none', () => {
   const home = dir(), root = dir();
-  for (const f of ['harness/dev/doctor.mjs', 'harness/lib/doctor-hint.mjs', 'harness/lib/hook-check.mjs']) {
+  for (const f of ['harness/dev/doctor.mjs', 'harness/lib/doctor-hint.mjs', 'harness/lib/hook-check.mjs', 'harness/lib/scratch.mjs']) {
     fs.mkdirSync(path.dirname(path.join(root, f)), { recursive: true });
     fs.copyFileSync(path.join(REPO, f), path.join(root, f));
   }

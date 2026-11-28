@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { deltaE, labOf } from './ref-measure/colour.mjs';
+import { drawtextFont } from './scratch.mjs';
 
 const ff = (a) => {
   const r = spawnSync('ffmpeg', ['-hide_banner', '-v', 'error', '-nostdin', ...a], { encoding: 'utf8', maxBuffer: 1 << 24 });
@@ -22,7 +23,7 @@ export const safeLabel = (s) => String(s).replace(/[:']/g, '');
 export function frameTile(src, t, out, { tw, th, label } = {}) {
   const vf = [`scale=${tw}:${th}:force_original_aspect_ratio=decrease`,
     `pad=${tw}:${th}:(ow-iw)/2:(oh-ih)/2:white`];
-  if (label) vf.push(`drawtext=text='${safeLabel(label)}':x=10:y=10:fontsize=22:fontcolor=black:box=1:boxcolor=white@0.85:boxborderw=6`);
+  if (label) vf.push(`drawtext=${drawtextFont}text='${safeLabel(label)}':x=10:y=10:fontsize=22:fontcolor=black:box=1:boxcolor=white@0.85:boxborderw=6`);
   // -ss AFTER -i, which is the frame-accurate seek. Before -i, ffmpeg does the fast one: it jumps to
   // the nearest KEYFRAME and decodes from there, and a draft render has sparse keyframes, so a tile
   // labelled 13.4s could be seconds off or come back blank. That is not a cosmetic difference here:
@@ -90,7 +91,7 @@ export function sampleFrames(video, span, outPrefix, size = {}) {
     ? `fps=${fps},scale=${tw}:${th}:force_original_aspect_ratio=decrease,pad=${tw}:${th}:(ow-iw)/2:(oh-ih)/2:white`
     : `fps=${fps}`;
   // `stamp` is a drawtext expansion such as `f%{eif\:n+12\:d}`, burned into every extracted frame.
-  if (stamp) vf += `,drawtext=text='${stamp}':x=6:y=6:fontsize=${Math.max(14, Math.round((tw || 360) / 20))}:fontcolor=black:box=1:boxcolor=white@0.85:boxborderw=4`;
+  if (stamp) vf += `,drawtext=${drawtextFont}text='${stamp}':x=6:y=6:fontsize=${Math.max(14, Math.round((tw || 360) / 20))}:fontcolor=black:box=1:boxcolor=white@0.85:boxborderw=4`;
   ff(['-y', '-ss', Number(t0).toFixed(3), '-t', dur.toFixed(3), '-i', video, '-vf', vf, '-frames:v', String(n), `${outPrefix}_%04d.png`]);
   return Array.from({ length: n }, (_, i) => `${outPrefix}_${String(i + 1).padStart(4, '0')}.png`)
     .filter((f) => fs.existsSync(f));
