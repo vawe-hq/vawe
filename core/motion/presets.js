@@ -4,6 +4,7 @@
 import { curveToLinear, rng } from './springs.js';
 import { handleCurve } from './motion.js';
 import { readSignature } from './signature.js';
+import { gsapEase, GSAP_EASE_NAMES } from './gsap-eases.js';
 import LIMITS from './taste-limits.js';
 
 export { UI } from './ui.js';
@@ -50,21 +51,34 @@ export const EASE_HANDLES = {
 const LINEAR_TOLERANCE = 0.002;
 const linearOf = (out, into) => curveToLinear(handleCurve(out, into), { tolerance: LINEAR_TOLERANCE });
 
+const gsapLinear = (name) => curveToLinear(gsapEase(name), { tolerance: LINEAR_TOLERANCE });
+
 /** The named eases as CSS linear() strings for `easing:`. */
 export const EASE = Object.fromEntries(Object.entries(EASE_HANDLES).map(([name, [out, into]]) => [name, linearOf(out, into)]));
 
 /** Each named ease by its CSS custom property name (landSoft as land-soft): the renderer and the studio set them as --ease-<name> on :root. */
 export const EASE_VARS = Object.fromEntries(Object.entries(EASE).map(([name, curve]) => [name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`), curve]));
 
+/** GSAP's eases as CSS custom properties, --ease-power2-out for power2.out and --ease-linear for linear; samples of the exact GSAP formulas. */
+export const GSAP_EASE_VARS = Object.fromEntries(GSAP_EASE_NAMES.filter((n) => n !== 'none').map((n) => [n.replace(/\./, '-').replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`), gsapLinear(n)]));
+
+/** Every ease custom property a page can use: the vawe names, then GSAP's. The renderer and the studio set these on :root. */
+export const PAGE_EASE_VARS = { ...EASE_VARS, ...GSAP_EASE_VARS };
+
 /** The same named ease as a function of u in 0..1, for `vawe.onFrame` and `window.seek`, where a `linear()` string cannot run. */
 export function easeFn(name) {
-  if (!EASE_HANDLES[name]) throw new Error(`presets: unknown ease "${name}"; valid: ${Object.keys(EASE).join(' ')}`);
-  return handleCurve(...EASE_HANDLES[name]);
+  if (EASE_HANDLES[name]) return handleCurve(...EASE_HANDLES[name]);
+  return gsapEase(name) ?? unknownEase(name);
 }
 
 function easeOf(name) {
-  if (!EASE[name]) throw new Error(`presets: unknown ease "${name}"; valid: ${Object.keys(EASE).join(' ')}`);
-  return EASE[name];
+  if (EASE[name]) return EASE[name];
+  if (!gsapEase(name)) unknownEase(name);
+  return gsapLinear(name);
+}
+
+function unknownEase(name) {
+  throw new Error(`presets: unknown ease "${name}"; valid: ${Object.keys(EASE_HANDLES).join(' ')} or a GSAP name (${GSAP_EASE_NAMES.join(' ')})`);
 }
 
 /** The mid duration of a band, in seconds. Throws on an unknown name. */
