@@ -20,7 +20,7 @@ export const EXIT_CAUSE = Object.freeze({
   [EXIT.REFUSED]: 'refused by a gate',
 });
 
-export const EXIT_HELP = 'exit codes: 0 ok, 1 other error, 2 bad flag or argument, 3 the page breaks the contract, 4 browser or render slot, 5 file or IO, 6 refused by a gate (approval or critique missing)\nenv: VAWE_UNATTENDED=1 lets a person or a CI job run ship without the interactive approval and critique (README.md, Scripts and CI)';
+export const EXIT_HELP = 'exit codes: 0 ok, 1 other error, 2 bad flag or argument, 3 the page breaks the contract, 4 browser or render slot, 5 file or IO, 6 refused by a gate (approval or critique missing)\nenv: VAWE_UNATTENDED=1 for CI (README.md, Scripts and CI)';
 
 export const BROWSER_LOST = /detached Frame|Target closed|shared browser|lost its page|Protocol error \([^)]*\): (Target|Session|Connection) closed|protocolTimeout/i;
 
