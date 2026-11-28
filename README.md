@@ -194,6 +194,8 @@ A final render normally waits for a fresh review and your OK. A script or a CI j
 VAWE_UNATTENDED=1 npx vawe ship films/my-film/page.html --out dist/my-film.mp4 --wait
 ```
 
+`--data rows/42.json` hands the page a JSON file as `window.VAWE_DATA`, so one page makes many videos. `--json` prints one result line on stdout (`ok`, `out`, `exitCode`, `reason`, `warnings`) and sends the rest to stderr.
+
 `--out` names the file. `--wait` holds the command until the render ends, so the exit code is the result. Without it, `ship` starts the render and returns. The codes: 0 ok, 1 other error, 2 bad flag or argument, 3 the page breaks the contract, 4 browser or render slot, 5 file or IO, 6 refused by a gate. Code 6 means the variable is not set.
 
 ## Install
