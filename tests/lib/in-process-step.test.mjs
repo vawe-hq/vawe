@@ -33,7 +33,7 @@ test('every in-process step script exports run', async () => {
 test('an in-process step prints and exits the same as the script run alone', () => {
   const root = copyRoot();
   try {
-    const env = { ...process.env, VAWE_UNATTENDED: '', VAWE_WORK: '', VAWE_AGENT: 'inproc-test' };
+    const env = { ...process.env, VAWE_UNATTENDED: '', VAWE_WORK: '', VAWE_AGENT: 'inproc-test', VAWE_MODEL: 'inproc-test' };
     const alone = spawnSync(process.execPath, ['harness/live/ship-approval.mjs', PAGE], { cwd: root, encoding: 'utf8', env });
     const viaVawe = spawnSync(process.execPath, ['bin/vawe', 'ship', PAGE], { cwd: root, encoding: 'utf8', env });
     assert.equal(alone.status, 6);
