@@ -186,6 +186,16 @@ finds the seven ways a seeked CSS animation breaks without an error. More: [vawe
 - Ask your agent for a film in plain words. It runs `bin/vawe new <name> --request "<the ask>"` and
   follows the `next:` lines.
 
+## Scripts and CI
+
+A final render normally waits for a fresh review and your OK. A script or a CI job has no one to give it, so set `VAWE_UNATTENDED=1` and `ship` skips both checks. Set it yourself in the job. Agents are blocked from setting it.
+
+```bash
+VAWE_UNATTENDED=1 npx vawe ship films/my-film/page.html --out dist/my-film.mp4 --wait
+```
+
+`--out` names the file. `--wait` holds the command until the render ends, so the exit code is the result. Without it, `ship` starts the render and returns. The codes: 0 ok, 1 other error, 2 bad flag or argument, 3 the page breaks the contract, 4 browser or render slot, 5 file or IO, 6 refused by a gate. Code 6 means the variable is not set.
+
 ## Install
 
 From source: Node 22+, git, ffmpeg (with libx264 and drawtext), and tesseract (optional, for OCR).

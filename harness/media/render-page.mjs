@@ -51,7 +51,7 @@ import { BLANK_RETRY_WAIT_MS, isBlankShot, shouldRetake } from '../lib/blank-sho
 import { installPageClock } from '../../core/engine/page-clock.js';
 import { seekTo, awaitFonts, awaitReady, installPageReady, installPageFrame } from '../../core/engine/page-seek.js';
 import { installPageLayer } from '../../core/engine/page-layer.js';
-import { EASE_VARS } from '../../core/motion/presets.js';
+import { PAGE_EASE_VARS } from '../../core/motion/presets.js';
 import { ASPECTS, aspectDims } from '../../core/layout/aspects.js';
 import { appendRun, filmKeyOf, readRuns } from '../lib/runlog.mjs';
 import { finalFailedLine, lastFailedShip, failedShipLine } from '../lib/ship-status.mjs';
@@ -215,7 +215,7 @@ export async function openPage(pagePath, frame, { warm = false, final = true, la
   const duration = measure ? undefined : frame.duration ?? await autoDuration(pagePath, frame);
   const { layer, ...facts } = frame;
   const layerScript = layer ? `(${installPageLayer})(${JSON.stringify(layer)});` : '';
-  await opened.page.evaluateOnNewDocument(`${dataScript()}(${installPageClock})();(${installPageFrame})(${JSON.stringify({ ...facts, eases: EASE_VARS, duration })});${layerScript}(${installPageReady})();window.__pageFonts = ${awaitFonts};window.__pageReady = ${awaitReady};window.__pageSeek = ${seekTo};window.__stillKey = ${stillKey};`);
+  await opened.page.evaluateOnNewDocument(`${dataScript()}(${installPageClock})();(${installPageFrame})(${JSON.stringify({ ...facts, eases: PAGE_EASE_VARS, duration })});${layerScript}(${installPageReady})();window.__pageFonts = ${awaitFonts};window.__pageReady = ${awaitReady};window.__pageSeek = ${seekTo};window.__stillKey = ${stillKey};`);
   return opened;
 }
 
