@@ -85,6 +85,24 @@ export function resultOf({ verb, code, reason = null, text = '', work, nextStep 
   };
 }
 
+const FRAMES_LINE = /^✓ (\S+\.(?:mp4|mov|webm)): (\d+) frame/m;
+const WARNING = /^(?:advice|warning): (.+)$/gm;
+const MAX_WARNINGS = 20;
+
+/** The one line `--json` prints: what a script needs from a dev, ship or wait call. `page` and `out` are as given or printed; `out`, `frames` and `next` are left out when the call printed none. `running` is true for a wait that ended on STILL RUNNING. */
+export function jsonResultOf({ verb, code, reason = null, text = '', work, page = null, out = null, seconds, next: nextLine = null }) {
+  const printed = FRAMES_LINE.exec(text);
+  const file = out ?? printed?.[1] ?? null;
+  const warnings = [...new Set([...text.matchAll(WARNING)].map((m) => m[1].trim()))].slice(0, MAX_WARNINGS);
+  const next = nextLine ?? /^next: (.*)$/m.exec(text)?.[1] ?? null;
+  return {
+    ok: code === 0, verb, ...(page ? { page } : {}), ...(file ? { out: path.isAbsolute(file) ? file : path.join(work, file) } : {}),
+    exitCode: code, reason: code === 0 ? null : reason, durationSec: tenths(seconds),
+    ...(printed ? { frames: Number(printed[2]) } : {}), warnings, ...(next ? { next } : {}),
+    ...(verb === 'wait' && /STILL RUNNING/.test(text) ? { running: true } : {}),
+  };
+}
+
 const tenths = (s) => Math.round(s * 10) / 10;
 
 /** The reason a verb refused to run, from its `vawe: <verb> refused: <reason>` stderr line; null when it did not refuse. */

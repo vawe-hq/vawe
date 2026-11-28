@@ -97,6 +97,6 @@ async function main(argv) {
 
 try { await main(process.argv.slice(2)); } catch (e) {
   if (!(e instanceof UsageError)) throw e;
-  console.error(`vawe-dev: ${e.message}`);
+  console.error(e.fix ? `error: ${e.message}\nfix: ${e.fix}` : `vawe-dev: ${e.message}`);
   process.exitCode = 2;
 }

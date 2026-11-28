@@ -15,7 +15,7 @@ import { templateFilm } from '../harness/cli/template.mjs';
 import { markRunning } from '../harness/lib/render-wait.mjs';
 import { appendRun, readAllRuns, readRuns, filmKeyOf } from '../harness/lib/runlog.mjs';
 import { pageDigest } from '../harness/lib/approval.mjs';
-import { verbEvent, footerLine, untaggedLine, filmOfCall, imagesIn, reasonOf, readNotes, causeOf, refusalOf, resultOf, UNFILED } from '../harness/lib/verb-log.mjs';
+import { verbEvent, footerLine, jsonResultOf, untaggedLine, filmOfCall, imagesIn, reasonOf, readNotes, causeOf, refusalOf, resultOf, UNFILED } from '../harness/lib/verb-log.mjs';
 import { defaultRefFor } from '../harness/lib/refs.mjs';
 import { nextStep, recentPage } from '../harness/live/stage-say.mjs';
 import { verbStage } from '../harness/lib/trace/stages.mjs';
@@ -23,7 +23,7 @@ import { recentFailedShipLines } from '../harness/lib/ship-status.mjs';
 import { newEvent } from '../harness/lib/run-events.mjs';
 import { doctorHintFromFile } from '../harness/lib/doctor-hint.mjs';
 import { ensureHooks, gitAt } from '../harness/lib/git-hooks.mjs';
-import { applyRenderEnv } from '../harness/cli/helpers.mjs';
+import { applyRenderEnv, JSON_RESULT_VERBS } from '../harness/cli/helpers.mjs';
 import { toolProbeLine } from '../harness/lib/tool-probe.mjs';
 import { nextSeen, aliasSeen, NEXT_UNCHANGED } from '../harness/lib/next-once.mjs';
 import { shellNext } from '../harness/lib/next-step.mjs';
@@ -281,6 +281,9 @@ async function main(args) {
   }
   const untagged = untaggedLine(verb.name);
   if (untagged) console.error(untagged);
+  const asJson = JSON_RESULT_VERBS.has(verb.name) && rest.includes('--json');
+  const stdoutWrite = process.stdout.write;
+  if (asJson) process.stdout.write = (...a) => process.stderr.write(...a);
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vawe-verb-'));
   const call = { ...bareCall(), notes: path.join(dir, 'notes.jsonl') };
   let code = 0;
@@ -299,7 +302,7 @@ async function main(args) {
     call.usage = e instanceof UsageError;
     code = known ? e.exitCode : EXIT.ERROR;
     reason = known ? e.message : `exit 1: ${e.message}`;
-    console.error(known ? `vawe: ${e.message}` : e.stack);
+    console.error(known ? (e.fix ? `error: ${e.message}\nfix: ${e.fix}` : `vawe: ${e.message}`) : e.stack);
     const hint = known ? null : doctorHintFromFile(ROOT, String(e.stack));
     if (hint) console.error(hint);
   }
@@ -307,7 +310,14 @@ async function main(args) {
   record(verb, rest, call, code, reason, endMs, alias);
   writeResult(verb.name, call, code, reason);
   fs.rmSync(dir, { recursive: true, force: true });
-  if (!quietFooter(rest)) console.log(footerLine({ verb: verb.name, code, reason, seconds: (endMs - call.startMs) / 1000 }));
+  if (!quietFooter(rest) || asJson) console.log(footerLine({ verb: verb.name, code, reason, seconds: (endMs - call.startMs) / 1000 }));
+  if (asJson) {
+    process.stdout.write = stdoutWrite;
+    const outAt = rest.indexOf('--out');
+    const out = rest.find((a) => a.startsWith('--out='))?.slice(6) ?? (outAt >= 0 ? rest[outAt + 1] : null);
+    const next = call.nextStep ? shellNext(call.nextStep) : null;
+    console.log(JSON.stringify(jsonResultOf({ verb: verb.name, code, reason, text: call.all, work: WORK, page: call.positional[0], out, seconds: (endMs - call.startMs) / 1000, next })));
+  }
   process.exitCode = code;
 }
 

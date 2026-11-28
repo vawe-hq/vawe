@@ -17,6 +17,7 @@ import { installPageClock } from '../core/engine/page-clock.js';
 import { installPageFrame, installPageReady, awaitReady } from '../core/engine/page-seek.js';
 import { ASPECTS, aspectDims } from '../core/layout/aspects.js';
 import { EASE_VARS } from '../core/motion/presets.js';
+import { dataScript } from '../harness/lib/page-params.mjs';
 import { parsePage } from './page-source.mjs';
 import { createEditor } from './save-edits.mjs';
 import { chatRoutes } from './chat.mjs';
@@ -51,7 +52,7 @@ const pageModel = async () => {
 async function framedPage(aspect) {
   const length = await resolveLength(pageFile, { aspect });
   const [width, height] = aspectDims(aspect);
-  const boot = `<script>(${installPageClock})();(${installPageFrame})(${JSON.stringify({ aspect, width, height, eases: EASE_VARS, duration: length.auto ? length.seconds : undefined }).replace(/</g, '\\u003c')});(${installPageReady})();window.__pageReady = ${awaitReady};</script>`;
+  const boot = `<script>${dataScript()}(${installPageClock})();(${installPageFrame})(${JSON.stringify({ aspect, width, height, eases: EASE_VARS, duration: length.auto ? length.seconds : undefined }).replace(/</g, '\\u003c')});(${installPageReady})();window.__pageReady = ${awaitReady};</script>`;
   const html = fs.readFileSync(pageFile, 'utf8');
   const at = html.match(/<head[^>]*>/i) || html.match(/<html[^>]*>/i) || html.match(/<!doctype[^>]*>/i);
   if (!at) return boot + html;

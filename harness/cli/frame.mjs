@@ -91,7 +91,7 @@ const NAME = { still: '--at <one second>', sheet: '--at s,s,s', world: '--world'
 const ONLY = {
   labels: ['sheet'], cols: ['sheet'], from: ['sheet'], sheet: ['sheet'],
   size: ['still'],
-  aspect: ['still', 'sheet'], param: ['still', 'sheet'],
+  aspect: ['still', 'sheet'], param: ['still', 'sheet'], data: ['still', 'sheet'],
   span: ['moment', 'cuts'], fps: ['moment', 'cuts'], limit: ['cuts'],
   onion: ['moment'], velocity: ['moment'],
   full: ['world'], sharp: ['world'],
@@ -188,7 +188,7 @@ const SUMMARY = 'use when you want a picture of a film: --at s one frame, --at s
 const HELP = `usage: vawe frame <page|mp4|ref-id|folder> [one mode] [flags]
 
 one frame or a sheet (no mode flag):
-  --at 4.2                  one full-size frame. --size WxH, --aspect, --param k=v
+  --at 4.2                  one full-size frame. --size WxH, --aspect, --param k=v, --data file.json
   --at 0.5,1.2,3            a labelled sheet; --at cuts, or no --at, picks the cuts. --labels --cols --from
   --at 3 --sheet            a sheet of one tile
   --vs ref.mp4 --at 2.5,3   the reference left, yours right, same seconds
@@ -215,7 +215,7 @@ const FLAGS = [
   { name: 'world', type: 'string', repeat: true }, { name: 'cuts', type: 'bool' }, { name: 'moment', type: 'string' },
   { name: 'onion', type: 'bool' }, { name: 'velocity', type: 'bool' }, { name: 'box', type: 'string' }, { name: 'auto', type: 'bool' },
   { name: 'looks', type: 'bool' }, { name: 'board', type: 'bool' }, { name: 'directions', type: 'bool' },
-  { name: 'out', type: 'path' }, { name: 'aspect', type: 'string' }, { name: 'param', type: 'string', repeat: true }, { name: 'size', type: 'string' },
+  { name: 'out', type: 'path' }, { name: 'aspect', type: 'string' }, { name: 'param', type: 'string', repeat: true }, { name: 'data', type: 'path' }, { name: 'size', type: 'string' },
   { name: 'labels', type: 'bool' }, { name: 'cols', type: 'number' }, { name: 'from', type: 'number' },
   { name: 'span', type: 'number' }, { name: 'fps', type: 'number' }, { name: 'limit', type: 'number' }, { name: 'n', type: 'number' }, { name: 'sel', type: 'string' }, { name: 'ids', type: 'string' },
   { name: 'full', type: 'bool' }, { name: 'sharp', type: 'bool' }, { name: 'scale', type: 'number' }, { name: 'only', type: 'string' },

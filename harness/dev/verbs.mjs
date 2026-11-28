@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UsageError } from '../cli/parse.mjs';
-import { opt, needsPage, PAGE, ASPECT_FLAG, PARAM } from '../cli/helpers.mjs';
+import { opt, needsPage, PAGE, ASPECT_FLAG, PARAM, DATA } from '../cli/helpers.mjs';
 import { renderEnv, paramsFlags } from '../lib/page-params.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -173,6 +173,7 @@ export const DEV_VERBS = [
     flags: [
       ASPECT_FLAG,
       PARAM,
+      DATA,
       { name: 'fps', type: 'number', default: 30, help: 'frames a second of the clips and the timeline, a whole number from 1 to 99' },
       { name: 'light', type: 'bool', help: 'the small zip a person downloads: a layer that moves is a PNG sequence (lossless, with alpha) when that is much smaller, and ProRes 4444 only where it is photographic or over 20 s; motion blur is off unless --blur says otherwise' },
       { name: 'blur', type: 'number', default: '32, or 1 with --light', help: 'the most motion-blur subframes a frame, as vawe ship uses; 1 for none' },
@@ -191,6 +192,7 @@ export const DEV_VERBS = [
     flags: [
       ASPECT_FLAG,
       PARAM,
+      DATA,
       { name: 'reject', type: 'bool', help: 'record that the owner rejects the draft, and withdraw any approval' },
       { name: 'note', type: 'string', default: 'none', help: 'the owner\'s reason, kept in the run log' },
     ],

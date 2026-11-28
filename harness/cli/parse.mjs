@@ -4,7 +4,10 @@
 import { EXIT, EXIT_HELP, ExitError } from '../lib/exit-codes.mjs';
 
 export class UsageError extends ExitError {
-  constructor(message) { super(EXIT.USAGE, message); }
+  constructor(message, fix = null) {
+    super(EXIT.USAGE, message);
+    this.fix = fix;
+  }
 }
 
 export function closest(word, options) {

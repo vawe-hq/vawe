@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { UsageError } from './parse.mjs';
-import { opt, pageName, PAGE, ASPECT, ASPECT_FLAG, PARAM } from './helpers.mjs';
+import { opt, pageName, PAGE, ASPECT, ASPECT_FLAG, PARAM, DATA, JSON_FLAG } from './helpers.mjs';
 import { FRAME } from './frame.mjs';
 import { causeOf } from '../lib/verb-log.mjs';
 
@@ -214,6 +214,7 @@ export const VERBS = [
       { name: 'whole', type: 'bool', help: 'accepted and ignored: dev always renders the whole film, whatever the plan holds' },
       { name: 'small', type: 'bool', help: 'encode the draft about 5x smaller for a file to post, such as an og:video share loop (x264 preset fast, CRF 24; about 0.2 s more encode for 5 s)' },
       PARAM,
+      DATA,
       { name: 'out', type: 'path', default: 'out/<name>-draft.mp4, or out/<name>-draft-<from>-<to>.mp4 for a range (out/<name>-animatic.mp4 with --animatic)', help: 'output file' },
       { name: 'animatic', type: 'bool', help: 'instead of a draft: the key frame of each world held for its planned span, hard cuts, silent, in a few seconds, to check the timing before you animate' },
       { name: 'fps', type: 'number', default: 10, help: 'with --animatic: frame rate of the animatic' },
@@ -223,6 +224,7 @@ export const VERBS = [
       { name: 'full', type: 'bool', help: 'also run the ship-tier checks: per-frame box motion lint, object tracks, loudness and peak' },
       { name: 'taste', type: 'bool', help: 'also print the taste lines (they are always in out/<name>.dev.md)' },
       { name: 'no-judge', type: 'bool', help: 'skip the stills judge that dev runs on the three directions, once per change of directions.html or their brief lines (about 25 s)' },
+      JSON_FLAG,
     ],
     example: 'vawe dev films/my-launch/page.html --from 2 --to 6   |   vawe dev films/my-launch/page.html --animatic   |   vawe dev films/my-launch/page.html --studio',
     build: (v, [page]) => {
@@ -246,11 +248,13 @@ export const VERBS = [
     flags: [
       { name: 'aspect', type: 'string', default: 'the page meta, else 16:9', help: `${ASPECT}, or all for one file each` },
       PARAM,
+      DATA,
       { name: 'out', type: 'path', default: 'out/<name>.mp4', help: 'output file (not with --aspect all)' },
       { name: 'master', type: 'string', help: 'prores: also write <name>.prores.mov, ProRes 422 HQ tagged bt709, next to the mp4 (a layer render is already ProRes 4444)' },
       { name: 'wait', type: 'bool', help: 'block until the render ends instead of running it in the background' },
       { name: 'status', type: 'bool', retired: 'wait for the render with bin/vawe wait <page> (it returns within 100 seconds; on STILL RUNNING run it again)' },
       { name: 'profile', type: 'bool', help: 'print a cost table: frames, subframes, screenshots, capture and encode seconds, the 5 costliest seconds' },
+      JSON_FLAG,
     ],
     example: 'vawe ship films/my-launch/page.html --aspect all   (then: vawe wait films/my-launch/page.html)',
     build: (v, [page]) => {
@@ -270,8 +274,8 @@ export const VERBS = [
     tier: 'core',
     name: 'wait', summary: 'use when a draft, clip or final render or a critique is running, instead of sleep, ps or an until loop: prints its result line',
     positional: [{ name: 'page|film', required: true, help: 'films/<name>/page.html, or the film name; a call returns after 100 seconds with a STILL RUNNING line and a progress line every 20 seconds: call it again' }],
-    flags: [],
-    example: 'vawe wait films/my-launch/page.html   |   vawe wait my-launch',
+    flags: [JSON_FLAG],
+    example: 'vawe wait films/my-launch/page.html   |   vawe wait my-launch   |   vawe wait my-launch --json',
     build: (v, [film]) => [{ script: 'harness/media/ship-job.mjs', args: ['wait', film] }],
     next: asText(() => WAIT_STEP),
   },

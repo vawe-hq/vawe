@@ -2,7 +2,7 @@
 // The person's OK, from /vawe-approve. Records the step that is waiting: the plan (Directions and Board in brief.md) until it is approved, then the full draft.
 // A final render (`vawe ship`) needs both, each unchanged since. An agent never runs this: harness/live/no-blanket-git.mjs refuses the call.
 // `--reject [--note "..."]` records the rejection and withdraws both approvals. Both append to the film's run log.
-//   node harness/live/approve.mjs [<page.html> | <film name>] [--param k=v] [--aspect W:H] [--reject] [--note text]    (no page: the film edited last)
+//   node harness/live/approve.mjs [<page.html> | <film name>] [--param k=v] [--data file.json] [--aspect W:H] [--reject] [--note text]    (no page: the film edited last)
 // A refusal prints its reason on stdout and exits 0, so the /vawe-approve skill text carries it to the model.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -18,11 +18,11 @@ const note = noteAt >= 0 ? args[noteAt + 1] ?? null : null;
 const reject = args.includes('--reject');
 const valuesOf = (flag) => args.flatMap((a, i) => (a === flag ? [args[i + 1]] : []));
 const aspect = valuesOf('--aspect')[0];
-const valueAt = new Set(args.flatMap((a, i) => (['--note', '--param', '--aspect'].includes(a) ? [i + 1] : [])));
+const valueAt = new Set(args.flatMap((a, i) => (['--note', '--param', '--data', '--aspect'].includes(a) ? [i + 1] : [])));
 const [given] = args.filter((a, i) => !a.startsWith('--') && !valueAt.has(i));
 const refuse = (reason) => console.log(`vawe: approve refused: ${reason}`);
 try {
-  Object.assign(process.env, renderEnv({ param: valuesOf('--param'), aspect }));
+  Object.assign(process.env, renderEnv({ param: valuesOf('--param'), data: valuesOf('--data')[0], aspect }));
 } catch (e) {
   refuse(e.message);
   process.exit(0);

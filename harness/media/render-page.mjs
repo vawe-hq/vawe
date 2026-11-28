@@ -58,7 +58,7 @@ import { finalFailedLine, lastFailedShip, failedShipLine } from '../lib/ship-sta
 import { devEvent, devFailedEvent, shipEvent } from '../lib/run-events.mjs';
 import { REPO_ROOT, serveRepo, trackBrowser, pageArgs, insideRoot, PROTOCOL_TIMEOUT_MS, loadPuppeteer } from '../lib/render-harness.mjs';
 import { openPreview, treeSignature } from './preview-server.mjs';
-import { pageQuery, paramsFilm, paramsFlags, aspectOverride, aspectProblem, aspectSlug } from '../lib/page-params.mjs';
+import { dataScript, pageQuery, paramsFilm, paramsFlags, aspectOverride, aspectProblem, aspectSlug } from '../lib/page-params.mjs';
 import { writeDraftSheet, draftSheetPath } from './draft-sheet.mjs';
 import { sampleWorlds } from './world-sample.mjs';
 import { sampleTail } from './tail-sample.mjs';
@@ -215,7 +215,7 @@ export async function openPage(pagePath, frame, { warm = false, final = true, la
   const duration = measure ? undefined : frame.duration ?? await autoDuration(pagePath, frame);
   const { layer, ...facts } = frame;
   const layerScript = layer ? `(${installPageLayer})(${JSON.stringify(layer)});` : '';
-  await opened.page.evaluateOnNewDocument(`(${installPageClock})();(${installPageFrame})(${JSON.stringify({ ...facts, eases: EASE_VARS, duration })});${layerScript}(${installPageReady})();window.__pageFonts = ${awaitFonts};window.__pageReady = ${awaitReady};window.__pageSeek = ${seekTo};window.__stillKey = ${stillKey};`);
+  await opened.page.evaluateOnNewDocument(`${dataScript()}(${installPageClock})();(${installPageFrame})(${JSON.stringify({ ...facts, eases: EASE_VARS, duration })});${layerScript}(${installPageReady})();window.__pageFonts = ${awaitFonts};window.__pageReady = ${awaitReady};window.__pageSeek = ${seekTo};window.__stillKey = ${stillKey};`);
   return opened;
 }
 

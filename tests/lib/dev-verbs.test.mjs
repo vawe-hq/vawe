@@ -100,7 +100,7 @@ test('no maker-facing text sends the maker to judge: the ship gate, ship and cri
 
 test('approve lives in vawe-dev and keeps the page, the flags and the script the /vawe-approve skill calls', () => {
   const approve = DEV_VERBS.find((v) => v.name === 'approve');
-  assert.deepEqual(approve.flags.map((f) => f.name), ['aspect', 'param', 'reject', 'note']);
+  assert.deepEqual(approve.flags.map((f) => f.name), ['aspect', 'param', 'data', 'reject', 'note']);
   const [step] = approve.build({ reject: true, note: 'no' }, ['films/x/page.html']);
   assert.deepEqual([step.script, step.args], ['harness/live/approve.mjs', ['films/x/page.html', '--reject', '--note', 'no']]);
   assert.match(approve.next({}, ['films/x/page.html']), /^bin\/vawe ship films\/x\/page\.html/);
